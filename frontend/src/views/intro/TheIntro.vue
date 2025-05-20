@@ -1,6 +1,6 @@
 <template>
     <div>
-        Test server frontend CI/CD
+        Test frontend CI/CD
     </div>
 </template>
 
