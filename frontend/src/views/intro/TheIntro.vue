@@ -1,6 +1,6 @@
 <template>
     <div>
-       retest ssh deploy
+       retest ssh deploy server
     </div>
 </template>
 

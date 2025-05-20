@@ -41,7 +41,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
         source: "frontend/dist/*"
-        target: "/var/www/OboeProject/frontend/"
+        target: "/var/www/OboeProject/frontend/dist/"
 
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
