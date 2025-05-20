@@ -10,14 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Lấy toàn bộ mã nguồn từ repo
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # 2. Cài đúng Node.js version
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 18
 
+    # 3. Cache thư mục npm và node_modules để tăng tốc
     - name: Cache node_modules
       uses: actions/cache@v3
       with:
@@ -28,6 +31,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
+    # 4. Đưa biến môi trường Firebase vào file .env
     - name: Inject Firebase ENV (.env)
       run: |
         echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
@@ -38,12 +42,14 @@ jobs:
         echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
         echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
 
+    # 5. Cài gói và build frontend (Vue) – dùng cache
     - name: Build frontend
       working-directory: frontend
       run: |
-        npm ci
+        npm install --prefer-offline --frozen-lockfile
         npm run build
 
+    # 6. Upload thư mục dist đã build lên server (strip để tránh lồng folder)
     - name: Upload frontend dist to server (flatten structure)
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -54,6 +60,7 @@ jobs:
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
 
+    # 7. Khởi động lại frontend với PM2 nếu đã tồn tại, nếu chưa thì start
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -68,6 +75,7 @@ jobs:
           fi
           echo "Frontend restarted!"
 
+    # 8. Pull backend code và deploy lại backend
     - name: Deploy backend via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
