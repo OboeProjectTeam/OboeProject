@@ -34,14 +34,15 @@ jobs:
         npm ci
         npm run build
 
-    - name: Upload frontend to server
+    - name: Upload frontend dist to server (flatten structure)
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "frontend/dist/*"
+        source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
+        strip_components: 2
 
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
@@ -50,7 +51,11 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          pm2 restart oboe-frontend || pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
+          if pm2 list | grep -q oboe-frontend; then
+            pm2 restart oboe-frontend
+          else
+            pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
+          fi
           echo "Frontend restarted!"
 
     - name: Deploy backend via SSH
@@ -61,6 +66,6 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /var/www/OboeProject
-          git pull origin main
+          git reset --hard origin/main
           sh deploy-backend.sh
           echo "Backend deployed!"
