@@ -1,0 +1,71 @@
+.form__login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 400px;
+  height: 400px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  margin-left: 50%;
+  transform: scale(1.2);
+}
+
+// Previous SCSS code remains above
+
+.footer {
+  color: #333;
+  margin-top: 20px;
+  box-shadow: 0 0 20px $header-footer-shadow;
+  border-radius: $header-footer-border-radius $header-footer-border-radius 0 0;
+
+  &-logo {
+    width: 200px;
+    margin-bottom: 20px;
+  }
+
+  &-bot {
+    padding: 30px 80px;
+  }
+
+  &-infor {
+    flex-basis: 24%;
+
+    .footer-infortext {
+      font-size: 120%;
+    }
+
+    .footer-inforicon {
+      width: 25px;
+    }
+  }
+
+  .fas,
+  .far {
+    font-size: 20px;
+  }
+
+  .fab {
+    font-size: 40px;
+  }
+}
+
+.listservies-hr {
+  border-bottom: 1px solid black;
+  width: 30%;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.listservies-box {
+  flex-basis: 24%;
+}
+
+.listservies-detail {
+  margin-bottom: 15px;
+  font-size: 110%;
+}
+
+.listservies-title {
+  font-size: 120%;
+}
