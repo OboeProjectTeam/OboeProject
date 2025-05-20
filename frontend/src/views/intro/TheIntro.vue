@@ -1,6 +1,6 @@
 <template>
     <div>
-        Test frontend CI/CD
+       retest ssh deploy
     </div>
 </template>
 
