@@ -1,6 +1,6 @@
 <template>
     <div>
-       Intro
+       Optimize workflows
     </div>
 </template>
 
