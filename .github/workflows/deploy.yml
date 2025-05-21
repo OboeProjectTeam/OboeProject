@@ -10,98 +10,99 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # 1. Lấy toàn bộ mã nguồn từ repo
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # 2. Setup Node.js (for frontend)
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+    # 2. Cài đúng Node.js version
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
 
-      # 3. Cache node_modules
-      - name: Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+    # 3. Cache thư mục npm và node_modules để tăng tốc
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
 
-      # 4. Inject Firebase ENV (.env)
-      - name: Inject Firebase ENV (.env)
-        run: |
-          echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
-          echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
-          echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
-          echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
-          echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
-          echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
+    # 4. Đưa biến môi trường Firebase vào file .env
+    - name: Inject Firebase ENV (.env)
+      run: |
+        echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
+        echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
+        echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
+        echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
 
-      # 5. Build frontend
-      - name: Build frontend
-        working-directory: ./frontend
-        run: |
-          npm install
-          npm run build
+    # 5. Cài gói và build frontend (Vue)
+    - name: Build frontend
+      working-directory: frontend
+      run: |
+        npm install --prefer-offline --frozen-lockfile
+        npm run build
 
-      # 6. Upload frontend dist to server (optional)
-      - name: Upload frontend dist to server (flatten structure)
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "frontend/dist/*"
-          target: "/path/to/frontend/"
+    # 6. Upload thư mục dist đã build lên server (strip để tránh lồng folder)
+    - name: Upload frontend dist to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "frontend/dist/**"
+        target: "/var/www/OboeProject/frontend/dist/"
+        strip_components: 2
 
-      # 7. Restart frontend on server
-      - name: Restart frontend via SSH (PM2)
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            pm2 restart frontend-app
+    # 7. Khởi động lại frontend bằng PM2
+    - name: Restart frontend via SSH (PM2)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          if pm2 list | grep -q oboe-frontend; then
+            pm2 restart oboe-frontend
+          else
+            pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
+          fi
+          echo "Frontend restarted!"
 
-      # 8. Make mvnw executable
-      - name: Make mvnw executable
-        run: chmod +x ./mvnw
+    # 8. Fix quyền file mvnw trước khi build
+    - name: Grant execute permission to mvnw
+      run: chmod +x backend/Oboe/mvnw
 
-      # 9. Build backend (Maven)
-      - name: Build backend (Maven)
-        run: ./mvnw clean package -DskipTests
+    # 9. Build backend bằng Maven Wrapper
+    - name: Build backend (Maven)
+      working-directory: backend/Oboe
+      run: ./mvnw clean package -DskipTests
 
-      # 10. Upload backend jar to server
-      - name: Upload backend jar to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "target/*.jar"
-          target: "/path/to/backend/"
+    # 10. Upload file jar lên server
+    - name: Upload backend jar to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "backend/Oboe/target/*.jar"
+        target: "/var/www/OboeProject/backend/"
 
-      # 11. Restart backend on server
-      - name: Restart backend via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            pm2 restart backend-app
-
-      # 12. Post Cleanup (optional)
-      - name: Post Cache node_modules
-        if: success()
-        uses: actions/cache@v3
-        with:
-          path: |
-            frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Post Setup Node.js
-        if: success()
-        run: node --version
+    # 11. Restart backend bằng SSH (java -jar)
+    - name: Restart backend via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /var/www/OboeProject/backend
+          pkill -f 'java -jar' || true
+          nohup java -jar ./*.jar > backend.log 2>&1 &
+          echo "Backend restarted!"
