@@ -20,7 +20,7 @@ jobs:
       with:
         node-version: 18
 
-    # 3. Cache thư mục npm và node_modules để tăng tốc
+    # 3. Cache npm và node_modules
     - name: Cache node_modules
       uses: actions/cache@v3
       with:
@@ -31,7 +31,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    # 4. Đưa biến môi trường Firebase vào file .env
+    # 4. Inject biến môi trường Firebase
     - name: Inject Firebase ENV (.env)
       run: |
         echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
@@ -42,14 +42,14 @@ jobs:
         echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
         echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
 
-    # 5. Cài gói và build frontend (Vue)
+    # 5. Build frontend
     - name: Build frontend
       working-directory: frontend
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
 
-    # 6. Upload thư mục dist đã build lên server (strip để tránh lồng folder)
+    # 6. Upload dist to server
     - name: Upload frontend dist to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -60,7 +60,7 @@ jobs:
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
 
-    # 7. Khởi động lại frontend bằng PM2
+    # 7. Restart frontend PM2
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -75,16 +75,23 @@ jobs:
           fi
           echo "Frontend restarted!"
 
-    # 8. Fix quyền file mvnw trước khi build
+    # 8. Cấp quyền chạy cho mvnw
     - name: Grant execute permission to mvnw
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Build backend bằng Maven Wrapper
+    # 9. Cài Java 21
+    - name: Setup Java 21
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+
+    # 10. Build backend bằng Maven
     - name: Build backend (Maven)
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 10. Upload file jar lên server
+    # 11. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -94,7 +101,7 @@ jobs:
         source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
 
-    # 11. Restart backend bằng SSH (java -jar)
+    # 12. Restart backend
     - name: Restart backend via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
