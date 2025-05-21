@@ -5,11 +5,11 @@ import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AdminService {
@@ -20,14 +20,14 @@ public class AdminService {
     }
 
     @Transactional
-    public User changeUserRole(String username, String roleStr) {
+    public User changeUserRole(String username, String role) {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
 
         Role newRole;
         try {
-            newRole = Role.valueOf(roleStr.toUpperCase());
+            newRole = Role.valueOf(role.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Role không hợp lệ");
         }
@@ -36,12 +36,12 @@ public class AdminService {
 
         return userRepository.save(user);
     }
-    public void deleteUserByUserId(Long userId) {
-        if (!userRepository.existsByUserName(userId)) {
-            throw new IllegalArgumentException("User not found with username: " + userId);
+    public void deleteUserByUserId(UUID userid) {
+        if (!userRepository.existsById(userid)) {
+            throw new IllegalArgumentException("User not found with username: " + userid);
         }
 
-        userRepository.deleteByUserName(userId);
+        userRepository.deleteById(userid);
     }
 
     public List<User> getAllUsers() {
