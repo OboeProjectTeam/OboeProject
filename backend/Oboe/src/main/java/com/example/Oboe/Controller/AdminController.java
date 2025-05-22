@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,11 +43,11 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
-    @DeleteMapping("/users/{id}")
+    @DeleteMapping("/users/{userid}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUserByAdmin(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUserByAdmin(@PathVariable UUID userid) {
         try {
-            adminService.deleteUserByUserId(id);
+            adminService.deleteUserByUserId(userid);
             return ResponseEntity.ok("User deleted successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
