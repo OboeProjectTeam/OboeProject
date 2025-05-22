@@ -1,7 +1,6 @@
 package com.example.Oboe.Entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -19,7 +18,7 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "user_id", updatable = false, nullable = false)
+    @Column(name = "userid", updatable = false, nullable = false)
     private UUID user_id;
 
     @Column(nullable = false, unique = true)
