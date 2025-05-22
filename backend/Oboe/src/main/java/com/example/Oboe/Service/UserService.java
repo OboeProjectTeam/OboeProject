@@ -34,16 +34,30 @@ public class UserService implements UserDetailsService {
         this.mailService = mailService;
     }
 
-    public void registerWithEmail(UserDTOs userDTOs) {
-        String verificationToken = UUID.randomUUID().toString();
+    public boolean registerWithEmail(UserDTOs userDTOs) {
+        String userName = userDTOs.getUserName();
 
-        VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
+        if (userName != null && userName.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
 
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
-        String emailSubject = "Please verify your email";
-        String emailBody = "Click the link to verify your account: " + verificationLink;
+            String verificationToken = UUID.randomUUID().toString();
+            VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-        mailService.sendMail(userDTOs.getUserName(), emailSubject, emailBody);
+            String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
+            String emailSubject = "Please verify your email";
+            String emailBody = "Click the link to verify your account: " + verificationLink;
+
+            mailService.sendMail(userName, emailSubject, emailBody);
+            return true;
+        }
+        else if (userName != null && userName.matches("^(03|05|07|08|09)\\d{8}$")) {
+
+            userDTOs.setVerified(true);
+            addUser(userDTOs);
+            return false;
+        }
+        else {
+            throw new IllegalArgumentException("Username must be a valid email or phone number.");
+        }
     }
 
     public User verifyAccount(String token) {
