@@ -100,7 +100,7 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
-
+        strip_components: 3
     # 12. Restart backend
     - name: Restart backend via SSH
       uses: appleboy/ssh-action@v1.0.0
