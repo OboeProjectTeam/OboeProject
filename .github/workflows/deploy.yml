@@ -110,6 +110,9 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /var/www/OboeProject/backend
-          pkill -f 'java -jar' || true
-          nohup java -jar ./*.jar > backend.log 2>&1 &
+          JAR_FILE=$(ls *.jar | head -n 1)
+          if pm2 list | grep -q oboe-backend; then
+             pm2 delete oboe-backend
+          fi
+          pm2 start java --name oboe-backend -- -jar "$JAR_FILE"
           echo "Backend restarted!"
