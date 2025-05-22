@@ -99,7 +99,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
         source: "backend/Oboe/target/*.jar"
-        target: "/var/www/OboeProject/backend/Oboe/target/"
+        target: "/var/www/OboeProject/backend/"
 
     # 12. Restart backend
     - name: Restart backend via SSH
@@ -109,7 +109,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          cd /var/www/OboeProject/backend/Oboe/target
+          cd /var/www/OboeProject/backend
           JAR_FILE=$(ls *.jar | head -n 1)
           if pm2 list | grep -q oboe-backend; then
              pm2 delete oboe-backend
