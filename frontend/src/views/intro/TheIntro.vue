@@ -1,6 +1,6 @@
 <template>
-    <div>
-       Intro Init
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <h1 class="text-4xl font-bold text-blue-600">✅ Tailwind is working!</h1>
     </div>
 </template>
 
@@ -9,11 +9,11 @@ import { reactive, toRefs } from 'vue'
 
 export default {
     name: 'Intro',
-    setup () {
+    setup() {
         const state = reactive({
             count: 0,
         })
-    
+
         return {
             ...toRefs(state),
         }
@@ -21,6 +21,4 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
