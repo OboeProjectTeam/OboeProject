@@ -5,6 +5,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -18,7 +19,7 @@ import java.util.UUID;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "userid", updatable = false, nullable = false)
+    @Column(name = "user_id", updatable = false, nullable = false)
     private UUID user_id;
 
     @Column(nullable = false, unique = true)
@@ -47,6 +48,10 @@ public class User {
     @Column(nullable = false)
     private boolean verified = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AccountType accountType = AccountType.FREE;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime create_at = LocalDateTime.now();
 
@@ -57,6 +62,7 @@ public class User {
     public void preUpdate() {
         this.update_at = LocalDateTime.now();
     }
+
 
     public UUID getUser_id() {
         return user_id;
@@ -144,5 +150,13 @@ public class User {
 
     public void setUpdate_at(LocalDateTime update_at) {
         this.update_at = update_at;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
     }
 }
