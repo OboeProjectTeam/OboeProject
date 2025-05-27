@@ -58,11 +58,11 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-		<!--		<dependency>-->
-		<!--			<groupId>com.mysql</groupId>-->
-		<!--			<artifactId>mysql-connector-j</artifactId>-->
-		<!--			<scope>runtime</scope>-->
-		<!--		</dependency>-->
+				<dependency>
+					<groupId>com.mysql</groupId>
+					<artifactId>mysql-connector-j</artifactId>
+					<scope>runtime</scope>
+				</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-integration</artifactId>
@@ -105,8 +105,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>1.6.14</version>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.2.0</version> <!-- Tương thích Spring Boot 3.x -->
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
@@ -118,11 +118,11 @@
 			<artifactId>jakarta.mail-api</artifactId>
 			<version>2.0.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
-			<scope>runtime</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>com.microsoft.sqlserver</groupId>-->
+<!--			<artifactId>mssql-jdbc</artifactId>-->
+<!--			<scope>runtime</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>com.sun.mail</groupId>
 			<artifactId>jakarta.mail</artifactId>
