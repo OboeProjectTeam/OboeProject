@@ -1,5 +1,6 @@
 package com.example.Oboe.DTOs;
 
+import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,7 @@ public class UserDTOs {
     private String address;
     private Role role;
     private boolean verified;
+    private AccountType accountType;
     private LocalDateTime create_at = LocalDateTime.now();
     private LocalDateTime update_at = LocalDateTime.now();
 
@@ -104,5 +106,13 @@ public class UserDTOs {
 
     public void setUpdate_at(LocalDateTime update_at) {
         this.update_at = update_at;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
     }
 }

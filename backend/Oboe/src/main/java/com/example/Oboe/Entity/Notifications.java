@@ -17,7 +17,7 @@ public class Notifications {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference("users-Notifications")
     private User user;
-    private String message;
+    private String text_notification;
     private boolean isRead;
 
     private LocalDateTime update_at = LocalDateTime.now();
@@ -29,9 +29,9 @@ public class Notifications {
 
 
     public Notifications() {}
-    public Notifications( User user, String message, boolean isRead) {
+    public Notifications( User user, String text_notification, boolean isRead) {
         this.user = user;
-        this.message = message;
+        this.text_notification = text_notification;
         this.isRead = isRead;
     }
 }

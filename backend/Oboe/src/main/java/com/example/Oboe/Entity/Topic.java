@@ -10,6 +10,7 @@ import java.util.UUID;
 public class Topic {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "TopicId", updatable = false, nullable = false)
     private UUID TopicId;
     private String TopicName;
     private String TopicDescription;

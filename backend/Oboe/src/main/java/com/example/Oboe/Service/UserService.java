@@ -43,9 +43,18 @@ public class UserService implements UserDetailsService {
             String verificationToken = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-            String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
-            String emailSubject = "Please verify your email";
-            String emailBody = "Click the link to verify your account: " + verificationLink;
+            String verificationLink = "http://13.229.97.53:8080/api/auth/verify?token=" + verificationToken;
+            String emailSubject = "Xác nhận tài khoản Oboe";
+            String emailBody = """
+            Xin chào,
+            
+            Cảm ơn bạn đã đăng ký tài khoản tại Oboe.
+            
+            Để xác nhận tài khoản, vui lòng click vào link sau:""" + verificationLink + """
+                Link này sẽ hết hạn sau 24 giờ.
+            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.
+            Trân trọng,
+            Đội ngũ Oboe""";
 
             mailService.sendMail(userName, emailSubject, emailBody);
             return true;
