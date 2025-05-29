@@ -36,14 +36,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
-
+import { useRouter } from 'vue-router'
 const props = defineProps({
   placeholder: {
     type: String,
     default: 'Tìm kiếm...'
   }
 })
-
+const router = useRouter()
 const emit = defineEmits(['search'])
 const searchQuery = ref('')
 const showSuggestions = ref(false)
@@ -114,6 +114,15 @@ const selectSuggestion = (item) => {
   searchQuery.value = isSentence.value ? item.sentence : item.kanji || item.kana || ''
   showSuggestions.value = false
   emit('search', searchQuery.value)
+  if (isWord.value) {
+    router.push(`/word/${item.id}`)
+  } else if (isSentence.value) {
+    router.push(`/sentence/${item.id}`)
+  } else if (isKanji.value) {
+    router.push(`/kanji/${item.kanji}`)
+  } else if (isGrammar.value) {
+    router.push(`/grammar/${item.id}`)
+  }
 }
 </script>
 
