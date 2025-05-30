@@ -1,7 +1,5 @@
 package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.PassWordChangeDTOs;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.User;
@@ -129,5 +127,9 @@ public class UserService implements UserDetailsService {
                 password.matches(".*[a-z].*") && //it nhat 1 chu in thuong
                 password.matches(".*\\d.*") && //it nhat 1 so
                 password.matches(".*[!@#$%^&*()].*"); // it nhat 1 ki tu dac biet
+    }
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
 }
