@@ -1,9 +1,10 @@
 <template>
-  <div class="search-bar">
+  <div class="search-bar" ref="searchBarRef">
     <input
       type="text"
       v-model="searchQuery"
       @input="onSearch"
+      @click="clearSearch"
       :placeholder="placeholder"
     />
     <ul v-if="filteredSuggestions.length && showSuggestions" class="suggestions">
@@ -11,7 +12,7 @@
         v-for="(item, index) in filteredSuggestions"
         :key="index"
         class="suggestion-item"
-        @click="selectSuggestion(item)"
+        @click.stop="selectSuggestion(item)"
       >
         <div v-if="isWord">
           <strong>{{ item.kanji }}</strong>
@@ -34,19 +35,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+
 const props = defineProps({
   placeholder: {
     type: String,
     default: 'Tìm kiếm...'
   }
 })
+
 const router = useRouter()
 const emit = defineEmits(['search'])
 const searchQuery = ref('')
 const showSuggestions = ref(false)
+const searchBarRef = ref(null)
 
 const store = useStore()
 const activeIndex = computed(() => store.getters['header/activeIndex'])
@@ -60,6 +64,24 @@ const isWord = computed(() => activeIndex.value === 0)
 const isKanji = computed(() => activeIndex.value === 1)
 const isGrammar = computed(() => activeIndex.value === 2)
 const isSentence = computed(() => activeIndex.value === 3)
+
+const handleClickOutside = (event) => {
+  if (searchBarRef.value && searchBarRef.value.contains(event.target)) {
+    return
+  }
+  
+  showSuggestions.value = false
+  searchQuery.value = ''
+  emit('search', '')
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 const getMeaning = (item) => {
   if (isWord.value || isGrammar.value) return item.meaning
@@ -110,6 +132,11 @@ const onSearch = () => {
   emit('search', searchQuery.value)
 }
 
+const clearSearch = () => {
+  searchQuery.value = ''
+  showSuggestions.value = false
+}
+
 const selectSuggestion = (item) => {
   searchQuery.value = isSentence.value ? item.sentence : item.kanji || item.kana || ''
   showSuggestions.value = false
@@ -119,7 +146,7 @@ const selectSuggestion = (item) => {
   } else if (isSentence.value) {
     router.push(`/sentence/${item.id}`)
   } else if (isKanji.value) {
-    router.push(`/kanji/${item.kanji}`)
+    router.push(`/kanji/${item.id}`)
   } else if (isGrammar.value) {
     router.push(`/grammar/${item.id}`)
   }

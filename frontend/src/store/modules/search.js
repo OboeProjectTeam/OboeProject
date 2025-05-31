@@ -218,23 +218,41 @@ export default {
         comments: [
           {
             id: 1,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            content: "Từ này thường được dùng để miêu tả ký ức mơ hồ",
             userId: "user20",
             username: "Hồng Nhung",
             userAvatar: "https://i.pravatar.cc/150?img=20",
             timestamp: "2024-03-15T22:45:00.000Z"
-          },
+          }
+        ]
+      },
+      {
+        id: 8,
+        romaji: "oboeru",
+        kana: "おぼえる",
+        kanji: "覚える",
+        meaning: "học; ghi nhớ; nhớ",
+        comments: [
           {
-            id: 2,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            id: 1,
+            content: "Đây là động từ nhóm 2, thường dùng trong ngữ cảnh học tập",
             userId: "user21",
             username: "Quốc Bảo",
             userAvatar: "https://i.pravatar.cc/150?img=21",
             timestamp: "2024-03-15T23:30:00.000Z"
-          },
+          }
+        ]
+      },
+      {
+        id: 9,
+        romaji: "oboreru",
+        kana: "おぼれる",
+        kanji: "溺れる",
+        meaning: "chìm; đắm; say mê",
+        comments: [
           {
-            id: 3,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            id: 1,
+            content: "Có thể dùng theo nghĩa đen (chìm trong nước) hoặc nghĩa bóng (say mê)",
             userId: "user22",
             username: "Hồng Nhung",
             userAvatar: "https://i.pravatar.cc/150?img=22",
@@ -243,101 +261,294 @@ export default {
         ]
       },
       {
-        id: 8,
-        romaji: "oboeru",
-        kana: "おぼえず",
-        kanji: "覚えず",
-        meaning: "unconsciously, unknowingly",
+        id: 10,
+        romaji: "oboro",
+        kana: "おぼろ",
+        kanji: "朧",
+        meaning: "mờ ảo; không rõ ràng",
+        comments: [
+          {
+            id: 1,
+            content: "Thường được dùng để miêu tả ánh trăng mờ ảo",
+            userId: "user23",
+            username: "Minh Tuấn",
+            userAvatar: "https://i.pravatar.cc/150?img=23",
+            timestamp: "2024-03-16T01:00:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 11,
+        romaji: "oboe",
+        kana: "おぼえ",
+        kanji: "覚え",
+        meaning: "ghi nhớ; nhớ; kinh nghiệm; tự tin",
+        comments: [
+          {
+            id: 1,
+            content: "Từ này hay dùng trong ngữ cảnh học tập, ví dụ: 漢字を覚える (học thuộc kanji)",
+            userId: "user1",
+            username: "Minh Anh",
+            userAvatar: "https://i.pravatar.cc/150?img=1",
+            timestamp: "2024-03-15T08:30:00.000Z"
+          },
+          {
+            id: 2,
+            content: "Mình thường nhớ từ này qua câu 日本語を覚えましょう (Hãy học tiếng Nhật)",
+            userId: "user2",
+            username: "Thanh Hà",
+            userAvatar: "https://i.pravatar.cc/150?img=2",
+            timestamp: "2024-03-15T09:15:00.000Z"
+          },
+          {
+            id: 3,
+            content: "Có thể dùng từ này khi muốn nói về việc ghi nhớ một kỹ năng mới",
+            userId: "user3",
+            username: "Hoàng Nam",
+            userAvatar: "https://i.pravatar.cc/150?img=3",
+            timestamp: "2024-03-15T10:00:00.000Z"
+          },
+          {
+            id: 4,
+            content: "覚える là động từ nhóm 2, biến thể quá khứ là 覚えた",
+            userId: "user4",
+            username: "Mai Linh",
+            userAvatar: "https://i.pravatar.cc/150?img=4",
+            timestamp: "2024-03-15T10:45:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 12,
+        romaji: "obon",
+        kana: "おぼん",
+        kanji: "お盆",
+        meaning: "lễ Obon; mâm; khay",
+        comments: [
+          {
+            id: 1,
+            content: "Lễ Obon là một ngày được tôn vinh cho các ông bố và ông nội",
+            userId: "user5",
+            username: "Đức Anh",
+            userAvatar: "https://i.pravatar.cc/150?img=5",
+            timestamp: "2024-03-15T11:30:00.000Z"
+          },
+          {
+            id: 2,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user6",
+            username: "Thu Trang",
+            userAvatar: "https://i.pravatar.cc/150?img=6",
+            timestamp: "2024-03-15T12:15:00.000Z"
+          },
+          {
+            id: 3,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user7",
+            username: "Quang Minh",
+            userAvatar: "https://i.pravatar.cc/150?img=7",
+            timestamp: "2024-03-15T13:00:00.000Z"
+          },
+          
+        ]
+      },
+      {
+        id: 13,
+        romaji: "oboru",
+        kana: "おぼろ",
+        kanji: "朧う",
+        meaning: "hazy, dim, faint; minced meat or fish",
         comments: [
           {
             id: 1,
             content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user23",
+            userId: "user8",
             username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=23",
-            timestamp: "2024-03-15T25:00:00.000Z"
+            userAvatar: "https://i.pravatar.cc/150?img=8",
+            timestamp: "2024-03-15T13:45:00.000Z"
+          },
+          {
+            id: 2,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user9",
+            username: "Tuấn Kiệt",
+            userAvatar: "https://i.pravatar.cc/150?img=9",
+            timestamp: "2024-03-15T14:30:00.000Z"
+          },
+          {
+            id: 3,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user10",
+            username: "Phương Thảo",
+            userAvatar: "https://i.pravatar.cc/150?img=10",
+            timestamp: "2024-03-15T15:15:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 14,
+        romaji: "oboko",
+        kana: "おぼこ",
+        kanji: "童女",
+        meaning: "gái trinh, gái đồng trinh",
+        comments: [
+          {
+            id: 1,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user11",
+            username: "Văn Hùng",
+            userAvatar: "https://i.pravatar.cc/150?img=11",
+            timestamp: "2024-03-15T16:00:00.000Z"
+          },
+          {
+            id: 2,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user12",
+            username: "Lan Anh",
+            userAvatar: "https://i.pravatar.cc/150?img=12",
+            timestamp: "2024-03-15T16:45:00.000Z"
+          },
+          {
+            id: 3,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user13",
+            username: "Thành Đạt",
+            userAvatar: "https://i.pravatar.cc/150?img=13",
+            timestamp: "2024-03-15T17:30:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 15,
+        romaji: "oboko",
+        kana: "おぼこ",
+        kanji: "未通女",
+        meaning: "gái trinh",
+        comments: [
+          {
+            id: 1,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user14",
+            username: "Minh Tuấn",
+            userAvatar: "https://i.pravatar.cc/150?img=14",
+            timestamp: "2024-03-15T18:15:00.000Z"
+          },
+          {
+            id: 2,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user15",
+            username: "Thùy Linh",
+            userAvatar: "https://i.pravatar.cc/150?img=15",
+            timestamp: "2024-03-15T19:00:00.000Z"
+          },
+          {
+            id: 3,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user16",
+            username: "Đức Thắng",
+            userAvatar: "https://i.pravatar.cc/150?img=16",
+            timestamp: "2024-03-15T19:45:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 16,
+        romaji: "oborozuki",
+        kana: "おぼろづき",
+        kanji: "朧夜",
+        meaning: "misty, đêm sáng trăng",
+        comments: [
+          {
+            id: 1,
+            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
+            userId: "user17",
+            username: "Hương Giang",
+            userAvatar: "https://i.pravatar.cc/150?img=17",
+            timestamp: "2024-03-15T20:30:00.000Z"
           },
           {
             id: 2,
             content: "Ngày Obon được tôn vinh cho các ông bố và ông nội", 
-            userId: "user24",
+            userId: "user18",
             username: "Quốc Bảo",
-            userAvatar: "https://i.pravatar.cc/150?img=24",
-            timestamp: "2024-03-15T25:45:00.000Z"
+            userAvatar: "https://i.pravatar.cc/150?img=18",
+            timestamp: "2024-03-15T21:15:00.000Z"
           },
           {
             id: 3,
             content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user25",
+            userId: "user19",
             username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=25",
-            timestamp: "2024-03-15T26:30:00.000Z"
+            userAvatar: "https://i.pravatar.cc/150?img=19",
+            timestamp: "2024-03-15T22:00:00.000Z"
           }
         ]
       },
       {
-        id: 9,
-        romaji: "oborezu",
-        kana: "おぼれず",
-        kanji: "溺らず",
-        meaning: "(1) dễ chết đuối; (2) tội nguyên nhân sẽ gây hại",
+        id: 17,
+        romaji: "oboroge",
+        kana: "おぼろげ",
+        kanji: "朧気",
+        meaning: "tính chất mờ mờ; trạng thái mơ hồ",
         comments: [
           {
             id: 1,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user26",
+            content: "Từ này thường được dùng để miêu tả ký ức mơ hồ",
+            userId: "user20",
             username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=26",
-            timestamp: "2024-03-15T27:15:00.000Z"
-          },
-          {
-            id: 2,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user27",
-            username: "Quốc Bảo",
-            userAvatar: "https://i.pravatar.cc/150?img=27",
-            timestamp: "2024-03-15T28:00:00.000Z"
-          },
-          {
-            id: 3,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user28",
-            username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=28",
-            timestamp: "2024-03-15T28:45:00.000Z"
+            userAvatar: "https://i.pravatar.cc/150?img=20",
+            timestamp: "2024-03-15T22:45:00.000Z"
           }
         ]
       },
       {
-        id: 10,
+        id: 18,
         romaji: "oboeru",
         kana: "おぼえる",
-        kanji: "憶える",
-        meaning: "nhớ; thu thập lại",
+        kanji: "覚える",
+        meaning: "học; ghi nhớ; nhớ",
         comments: [
           {
             id: 1,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user29",
-            username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=29",
-            timestamp: "2024-03-15T29:30:00.000Z"
-          },
-          {
-            id: 2,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user30",
+            content: "Đây là động từ nhóm 2, thường dùng trong ngữ cảnh học tập",
+            userId: "user21",
             username: "Quốc Bảo",
-            userAvatar: "https://i.pravatar.cc/150?img=30",
-            timestamp: "2024-03-15T30:15:00.000Z"
-          },
+            userAvatar: "https://i.pravatar.cc/150?img=21",
+            timestamp: "2024-03-15T23:30:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 19,
+        romaji: "oboreru",
+        kana: "おぼれる",
+        kanji: "溺れる",
+        meaning: "chìm; đắm; say mê",
+        comments: [
           {
-            id: 3,
-            content: "Ngày Obon được tôn vinh cho các ông bố và ông nội",
-            userId: "user31",
+            id: 1,
+            content: "Có thể dùng theo nghĩa đen (chìm trong nước) hoặc nghĩa bóng (say mê)",
+            userId: "user22",
             username: "Hồng Nhung",
-            userAvatar: "https://i.pravatar.cc/150?img=31",
-            timestamp: "2024-03-15T31:00:00.000Z"
+            userAvatar: "https://i.pravatar.cc/150?img=22",
+            timestamp: "2024-03-15T24:15:00.000Z"
+          }
+        ]
+      },
+      {
+        id: 20,
+        romaji: "oboro",
+        kana: "おぼろ",
+        kanji: "朧",
+        meaning: "mờ ảo; không rõ ràng",
+        comments: [
+          {
+            id: 1,
+            content: "Thường được dùng để miêu tả ánh trăng mờ ảo",
+            userId: "user23",
+            username: "Minh Tuấn",
+            userAvatar: "https://i.pravatar.cc/150?img=23",
+            timestamp: "2024-03-16T01:00:00.000Z"
           }
         ]
       },
@@ -901,7 +1112,8 @@ export default {
           item = state.wordList.find(w => w.id === itemId);
           break;
         case 'kanji':
-          item = state.KanjiList.find(k => k.kanji === itemId);
+          item = state.KanjiList.find(k => k.id === itemId) || 
+                state.KanjiList.find(k => k.kanji === itemId);
           break;
         case 'grammar':
           item = state.grammar.find(g => g.id === itemId);
@@ -923,6 +1135,11 @@ export default {
       const word = state.wordList.find(w => w.id === id);
       commit('setSelectedWord', word);
       return word;
+    },
+    getKanjiById({ state, commit }, id) {
+      const kanji = state.KanjiList.find(k => k.id === id);
+      commit('setSelectedKanji', kanji);
+      return kanji;
     },
     getKanjiByKanji({ state, commit }, kanjiChar) {
       const kanji = state.KanjiList.find(k => k.kanji === kanjiChar);
@@ -956,7 +1173,8 @@ export default {
           item = state.wordList.find(w => w.id === itemId);
           break;
         case 'kanji':
-          item = state.KanjiList.find(k => k.kanji === itemId);
+          item = state.KanjiList.find(k => k.id === itemId) || 
+                state.KanjiList.find(k => k.kanji === itemId);
           break;
         case 'grammar':
           item = state.grammar.find(g => g.id === itemId);

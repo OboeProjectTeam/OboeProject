@@ -44,7 +44,7 @@ export default {
 
     const navigateToKanjiDetail = (kanjiChar) => {
       store.dispatch('search/getKanjiByKanji', kanjiChar);
-      router.push({ name: 'KanjiDetail', params: { kanji: kanjiChar } });
+      router.push({ name: 'KanjiDetail', params: { id: kanjiChar } });
     };
 
     return {

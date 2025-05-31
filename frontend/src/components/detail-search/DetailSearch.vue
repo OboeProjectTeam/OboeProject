@@ -1,6 +1,24 @@
 <template>
   <div v-if="item" class="detail-page">
     <div class="detail-card">
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button 
+          class="action-btn" 
+          :class="{ 'active': isFavorite }"
+          @click="toggleFavorite"
+        >
+          <i class="fas fa-star"></i>
+        </button>
+        <button 
+          class="action-btn"
+          :class="{ 'active': isInFlashcards }"
+          @click="toggleFlashcard"
+        >
+          <i class="fas fa-book"></i>
+        </button>
+      </div>
+
       <!-- Main Content -->
       <div class="main-info">
         <h1 class="main-text">{{ item[mainField] }}</h1>
@@ -62,7 +80,8 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
+import { useStore } from 'vuex';
 import CommentSection from '@/components/comment/CommentSection.vue';
 
 export default defineComponent({
@@ -125,14 +144,53 @@ export default defineComponent({
       default: 'Không tìm thấy dữ liệu'
     }
   },
-  emits: ['relatedItemClick'],
+  emits: ['relatedItemClick', 'toggleFavorite'],
   setup(props, { emit }) {
+    const store = useStore();
+    const isFavorite = ref(false); // TODO: Get from store
+    
+    const isInFlashcards = computed(() => 
+      store.getters['flashcard/isInFlashcard'](
+        props.type, 
+        props.type === 'kanji' ? props.item.kanji : props.itemId
+      )
+    );
+
     const onRelatedItemClick = (item) => {
       emit('relatedItemClick', item);
     };
 
+    const toggleFavorite = () => {
+      isFavorite.value = !isFavorite.value;
+      emit('toggleFavorite', {
+        type: props.type,
+        item: props.item,
+        isFavorite: isFavorite.value
+      });
+    };
+
+    const toggleFlashcard = () => {
+      if (isInFlashcards.value) {
+        store.dispatch('flashcard/removeItem', {
+          type: props.type,
+          id: props.type === 'kanji' ? props.item.kanji : props.itemId,
+          ...props.item
+        });
+      } else {
+        store.dispatch('flashcard/addItem', {
+          type: props.type,
+          id: props.type === 'kanji' ? props.item.kanji : props.itemId,
+          ...props.item
+        });
+      }
+    };
+
     return {
-      onRelatedItemClick
+      onRelatedItemClick,
+      isFavorite,
+      isInFlashcards,
+      toggleFavorite,
+      toggleFlashcard
     };
   }
 });
@@ -150,6 +208,44 @@ export default defineComponent({
   border-radius: 8px;
   box-shadow: 0 0px 4px rgba(0, 0, 0, 0.4);
   padding: 24px;
+  position: relative;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.5rem;
+  color: #666;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.action-btn.active {
+  color: #E94560;
+}
+
+.action-btn.active:hover {
+  background-color: #fde8ec;
 }
 
 .main-info {

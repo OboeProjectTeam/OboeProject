@@ -1,12 +1,14 @@
 // filepath: src/router/index.js
-import TheHome from "../views/home/TheHome.vue";
-import TheIntro from "../views/intro/TheIntro.vue";
-import TheLogin from "../views/login/TheLogin.vue";
-import TheRegister from "../views/register/TheRegister.vue";
+import TheHome from "@/views/home/TheHome.vue";
+import TheIntro from "@/views/intro/TheIntro.vue";
+import TheLogin from "@/views/login/TheLogin.vue";
+import TheRegister from "@/views/register/TheRegister.vue";
 import WordDetail from '@/views/word-detail/WordDetail.vue' 
 import KanjiDetail from '@/views/kanji-detail/KanjiDetail.vue'
 import GrammarDetail from '@/views/grammar-detail/GrammarDetail.vue'
 import SentenceDetail from '@/views/sentence-detail/SentenceDetail.vue'
+import FlashcardView from '@/views/flashcard-list-view/FlashcardView.vue'
+import FlashcardLearn from '@/views/flashcard-learn/FlashcardLearn.vue'
 
 const routes = [
   {
@@ -35,7 +37,7 @@ const routes = [
     component: WordDetail
   },
   {
-    path: '/kanji/:kanji',
+    path: '/kanji/:id',
     name: 'KanjiDetail',
     component: KanjiDetail
   },
@@ -48,6 +50,22 @@ const routes = [
     path: '/sentence/:id',
     name: 'SentenceDetail',
     component: SentenceDetail
+  },
+  {
+    path: '/flashcard',
+    name: 'flashcard',
+    component: FlashcardView,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/flashcard/learn',
+    name: 'flashcardLearn',
+    component: FlashcardLearn,
+    meta: {
+      requiresAuth: true
+    }
   }
 ];
 
