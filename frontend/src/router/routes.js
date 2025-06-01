@@ -9,7 +9,9 @@ import GrammarDetail from '@/views/grammar-detail/GrammarDetail.vue'
 import SentenceDetail from '@/views/sentence-detail/SentenceDetail.vue'
 import FlashcardView from '@/views/flashcard-list-view/FlashcardView.vue'
 import FlashcardLearn from '@/views/flashcard-learn/FlashcardLearn.vue'
-
+import CreateFlashcard from '@/views/create/CreateFlashcard.vue'
+import CreateQuiz from '@/views/create/CreateQuiz.vue'
+import Library from '@/views/my-library/MyLibrary.vue'
 const routes = [
   {
     path: "/",
@@ -25,11 +27,17 @@ const routes = [
     path: "/login",
     name: "Login",
     component: TheLogin,
+    meta: {
+      requiresGuest: true
+    }
   },
   {
     path: "/register",
     name: "Register",
     component: TheRegister,
+    meta: {
+      requiresGuest: true
+    }
   },
   {
     path: '/word/:id',
@@ -66,7 +74,31 @@ const routes = [
     meta: {
       requiresAuth: true
     }
+  },
+  {
+    path: '/create/flashcard',
+    name: 'CreateFlashcard',
+    component: CreateFlashcard,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/create/quiz',
+    name: 'CreateQuiz',
+    component: CreateQuiz,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/library',
+    name: 'Library',
+    component: Library,
+    meta: {
+      requiresAuth: true
+    }
   }
-];
+]
 
 export default routes;

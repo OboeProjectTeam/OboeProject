@@ -86,10 +86,6 @@
         <div id="loader">Loading...</div>
       </div>
 
-      <div v-if="isSignedIn">
-        <button @click="handleSignOut">Sign Out</button>
-      </div>
-
     </div>
   </form>
 </template>
@@ -99,16 +95,13 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import './FormAuthenCss.scss'
-import firebaseConfig from '../../firebase';
 import MCheckbox from '../checkbox/MCheckbox.vue'
-// v9 compat packages are API compatible with v8 code
-import firebase from 'firebase/compat/app';
-
 import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
-import { getAuth, signOut } from "firebase/auth";
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { firebase, auth } from '../../firebase.js'
 
-// import { GoogleAuth, FacebookAuth, CreateNewUser, LoginUser, SignOut } from '../../firebase/firebase.js'
 const props = defineProps({
   isRegister: {
     type: Boolean,
@@ -116,8 +109,8 @@ const props = defineProps({
   }
 });
 
-
-firebase.initializeApp(firebaseConfig);
+const router = useRouter();
+const store = useStore();
 
 const username = ref('')
 const password = ref('')
@@ -126,32 +119,27 @@ const lastname = ref('');
 const firstname = ref('');
 const dob = ref('');
 const address = ref('');
-const isSignedIn = ref(false);
 const user = ref(null);
-const auth = getAuth();
-
 
 const uiConfig = {
   signInFlow: 'popup',
-  signinSuccessUrl: 'https://oboe.publicvm.com/',
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
     firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-
   ],
   callbacks: {
     signInSuccessWithAuthResult: function (authResult) {
-      user.value = authResult.user.displayName;
-      console.log(authResult)
-      isSignedIn.value = true;
-      console.log('Signed in by user ' + user.value);
-
-      // so it doesn't refresh the page
+      const userData = {
+        displayName: authResult.user.displayName,
+        email: authResult.user.email,
+        photoURL: authResult.user.photoURL,
+        uid: authResult.user.uid
+      };
+      store.dispatch('auth/setUser', userData);
+      router.push('/');
       return false;
     },
     uiShown: function () {
-      // The widget is rendered.
-      // Hide the loader.
       document.getElementById('loader').style.display = 'none';
       loginTranslate();
     }
@@ -161,23 +149,10 @@ const uiConfig = {
 // Initialize the FirebaseUI Widget using Firebase.
 const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
 
-
-const handleSignOut = () => {
-  signOut(auth).then(() => {
-    // Sign-out successful.
-    user.value = null;
-    isSignedIn.value = false;
-    console.log('Signed out');
-    ui.start('#firebaseui-auth-container', uiConfig);
-  }).catch((error) => {
-    // An error happened.
-    console.log(error);
-  });
-}
-
 const submitForm = () => {
   console.log('Username:', username.value)
   console.log('Password:', password.value)
+  router.push('/');
 }
 
 function placeholderAnimationIn(parent, action) {

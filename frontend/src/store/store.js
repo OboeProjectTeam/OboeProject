@@ -5,6 +5,7 @@ import cart from './modules/cart';
 import footer from './modules/footer';
 import search from './modules/search';
 import flashcard from './modules/flashcard';
+import auth from './modules/auth';
 
 export default createStore({
   modules: {
@@ -13,6 +14,7 @@ export default createStore({
     footer,
     search,
     flashcard,
+    auth,
   },
 });
 

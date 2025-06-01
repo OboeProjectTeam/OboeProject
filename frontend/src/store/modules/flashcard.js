@@ -5,7 +5,8 @@ export default {
     learningItems: [],
     sortBy: 'recent', // 'recent' or 'alphabetical'
     itemsPerPage: 10,
-    currentPage: 1
+    currentPage: 1,
+    flashcardSets: [] // Thêm state cho bộ thẻ ghi nhớ
   }),
   mutations: {
     addItem(state, item) {
@@ -38,6 +39,29 @@ export default {
     },
     setLearningItems(state, items) {
       state.learningItems = items
+    },
+    // Thêm mutations cho bộ thẻ ghi nhớ
+    addFlashcardSet(state, set) {
+      const setWithTimestamp = {
+        ...set,
+        id: Date.now().toString(), // Tạo ID đơn giản
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+      state.flashcardSets.push(setWithTimestamp)
+    },
+    updateFlashcardSet(state, { id, set }) {
+      const index = state.flashcardSets.findIndex(s => s.id === id)
+      if (index !== -1) {
+        state.flashcardSets[index] = {
+          ...state.flashcardSets[index],
+          ...set,
+          updatedAt: new Date().toISOString()
+        }
+      }
+    },
+    deleteFlashcardSet(state, id) {
+      state.flashcardSets = state.flashcardSets.filter(set => set.id !== id)
     }
   },
   actions: {
@@ -55,6 +79,16 @@ export default {
     },
     setLearningItems({ commit }, items) {
       commit('setLearningItems', items)
+    },
+    // Thêm actions cho bộ thẻ ghi nhớ
+    createFlashcardSet({ commit }, set) {
+      commit('addFlashcardSet', set)
+    },
+    updateFlashcardSet({ commit }, payload) {
+      commit('updateFlashcardSet', payload)
+    },
+    deleteFlashcardSet({ commit }, id) {
+      commit('deleteFlashcardSet', id)
     }
   },
   getters: {
@@ -93,6 +127,15 @@ export default {
         item => item.type === type && item.id === id
       );
     },
-    getLearningItems: (state) => state.learningItems
+    getLearningItems: (state) => state.learningItems,
+    // Thêm getters cho bộ thẻ ghi nhớ
+    getAllFlashcardSets: (state) => {
+      return state.flashcardSets.sort((a, b) => 
+        new Date(b.updatedAt) - new Date(a.updatedAt)
+      )
+    },
+    getFlashcardSetById: (state) => (id) => {
+      return state.flashcardSets.find(set => set.id === id)
+    }
   }
 } 
