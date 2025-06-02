@@ -183,4 +183,6 @@ onUnmounted(() => {
 
 <style scoped>
 @import "./TheCardCss.scss";
+
+
 </style>

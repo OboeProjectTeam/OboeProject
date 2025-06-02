@@ -95,12 +95,12 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import './FormAuthenCss.scss'
-import MCheckbox from '../checkbox/MCheckbox.vue'
+import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
 import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import { firebase, auth } from '../../firebase.js'
+import { firebase, auth } from '@/firebase.js'
 
 const props = defineProps({
   isRegister: {

@@ -238,13 +238,59 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { onMounted } from 'vue'
 
 const store = useStore()
 const router = useRouter()
+
+// Thêm hàm để lấy dữ liệu
+const fetchData = async () => {
+  try {
+    // Lấy dữ liệu từ store
+    await store.dispatch('flashcard/fetchFlashcardSets')
+    
+    // Lấy dữ liệu quizzes
+    const quizzesData = await store.dispatch('quiz/fetchQuizzes')
+    quizzes.value = quizzesData || []
+    
+    // Lấy dữ liệu blogs
+    const blogsData = await store.dispatch('blog/fetchBlogs')
+    blogs.value = blogsData || []
+    
+    // Lấy dữ liệu favorites
+    const favoritesData = await store.dispatch('user/fetchFavorites')
+    if (favoritesData) {
+      favorites.value = {
+        vocabulary: favoritesData.vocabulary || [],
+        grammar: favoritesData.grammar || [],
+        sentences: favoritesData.sentences || [],
+        kanji: favoritesData.kanji || []
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  }
+}
+
+// Gọi fetchData khi component được tạo
+onMounted(() => {
+  fetchData()
+})
+
 const searchQuery = ref('')
 const activeTab = ref('study-sets')
 const activeFavoriteTab = ref('vocabulary')
 const showSortMenu = ref(false)
+
+// Thêm các biến reactive cho quizzes, blogs và favorites
+const quizzes = ref([])
+const blogs = ref([])
+const favorites = ref({
+  vocabulary: [],
+  grammar: [],
+  sentences: [],
+  kanji: []
+})
 
 const tabs = [
   { id: 'study-sets', name: 'Học liệu' },

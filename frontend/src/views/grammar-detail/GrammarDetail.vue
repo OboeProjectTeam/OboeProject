@@ -14,7 +14,7 @@
 import { computed, watch, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
-import DetailPage from '@/components/detail-search/DetailSearch.vue';
+import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
 
 export default {
   name: 'GrammarDetail',

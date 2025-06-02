@@ -84,9 +84,9 @@
 import { reactive, toRefs, computed, watch, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
-import MsButton from '../../button/MsButton.vue'
-import TheSearchbar from '../../searchbar/TheSearchbar.vue'
-import TheLogo from '../../logo/TheLogo.vue'
+import MsButton from '@/components/common/button/MsButton.vue'
+import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
+import TheLogo from '@/components/layout/logo/TheLogo.vue'
 import { auth } from '@/firebase'
 
 const store = useStore()

@@ -342,3 +342,19 @@ Loại bỏ mọi hiệu ứng thanh sáng
 	box-shadow:0px  4px 15px rgba(36, 28, 31, 0.3);
   }
   
+.swiper-pagination{
+	color: white;
+	bottom: 20px !important;
+  }
+  
+.swiper-pagination-fraction {
+	color: white;
+	font-size: 16px;
+	font-weight: 500;
+	background: rgba(0, 0, 0, 0.3);
+	width: auto;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 4px 12px;
+	border-radius: 20px;
+  }

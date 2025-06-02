@@ -10,9 +10,9 @@
 </template>
 
 <script setup>
-import TheFooter from './components/layout/footer/TheFooter.vue'
-import TheHeader from './components/layout/header/TheHeader.vue'
-import FlashcardList from '@/components/flashcard-list/FlashcardList.vue'
+import TheFooter from '@/components/layout/footer/TheFooter.vue'
+import TheHeader from '@/components/layout/header/TheHeader.vue'
+import FlashcardList from '@/components/layout/flashcard-list/FlashcardList.vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'

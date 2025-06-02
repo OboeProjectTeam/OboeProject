@@ -82,7 +82,7 @@
 <script>
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
-import CommentSection from '@/components/comment/CommentSection.vue';
+import CommentSection from '@/components/layout/comment/CommentSection.vue';
 
 export default defineComponent({
   name: 'DetailPage',

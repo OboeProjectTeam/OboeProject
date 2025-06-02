@@ -50,8 +50,8 @@
 
 <script setup>
 import { useStore } from 'vuex'; // Import useStore to access Vuex store
-import TheLogo from '../../logo/TheLogo.vue';
-import MsButton from '../../button/MsButton.vue';
+import TheLogo from '@/components/layout/logo/TheLogo.vue';
+import MsButton from '@/components/common/button/MsButton.vue';
 
 const store = useStore(); // Get Vuex store
 
