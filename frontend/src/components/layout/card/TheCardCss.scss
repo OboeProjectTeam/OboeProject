@@ -1,4 +1,3 @@
-
 .swiper {
     width: 800px; 
     height: 500px; 
@@ -247,21 +246,8 @@ Loại bỏ mọi hiệu ứng thanh sáng
 	}
 }
 
-
-
-@keyframes slideInUp {
-	0% {
-		opacity: 0;
-		transform: translateY(50px);
-	}
-	100% {
-		opacity: 1;
-		transform: translateY(0);
-	}
-}
-
-.swiper-slide-active .card-content .card-description {
-	animation: slideInUp 0.8s 0.4s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.card-content .card-description {
+	transition: opacity 0.3s ease;
 }
 
 /* Thêm độ sâu 3D cho card khi hover */

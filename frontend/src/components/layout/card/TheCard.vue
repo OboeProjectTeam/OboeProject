@@ -12,7 +12,7 @@
       <div class="card slide-item"
         :class="{ 'is-flipped': flippedIndex === index, 'animation-started': animationStartedList[index] }"
         @click="flipCard(index)">
-        <div class="card-content flex" v-if="showBackIndex !== index">
+        <div class="card-content flex" :class="{ 'front': true, 'hidden': showBackIndex === index }">
           <h2 class="card-title">{{ slide.title }}</h2>
           <div class="slide-content card-description flex">
             <slot name="content" :slide="slide">
@@ -23,15 +23,14 @@
                 <p class="main-content-text webkit-box webkit-line-2">{{ slide.content }}</p>
               </template>
             </slot>
-
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.description }}</p>
           <div class="flex see-more">
             <button class="cta-button" @click.stop="onSeeMore(slide)">Xem thêm</button>
           </div>
         </div>
-        <div class="card-content flex" v-else>
-          <h2 class="card-title fade-in-text">mặt sau</h2>
+        <div class="card-content flex" :class="{ 'back': true, 'visible': showBackIndex === index }">
+          <h2 class="card-title">{{ slide.title }}</h2>
           <div class="slide-content card-description flex">
             <slot name="backcontent" :slide="slide">
               <template v-if="isImage(slide.backcontent)">
@@ -46,7 +45,6 @@
           <div class="flex see-more">
             <button class="cta-button" @click.stop="onSeeMore(slide)">Xem thêm</button>
           </div>
-
         </div>
       </div>
     </SwiperSlide>
@@ -184,5 +182,15 @@ onUnmounted(() => {
 <style scoped>
 @import "./TheCardCss.scss";
 
+.card-content.front.hidden {
+  display: none;
+}
 
+.card-content.back {
+  display: none;
+}
+
+.card-content.back.visible {
+  display: flex;
+}
 </style>
