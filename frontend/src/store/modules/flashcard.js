@@ -38,7 +38,11 @@ export default {
       state.currentPage = page
     },
     setLearningItems(state, items) {
-      state.learningItems = items
+      console.log('Setting learning items:', items);
+      state.learningItems = items.map(item => ({
+        ...item,
+        id: item.id || `item-${Date.now()}-${Math.random()}`
+      }));
     },
     // Thêm mutations cho bộ thẻ ghi nhớ
     addFlashcardSet(state, set) {
@@ -127,7 +131,9 @@ export default {
         item => item.type === type && item.id === id
       );
     },
-    getLearningItems: (state) => state.learningItems,
+    getLearningItems: (state) => {
+      return state.learningItems;
+    },
     // Thêm getters cho bộ thẻ ghi nhớ
     getAllFlashcardSets: (state) => {
       return state.flashcardSets.sort((a, b) => 

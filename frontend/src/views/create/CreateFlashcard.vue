@@ -1,6 +1,12 @@
 <template>
   <div class="create-flashcard">
-    <h1>Tạo Bộ Thẻ Ghi Nhớ Mới</h1>
+    <div class="header-section">
+      <button v-if="fromLearningPage" class="back-btn" @click="goBackToLearning">
+        <i class="fas fa-arrow-left"></i>
+        Quay lại Trang Học
+      </button>
+      <h1>{{ isEditing ? 'Chỉnh sửa Bộ Thẻ Ghi Nhớ' : 'Tạo Bộ Thẻ Ghi Nhớ Mới' }}</h1>
+    </div>
     <div class="form-container">
       <div class="form-group">
         <label>Tên bộ thẻ <span class="required">*</span></label>
@@ -124,10 +130,11 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
 const router = useRouter()
+const route = useRoute()
 const store = useStore()
 
 const STORAGE_KEY = 'flashcard_draft'
@@ -146,14 +153,40 @@ const customTermSeparator = ref('')
 const customCardSeparator = ref('')
 const showError = ref(false)
 
-// Load saved state
+// Add new refs for handling learning page data
+const fromLearningPage = ref(false)
+const isEditing = ref(false)
+const originalDeckId = ref(null)
+
+// Load saved state and check if coming from learning page
 onMounted(() => {
-  const savedState = localStorage.getItem(STORAGE_KEY)
-  if (savedState) {
-    const state = JSON.parse(savedState)
-    title.value = state.title
-    description.value = state.description
-    cards.value = state.cards
+  // Check if coming from learning page
+  fromLearningPage.value = route.query.fromLearn === 'true'
+  originalDeckId.value = route.query.deckId
+  
+  // Try to load learning page state first
+  const learningState = localStorage.getItem('flashcardLearnState')
+  if (learningState) {
+    try {
+      const state = JSON.parse(learningState)
+      // Convert learning items to cards format
+      cards.value = state.items.map(item => ({
+        front: item.content || item.kanji || '',
+        back: item.backcontent || item.meaning || ''
+      }))
+      isEditing.value = true
+    } catch (error) {
+      console.error('Error loading learning state:', error)
+    }
+  } else {
+    // If no learning state, try loading draft
+    const savedState = localStorage.getItem(STORAGE_KEY)
+    if (savedState) {
+      const state = JSON.parse(savedState)
+      title.value = state.title
+      description.value = state.description
+      cards.value = state.cards
+    }
   }
 })
 
@@ -244,6 +277,18 @@ const removeCard = (index) => {
   cards.value.splice(index, 1)
 }
 
+const goBackToLearning = () => {
+  // Navigate back to learning page with the same parameters
+  router.push({
+    name: 'flashcardLearn',
+    query: {
+      deckId: originalDeckId.value,
+      source: route.query.source,
+      title: title.value
+    }
+  })
+}
+
 const saveFlashcard = async () => {
   if (!validateForm()) {
     return
@@ -257,20 +302,29 @@ const saveFlashcard = async () => {
       cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
     }
     
-    // Lưu vào store
-    await store.dispatch('flashcard/createFlashcardSet', flashcardData)
+    if (isEditing.value && originalDeckId.value) {
+      // Update existing flashcard set
+      await store.dispatch('flashcard/updateFlashcardSet', {
+        id: originalDeckId.value,
+        set: flashcardData
+      })
+    } else {
+      // Create new flashcard set
+      await store.dispatch('flashcard/createFlashcardSet', flashcardData)
+    }
     
-    // Xóa draft
+    // Clean up storage
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem('flashcardLearnState')
     
-    // Hiển thị thông báo thành công (nếu có)
-    // TODO: Implement success notification
-    
-    // Chuyển hướng đến trang thư viện
-    router.push('/library')
+    // Navigate based on source
+    if (fromLearningPage.value) {
+      goBackToLearning()
+    } else {
+      router.push('/library')
+    }
   } catch (error) {
     console.error('Error saving flashcard:', error)
-    // TODO: Show error message to user
   }
 }
 </script>
@@ -628,5 +682,41 @@ const saveFlashcard = async () => {
   font-size: 12px;
   margin-top: 4px;
   display: block;
+}
+
+.header-section {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 30px;
+
+  h1 {
+    margin: 0;
+    color: #333;
+  }
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #fff1f3;
+    border-color: #E94560;
+    color: #E94560;
+  }
+
+  i {
+    font-size: 14px;
+  }
 }
 </style> 

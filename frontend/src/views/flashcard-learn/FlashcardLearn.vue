@@ -1,8 +1,25 @@
 <template>
   <div class="flashcard-learn" :class="{ 'is-fullscreen': isFullscreen }">
-    <h2 class="deck-title">
-      {{ deckTitle }}
-    </h2>
+    <div class="deck-header">
+      <div>
+        <h2 class="deck-title">
+          {{ deckTitle }}
+        </h2>
+        <p class="description-text">mô tả ở đây</p>
+      </div>
+      <div class="creator-info">
+        <div class="creator-card">
+          <div class="creator-avatar">
+            <img :src="creatorInfo.avatar" :alt="creatorInfo.name" />
+          </div>
+          <div class="creator-details">
+            <h3 class="creator-name">{{ creatorInfo.name }}</h3>
+            <p class="creator-date">Đã tạo {{ creatorInfo.createdDate }}</p>
+           
+          </div>
+        </div>
+      </div>
+    </div>
     
     <div class="main-content">
       <!-- Menu bên trái -->
@@ -26,7 +43,7 @@
         <TheCard 
           ref="cardRef"
           :slides="slides" 
-          :width="isFullscreen ? 900 : 700" 
+          :width="isFullscreen ? 900 : 550"
           :height="isFullscreen ? 500 : 400" 
           :pagination="{ 
             type: 'fraction',
@@ -71,9 +88,8 @@
         </button>
       </div>
     </div>
-
-    <!-- Nút theo dõi tiến độ -->
-    <div v-if="trackProgress" class="progress-buttons-container">
+<!-- Nút theo dõi tiến độ -->
+<div v-if="trackProgress" class="progress-buttons-container">
       <div class="progress-buttons">
         <button 
           class="progress-btn learning" 
@@ -95,6 +111,76 @@
         </button>
       </div>
     </div>
+    <!-- Creator Info Section -->
+    <div class="description-section">
+      
+      <!-- List Items Section -->
+      <div class="list-items-section">
+        <div class="list-header">
+          <h3>Thuật ngữ trong học phần này</h3>
+          <button class="add-term-btn" @click="navigateToTermCreation">
+            <i class="fas fa-plus"></i>
+            Thêm hoặc xóa thuật ngữ
+          </button>
+        </div>
+
+        <!-- Learning Terms -->
+        <div class="terms-list">
+          <h4 class="list-title">
+            Đang học
+            <span class="count">({{ learningStats.learning }})</span>
+          </h4>
+          <TransitionGroup name="list" tag="div" class="terms-container">
+            <div v-for="item in displayLearningItems" 
+                 :key="item.id"
+                 class="term-item"
+                 @click="editTerm(item)">
+              <div class="term-content">
+                <div class="term">{{ getItemContent(item) }}</div>
+                <div class="definition">{{ getItemDefinition(item) }}</div>
+              </div>
+              <div class="term-actions">
+                <button class="edit-btn" @click.stop="editTerm(item)">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="delete-btn" @click.stop="deleteTerm(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </TransitionGroup>
+        </div>
+
+        <!-- Known Terms -->
+        <div v-if="trackProgress" class="terms-list">
+          <h4 class="list-title">
+            Đã biết
+            <span class="count">({{ learningStats.known }})</span>
+          </h4>
+          <TransitionGroup name="list" tag="div" class="terms-container">
+            <div v-for="item in displayKnownItems" 
+                 :key="item.id"
+                 class="term-item"
+                 @click="editTerm(item)">
+              <div class="term-content">
+                <div class="term">{{ getItemContent(item) }}</div>
+                <div class="definition">{{ getItemDefinition(item) }}</div>
+              </div>
+              <div class="term-actions">
+                <button class="edit-btn" @click.stop="editTerm(item)">
+                  <i class="fas fa-pencil-alt"></i>
+                </button>
+                <button class="delete-btn" @click.stop="deleteTerm(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </TransitionGroup>
+        </div>
+      </div>
+    </div>
+
+    
 
     <!-- Animation hiển thị trạng thái -->
     <transition name="status-fade">
@@ -247,11 +333,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
+import { TransitionGroup } from 'vue';
 
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 const cardRef = ref(null);
 const swiperInstance = ref(null);
 const activeMode = ref('flashcard');
@@ -289,6 +377,15 @@ const learningStats = reactive({
   known: 0,
   learning: 0,
   remaining: 0
+});
+
+// Add these new refs for creator info
+const isCurrentUserCreator = ref(false); // Will be true if current user is creator
+const isFollowing = ref(false);
+const creatorInfo = ref({
+  avatar: 'path_to_avatar', // This should come from your data
+  name: 'hoangdul999', // This should come from your data
+  createdDate: '3 ngày trước', // This should come from your data
 });
 
 // Computed title based on source
@@ -396,15 +493,117 @@ onMounted(() => {
   const items = store.getters['flashcard/getLearningItems'];
   console.log('FlashcardLearn mounted, items:', items);
   
+  // Khởi tạo slides từ items
+  slides.value = items.map(item => {
+    console.log('Processing item type:', item.type);
+    console.log('Item full structure:', item);
+    
+    // Xử lý nội dung mặt trước và mặt sau dựa vào loại
+    let frontContent, backContent, description, backDescription;
+    let title = 'Từ vựng';
+    
+    switch(item.type) {
+      case 'kanji':
+        title = 'Hán tự';
+        frontContent = item.kanji || '';
+        description = '';
+        backContent = item.kanjiname || '';
+        backDescription = item.kunyomi || '';
+        break;
+        
+      case 'grammar':
+        title = 'Ngữ pháp';
+        frontContent = item.kana || '';
+        description = item.romaji || '';
+        backContent = item.meaning || '';
+        backDescription = '';
+        break;
+        
+      case 'sentence':
+        title = 'Mẫu câu';
+        frontContent = item.sentence || '';
+        description =  '';
+        backContent =  item.translation || '';
+        backDescription =  '';
+        break;
+        
+      case 'word':
+      default:
+        frontContent = item.kanji || '';
+        description = item.kana || '';
+        backContent = item.meaning || '';
+        backDescription = '';
+    }
+
+    return {
+      title,
+      content: frontContent,
+      description: description,
+      backcontent: backContent,
+      backdescription: backDescription,
+      bgColor: '#ffffff',
+      progressColor: '#E94560',
+      status: item.status || 'learning'
+    };
+  });
+
+  // Cập nhật số liệu thống kê ban đầu
+  learningStats.learning = slides.value.filter(s => !s.status || s.status === 'learning').length;
+  learningStats.known = slides.value.filter(s => s.status === 'known').length;
+  learningStats.remaining = slides.value.length - learningStats.known;
+
   // Thêm event listeners
   if (typeof window !== 'undefined') {
     console.log('Adding event listeners...');
-    document.addEventListener('keydown', (e) => {
-      console.log('Keydown event triggered:', e.code);
-      handleKeydown(e);
-    });
+    document.addEventListener('keydown', handleKeydown);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     window.addEventListener('resize', handleResize);
+  }
+
+  // Kiểm tra xem có đang quay lại từ trang tạo không
+  const savedState = localStorage.getItem('flashcardLearnState');
+  if (savedState) {
+    try {
+      const state = JSON.parse(savedState);
+      console.log('Restoring state:', state);
+      
+      // Khôi phục items và learning stats
+      if (state.items) {
+        allItems.value = state.items;
+        learningStats.known = state.learningStats.known;
+        learningStats.learning = state.learningStats.learning;
+        learningStats.remaining = state.learningStats.remaining;
+        updateCounts();
+      }
+
+      // Khôi phục các cài đặt
+      if (state.settings) {
+        // Khôi phục mode và các cài đặt
+        activeMode.value = state.settings.activeMode;
+        trackProgress.value = state.settings.trackProgress;
+        reverseCards.value = state.settings.reverseCards;
+        autoplaySpeed.value = state.settings.autoplaySpeed;
+        
+        // Đợi swiper khởi tạo xong
+        nextTick(() => {
+          // Khôi phục vị trí slide
+          if (swiperInstance.value && typeof state.settings.currentSlideIndex === 'number') {
+            swiperInstance.value.slideTo(state.settings.currentSlideIndex, 0);
+          }
+          
+          // Khôi phục trạng thái autoplay
+          if (state.settings.isAutoPlaying) {
+            isAutoPlaying.value = true;
+            startAutoplay();
+          }
+        });
+      }
+
+      // Xóa state đã lưu
+      localStorage.removeItem('flashcardLearnState');
+    } catch (error) {
+      console.error('Error restoring state:', error);
+    }
   }
 });
 
@@ -666,24 +865,35 @@ const onSlideChange = () => {
   currentSlideIndex.value = swiper?.activeIndex || 0;
 };
 
-// Reset cards function
+// Reset functionality
 const resetCards = () => {
-  // Reset trạng thái của tất cả các thẻ
-  slides.value.forEach(slide => {
-    slide.status = null; // Xóa trạng thái đã biết/đang học
+  console.log('=== Resetting Cards ===');
+  console.log('Before reset:', {
+    allItems: allItems.value,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length
   });
+
+  // Reset status của tất cả các items về 'learning'
+  const resetItems = allItems.value.map(item => ({
+    ...item,
+    status: 'learning'
+  }));
+
+  // Cập nhật store và local state
+  store.commit('flashcard/setLearningItems', resetItems);
+  allItems.value = resetItems;
 
   // Reset các số liệu thống kê
   learningStats.known = 0;
-  learningStats.learning = 0;
-  learningStats.remaining = slides.value.length;
+  learningStats.learning = resetItems.length;
+  learningStats.remaining = resetItems.length;
 
-  // Reset progress
-  progress.value = {
-    total: slides.value.length,
-    reviewed: 0,
-    correct: 0
-  };
+  // Cập nhật counts
+  updateCounts();
+
+  // Đóng modal kết quả
+  showResults.value = false;
 
   // Quay về thẻ đầu tiên
   nextTick(() => {
@@ -692,12 +902,56 @@ const resetCards = () => {
     }
   });
 
-  // Đóng modal kết quả
-  showResults.value = false;
+  console.log('After reset:', {
+    allItems: resetItems,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length,
+    stats: learningStats
+  });
 };
 
 const handleReset = () => {
   resetCards();
+};
+
+// Thêm hàm reviewUnknownCards
+const reviewUnknownCards = () => {
+  console.log('=== Reviewing Unknown Cards ===');
+  
+  // Lọc ra các thẻ chưa thuộc
+  const unknownCards = allItems.value.filter(item => item.status !== 'known');
+  
+  // Reset trạng thái của các thẻ chưa thuộc về 'learning'
+  const updatedItems = allItems.value.map(item => {
+    if (item.status !== 'known') {
+      return { ...item, status: 'learning' };
+    }
+    return item;
+  });
+
+  // Cập nhật store và local state
+  store.commit('flashcard/setLearningItems', updatedItems);
+  allItems.value = updatedItems;
+
+  // Cập nhật counts
+  updateCounts();
+
+  // Đóng modal kết quả
+  showResults.value = false;
+
+  // Quay về thẻ đầu tiên
+  nextTick(() => {
+    if (swiperInstance.value) {
+      swiperInstance.value.slideTo(0);
+    }
+  });
+
+  console.log('After review setup:', {
+    unknownCount: unknownCards.length,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length,
+    stats: learningStats
+  });
 };
 
 // Watch cho trackProgress để reset trạng thái khi tắt theo dõi
@@ -715,7 +969,70 @@ watch(trackProgress, (newValue) => {
   }
 });
 
-// Sửa lại hàm updateCardStatus để cập nhật số liệu ngay lập tức
+// State management
+const allItems = ref([]);
+const learningCount = ref(0);
+const knownCount = ref(0);
+
+// Computed properties for filtered and processed items
+const displayLearningItems = computed(() => {
+  return allItems.value.filter(item => !item.status || item.status === 'learning');
+});
+
+const displayKnownItems = computed(() => {
+  return allItems.value.filter(item => item.status === 'known');
+});
+
+// Update counts
+const updateCounts = () => {
+  learningCount.value = displayLearningItems.value.length;
+  knownCount.value = displayKnownItems.value.length;
+  learningStats.learning = learningCount.value;
+  learningStats.known = knownCount.value;
+  learningStats.remaining = allItems.value.length - knownCount.value;
+};
+
+// Helpers for getting item content
+const getItemContent = (item) => {
+  return item.content || item.kanji || '';
+};
+
+const getItemDefinition = (item) => {
+  return item.backcontent || item.meaning || '';
+};
+
+// Add unique IDs to items
+const addIdsToItems = (items) => {
+  return items.map((item, index) => ({
+    ...item,
+    id: `item-${index}-${item.content || item.kanji || Date.now()}`
+  }));
+};
+
+// Initialize items
+onMounted(() => {
+  const items = store.getters['flashcard/getLearningItems'];
+  console.log('Initial items:', items);
+  
+  allItems.value = addIdsToItems(items);
+  updateCounts();
+  
+  console.log('Processed items:', {
+    all: allItems.value,
+    learning: displayLearningItems.value,
+    known: displayKnownItems.value
+  });
+
+  // Thêm event listeners
+  if (typeof window !== 'undefined') {
+    console.log('Adding event listeners...');
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('resize', handleResize);
+  }
+});
+
+// The single updateCardStatus function
 const updateCardStatus = (status) => {
   if (!trackProgress.value) {
     console.log('Track progress is disabled');
@@ -723,87 +1040,268 @@ const updateCardStatus = (status) => {
   }
   
   const currentIndex = swiperInstance.value?.activeIndex || 0;
-  console.log('Updating status:', {
-    status,
-    currentIndex,
-    hasSwiper: !!swiperInstance.value
-  });
+  console.log('Updating card status:', { currentIndex, status });
 
-  if (slides.value[currentIndex]) {
-    // Lấy trạng thái cũ của thẻ để so sánh
-    const oldStatus = slides.value[currentIndex].status;
-    
-    // Cập nhật trạng thái mới
-    slides.value[currentIndex].status = status;
-    
-    // Cập nhật số liệu thống kê ngay lập tức
-    if (oldStatus === 'known') {
-      learningStats.known--;
-    } else if (oldStatus === 'learning') {
-      learningStats.learning--;
-    }
+  if (allItems.value[currentIndex]) {
+    // Update the item's status
+    allItems.value = allItems.value.map((item, index) => {
+      if (index === currentIndex) {
+        return { ...item, status };
+      }
+      return item;
+    });
 
-    if (status === 'known') {
-      learningStats.known++;
-    } else if (status === 'learning') {
-      learningStats.learning++;
-    }
+    // Update store
+    store.commit('flashcard/setLearningItems', allItems.value);
     
-    // Hiển thị animation status ở góc
+    // Update counts
+    updateCounts();
+
+    console.log('After update:', {
+      allItems: allItems.value,
+      learning: displayLearningItems.value,
+      known: displayKnownItems.value,
+      learningCount: learningCount.value,
+      knownCount: knownCount.value
+    });
+
+    // Animation and UI updates
     currentStatus.value = status;
     showStatusAnimation.value = true;
     setTimeout(() => {
       showStatusAnimation.value = false;
     }, 1000);
 
-    // Kiểm tra nếu là thẻ cuối cùng
-    const isLastSlide = currentIndex === slides.value.length - 1;
-    
+    // Check if last slide
+    const isLastSlide = currentIndex === allItems.value.length - 1;
     if (isLastSlide) {
-      // Hiển thị kết quả
       showResults.value = true;
     } else {
-      // Chuyển sang thẻ tiếp theo
       swiperInstance.value?.slideNext();
     }
   }
 };
 
-const reviewUnknownCards = () => {
-  // Lọc ra các thẻ chưa thuộc (status không phải 'known')
-  const unknownCards = slides.value.filter(slide => slide.status !== 'known');
+// Watch for store changes
+watch(() => store.getters['flashcard/getLearningItems'], (newItems) => {
+  console.log('Store items updated:', newItems);
+  allItems.value = addIdsToItems(newItems);
+  updateCounts();
+}, { deep: true });
+
+// Methods for term management
+const addNewTerm = () => {
+  // TODO: Implement add new term functionality
+  console.log('Add new term');
+};
+
+const editTerm = (slide, index) => {
+  // TODO: Implement edit term functionality
+  console.log('Edit term:', slide, index);
+};
+
+const deleteTerm = (index) => {
+  // TODO: Implement delete term functionality
+  console.log('Delete term at index:', index);
+};
+
+// Watch để cập nhật UI khi slides thay đổi
+watch(slides, () => {
+  nextTick(() => {
+    // Force re-render của các list
+    if (document.querySelector('.terms-container')) {
+      document.querySelector('.terms-container').style.opacity = '0.99';
+      setTimeout(() => {
+        document.querySelector('.terms-container').style.opacity = '1';
+      }, 0);
+    }
+  });
+}, { deep: true });
+
+// Watch để debug các thay đổi
+watch([displayLearningItems, displayKnownItems], ([newLearning, newKnown], [oldLearning, oldKnown]) => {
+  console.log('=== Lists Update Debug ===');
+  console.log('Learning list changed:', {
+    count: newLearning.length,
+    oldCount: oldLearning?.length,
+    items: newLearning.map(item => ({
+      content: item.content,
+      status: item.status
+    }))
+  });
   
-  // Reset lại trạng thái của các thẻ chưa thuộc
-  unknownCards.forEach(card => {
-    card.status = 'learning';
+  console.log('Known list changed:', {
+    count: newKnown.length,
+    oldCount: oldKnown?.length,
+    items: newKnown.map(item => ({
+      content: item.content,
+      status: item.status
+    }))
   });
 
-  // Ẩn kết quả
-  showResults.value = false;
+  console.log('Total items:', newLearning.length + newKnown.length);
+  console.log('=== End Debug ===');
+}, { deep: true });
 
-  // Quay lại thẻ đầu tiên
-  nextTick(() => {
-    if (swiperInstance.value) {
-      swiperInstance.value.slideTo(0);
+// Navigation function
+const navigateToTermCreation = () => {
+  // Lưu trạng thái hiện tại vào store hoặc localStorage
+  const currentState = {
+    items: allItems.value,
+    learningStats: {
+      known: learningStats.known,
+      learning: learningStats.learning,
+      remaining: learningStats.remaining
+    },
+    settings: {
+      isAutoPlaying: isAutoPlaying.value,
+      autoplaySpeed: autoplaySpeed.value,
+      trackProgress: trackProgress.value,
+      reverseCards: reverseCards.value,
+      activeMode: activeMode.value,
+      currentSlideIndex: swiperInstance.value?.activeIndex || 0
+    },
+    fromLearningPage: true
+  };
+  
+  // Dừng autoplay nếu đang chạy
+  if (isAutoPlaying.value) {
+    stopAutoplay();
+  }
+  
+  // Lưu state vào localStorage
+  localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
+  
+  // Chuyển hướng đến trang tạo thuật ngữ với query params
+  router.push({
+    name: 'CreateFlashcard',
+    query: {
+      fromLearn: 'true',
+      deckId: route.query.deckId || '',
+      source: route.query.source || ''
     }
   });
 };
 
-// Watch để cập nhật remaining khi known hoặc learning thay đổi
-watch([() => learningStats.known, () => learningStats.learning], () => {
-  learningStats.remaining = totalCards.value - learningStats.known - learningStats.learning;
-});
+// Watch for route changes to update data when returning from edit page
+watch(
+  () => route.query,
+  () => {
+    // Kiểm tra nếu có dữ liệu mới từ store
+    const storeItems = store.getters['flashcard/getLearningItems'];
+    if (storeItems && storeItems.length > 0) {
+      console.log('Updating items from store:', storeItems);
+      allItems.value = addIdsToItems(storeItems);
+      updateCounts();
+    }
+  },
+  { immediate: true, deep: true }
+);
 
-// Khởi tạo giá trị ban đầu cho learningStats
-onMounted(() => {
-  learningStats.known = slides.value.filter(s => s.status === 'known').length;
-  learningStats.learning = slides.value.filter(s => s.status === 'learning').length;
-  learningStats.remaining = totalCards.value - learningStats.known - learningStats.learning;
-});
+// Thêm hàm để cập nhật slides khi allItems thay đổi
+watch(allItems, (newItems) => {
+  if (newItems.length > 0) {
+    console.log('Updating slides from allItems:', newItems);
+    slides.value = newItems.map(item => {
+      let frontContent, backContent, description, backDescription;
+      let title = 'Từ vựng';
+      
+      switch(item.type) {
+        case 'kanji':
+          title = 'Hán tự';
+          frontContent = item.kanji || '';
+          description = '';
+          backContent = item.kanjiname || '';
+          backDescription = item.kunyomi || '';
+          break;
+          
+        case 'grammar':
+          title = 'Ngữ pháp';
+          frontContent = item.kana || '';
+          description = item.romaji || '';
+          backContent = item.meaning || '';
+          backDescription = '';
+          break;
+          
+        case 'sentence':
+          title = 'Mẫu câu';
+          frontContent = item.sentence || '';
+          description =  '';
+          backContent =  item.translation || '';
+          backDescription =  '';
+          break;
+          
+        case 'word':
+        default:
+          frontContent = item.front || item.kanji || '';
+          description = item.kana || '';
+          backContent = item.back || item.meaning || '';
+          backDescription = '';
+      }
+
+      return {
+        id: item.id,
+        title,
+        content: frontContent,
+        description: description,
+        backcontent: backContent,
+        backdescription: backDescription,
+        bgColor: '#ffffff',
+        progressColor: '#E94560',
+        status: item.status || 'learning'
+      };
+    });
+
+    // Cập nhật swiper nếu cần
+    nextTick(() => {
+      if (swiperInstance.value) {
+        swiperInstance.value.update();
+      }
+    });
+  }
+}, { deep: true });
+
+// Sửa lại hàm saveFlashcard trong CreateFlashcard để cập nhật store
+const saveFlashcard = async () => {
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    const flashcardData = {
+      title: title.value.trim(),
+      description: description.value.trim(),
+      cards: cards.value.filter(card => card.front.trim() && card.back.trim()).map(card => ({
+        ...card,
+        type: 'word',
+        status: 'learning'
+      })),
+      cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
+    };
+    
+    // Cập nhật store với các thẻ mới
+    await store.dispatch('flashcard/setLearningItems', flashcardData.cards);
+    
+    // Clean up storage
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('flashcardLearnState');
+    
+    // Navigate based on source
+    if (fromLearningPage.value) {
+      goBackToLearning();
+    } else {
+      router.push('/library');
+    }
+  } catch (error) {
+    console.error('Error saving flashcard:', error);
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 .flashcard-learn {
+  max-width: 1000px;
+  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -882,19 +1380,76 @@ onMounted(() => {
   }
 }
 
+.deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  width: 100%;
+}
+
 .deck-title {
   font-size: 24px;
   color: #333;
-  margin: 12px 0;
-  text-align: center;
+  margin: 0;
+  font-weight: 600;
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.creator-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0;
+  flex-direction: row-reverse; // Đảo ngược thứ tự để avatar nằm bên phải
+}
+
+.creator-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.creator-details {
+  text-align: right; // Căn phải tất cả text
+  
+  .creator-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 2px 0;
+  }
+  
+  .creator-date {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+  }
+
+  .description-text {
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0 0 0;
+  }
 }
 
 .main-content {
   display: flex;
   gap: 24px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
   margin-top: 20px;
 }
 
@@ -902,17 +1457,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 16px;
 }
 
 .side-menu, .control-menu {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 20px;
+  padding: 15px !important;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  width: 280px;
+  width: 200px !important;
   height: 400px;
   justify-content: space-between;
 
@@ -1017,7 +1573,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 30px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -1845,6 +2400,179 @@ onMounted(() => {
       }
     }
   }
+}
+.description-section {
+  margin: 32px 0;
+
+
+  .section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  .description-text {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 24px 0;
+  }
+}
+
+.list-items-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+
+    .add-term-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      background: #E94560;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #d13651;
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      i {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+.terms-list {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .list-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .count {
+      font-size: 14px;
+      color: #666;
+    }
+  }
+}
+
+.terms-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.term-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #fff1f3;
+  }
+
+  .term-content {
+    flex: 1;
+    min-width: 0;
+    margin-right: 12px;
+
+    .term {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .definition {
+      font-size: 12px;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .term-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 1; // Luôn hiển thị
+    transition: opacity 0.2s;
+
+    button {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 4px;
+      background: #f8f9fa;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+
+      &:hover {
+        background: #E94560;
+        color: white;
+      }
+
+      i {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+/* Add transitions */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>
   
