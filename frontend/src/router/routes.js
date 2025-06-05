@@ -12,6 +12,9 @@ import FlashcardLearn from '@/views/flashcard-learn/FlashcardLearn.vue'
 import CreateFlashcard from '@/views/create/CreateFlashcard.vue'
 import CreateQuiz from '@/views/create/CreateQuiz.vue'
 import Library from '@/views/my-library/MyLibrary.vue'
+import FlashcardTest from '@/views/flashcard-test/FlashcardTest.vue'
+import FlashcardMatch from '@/views/flashcard-match/FlashcardMatch.vue'
+
 const routes = [
   {
     path: "/",
@@ -98,6 +101,23 @@ const routes = [
     meta: {
       requiresAuth: true
     }
+  },
+  {
+    path: '/flashcard/test',
+    name: 'FlashcardTest',
+    component: FlashcardTest,
+    props: route => ({
+      type: route.query.type,
+      deckId: route.query.deckId,
+      source: route.query.source
+    }),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/flashcard/match',
+    name: 'FlashcardMatch',
+    component: FlashcardMatch,
+    meta: { requiresAuth: true }
   }
 ]
 

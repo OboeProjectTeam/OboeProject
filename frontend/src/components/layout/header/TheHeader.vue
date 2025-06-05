@@ -4,7 +4,6 @@
       <div class="header__left flex">
         <TheLogo />
         <router-link to="/intro" class="size-17 cur p-hover">Giới Thiệu</router-link>
-        <router-link to="/forum" class="size-17 cur p-hover">Diễn Đàn</router-link>
       </div>
       <div class="header__searchbar">
         <TheSearchbar :placeholder="placeholder" />

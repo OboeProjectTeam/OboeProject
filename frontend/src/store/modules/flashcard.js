@@ -39,10 +39,56 @@ export default {
     },
     setLearningItems(state, items) {
       console.log('Setting learning items:', items);
-      state.learningItems = items.map(item => ({
-        ...item,
-        id: item.id || `item-${Date.now()}-${Math.random()}`
-      }));
+      state.learningItems = items.map(item => {
+        // Ensure each item has a unique ID
+        const id = item.id || `item-${Date.now()}-${Math.random()}`;
+        
+        // Normalize the data structure
+        const normalized = {
+          id,
+          type: item.type || 'word',
+          front: '',
+          back: '',
+          content: '',
+          backcontent: '',
+          kanji: '',
+          meaning: '',
+          status: item.status || 'learning'
+        };
+
+        // Handle different content types
+        switch (item.type) {
+          case 'kanji':
+            normalized.front = item.kanji || '';
+            normalized.back = item.kanjiname || '';
+            normalized.kanji = item.kanji || '';
+            normalized.meaning = item.meaning || '';
+            break;
+          
+          case 'grammar':
+            normalized.front = item.kana || '';
+            normalized.back = item.meaning || '';
+            normalized.content = item.romaji || '';
+            break;
+          
+          case 'sentence':
+            normalized.front = item.sentence || '';
+            normalized.back = item.translation || '';
+            break;
+          
+          case 'word':
+          default:
+            normalized.front = item.front || item.kanji || item.content || '';
+            normalized.back = item.back || item.meaning || item.backcontent || '';
+            normalized.content = item.content || item.front || item.kanji || '';
+            normalized.backcontent = item.backcontent || item.back || item.meaning || '';
+            normalized.kanji = item.kanji || '';
+            normalized.meaning = item.meaning || '';
+        }
+
+        return normalized;
+      });
+      console.log('Normalized learning items:', state.learningItems);
     },
     // Thêm mutations cho bộ thẻ ghi nhớ
     addFlashcardSet(state, set) {
