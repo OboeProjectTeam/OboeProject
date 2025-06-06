@@ -39,6 +39,6 @@ const onChange = () => {
 }
 </script>
 
-<style scoped>
-@import url(./RadioButtonCss.scss);
+<style lang="scss" scoped>
+@use '@/components/common/radio-button/RadioButton.scss';
 </style>

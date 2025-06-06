@@ -100,6 +100,6 @@ const marginTopInput = computed(() => {
 })
 </script>
 
-<style scoped>
-@import url('./InputCss.scss'); 
+<style lang="scss" scoped>
+@use '@/components/common/input/Input.scss';
 </style>

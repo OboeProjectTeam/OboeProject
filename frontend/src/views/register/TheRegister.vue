@@ -6,9 +6,8 @@
   
 <script setup>
   import loginBg from '@/assets/img/login.jpg'
-  import './TheRegisterCss.css'
+  import '@/views/register/TheRegister.scss';
   import FormAuthen from '@/components/layout/form-login/FormAuthen.vue';
-
 </script>
 
 

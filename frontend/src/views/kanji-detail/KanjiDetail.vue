@@ -54,6 +54,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@use './KanjiDetail.scss';
+<style lang="scss" scoped>
+@use '@/views/kanji-detail/KanjiDetail.scss';
 </style>

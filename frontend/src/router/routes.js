@@ -9,11 +9,18 @@ import GrammarDetail from '@/views/grammar-detail/GrammarDetail.vue'
 import SentenceDetail from '@/views/sentence-detail/SentenceDetail.vue'
 import FlashcardView from '@/views/flashcard-list-view/FlashcardView.vue'
 import FlashcardLearn from '@/views/flashcard-learn/FlashcardLearn.vue'
-import CreateFlashcard from '@/views/create/CreateFlashcard.vue'
-import CreateQuiz from '@/views/create/CreateQuiz.vue'
+import CreateFlashcard from '@/views/create-flashcard/CreateFlashcard.vue'
+import CreateQuiz from '@/views/create-quiz/CreateQuiz.vue'
 import Library from '@/views/my-library/MyLibrary.vue'
 import FlashcardTest from '@/views/flashcard-test/FlashcardTest.vue'
 import FlashcardMatch from '@/views/flashcard-match/FlashcardMatch.vue'
+import TheForum from "../views/forum/TheForum.vue";
+import ForumPostDetail from "../views/forum/ForumPostDetail.vue";
+import CreateForumPost from "../views/forum/CreateForumPost.vue";
+import TheProfile from '@/views/profile/TheProfile.vue';
+import TheSettings from '@/views/settings/TheSettings.vue';
+import TheUpgrade from '@/views/upgrade/TheUpgrade.vue';
+import ThePayment from '@/views/payment/ThePayment.vue';
 
 const routes = [
   {
@@ -25,6 +32,30 @@ const routes = [
     path: "/intro",
     name: "Intro",
     component: TheIntro,
+  },
+  {
+    path: "/forum",
+    name: "TheForum",
+    component: TheForum,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/forum/post/create",
+    name: "CreateForumPost",
+    component: CreateForumPost,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/forum/post/:id",
+    name: "ForumPostDetail",
+    component: ForumPostDetail,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/login",
@@ -40,6 +71,38 @@ const routes = [
     component: TheRegister,
     meta: {
       requiresGuest: true
+    }
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: TheProfile,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    component: TheSettings,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/upgrade",
+    name: "Upgrade",
+    component: TheUpgrade,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/payment",
+    name: "Payment",
+    component: ThePayment,
+    meta: {
+      requiresAuth: true
     }
   },
   {

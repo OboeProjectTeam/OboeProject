@@ -56,5 +56,5 @@ export default {
 </script>
 
 <style lang="scss">
-@use './GrammarDetail.scss';
+@use '@/views/grammar-detail/GrammarDetail.scss';
 </style>

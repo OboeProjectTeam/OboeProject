@@ -1,3 +1,4 @@
+@use '@/assets/css/index.scss' as *;
 .swiper {
     width: 800px; 
     height: 500px; 
@@ -344,3 +345,14 @@ Loại bỏ mọi hiệu ứng thanh sáng
 	padding: 4px 12px;
 	border-radius: 20px;
   }
+.card-content.front.hidden {
+  display: none;
+}
+
+.card-content.back {
+  display: none;
+}
+
+.card-content.back.visible {
+  display: flex;
+}

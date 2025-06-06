@@ -94,7 +94,7 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
-import './FormAuthenCss.scss'
+import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
 import * as firebaseui from 'firebaseui'
 import 'firebaseui/dist/firebaseui.css'
@@ -234,6 +234,4 @@ onMounted(async () => {
     console.error(' Error in FormAuthen onMounted:', error)
   }
 })
-
-
 </script>

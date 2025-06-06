@@ -68,26 +68,6 @@ const changeValue = (event) => {
 }
 </script>
 
-<style scoped>
-.ms-textarea-main {
-  width: 100%;
-}
-.lable-textarea {
-  font-weight: bold;
-}
-.required {
-  color: red;
-}
-.ms-textarea {
-  height: 28px;
-  width: 100% !important;
-  outline: none;
-  border: 1px solid #b1aeae;
-  margin-top: 10px;
-  padding-left: 8px;
-  overflow: auto;
-}
-.ms-textarea:focus {
-  border: 1px solid #525050;
-}
+<style lang="scss" scoped>
+@use '@/components/common/textarea/Textarea.scss';
 </style>

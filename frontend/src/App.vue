@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <TheHeader />
+    <OboeProButton v-if="!isAuthRoute" @click="goToUpgrade" />
     <FlashcardList v-if="!isAuthRoute" />
     <div class="router-view-wrapper">
       <router-view />
@@ -13,18 +14,24 @@
 import TheFooter from '@/components/layout/footer/TheFooter.vue'
 import TheHeader from '@/components/layout/header/TheHeader.vue'
 import FlashcardList from '@/components/layout/flashcard-list/FlashcardList.vue'
+import OboeProButton from '@/components/layout/pro-button/OboeProButton.vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import { computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { auth } from '@/firebase'
 
 const route = useRoute()
 const store = useStore()
+const router = useRouter()
 
 const isAuthRoute = computed(() => {
   return ['/login', '/register'].includes(route.path)
 })
+
+const goToUpgrade = () => {
+  router.push('/upgrade');
+};
 
 onMounted(() => {
   // Listen for auth state changes

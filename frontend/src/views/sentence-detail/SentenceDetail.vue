@@ -55,6 +55,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@use './SentenceDetail.scss';
+<style lang="scss" scoped>
+@use '@/views/sentence-detail/SentenceDetail.scss';
 </style>

@@ -65,6 +65,6 @@ const onClick = (event) => {
 }
 </script>
 
-<style scoped>
-@import url(./ButtonCss.scss);
+<style lang="scss" scoped>
+@use '@/components/common/button/Button.scss';
 </style>

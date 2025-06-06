@@ -18,6 +18,6 @@ const store = useStore(); // Access Vuex store
 const slides = store.getters['cart/slides']; // Get slides from the Vuex store
 </script>
 
-<style scoped>
-@import url(./TheHomeCss.css);
+<style lang="scss" scoped>
+@use '@/views/home/TheHome.scss';
 </style>

@@ -18,6 +18,6 @@ defineProps({
 defineEmits(['update:modelValue'])
 </script>
 
-<style scoped>
-@import url(./CheckBoxCss.scss);
+<style lang="scss" scoped>
+@use '@/components/common/checkbox/CheckBox.scss';
 </style>

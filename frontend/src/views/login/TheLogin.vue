@@ -6,10 +6,11 @@
   
 <script setup>
   import loginBg from '@/assets/img/login.jpg'
-  import './TheLoginCss.css'
+  import '@/views/login/TheLogin.scss';
   import FormAuthen from '@/components/layout/form-login/FormAuthen.vue';
 
 </script>
+
 
 
   

@@ -1,3 +1,4 @@
+@use '@/assets/css/index.scss' as *;
 .the-register {
     width: 100%;
     min-height: calc(100vh - 140px);
@@ -10,7 +11,6 @@
     background-size: cover;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh */
-
   }
   
   

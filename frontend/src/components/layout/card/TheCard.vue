@@ -179,18 +179,6 @@ onUnmounted(() => {
 </script>
 
 
-<style scoped>
-@import "./TheCardCss.scss";
-
-.card-content.front.hidden {
-  display: none;
-}
-
-.card-content.back {
-  display: none;
-}
-
-.card-content.back.visible {
-  display: flex;
-}
+<style lang="scss" scoped>
+@use "@/components/layout/card/TheCard.scss";
 </style>

@@ -73,6 +73,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@use './WordDetail.scss';
+<style lang="scss" scoped>
+@use '@/views/word-detail/WordDetail.scss';
 </style>
