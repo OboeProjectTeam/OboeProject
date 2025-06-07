@@ -15,7 +15,26 @@
         <div class="forum-body">
             <!-- List Header -->
             <div class="list-header">
-                <div class="header-main">Chủ đề</div>
+                <div class="header-main">
+                     <div class="control-group">
+                        <div class="custom-select-wrapper">
+                            <select id="category-filter" v-model="selectedCategory" @change="currentPage = 1">
+                                <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                     <div class="control-group">
+                        <div class="custom-select-wrapper">
+                            <select id="tag-filter" v-model="selectedTag" @change="currentPage = 1">
+                                <option value="all">Tất cả các thẻ</option>
+                                <option v-for="tag in allTags.filter(t => t !== 'all')" :key="tag" :value="tag">{{ tag }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary clear-filter-btn" @click="resetFilters" v-if="selectedCategory !== 'all' || selectedTag !== 'all'" title="Xóa bộ lọc">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 <div class="header-stats">
                     <button class="sort-btn" @click="sortBy('replies')">
                         Trả lời
@@ -41,6 +60,11 @@
                         <img :src="post.author.avatar" :alt="post.author.name">
                     </div>
                     <div class="post-content">
+                        <span class="post-category-tag" 
+                              v-if="post.category"
+                              :style="{ backgroundColor: findCategoryDetails(post.category).color }">
+                           {{ findCategoryDetails(post.category).name }}
+                        </span>
                         <h3 class="post-title">{{ post.title }}</h3>
                         <p class="post-meta">
                             bởi <a href="#" class="author-name">{{ post.author.name }}</a>
@@ -49,10 +73,10 @@
                     </div>
                     <div class="post-stats">
                         <div class="stat-item">
-                            <strong>{{ post.stats.replies }}</strong>
+                           {{ post.stats.replies }}
                         </div>
                         <div class="stat-item">
-                            <strong>{{ post.stats.views.toLocaleString('vi-VN') }}</strong>
+                           {{ post.stats.views.toLocaleString('vi-VN') }}
                         </div>
                     </div>
                     <div class="post-last-reply">
@@ -95,23 +119,57 @@ const currentPage = ref(1);
 const postsPerPage = ref(5);
 const sortKey = ref('activity'); // 'activity', 'replies', 'views'
 const sortOrder = ref('desc'); // 'asc', 'desc'
+const selectedCategory = ref('all');
+const selectedTag = ref('all');
 
-// --- MOCK DATA ---
+// --- DATA ---
+const categories = ref([
+    { id: 'all', name: 'Tất cả chuyên mục', color: '' },
+    { id: 'word', name: 'Từ vựng', color: '#28a745' },
+    { id: 'kanji', name: 'Học Kanji', color: '#17a2b8' },
+    { id: 'grammar', name: 'Ngữ pháp', color: '#fd7e14' },
+    { id: 'jlpt', name: 'Luyện thi JLPT', color: '#007bff' },
+    { id: 'communication', name: 'Giao tiếp', color: '#6f42c1' },
+    { id: 'life-in-japan', name: 'Cuộc sống tại Nhật', color: '#dc3545' },
+    { id: 'other', name: 'Chủ đề khác', color: '#6c757d' }
+]);
+
 const now = new Date();
 const posts = ref([
-    { id: 1, title: 'Thảo luận về cách học Kanji hiệu quả cho người mới bắt đầu', author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 2 * 3600 * 1000), stats: { replies: 15, views: 2100 }, lastReply: { author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 5 * 60 * 1000) }},
-    { id: 2, title: 'Kinh nghiệm thi JLPT N2 và tài liệu ôn tập', author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 8 * 3600 * 1000), stats: { replies: 32, views: 5800 }, lastReply: { author: { name: 'Lan Anh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d' }, time: new Date(now.getTime() - 30 * 60 * 1000) }},
-    { id: 3, title: 'Chia sẻ những bộ phim Anime hay để luyện nghe', author: { name: 'Ngọc Linh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026708d' }, time: new Date(now.getTime() - 1 * 86400 * 1000), stats: { replies: 56, views: 12300 }, lastReply: { author: { name: 'Duy Mạnh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026709d' }, time: new Date(now.getTime() - 1 * 3600 * 1000) }},
-    { id: 4, title: 'Tổng hợp ngữ pháp N3 thường gặp trong đề thi', author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 25, views: 8200 }, lastReply: { author: { name: 'Quốc Bảo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026711d' }, time: new Date(now.getTime() - 3 * 3600 * 1000) }},
-    { id: 5, title: 'Cách phân biệt các trợ từ は, が, も?', author: { name: 'Bảo Châu', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026712d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 18, views: 4500 }, lastReply: { author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 5 * 3600 * 1000) }},
-    { id: 6, title: 'Học giao tiếp qua Shadowing có thực sự hiệu quả?', author: { name: 'Khánh Vy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026714d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 41, views: 9100 }, lastReply: { author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 8 * 3600 * 1000) }},
-    { id: 7, title: 'Những sai lầm người Việt thường mắc phải khi phát âm tiếng Nhật', author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 29, views: 7700 }, lastReply: { author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 1 * 86400 * 1000) }},
-    { id: 8, title: 'Review sách "Minna no Nihongo" cho người mới bắt đầu', author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 4 * 86400 * 1000), stats: { replies: 12, views: 3200 }, lastReply: { author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000) }}
+    { id: 1, title: 'Thảo luận về cách học Kanji hiệu quả cho người mới bắt đầu', author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 2 * 3600 * 1000), stats: { replies: 15, views: 2100 }, lastReply: { author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 5 * 60 * 1000) }, category: 'kanji', tags: ['kanji', 'tự học', 'người mới bắt đầu'] },
+    { id: 2, title: 'Kinh nghiệm thi JLPT N2 và tài liệu ôn tập', author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 8 * 3600 * 1000), stats: { replies: 32, views: 5800 }, lastReply: { author: { name: 'Lan Anh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d' }, time: new Date(now.getTime() - 30 * 60 * 1000) }, category: 'jlpt', tags: ['jlpt', 'N2', 'tài liệu'] },
+    { id: 3, title: 'Chia sẻ những bộ phim Anime hay để luyện nghe', author: { name: 'Ngọc Linh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026708d' }, time: new Date(now.getTime() - 1 * 86400 * 1000), stats: { replies: 56, views: 12300 }, lastReply: { author: { name: 'Duy Mạnh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026709d' }, time: new Date(now.getTime() - 1 * 3600 * 1000) }, category: 'communication', tags: ['giao tiếp', 'luyện nghe', 'anime'] },
+    { id: 4, title: 'Tổng hợp ngữ pháp N3 thường gặp trong đề thi', author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 25, views: 8200 }, lastReply: { author: { name: 'Quốc Bảo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026711d' }, time: new Date(now.getTime() - 3 * 3600 * 1000) }, category: 'grammar', tags: ['ngữ pháp', 'N3', 'jlpt'] },
+    { id: 5, title: 'Cách phân biệt các trợ từ は, が, も?', author: { name: 'Bảo Châu', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026712d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 18, views: 4500 }, lastReply: { author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 5 * 3600 * 1000) }, category: 'grammar', tags: ['ngữ pháp', 'trợ từ'] },
+    { id: 6, title: 'Học giao tiếp qua Shadowing có thực sự hiệu quả?', author: { name: 'Khánh Vy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026714d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 41, views: 9100 }, lastReply: { author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 8 * 3600 * 1000) }, category: 'communication', tags: ['giao tiếp', 'shadowing'] },
+    { id: 7, title: 'Những sai lầm người Việt thường mắc phải khi phát âm tiếng Nhật', author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 29, views: 7700 }, lastReply: { author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 1 * 86400 * 1000) }, category: 'communication', tags: ['phát âm', 'lỗi sai'] },
+    { id: 8, title: 'Review sách "Minna no Nihongo" cho người mới bắt đầu', author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 4 * 86400 * 1000), stats: { replies: 12, views: 3200 }, lastReply: { author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000) }, category: 'other', tags: ['sách', 'review', 'người mới bắt đầu'] }
 ]);
 
 // --- COMPUTED PROPERTIES ---
+const allTags = computed(() => {
+    const tags = new Set();
+    posts.value.forEach(post => {
+        if(post.tags) {
+            post.tags.forEach(tag => tags.add(tag));
+        }
+    });
+    return ['all', ...Array.from(tags)];
+});
+
+const filteredPosts = computed(() => {
+    let result = posts.value;
+    if (selectedCategory.value !== 'all') {
+        result = result.filter(post => post.category === selectedCategory.value);
+    }
+    if (selectedTag.value !== 'all') {
+        result = result.filter(post => post.tags && post.tags.includes(selectedTag.value));
+    }
+    return result;
+});
+
 const sortedPosts = computed(() => {
-    return [...posts.value].sort((a, b) => {
+    return [...filteredPosts.value].sort((a, b) => {
         let valA, valB;
         switch (sortKey.value) {
             case 'replies':
@@ -174,6 +232,16 @@ const sortBy = (key) => {
     currentPage.value = 1; // Reset to page 1 on new sort
 };
 
+const resetFilters = () => {
+    selectedCategory.value = 'all';
+    selectedTag.value = 'all';
+    currentPage.value = 1;
+};
+
+const findCategoryDetails = (categoryId) => {
+    return categories.value.find(c => c.id === categoryId) || {};
+}
+
 function formatTimeAgo(date) {
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
@@ -197,9 +265,7 @@ function formatTimeAgo(date) {
 
 .forum-container {
     width: 100%;
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px 40px 20px;
     font-family: $font-family-regular;
 }
 
@@ -210,7 +276,7 @@ function formatTimeAgo(date) {
     align-items: center;
     padding: 20px 0;
     border-bottom: 1px solid #e9ecef;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     .header-content h1 {
         font-family: $font-family-bold;
@@ -250,15 +316,77 @@ function formatTimeAgo(date) {
 .list-header {
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    margin-bottom: 10px;
+    padding: 10px 20px;
+    margin-bottom: 15px;
     font-size: 0.9rem;
     color: #868e96;
     font-weight: 600;
+    background-color: #f8f9fa;
+    border-radius: 10px;
 
     .header-main {
         flex-grow: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
+
+    .custom-select-wrapper {
+        position: relative;
+        min-width: 180px;
+
+        &::after {
+            content: '\f078';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #868e96;
+            font-size: 0.75rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 30px 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            background-color: white;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            color: #495057;
+
+            &:focus {
+                outline: none;
+                border-color: $btn-primary;
+                box-shadow: 0 0 0 3px color.adjust($btn-primary, $alpha: -0.7);
+            }
+        }
+    }
+
+    .clear-filter-btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #e9ecef;
+        color: #495057;
+        
+        &:hover {
+            background-color: #dee2e6;
+        }
+    }
+
     .header-stats {
         display: flex;
         gap: 25px;
@@ -279,9 +407,9 @@ function formatTimeAgo(date) {
         cursor: pointer;
         padding: 5px;
         border-radius: 4px;
-        transition: background-color 0.2s;
+        transition: background-color 0.2s, color 0.2s;
         &:hover {
-            background-color: #f1f3f5;
+            color: #343a40;
         }
         i {
             margin-left: 5px;
@@ -327,12 +455,23 @@ function formatTimeAgo(date) {
 
     .post-content {
         flex-grow: 1;
+        .post-category-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            color: white;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .post-title {
             font-size: 1.1rem;
-            font-weight: 600;
-            color: #343a40;
             margin: 0 0 5px 0;
             text-decoration: none;
+            color: #343a40;
             &:hover {
                 color: $btn-primary;
             }

@@ -6,7 +6,7 @@
     <div class="comment-form">
       <textarea
         v-model="newComment"
-        placeholder="Nhập bình luận của bạn..."
+        placeholder="Nhập bình luận của ..."
         rows="3"
       ></textarea>
       <button @click="submitComment" :disabled="!newComment.trim()">

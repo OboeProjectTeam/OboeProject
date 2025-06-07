@@ -2,20 +2,17 @@
   <div class="flashcard-test">
     <!-- Header Section -->
     <div class="test-header">
-      <div class="test-info">
+      <div class="header-top-line">
         <h2>{{ testTypeTitle }}</h2>
-        <p class="progress-text">Câu {{ currentQuestionIndex + 1 }}/{{ totalQuestions }}</p>
-      </div>
-      <div class="header-actions">
-        <div class="timer" v-if="showTimer && !showFinalResults && !isReviewing">
-          <i class="fas fa-clock"></i>
-          <span>{{ formatTime(timeRemaining) }}</span>
+        <div class="header-actions">
+          <div class="timer" v-if="showTimer && !showFinalResults && !isReviewing">
+            <i class="fas fa-clock"></i>
+            <span>{{ formatTime(timeRemaining) }}</span>
+          </div>
+          <ExitTestButton @exit="confirmExitToLearn" v-if="!showFinalResults" />
         </div>
-        <button class="exit-button secondary-button" @click="requestExitToLearn" v-if="!showFinalResults">
-          <i class="fas fa-times-circle"></i>
-          Thoát & Ôn Luyện
-        </button>
       </div>
+      <p class="progress-text">Câu {{ currentQuestionIndex + 1 }}/{{ totalQuestions }}</p>
     </div>
 
     <!-- Progress Bar -->
@@ -53,7 +50,7 @@
         <div class="written-answer">
           <textarea
             v-model="writtenAnswer"
-            placeholder="Nhập câu trả lời của bạn..."
+            placeholder="Nhập câu trả lời của ..."
             :disabled="showResults"
           ></textarea>
         </div>
@@ -117,7 +114,7 @@
       <div class="results-content">
         <div class="results-header">
           <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
-          <h2>Chúc mừng! Bạn đã hoàn thành bài kiểm tra</h2>
+          <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
         </div>
 
         <div class="results-stats">
@@ -153,27 +150,6 @@
         </div>
       </div>
     </div>
-
-    <!-- NEW Confirmation Popup for Exiting Test -->
-    <div v-if="showConfirmExitPopup" class="confirm-exit-popup results-modal">
-      <div class="modal-overlay" @click="cancelExitToLearn"></div>
-      <div class="results-content" style="max-width: 400px;">
-        <div class="results-header">
-          <h3>Xác nhận thoát</h3>
-        </div>
-        <p style="text-align: center; margin-bottom: 20px;">Bạn có chắc muốn thoát bài kiểm tra hiện tại và quay lại ôn luyện? Tiến trình sẽ không được lưu.</p>
-        <div class="results-actions">
-          <button class="secondary-button" @click="cancelExitToLearn">
-            <i class="fas fa-ban"></i>
-            Hủy
-          </button>
-          <button class="primary-button" @click="confirmExitToLearn">
-            <i class="fas fa-check-circle"></i>
-            Xác nhận thoát
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -181,6 +157,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import ExitTestButton from '@/components/layout/button-exit/ExitTestButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -199,7 +176,6 @@ const totalTime = ref(0);
 const timer = ref(null);
 const answers = ref([]);
 const isReviewing = ref(false);
-const showConfirmExitPopup = ref(false);
 
 // Helper functions
 const generateOptions = (correctAnswer, flashcards) => {
@@ -594,29 +570,16 @@ const returnToLearn = () => {
 
 // NEW Functions for Exit Confirmation
 const requestExitToLearn = () => {
-  // Pause timer if active and not already paused
-  if (timer.value && timeRemaining.value > 0) {
-    clearInterval(timer.value); 
-    // No need to store pausedTimer.value = true, as exiting will clear it anyway
-  }
-  showConfirmExitPopup.value = true;
+  // This function is now handled by the child component
+  // We keep confirmExitToLearn as the action to be taken
 };
 
 const confirmExitToLearn = () => {
-  showConfirmExitPopup.value = false;
-  isReviewing.value = false; // Ensure review mode is off
-  if (timer.value) { // Clear timer if it was somehow still running
-    clearInterval(timer.value);
-  }
-  router.push({ name: 'flashcardLearn' }); 
+  router.push({ name: 'flashcardLearn' });
 };
 
 const cancelExitToLearn = () => {
-  // Resume timer if it was paused by requestExitToLearn AND the test is still ongoing
-  if (!showFinalResults && !isReviewing.value && timeRemaining.value > 0) {
-    startTimer(); // restartTimer might be more appropriate if it exists and preserves time
-  }
-  showConfirmExitPopup.value = false;
+    // This function is now handled by the child component
 };
 
 // Lifecycle hooks

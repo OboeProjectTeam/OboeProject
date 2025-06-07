@@ -68,7 +68,7 @@
         <div class="setting-item">
           <div class="item-info">
             <label>Tài khoản riêng tư</label>
-            <p class="item-description">Nếu bật, hồ sơ và các hoạt động của bạn sẽ không hiển thị công khai.</p>
+            <p class="item-description">Nếu bật, hồ sơ và các hoạt động của  sẽ không hiển thị công khai.</p>
           </div>
           <div class="item-control">
             <label class="switch">
@@ -86,7 +86,7 @@
         <div class="setting-item">
           <div class="item-info">
             <label>Xóa tài khoản</label>
-            <p class="item-description">Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.</p>
+            <p class="item-description">Hành động này không thể hoàn tác. Tất cả dữ liệu của  sẽ bị xóa vĩnh viễn.</p>
           </div>
           <div class="item-control">
             <button class="btn btn-danger">Xóa tài khoản của tôi</button>

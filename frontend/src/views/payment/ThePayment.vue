@@ -58,7 +58,7 @@
 
           <!-- PayPal View -->
           <div v-if="selectedMethod === 'paypal'" class="payment-details paypal-view">
-            <p class="external-payment-info">Bạn sẽ được chuyển hướng đến trang PayPal để hoàn tất thanh toán một cách an toàn.</p>
+            <p class="external-payment-info"> sẽ được chuyển hướng đến trang PayPal để hoàn tất thanh toán một cách an toàn.</p>
           </div>
 
           <!-- MoMo View -->
@@ -101,7 +101,7 @@
           </div>
           
           <p class="terms">
-            Bằng việc thanh toán, bạn đồng ý với <a href="#">Điều khoản dịch vụ</a>.
+            Bằng việc thanh toán,  đồng ý với <a href="#">Điều khoản dịch vụ</a>.
           </p>
         </div>
         

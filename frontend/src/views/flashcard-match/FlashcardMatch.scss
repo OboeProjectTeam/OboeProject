@@ -1,32 +1,46 @@
 @use '@/assets/css/index.scss' as *;
 .flashcard-match {
   max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
+  margin: 0 auto;
   font-family: 'Arial', sans-serif;
 }
 
 .match-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 20px;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+}
 
-  h1 {
-    font-size: 24px;
-    color: #333;
-  }
+.header-top-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .timer {
-    font-size: 20px;
-    color: #E94560;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: bold;
-  }
+.match-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+p.cards-count {
+  margin: 4px 0 0 0;
+  color: #666;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.timer {
+  font-size: 20px;
+  color: #E94560;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
 }
 
 .match-grid {

@@ -86,7 +86,7 @@ const changeValue = (event) => {
 }
 const checkValidate = () => {
   if (props.rules.length > 0) {
-    // ⚠ Bạn có thể thêm logic gọi validate ở đây
+    // ⚠  có thể thêm logic gọi validate ở đây
     // emit('message-error-input', props.name, msgErrorInput)
   }
 }

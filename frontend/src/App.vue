@@ -58,6 +58,6 @@ onMounted(() => {
 
 .router-view-wrapper {
   margin-top: 140px;
-  padding: 20px 80px;
+  padding: 20px 165px;
 }
 </style>

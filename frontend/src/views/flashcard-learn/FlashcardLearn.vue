@@ -289,12 +289,12 @@
         <div class="results-header">
           <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
           <h2>{{ learningStats.known === slides.length ? 
-            'Chà, bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' : 
+            'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' : 
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
         </div>
 
         <div class="progress-section">
-          <h3>Tiến độ của bạn</h3>
+          <h3>Tiến độ của </h3>
           <div class="progress-items">
             <div class="progress-item learning">
               <div class="label">Đang học</div>
@@ -355,7 +355,7 @@
             </div>
             <div class="option-details">
               <h4>Tự luận</h4>
-              <p>Viết câu trả lời của bạn</p>
+              <p>Viết câu trả lời của </p>
             </div>
           </div>
 
@@ -878,6 +878,14 @@ const cancelSettings = () => {
 const applySettings = () => {
   // Áp dụng các giá trị từ tempSettings
   autoplaySpeed.value = tempSettings.autoplaySpeed;
+  
+  // Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
+  if (tempSettings.trackProgress && !trackProgress.value) {
+    if (isAutoPlaying.value) {
+      stopAutoplay();
+      isAutoPlaying.value = false;
+    }
+  }
   trackProgress.value = tempSettings.trackProgress;
   
   // Xử lý đảo mặt thẻ nếu có thay đổi

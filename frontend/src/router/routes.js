@@ -17,7 +17,8 @@ import FlashcardMatch from '@/views/flashcard-match/FlashcardMatch.vue'
 import TheForum from "../views/forum/TheForum.vue";
 import ForumPostDetail from "../views/forum/ForumPostDetail.vue";
 import CreateForumPost from "../views/forum/CreateForumPost.vue";
-import TheProfile from '@/views/profile/TheProfile.vue';
+import ProfileDetail from "../views/forum/ForumProfile.vue";
+import MyProfile from '@/views/my-profile/MyProfile.vue';
 import TheSettings from '@/views/settings/TheSettings.vue';
 import TheUpgrade from '@/views/upgrade/TheUpgrade.vue';
 import ThePayment from '@/views/payment/ThePayment.vue';
@@ -58,6 +59,14 @@ const routes = [
     }
   },
   {
+    path: "/forum/u/:username",
+    name: "ProfileDetail",
+    component: ProfileDetail,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: "/login",
     name: "Login",
     component: TheLogin,
@@ -76,7 +85,7 @@ const routes = [
   {
     path: "/profile",
     name: "Profile",
-    component: TheProfile,
+    component: MyProfile,
     meta: {
       requiresAuth: true
     }

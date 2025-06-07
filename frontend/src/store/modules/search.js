@@ -896,7 +896,7 @@ export default {
         sentence:
           "あなたの口座がある銀行が所有しないATM現金自動預け入れ支払機でキャッシュ・カードを使えば、使用者手数料を払わなければ...",
         translation:
-          "Nếu bạn sử dụng thẻ tại ATM không thuộc ngân hàng của mình, bạn sẽ phải trả phí giao dịch...",
+          "Nếu  sử dụng thẻ tại ATM không thuộc ngân hàng của mình,  sẽ phải trả phí giao dịch...",
         comments: [
           {
             id: 1,
@@ -962,7 +962,7 @@ export default {
         sentence:
           "あなたの次の職場は人手不足なので、最初から全力で仕事しなければならないだろう",
         translation:
-          "Nơi làm việc tiếp theo của bạn đang thiếu nhân lực, nên bạn có lẽ sẽ phải làm hết sức mình ngay từ đầu.",
+          "Nơi làm việc tiếp theo của  đang thiếu nhân lực, nên  có lẽ sẽ phải làm hết sức mình ngay từ đầu.",
         comments: [
           {
             id: 1,
@@ -977,7 +977,7 @@ export default {
       {
         id: 4,
         sentence: "ルーシーの代わりに、ジェーンが今夜あなたのお世話をします",
-        translation: "Tối nay Jane sẽ chăm sóc bạn thay cho Lucy.",
+        translation: "Tối nay Jane sẽ chăm sóc  thay cho Lucy.",
         comments: [
           {
             id: 1,
@@ -992,7 +992,7 @@ export default {
       {
         id: 5,
         sentence: "仮に私があなたの立場なら",
-        translation: "Giả sử tôi ở trong vị trí của bạn...",
+        translation: "Giả sử tôi ở trong vị trí của ...",
         comments: [
           {
             id: 1,
@@ -1009,7 +1009,7 @@ export default {
         sentence:
           "「タイの人々は地味な服装をしていますね」「あなたももしお寺巡りをしたいなら派手な服装は避けた方がいいですよ」",
         translation:
-          "“Người Thái ăn mặc khá giản dị nhỉ.” “Nếu bạn cũng muốn tham quan chùa thì nên tránh mặc đồ sặc sỡ nhé.”",
+          "“Người Thái ăn mặc khá giản dị nhỉ.” “Nếu  cũng muốn tham quan chùa thì nên tránh mặc đồ sặc sỡ nhé.”",
         comments: [
           {
             id: 1,
@@ -1025,7 +1025,7 @@ export default {
         id: 7,
         sentence: "あなたが思い切ってあの状況から脱してくれてうれしい。",
         translation:
-          "Tôi thật sự mừng vì bạn đã dũng cảm thoát ra khỏi tình huống đó.",
+          "Tôi thật sự mừng vì  đã dũng cảm thoát ra khỏi tình huống đó.",
         comments: [
           {
             id: 1,
@@ -1040,7 +1040,7 @@ export default {
       {
         id: 8,
         sentence: "あなたみたいにきれいな人に会ったのは初めてです",
-        translation: "Đây là lần đầu tiên tôi gặp một người xinh đẹp như bạn.",
+        translation: "Đây là lần đầu tiên tôi gặp một người xinh đẹp như .",
         comments: [
           {
             id: 1,
@@ -1057,7 +1057,7 @@ export default {
         sentence:
           "会社であなたに会えなくなるのはとても寂しいけど、一年間海外で働くというあなたの夢が実現したこと là素晴らしいと思うわ。",
         translation:
-          "Không gặp bạn ở công ty nữa thật sự khiến tôi rất buồn, nhưng tôi nghĩ thật tuyệt khi bạn đã thực hiện được ước mơ làm việc ở nước ngoài trong một năm.",
+          "Không gặp  ở công ty nữa thật sự khiến tôi rất buồn, nhưng tôi nghĩ thật tuyệt khi  đã thực hiện được ước mơ làm việc ở nước ngoài trong một năm.",
         comments: [
           {
             id: 1,
@@ -1074,7 +1074,7 @@ export default {
         sentence:
           "あなたの家にいると、まるでふるさとに戻ったようにゆったりとくつろぐ",
         translation:
-          "Khi ở nhà bạn, tôi có cảm giác thư thái như thể mình đã trở về quê hương.",
+          "Khi ở nhà , tôi có cảm giác thư thái như thể mình đã trở về quê hương.",
         comments: [
           {
             id: 1,

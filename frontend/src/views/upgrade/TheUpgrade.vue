@@ -11,7 +11,7 @@
         <div class="card-header">
           <h2 class="plan-name">Miễn phí</h2>
           <p class="plan-price">0<span class="price-unit">đ</span></p>
-          <p class="plan-description">Các tính năng cơ bản để bắt đầu hành trình của bạn.</p>
+          <p class="plan-description">Các tính năng cơ bản để bắt đầu hành trình của .</p>
         </div>
         <div class="card-body">
           <ul class="features-list">
@@ -24,7 +24,7 @@
           </ul>
         </div>
         <div class="card-footer">
-          <button class="btn btn-secondary" disabled>Gói hiện tại của bạn</button>
+          <button class="btn btn-secondary" disabled>Gói hiện tại của </button>
         </div>
       </div>
 

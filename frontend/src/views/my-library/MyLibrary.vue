@@ -1,7 +1,7 @@
 <template>
   <div class="library">
     <div class="library__header">
-      <h1>Thư viện của bạn</h1>
+      <h1>Thư viện của tôi </h1>
       <div class="search-bar">
         <input type="text" v-model="searchQuery" placeholder="Tìm kiếm thẻ ghi nhớ" />
         <i class="fas fa-search"></i>
@@ -67,7 +67,7 @@
       <div v-if="!studySets.length" class="empty-state">
         <i class="fas fa-book-open"></i>
         <h3>Chưa có học liệu nào</h3>
-        <p>Tạo học liệu đầu tiên của bạn để bắt đầu học tập</p>
+        <p>Tạo học liệu đầu tiên của  để bắt đầu học tập</p>
         <router-link to="/create/flashcard" class="create-btn">
           Tạo học liệu
         </router-link>
@@ -102,47 +102,12 @@
       <div v-if="!quizzes.length" class="empty-state">
         <i class="fas fa-question-circle"></i>
         <h3>Chưa có bài kiểm tra nào</h3>
-        <p>Tạo bài kiểm tra để đánh giá kiến thức của bạn</p>
+        <p>Tạo bài kiểm tra để đánh giá kiến thức của </p>
         <router-link to="/create/quiz" class="create-btn">
           Tạo bài kiểm tra
         </router-link>
       </div>
     </div>
-
-    <!-- Blog -->
-    <div v-if="activeTab === 'blogs'" class="content-section">
-      <div class="content-grid">
-        <div v-for="blog in blogs" :key="blog.id" class="content-card">
-          <div class="card-info">
-            <h3>{{ blog.title }}</h3>
-            <p class="card-meta">
-              <span>{{ formatDate(blog.createdAt) }}</span>
-            </p>
-          </div>
-          <div class="card-actions">
-            <router-link :to="`/blog/${blog.id}`" class="action-btn primary">
-              <i class="fas fa-eye"></i>
-              Xem
-            </router-link>
-            <button @click="editBlog(blog.id)" class="action-btn">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button @click="deleteBlog(blog.id)" class="action-btn">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div v-if="!blogs.length" class="empty-state">
-        <i class="fas fa-blog"></i>
-        <h3>Chưa có bài viết nào</h3>
-        <p>Chia sẻ kiến thức của bạn qua các bài viết</p>
-        <router-link to="/create/blog" class="create-btn">
-          Viết bài
-        </router-link>
-      </div>
-    </div>
-
     <!-- Mục yêu thích -->
     <div v-if="activeTab === 'favorites'" class="content-section">
       <div class="favorites-tabs">
@@ -361,7 +326,7 @@ const editSet = (id) => {
 }
 
 const deleteSet = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa học liệu này?')) return
+  if (!confirm(' có chắc chắn muốn xóa học liệu này?')) return
   try {
     await store.dispatch('flashcard/deleteFlashcardSet', id)
   } catch (error) {
@@ -374,7 +339,7 @@ const editQuiz = (id) => {
 }
 
 const deleteQuiz = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa bài kiểm tra này?')) return
+  if (!confirm(' có chắc chắn muốn xóa bài kiểm tra này?')) return
   try {
     // await api.deleteQuiz(id)
     quizzes.value = quizzes.value.filter(quiz => quiz.id !== id)
@@ -388,7 +353,7 @@ const editBlog = (id) => {
 }
 
 const deleteBlog = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return
+  if (!confirm(' có chắc chắn muốn xóa bài viết này?')) return
   try {
     // await api.deleteBlog(id)
     blogs.value = blogs.value.filter(blog => blog.id !== id)

@@ -2,42 +2,46 @@
 .flashcard-test {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 24px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
-
-.test-header {
+.header-top-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
 
-  .test-info {
-    h2 {
-      font-size: 24px;
-      color: #333;
-      margin: 0 0 4px 0;
-    }
+.test-header h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
 
-    .progress-text {
-      font-size: 14px;
-      color: #666;
-      margin: 0;
-    }
-  }
+.progress-text {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0 0 0;
+}
 
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-  .exit-button {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
+.timer {
+  font-size: 18px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exit-button {
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 .progress-bar {
@@ -248,53 +252,48 @@
   &:hover:not(:disabled) {
     border-color: #E94560;
     color: #E94560;
+    background: #fff1f3;
   }
 }
 
+.full-width-button {
+  width: 100%;
+}
+
+/* Results Modal Styles */
 .results-modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
 
-  .modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-  }
-
-  .results-content {
-    position: relative;
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    width: 480px;
-    z-index: 1;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  }
+.results-content {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .results-header {
-  text-align: center;
   margin-bottom: 24px;
-
   .celebration-image {
-    width: 120px;
+    width: 100px;
+    height: 100px;
     margin-bottom: 16px;
   }
-
   h2 {
-    font-size: 20px;
+    font-size: 24px;
     color: #333;
-    margin: 0;
   }
 }
 
@@ -302,42 +301,38 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 
   .stat-item {
-    text-align: center;
-    padding: 16px;
     background: #f8f9fa;
+    padding: 16px;
     border-radius: 12px;
-
-    .stat-label {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 4px;
-    }
-
-    .stat-value {
-      font-size: 24px;
-      font-weight: 600;
-      color: #E94560;
-    }
+  }
+  .stat-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
   }
 }
 
 .results-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
+  gap: 16px;
 
-.results-actions-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+  .results-actions-row {
+    display: flex;
+    gap: 16px;
 
-.full-width-button {
-  width: 100%;
+    .secondary-button {
+      flex: 1;
+    }
+  }
 }
 
 .confirm-exit-popup .results-content {

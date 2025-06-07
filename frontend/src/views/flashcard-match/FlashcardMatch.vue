@@ -1,11 +1,17 @@
 <template>
   <div class="flashcard-match">
     <div class="match-header">
-      <h1>Ghép Thẻ</h1>
-      <div class="timer">
-        <i class="fas fa-clock"></i>
-        <span>{{ formattedTime }}</span>
+      <div class="header-top-line">
+        <h1>Ghép Thẻ</h1>
+        <div class="header-actions">
+          <div class="timer">
+            <i class="fas fa-clock"></i>
+            <span>{{ formattedTime }}</span>
+          </div>
+          <ExitTestButton @exit="confirmExitToLearn" />
+        </div>
       </div>
+      <p class="cards-count">{{ gridItems.length / 2 }} cặp thẻ</p>
     </div>
 
     <div class="match-grid" :class="gridLayoutClass">
@@ -31,7 +37,7 @@
       <div class="popup-overlay"></div>
       <div class="popup-content">
         <h2>Chúc mừng!</h2>
-        <p>Bạn đã hoàn thành trò chơi ghép thẻ trong {{ finalTime }}.</p>
+        <p> đã hoàn thành trò chơi ghép thẻ trong {{ finalTime }}.</p>
         <div class="popup-actions">
           <button @click="playAgain" class="primary-button">Chơi lại</button>
           <button @click="returnToLearnPage" class="secondary-button">Về trang học</button>
@@ -45,6 +51,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import ExitTestButton from '@/components/layout/button-exit/ExitTestButton.vue';
 
 const store = useStore();
 const router = useRouter();
@@ -217,6 +224,10 @@ const returnToLearnPage = () => {
   // FlashcardLearn component should handle restoring its state
 };
 
+const confirmExitToLearn = () => {
+  returnToLearnPage();
+};
+
 onMounted(() => {
   initializeGame();
 });
@@ -228,5 +239,5 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/views/create-quiz/CreateQuiz.scss';
+@use '@/views/flashcard-match/FlashcardMatch.scss';
 </style> 

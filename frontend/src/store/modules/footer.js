@@ -65,7 +65,7 @@ export default {
         service: [
           {
             title:
-              "Oboe rất tôn trọng và trân trọng từng góp ý của bạn để nâng cao chất lượng dịch vụ.",
+              "Oboe rất tôn trọng và trân trọng từng góp ý của  để nâng cao chất lượng dịch vụ.",
             link: "",
           },
           {
