@@ -5,11 +5,12 @@
   </template>
   
 <script setup>
-  import loginBg from './../../assets/img/login.jpg'
-  import './TheLoginCss.css'
-import FormAuthen from '../../components/form-login/FormAuthen.vue';
+  import loginBg from '@/assets/img/login.jpg'
+  import '@/views/login/TheLogin.scss';
+  import FormAuthen from '@/components/layout/form-login/FormAuthen.vue';
 
 </script>
+
 
 
   

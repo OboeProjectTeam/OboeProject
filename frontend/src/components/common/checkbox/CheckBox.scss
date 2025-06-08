@@ -1,0 +1,43 @@
+@use '@/assets/css/index.scss' as *;
+
+.smart-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  input {
+    display: none;
+
+    &:checked + .checkmark {
+      background-color: $primary-color;
+      border-color: $primary-color;
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 1.5px;
+        top: 0px;
+        width: 3px;
+        height: 6px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+    }
+  }
+
+  .checkmark {
+    width: 11px;
+    height: 11px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    transform: rotate(0deg);
+  }
+}

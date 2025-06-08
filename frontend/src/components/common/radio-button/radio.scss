@@ -1,0 +1,24 @@
+@use '@/assets/css/index.scss' as *;
+.m-radio-base{
+    width: max-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right:10px ;
+}
+
+.m-radio-button{
+    accent-color: green;
+    cursor: pointer;
+}
+.m-radio-button:hove{
+    accent-color: green;
+}
+.m-radio-base label{
+    cursor: pointer;
+}
+.m-radio-base input{
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+}

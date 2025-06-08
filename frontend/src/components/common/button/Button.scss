@@ -1,0 +1,95 @@
+@use '@/assets/css/index.scss' as *;
+  
+.m-btn {
+  font-size: 13px;
+  background-color: $primary-color;
+  color: #ffffff;
+  border: none;
+  border-radius: 3px;
+  text-align: center;
+  padding: 0 16px;
+  height: $height-default;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  min-width: 80px;
+
+  &:hover {
+    background-color: $hover-btn-color;
+  }
+
+  &.close {
+    background-color: #ffffff;
+    border: 1px solid #8d9096;
+    color: #111;
+
+    &:hover {
+      background-color: rgb(225, 224, 224);
+    }
+
+    &:active {
+      background-color: rgb(215, 215, 215);
+    }
+  }
+
+  &.delete {
+    background-color: #de3617;
+    border: unset;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #ff2f0a;
+    }
+
+    &:active {
+      background-color: #f83917;
+    }
+  }
+
+  &.m-btn__icon {
+    padding: 0 16px;
+
+    i {
+      font-size: 16px;
+      padding-right: 6px;
+    }
+  }
+
+  &.m-btn-icon__drop {
+    text-align: center;
+    padding: 0 12px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    min-width: max-content;
+    left: -3px;
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: "";
+      width: 1px;
+      height: 40px;
+      top: 0;
+      left: 0;
+      background-color: #ffffff;
+    }
+
+    i {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+.disabled-btn {
+  cursor: not-allowed;
+  color: #bdbec0 !important;
+
+  &:hover {
+    background-color: #de3617 !important;
+  }
+}
+
+.m-btn-1 {
+  display: flex;
+}

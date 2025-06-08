@@ -1,0 +1,56 @@
+@use '@/assets/css/index.scss' as *;
+
+.search-bar {
+    width: 525px;
+    position: relative;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border: none;
+    border-bottom: 1px solid black;
+  }
+  
+  input:focus {
+    border: none;
+    border-bottom: 2px solid black;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  .suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  .suggestion-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .suggestion-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .kana {
+    margin-left: 8px;
+    color: #555;
+  }
+  
+  .meaning {
+    font-size: 13px;
+    color: #666;
+  }

@@ -1,0 +1,94 @@
+@use '@/assets/css/index.scss' as *;
+.word-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.word-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.4);
+  padding: 24px;
+}
+
+.word-info {
+  margin-bottom: 40px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.word-kanji {
+  font-size: 4rem;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: $primary-color;
+}
+
+.word-kana {
+  font-size: 2rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.word-meaning {
+  font-size: 1.5rem;
+  color: #444;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.kanji-section {
+  margin-top: 24px;
+  border-top: 1px solid #eee;
+  padding-top: 24px;
+}
+
+.kanji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.kanji-item {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+.kanji-char {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.kanji-info {
+  font-size: 0.875rem;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.empty-message {
+  color: #666;
+}
+
+.not-found {
+  text-align: center;
+  color: #666;
+  padding: 24px;
+} 

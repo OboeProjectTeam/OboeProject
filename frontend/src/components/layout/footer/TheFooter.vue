@@ -36,7 +36,7 @@
                   <p>{{ item.title }}</p>
                 </a>
               </li>
-              <MsButton class="button-hover" border="1px solid #000" width="100%" height="40px" backgroundColor="#ffff"
+              <MsButton class="button-hover footer-comment-btn" border="1px solid #000" height="40px" backgroundColor="#ffff"
                 color="black" v-if="outerIndex === listServies.length - 1">
                 SEND COMMENTS
               </MsButton>
@@ -50,8 +50,8 @@
 
 <script setup>
 import { useStore } from 'vuex'; // Import useStore to access Vuex store
-import TheLogo from '../../logo/TheLogo.vue';
-import MsButton from '../../button/MsButton.vue';
+import TheLogo from '@/components/layout/logo/TheLogo.vue';
+import MsButton from '@/components/common/button/MsButton.vue';
 
 const store = useStore(); // Get Vuex store
 
@@ -62,5 +62,9 @@ const listServies = store.getters['footer/ListServies'];
 </script>
 
 <style lang="scss" scoped>
-@import url(./TheFooterCss.scss);
+@use '@/components/layout/footer/TheFooter.scss';
+
+.footer-comment-btn {
+  width: 100%;
+}
 </style>
