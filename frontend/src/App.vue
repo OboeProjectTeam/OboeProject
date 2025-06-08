@@ -26,7 +26,7 @@ const store = useStore()
 const router = useRouter()
 
 const isAuthRoute = computed(() => {
-  return ['/login', '/register'].includes(route.path)
+  return ['/login', '/register','/intro'].includes(route.path)
 })
 
 const goToUpgrade = () => {

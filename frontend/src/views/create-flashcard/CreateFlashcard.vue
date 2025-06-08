@@ -5,17 +5,15 @@
         <i class="fas fa-arrow-left"></i>
         Quay lại Trang Học
       </button>
-      <h1>{{ isEditing ? 'Chỉnh sửa Bộ Thẻ Ghi Nhớ' : 'Tạo Bộ Thẻ Ghi Nhớ Mới' }}</h1>
+      <div class="flex-jsb">
+        <h1>{{ isEditing ? 'Chỉnh sửa Bộ Thẻ Ghi Nhớ' : 'Tạo Bộ Thẻ Ghi Nhớ Mới' }}</h1>
+        <button class="ai-btn">Tạo bằng AI</button>
+      </div>
     </div>
     <div class="form-container">
       <div class="form-group">
         <label>Tên bộ thẻ <span class="required">*</span></label>
-        <input 
-          v-model="title" 
-          type="text" 
-          placeholder="Nhập tên bộ thẻ..." 
-          :class="{ 'error': showError && !title }"
-        />
+        <input v-model="title" type="text" placeholder="Nhập tên bộ thẻ..." :class="{ 'error': showError && !title }" />
         <span v-if="showError && !title" class="error-message">
           Vui lòng nhập tên bộ thẻ
         </span>
@@ -44,13 +42,8 @@
                 <input type="radio" v-model="termSeparator" value="custom">
                 Tùy chỉnh
               </label>
-              <input 
-                v-if="termSeparator === 'custom'"
-                v-model="customTermSeparator"
-                type="text"
-                class="custom-separator-input"
-                placeholder="Nhập ký tự phân cách..."
-              />
+              <input v-if="termSeparator === 'custom'" v-model="customTermSeparator" type="text"
+                class="custom-separator-input" placeholder="Nhập ký tự phân cách..." />
             </div>
           </div>
           <div class="separator-group">
@@ -64,21 +57,13 @@
                 <input type="radio" v-model="cardSeparator" value="custom">
                 Tùy chỉnh
               </label>
-              <input 
-                v-if="cardSeparator === 'custom'"
-                v-model="customCardSeparator"
-                type="text"
-                class="custom-separator-input"
-                placeholder="Nhập ký tự phân cách..."
-              />
+              <input v-if="cardSeparator === 'custom'" v-model="customCardSeparator" type="text"
+                class="custom-separator-input" placeholder="Nhập ký tự phân cách..." />
             </div>
           </div>
         </div>
-        <textarea 
-          v-model="importText" 
-          class="import-textarea"
-          placeholder="Từ 1&#9;Định nghĩa 1&#10;Từ 2&#9;Định nghĩa 2&#10;Từ 3&#9;Định nghĩa 3"
-        ></textarea>
+        <textarea v-model="importText" class="import-textarea"
+          placeholder="Từ 1&#9;Định nghĩa 1&#10;Từ 2&#9;Định nghĩa 2&#10;Từ 3&#9;Định nghĩa 3"></textarea>
         <div class="preview-section" v-if="importText">
           <h3>Xem trước</h3>
           <div class="preview-cards">
@@ -163,7 +148,7 @@ onMounted(() => {
   // Check if coming from learning page
   fromLearningPage.value = route.query.fromLearn === 'true'
   originalDeckId.value = route.query.deckId
-  
+
   // Try to load learning page state first
   const learningState = localStorage.getItem('flashcardLearnState')
   if (learningState) {
@@ -197,7 +182,7 @@ const autoSave = () => {
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout)
   }
-  
+
   autoSaveTimeout = setTimeout(() => {
     const state = {
       title: title.value,
@@ -222,12 +207,12 @@ onBeforeUnmount(() => {
 
 const validateForm = () => {
   showError.value = false
-  
+
   if (!title.value.trim()) {
     showError.value = true
     return false
   }
-  
+
   return true
 }
 
@@ -242,16 +227,16 @@ const cancelImport = () => {
 
 const previewCards = computed(() => {
   if (!importText.value) return []
-  
-  const separator = termSeparator.value === 'tab' ? '\t' : 
-                   termSeparator.value === 'comma' ? ',' : 
-                   termSeparator.value === 'custom' ? customTermSeparator.value : '\t'
-  const lineSeparator = cardSeparator.value === 'newline' ? '\n' : 
-                       cardSeparator.value === 'custom' ? customCardSeparator.value : '\n'
-  
+
+  const separator = termSeparator.value === 'tab' ? '\t' :
+    termSeparator.value === 'comma' ? ',' :
+      termSeparator.value === 'custom' ? customTermSeparator.value : '\t'
+  const lineSeparator = cardSeparator.value === 'newline' ? '\n' :
+    cardSeparator.value === 'custom' ? customCardSeparator.value : '\n'
+
   if (termSeparator.value === 'custom' && !customTermSeparator.value) return []
   if (cardSeparator.value === 'custom' && !customCardSeparator.value) return []
-  
+
   return importText.value.split(lineSeparator)
     .filter(line => line.trim())
     .map(line => {
@@ -301,7 +286,7 @@ const saveFlashcard = async () => {
       cards: cards.value.filter(card => card.front.trim() && card.back.trim()),
       cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
     }
-    
+
     if (isEditing.value && originalDeckId.value) {
       // Update existing flashcard set
       await store.dispatch('flashcard/updateFlashcardSet', {
@@ -312,11 +297,11 @@ const saveFlashcard = async () => {
       // Create new flashcard set
       await store.dispatch('flashcard/createFlashcardSet', flashcardData)
     }
-    
+
     // Clean up storage
     localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem('flashcardLearnState')
-    
+
     // Navigate based on source
     if (fromLearningPage.value) {
       goBackToLearning()
@@ -331,4 +316,4 @@ const saveFlashcard = async () => {
 
 <style lang="scss" scoped>
 @use '@/views/create-flashcard/CreateFlashcard.scss';
-</style> 
+</style>

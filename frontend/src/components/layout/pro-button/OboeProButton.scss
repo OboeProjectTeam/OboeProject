@@ -19,7 +19,7 @@
   cursor: pointer;
   font-family: $font-family-bold;
   color: white;
-  background: linear-gradient(45deg, #dd475d, $btn-primary);
+  background: linear-gradient(45deg, $primary-color, $hover-btn-color);
   box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
   transition: all 0.3s ease;
 

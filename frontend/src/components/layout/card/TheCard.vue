@@ -26,7 +26,7 @@
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.description }}</p>
           <div class="flex see-more">
-            <button class="cta-button" @click.stop="onSeeMore(slide)">Xem thêm</button>
+            <button class="cta-button" @click.stop="onSeeMore(slide)">Hỏi AI</button>
           </div>
         </div>
         <div class="card-content flex" :class="{ 'back': true, 'visible': showBackIndex === index }">
@@ -43,7 +43,7 @@
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p>
           <div class="flex see-more">
-            <button class="cta-button" @click.stop="onSeeMore(slide)">Xem thêm</button>
+            <button class="cta-button" @click.stop="onSeeMore(slide)">Hỏi AI</button>
           </div>
         </div>
       </div>

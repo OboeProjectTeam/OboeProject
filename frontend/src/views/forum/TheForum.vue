@@ -16,14 +16,20 @@
             <!-- List Header -->
             <div class="list-header">
                 <div class="header-main">
-                     <div class="control-group">
+                    <!-- Button Đề Xuất đứng đầu -->
+                    <button class="suggest-btn" @click="sortBy('suggested')">
+                        Đề Xuất
+                    </button>
+                    <!-- Dropdown Tất cả chuyên mục -->
+                    <div class="control-group">
                         <div class="custom-select-wrapper">
                             <select id="category-filter" v-model="selectedCategory" @change="currentPage = 1">
                                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                             </select>
                         </div>
                     </div>
-                     <div class="control-group">
+                    <!-- Dropdown Tất cả các thẻ -->
+                    <div class="control-group">
                         <div class="custom-select-wrapper">
                             <select id="tag-filter" v-model="selectedTag" @change="currentPage = 1">
                                 <option value="all">Tất cả các thẻ</option>
@@ -299,14 +305,14 @@ function formatTimeAgo(date) {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background-color: $btn-primary;
+    background-color: $primary-color;
     color: white;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
 
     &:hover {
-        background-color: color.adjust($btn-primary, $lightness: -5%);
+        background-color: color.adjust($primary-color, $lightness: -5%);
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
@@ -366,8 +372,8 @@ function formatTimeAgo(date) {
 
             &:focus {
                 outline: none;
-                border-color: $btn-primary;
-                box-shadow: 0 0 0 3px color.adjust($btn-primary, $alpha: -0.7);
+                border-color: $primary-color;
+                box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
             }
         }
     }
@@ -473,7 +479,7 @@ function formatTimeAgo(date) {
             text-decoration: none;
             color: #343a40;
             &:hover {
-                color: $btn-primary;
+                color: $primary-color;
             }
         }
         .post-meta {
@@ -566,20 +572,36 @@ function formatTimeAgo(date) {
     transition: all 0.2s ease;
 
     &:hover:not(:disabled) {
-        border-color: $btn-primary;
-        color: $btn-primary;
+        border-color: $primary-color;
+        color: $primary-color;
     }
 
     &.active {
-        background-color: $btn-primary;
+        background-color: $primary-color;
         color: white;
-        border-color: $btn-primary;
+        border-color: $primary-color;
     }
 
     &:disabled {
         background-color: #f8f9fa;
         color: #adb5bd;
         cursor: not-allowed;
+    }
+}
+
+.suggest-btn {
+    padding: 8px 18px;
+    margin-right: 12px;
+    border: none;
+    border-radius: 6px;
+    background: $primary-color;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    &:hover {
+        background: $hover-btn-color;
     }
 }
 </style>

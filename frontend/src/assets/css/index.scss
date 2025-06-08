@@ -1,10 +1,19 @@
 // Định nghĩa biến SCSS
-$header-bg-color: #ffff;
-$menu-bg-color: rgb(233, 233, 233);
-$form-bg-color: rgb(156, 4, 4);
-$home-title-bg-color: rgb(57, 57, 65);
-$btn-primary: #b90449;
-$btn-primary-2: #772C3F;
+$primary-color: #b90449;
+$secondary-color: #ffc107;
+$accent-color: #c50000;
+$background-color: #f8f9fa;
+$border-color: #444;
+$hover-btn-color: #9a082c;
+
+
+
+
+// $menu-bg-color: rgb(233, 233, 233);
+// $form-bg-color: rgb(156, 4, 4);
+// $home-title-bg-color: rgb(57, 57, 65);
+// $primary-color: #b90449;
+// $primary-color-2: #772C3F;
 $height-default: 34px;
 $height-header: 100px;
 $header-footer-border-radius: 20px;
@@ -261,7 +270,7 @@ li {
 }
 
 .p-hover:hover {
-  color: $btn-primary;
+  color: $primary-color;
 }
 
 .border-hover:hover {
@@ -326,4 +335,114 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .bd-form{
   border: 1px solid #dee2e6;
+}
+ //Drak
+
+ body.dark-mode {
+  background: #18191a !important;
+  color: #f1f1f1 !important;
+}
+
+body.dark-mode,
+body.dark-mode * {
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+body.dark-mode .settings-page-container,
+body.dark-mode .settings-sidebar,
+body.dark-mode .settings-card,
+body.dark-mode .upgrade-promo,
+body.dark-mode .danger-zone,
+body.dark-mode .header,
+body.dark-mode .footer,
+body.dark-mode .content-section,
+body.dark-mode .container,
+body.dark-mode .main,
+body.dark-mode .card,
+body.dark-mode .info-section,
+body.dark-mode .forum-container,
+body.dark-mode .post-list,
+body.dark-mode .post-item,
+body.dark-mode .horizontal-scroll,
+body.dark-mode .content-card {
+  background: #23272f !important;
+  color: #f1f1f1 !important;
+  border-color: #333 !important;
+}
+
+body.dark-mode .settings-sidebar,
+body.dark-mode .header,
+body.dark-mode .footer {
+  background: #20232a !important;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background: #18191a !important;
+  color: #f1f1f1 !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .btn,
+body.dark-mode .btn-upgrade,
+body.dark-mode .ai-btn {
+  background: #333 !important;
+  color: #fff !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .btn-danger {
+  background: #b71c1c !important;
+  color: #fff !important;
+}
+
+body.dark-mode .nav-link {
+  color: #f1f1f1 !important;
+}
+body.dark-mode .nav-link.active,
+body.dark-mode .nav-link:hover {
+  background: #333 !important;
+  color: #ff5252 !important;
+}
+
+body.dark-mode .info-section__icon,
+body.dark-mode .promo-icon {
+  color: #ff5252 !important;
+}
+
+body.dark-mode .info-section__link,
+body.dark-mode .upgrade-promo .promo-text a {
+  color: #ff5252 !important;
+}
+
+body.dark-mode .main-search-bar input[type="text"] {
+  background: #23272f !important;
+  color: #f1f1f1 !important;
+  border-color: #444 !important;
+}
+
+body.dark-mode .main-search-bar button {
+  background: #d32f2f !important;
+  color: #fff !important;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .sidebar-title {
+  color: #fff !important;
+}
+
+body.dark-mode .danger-zone {
+  border-color: #b71c1c !important;
+}
+
+body.dark-mode .suggest-btn {
+  background: #d32f2f !important;
+  color: #fff !important;
+}
+
+body.dark-mode .language-select {
+  background: #23272f !important;
+  color: #f1f1f1 !important;
+  border-color: #444 !important;
 }

@@ -286,7 +286,7 @@ const replies = ref([
   font-size: 0.95rem;
 
   a {
-    color: $btn-primary;
+    color: $primary-color;
     text-decoration: none;
     font-weight: 600;
     &:hover {
@@ -333,7 +333,7 @@ const replies = ref([
         color: #343a40;
         cursor: pointer;
         &:hover {
-          color: $btn-primary;
+          color: $primary-color;
         }
       }
       .post-time {
@@ -439,7 +439,7 @@ const replies = ref([
         margin-right: 10px;
         cursor: pointer;
         &:hover {
-          color: $btn-primary;
+          color: $primary-color;
         }
       }
       .post-time {
@@ -482,8 +482,8 @@ const replies = ref([
     }
     
     &:hover {
-      color: $btn-primary;
-      background-color: color.adjust($btn-primary, $alpha: -0.9);
+      color: $primary-color;
+      background-color: color.adjust($primary-color, $alpha: -0.9);
     }
   }
 }
@@ -524,8 +524,8 @@ const replies = ref([
     
     &:focus {
       outline: none;
-      border-color: $btn-primary;
-      box-shadow: 0 0 0 3px color.adjust($btn-primary, $alpha: -0.7);
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
     }
 }
 .submit-reply-btn, .cancel-reply-btn {
@@ -538,10 +538,10 @@ const replies = ref([
   transition: all 0.2s ease;
 }
 .submit-reply-btn {
-  background-color: $btn-primary;
+  background-color: $primary-color;
   color: white;
   &:hover {
-    background-color: color.adjust($btn-primary, $lightness: -5%);
+    background-color: color.adjust($primary-color, $lightness: -5%);
   }
 }
 

@@ -242,8 +242,8 @@ input[type="text"], textarea, select, .tags-input-trigger {
 
   &:focus, &.is-active {
     outline: none;
-    border-color: $btn-primary;
-    box-shadow: 0 0 0 3px color.adjust($btn-primary, $alpha: -0.7);
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
   }
 }
 
@@ -349,7 +349,7 @@ textarea { resize: vertical; }
     cursor: pointer;
     &:hover { background-color: #f1f3f5; }
     &.add-new-tag {
-      color: $btn-primary;
+      color: $primary-color;
       font-weight: 500;
     }
     &.no-results {
@@ -377,9 +377,9 @@ textarea { resize: vertical; }
     transition: all 0.2s ease;
   }
   .btn-primary {
-    background-color: $btn-primary;
+    background-color: $primary-color;
     color: white;
-    &:hover { background-color: color.adjust($btn-primary, $lightness: -5%); }
+    &:hover { background-color: color.adjust($primary-color, $lightness: -5%); }
   }
   .btn-secondary {
     background-color: #e9ecef;

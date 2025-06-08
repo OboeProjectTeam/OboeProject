@@ -54,11 +54,11 @@
         <MCheckbox v-model="remember">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu" style="color: #E94560; " target="_blank">
+            <router-link to="/dieu-khoan-dich-vu" style="color: $primary-color; " target="_blank">
               Điều khoản dịch vụ
             </router-link>
             và
-            <router-link to="/quyen-rieng-tu" style="color: #E94560; " target="_blank">
+            <router-link to="/quyen-rieng-tu" style="color: $primary-color; " target="_blank">
               Chính sách quyền riêng tư
             </router-link>
             của Oboe

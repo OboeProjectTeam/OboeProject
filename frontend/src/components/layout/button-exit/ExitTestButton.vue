@@ -136,7 +136,7 @@ const confirmExit = () => {
   }
 
   .primary-button {
-    background-color: #E94560; /* Your primary color */
+    background-color: $primary-color; /* Your primary color */
     color: white;
     &:hover {
       opacity: 0.9;

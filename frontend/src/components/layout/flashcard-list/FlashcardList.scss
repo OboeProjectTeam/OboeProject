@@ -12,7 +12,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #E94560;
+  background: $primary-color;
   border: none;
   color: white;
   font-size: 1.25rem;
@@ -30,7 +30,7 @@
 }
 
 .flashcard-btn.active {
-  background: #d63d56;
+  background: $hover-btn-color;
 }
 
 .item-count {
@@ -136,7 +136,7 @@
 }
 
 .tab-btn.active {
-  background: #E94560;
+  background: $primary-color;
   color: white;
 }
 
@@ -157,12 +157,12 @@
 }
 
 .items-list::-webkit-scrollbar-thumb {
-  background: #E94560;
+  background: $primary-color;
   border-radius: 4px;
 }
 
 .items-list::-webkit-scrollbar-thumb:hover {
-  background: #d63d56;
+  background: $hover-btn-color;
 }
 
 .flashcard-item {
@@ -216,7 +216,7 @@
 
 .remove-btn:hover {
   background: #fee;
-  color: #E94560;
+  color: $primary-color;
 }
 
 .empty-message {
@@ -238,7 +238,7 @@
   gap: 8px;
   width: 100%;
   padding: 12px;
-  background: #E94560;
+  background: $primary-color;
   color: white;
   border: none;
   border-radius: 8px;
@@ -249,7 +249,7 @@
 }
 
 .view-all-btn:hover {
-  background: #d63d56;
+  background: $hover-btn-color;
   transform: translateY(-1px);
 }
 

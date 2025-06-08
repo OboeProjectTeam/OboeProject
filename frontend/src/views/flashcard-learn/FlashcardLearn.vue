@@ -140,9 +140,9 @@
                 <div class="definition">{{ getItemDefinition(item) }}</div>
               </div>
               <div class="term-actions">
-                <button class="edit-btn" @click.stop="editTerm(item)">
+                <!-- <button class="edit-btn" @click.stop="editTerm(item)">
                   <i class="fas fa-pencil-alt"></i>
-                </button>
+                </button> -->
                 <button class="delete-btn" @click.stop="deleteTerm(item)">
                   <i class="fas fa-trash"></i>
                 </button>
@@ -1298,7 +1298,7 @@ watch(allItems, (newItems) => {
         backcontent: backContent,
         backdescription: backDescription,
         bgColor: '#ffffff',
-        progressColor: '#E94560',
+        progressColor: '$primary-color',
         status: item.status || 'learning'
       };
     });

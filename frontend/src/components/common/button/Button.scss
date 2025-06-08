@@ -2,7 +2,7 @@
   
 .m-btn {
   font-size: 13px;
-  background-color: $btn-primary;
+  background-color: $primary-color;
   color: #ffffff;
   border: none;
   border-radius: 3px;
@@ -14,8 +14,8 @@
   font-family: inherit;
   min-width: 80px;
 
-  &:active {
-    background-color: $btn-primary-2;
+  &:hover {
+    background-color: $hover-btn-color;
   }
 
   &.close {

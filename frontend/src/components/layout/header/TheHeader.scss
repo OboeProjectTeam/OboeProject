@@ -1,9 +1,6 @@
 @use '@/assets/css/index.scss' as *;
-
-$active-color: #cc382c;
-
 .header {
-  background-color: $header-bg-color;
+  background-color: #fff;
   width: 100%;
   position: fixed;
   top: 0;
@@ -50,7 +47,7 @@ $active-color: #cc382c;
       left: 0;
       height: 3px;
       width: 100%;
-      background-color: $active-color;
+      background-color: $primary-color;
     }
   }
 }
@@ -64,7 +61,7 @@ $active-color: #cc382c;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #E94560;
+  border: 2px solid $primary-color;
 }
 .header__right{
   gap:28px !important
@@ -149,7 +146,7 @@ $active-color: #cc382c;
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background-color: $btn-primary;
+  background-color: $primary-color;
   color: white;
   border: none;
   border-radius: 8px;
@@ -158,7 +155,7 @@ $active-color: #cc382c;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #d13651;
+    background-color: $hover-btn-color;
   }
 
   i {

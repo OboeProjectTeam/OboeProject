@@ -207,7 +207,7 @@ const selectMethod = (method) => {
       border-top: 1px solid #e9ecef;
     }
     .total-price {
-      color: $btn-primary;
+      color: $primary-color;
       font-size: 1.5rem;
     }
   }
@@ -234,14 +234,14 @@ const selectMethod = (method) => {
     i { margin-right: 8px; }
 
     &:hover {
-      border-color: $btn-primary;
-      color: $btn-primary;
+      border-color: $primary-color;
+      color: $primary-color;
     }
 
     &.active {
-      border-color: $btn-primary;
-      background-color: color.adjust($btn-primary, $alpha: -0.9);
-      color: $btn-primary;
+      border-color: $primary-color;
+      background-color: color.adjust($primary-color, $alpha: -0.9);
+      color: $primary-color;
       font-weight: 700;
     }
   }
@@ -273,8 +273,8 @@ const selectMethod = (method) => {
     font-size: 1rem;
     &:focus {
       outline: none;
-      border-color: $btn-primary;
-      box-shadow: 0 0 0 3px color.adjust($btn-primary, $alpha: -0.7);
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
     }
   }
 }
@@ -301,7 +301,7 @@ const selectMethod = (method) => {
   padding: 15px;
   border: none;
   border-radius: 8px;
-  background-color: $btn-primary;
+  background-color: $primary-color;
   color: white;
   font-size: 1.1rem;
   font-weight: 700;
@@ -310,7 +310,7 @@ const selectMethod = (method) => {
   margin-top: 10px;
   i { margin-right: 10px; }
   &:hover {
-    background-color: color.adjust($btn-primary, $lightness: -5%);
+    background-color: color.adjust($primary-color, $lightness: -5%);
     transform: translateY(-2px);
   }
 }
@@ -358,7 +358,7 @@ const selectMethod = (method) => {
   color: #6c757d;
   margin-top: 20px;
   a {
-    color: $btn-primary;
+    color: $primary-color;
     font-weight: 600;
     text-decoration: none;
     &:hover { text-decoration: underline; }
@@ -370,7 +370,7 @@ const selectMethod = (method) => {
   margin-top: 20px;
   color: #6c757d;
   font-size: 0.9rem;
-  i { margin-right: 8px; color: #28a745; }
+  i { margin-right: 8px; color: $primary-color; }
 }
 
 // Responsive

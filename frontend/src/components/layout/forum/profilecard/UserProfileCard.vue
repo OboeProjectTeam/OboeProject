@@ -109,7 +109,7 @@ const profileLink = computed(() => {
         color: inherit;
         &:hover {
           .username {
-            color: $btn-primary;
+            color: $primary-color;
           }
         }
       }
@@ -148,10 +148,10 @@ const profileLink = computed(() => {
         i { font-size: 0.9em; }
       }
       .btn-primary {
-        background-color: $btn-primary;
-        border-color: $btn-primary;
+        background-color: $primary-color;
+        border-color: $primary-color;
         color: white;
-        &:hover { background-color: color.adjust($btn-primary, $lightness: -5%); }
+        &:hover { background-color: color.adjust($primary-color, $lightness: -5%); }
       }
       .btn-secondary {
         background-color: #f1f3f5;
@@ -177,7 +177,7 @@ const profileLink = computed(() => {
         gap: 8px;
         i { color: #868e96; font-size: 1.1em; }
         a {
-          color: $btn-primary;
+          color: $primary-color;
           text-decoration: none;
           font-weight: 500;
           &:hover { text-decoration: underline; }

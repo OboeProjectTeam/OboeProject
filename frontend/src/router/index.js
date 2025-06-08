@@ -20,7 +20,9 @@ router.beforeEach((to, from, next) => {
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
   
   auth.onAuthStateChanged(user => {
-    if (requiresAuth && !user) {
+    if (to.path === '/' && !user) {
+      next('/intro');
+    } else if (requiresAuth && !user) {
       // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
       next('/login');
     } else if (requiresGuest && user) {

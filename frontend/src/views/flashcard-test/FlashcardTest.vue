@@ -102,9 +102,9 @@
         <i class="fas" :class="isLastQuestion ? 'fa-check' : 'fa-arrow-right'"></i>
       </button>
       
-      <button v-else class="primary-button" @click="nextQuestion" :disabled="isLastQuestion">
-        Câu tiếp theo
-        <i class="fas fa-arrow-right"></i>
+      <button v-else class="primary-button" @click="nextQuestion" :disabled="isLastQuestion && !isReviewing">
+        {{ (isLastQuestion && isReviewing) ? 'Xem kết quả' : 'Câu tiếp theo' }}
+        <i class="fas" :class="(isLastQuestion && isReviewing) ? 'fa-poll' : 'fa-arrow-right'"></i>
       </button>
     </div>
 
@@ -400,18 +400,59 @@ const startTimer = () => {
   }, 1000);
 };
 
+const initializeTestFromHistory = (historyId) => {
+  // Stop any running test
+  if (timer.value) clearInterval(timer.value);
+
+  const id = parseInt(historyId, 10);
+  const historyItem = store.getters['history/getHistoryItemById'](id);
+
+  if (!historyItem) {
+    console.error('Could not find history item with ID:', id);
+    router.push('/library'); 
+    return;
+  }
+  
+  // Set test data from history
+  testType.value = historyItem.testType;
+  questions.value = historyItem.questions;
+  answers.value = historyItem.answers; // Load previous answers
+  
+  if (questions.value.length === 0) {
+    console.error('History item has no questions.');
+    router.push('/library');
+    return;
+  }
+  
+  // Setup component state for REVIEW
+  isReviewing.value = true;
+  showFinalResults.value = false;
+  currentQuestionIndex.value = 0;
+  showResults.value = true; // Show results panel from the start
+  timeRemaining.value = 0; // No timer for review
+
+  // Load the specific answer for the first question
+  loadUserAnswerForCurrentQuestion();
+};
+
 // Watch for route changes and initialize test type
-watch(() => route.query.type, (newType) => {
-  console.log('Route type changed to:', newType);
-  if (newType) {
-    testType.value = newType;
+watch(() => route.query, (newQuery, oldQuery) => {
+  // Prevent re-running if the relevant query parameters haven't changed.
+  if (oldQuery && newQuery.historyId === oldQuery.historyId && newQuery.type === oldQuery.type) {
+    return;
+  }
+
+  if (newQuery.historyId) {
+    nextTick(() => {
+      initializeTestFromHistory(newQuery.historyId);
+    });
+  } else if (newQuery.type) {
+    testType.value = newQuery.type;
     nextTick(() => {
       initializeTest();
     });
-  } else {
-    router.push({ name: 'flashcardLearn' });
   }
-}, { immediate: true });
+}, { immediate: true, deep: true });
 
 // Computed Properties
 const testTypeTitle = computed(() => {
@@ -430,7 +471,7 @@ const testTypeTitle = computed(() => {
 const currentQuestion = computed(() => questions.value[currentQuestionIndex.value] || {});
 const totalQuestions = computed(() => questions.value.length);
 const isLastQuestion = computed(() => currentQuestionIndex.value === totalQuestions.value - 1);
-const progressPercentage = computed(() => (currentQuestionIndex.value / totalQuestions.value) * 100);
+const progressPercentage = computed(() => ((currentQuestionIndex.value + 1) / totalQuestions.value) * 100);
 const showTimer = computed(() => true);
 
 const canSubmit = computed(() => {
@@ -514,6 +555,11 @@ const submitAnswer = () => {
 };
 
 const nextQuestion = () => {
+  if (isReviewing.value && isLastQuestion.value) {
+    showFinalResults.value = true;
+    return;
+  }
+
   if (currentQuestionIndex.value < questions.value.length - 1) {
     currentQuestionIndex.value++;
     if (isReviewing.value) {
@@ -543,6 +589,28 @@ const submitTest = () => {
   clearInterval(timer.value);
   totalTime.value = totalQuestions.value * 30 - timeRemaining.value;
   showFinalResults.value = true;
+  if (!isReviewing.value) {
+    saveTestToHistory();
+  }
+};
+
+const saveTestToHistory = async () => {
+  try {
+    const testData = {
+      title: `${testTypeTitle.value} (Lúc ${new Date().toLocaleTimeString('vi-VN')})`,
+      description: `Kết quả: ${score.value}/${totalQuestions.value}`,
+      questions: questions.value,
+      answers: answers.value,
+      score: score.value,
+      totalQuestions: totalQuestions.value,
+      testType: testType.value,
+    };
+    
+    await store.dispatch('history/saveTestToHistory', testData);
+    console.log('Test saved to history:', testData);
+  } catch (error) {
+    console.error('Failed to save test to history:', error);
+  }
 };
 
 const reviewAnswers = () => {
@@ -583,10 +651,6 @@ const cancelExitToLearn = () => {
 };
 
 // Lifecycle hooks
-onMounted(() => {
-  initializeTest();
-});
-
 onUnmounted(() => {
   if (timer.value) {
     clearInterval(timer.value);

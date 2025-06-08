@@ -293,9 +293,9 @@
         i { font-size: 0.9em; }
       }
       .btn-primary {
-        background-color: $btn-primary;
+        background-color: $primary-color;
         color: white;
-        &:hover { background-color: color.adjust($btn-primary, $lightness: -5%); }
+        &:hover { background-color: color.adjust($primary-color, $lightness: -5%); }
       }
       .btn-secondary {
         background-color: #f1f3f5;
@@ -304,9 +304,9 @@
         &:hover { background-color: #dee2e6; }
       }
       .btn-success {
-        background-color: #28a745;
+        background-color: $primary-color;
         color: white;
-         &:hover { background-color: #218838; }
+         &:hover { background-color: $hover-btn-color; }
       }
     }
   }
@@ -363,7 +363,7 @@
         }
   
         a {
-          color: $btn-primary;
+          color: $primary-color;
           text-decoration: none;
           &:hover { text-decoration: underline; }
         }
@@ -425,8 +425,8 @@
     border-bottom: 3px solid transparent;
   
     &.active {
-      color: $btn-primary;
-      border-bottom-color: $btn-primary;
+      color: $primary-color;
+      border-bottom-color: $primary-color;
     }
   }
   
@@ -468,7 +468,7 @@
           color: #343a40;
           text-decoration: none;
           &:hover {
-            color: $btn-primary;
+            color: $primary-color;
           }
         }
       }
@@ -577,8 +577,8 @@
   }
 
   .btn-edit { color: #868e96; }
-  .btn-save { color: #28a745; }
-  .btn-cancel { color: #dc3545; }
+  .btn-save { color: $primary-color; }
+  .btn-cancel { color: $primary-color; }
 
   .profile-notification {
     background-color: #e7f3ff;

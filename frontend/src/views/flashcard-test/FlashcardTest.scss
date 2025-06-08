@@ -52,7 +52,7 @@
 
   .progress {
     height: 100%;
-    background: #E94560;
+    background: $primary-color;
     transition: width 0.3s ease;
   }
 }
@@ -97,12 +97,12 @@
   transition: all 0.2s;
 
   &:hover:not(:disabled) {
-    border-color: #E94560;
+    border-color: $primary-color;
     background: #fff1f3;
   }
 
   &.selected {
-    border-color: #E94560;
+    border-color: $primary-color;
     background: #ffe3e7;
   }
 
@@ -152,7 +152,7 @@
     
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
 
     &:disabled {
@@ -186,12 +186,12 @@
   }
 
   &:hover:not(:disabled) {
-    border-color: #E94560;
+    border-color: $primary-color;
     background: #fff1f3;
   }
 
   &.selected {
-    border-color: #E94560;
+    border-color: $primary-color;
     background: #ffe3e7;
   }
 
@@ -235,12 +235,12 @@
 }
 
 .primary-button {
-  background: #E94560;
+  background: $primary-color;
   border: none;
   color: white;
 
   &:hover:not(:disabled) {
-    background: #d13651;
+    background: $hover-btn-color;
   }
 }
 
@@ -250,8 +250,8 @@
   color: #666;
 
   &:hover:not(:disabled) {
-    border-color: #E94560;
-    color: #E94560;
+    border-color: $primary-color;
+    color: $primary-color;
     background: #fff1f3;
   }
 }

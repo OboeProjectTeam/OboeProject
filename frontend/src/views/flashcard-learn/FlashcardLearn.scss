@@ -252,7 +252,7 @@
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #E94560;
+      background: $primary-color;
       border-radius: 3px;
     }
 
@@ -307,14 +307,14 @@
     &:hover {
       background: #fff1f3; // Màu hover nhẹ
       i, span {
-        color: #E94560;
+        color: $primary-color;
       }
     }
 
     &.active {
       background: #ffe3e7; // Màu nền nhạt hơn
       i, span {
-        color: #E94560; // Màu chữ đỏ
+        color: $primary-color; // Màu chữ đỏ
       }
     }
   }
@@ -362,7 +362,7 @@
       transform: translateY(-2px);
       
       i, span {
-        color: #E94560;
+        color: $primary-color;
       }
     }
 
@@ -374,7 +374,7 @@
       background: #ffe3e7;
       
       i, span {
-        color: #E94560;
+        color: $primary-color;
       }
 
       &:hover {
@@ -457,8 +457,8 @@
   transition: all 0.2s;
 
   &:hover {
-    border-color: #E94560;
-    color: #E94560;
+    border-color: $primary-color;
+    color: $primary-color;
   }
 
   i {
@@ -468,11 +468,11 @@
 
 .reset-btn {
   background: #fff1f3;
-  border-color: #E94560;
-  color: #E94560;
+  border-color: $primary-color;
+  color: $primary-color;
 
   &:hover {
-    background: #E94560;
+    background: $hover-btn-color;
     color: white;
   }
 }
@@ -547,19 +547,19 @@
 
   &:hover {
     background: #f8f9fa;
-    border-color: #E94560;
-    color: #E94560;
+    border-color: $primary-color;
+    color: $primary-color;  
   }
 }
 
 .confirm-btn {
-  background: #E94560;
-  border: 1px solid #E94560;
+  background: $primary-color;
+  border: 1px solid $primary-color;
   color: white;
 
   &:hover {
-    background: #d13651;
-    border-color: #d13651;
+    background: $hover-btn-color;
+    border-color: $hover-btn-color;
   }
 }
 
@@ -578,7 +578,7 @@
     
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
 
     /* Ẩn nút tăng giảm mặc định của trình duyệt */
@@ -612,7 +612,7 @@
       transition: all 0.2s;
 
       &:hover {
-        color: #E94560;
+        color: $primary-color;
         background: #fff1f3;
       }
 
@@ -682,7 +682,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 
     &:hover {
-      color: #E94560;
+      color: $primary-color;
       background: #fff1f3;
     }
 
@@ -722,7 +722,7 @@
     height: 0;
 
     &:checked + .toggle-slider {
-      background-color: #E94560;
+      background-color: $primary-color;
       
       &:before {
         transform: translateX(20px);
@@ -782,16 +782,16 @@
 
       &:hover {
         background: #fff1f3;
-        color: #E94560;
+        color: $primary-color;
       }
     }
 
     &.reset-btn {
       background: #fff1f3;
-      color: #E94560;
+      color: $primary-color;
 
       &:hover {
-        background: #E94560;
+        background: $hover-btn-color;
         color: white;
       }
     }
@@ -820,18 +820,18 @@
       color: #666;
 
       &:hover {
-        border-color: #E94560;
-        color: #E94560;
+        border-color: $primary-color;
+        color: $primary-color;
       }
     }
 
     &.confirm-btn {
-      background: #E94560;
-      border: 1px solid #E94560;
+      background: $primary-color;
+      border: 1px solid $primary-color;
       color: white;
 
       &:hover {
-        background: #d13651;
+        background: $hover-btn-color;
       }
     }
   }
@@ -874,17 +874,17 @@
 
       &:hover, &.active {
         background: #fff1f3;
-        color: #E94560;
+        color: $primary-color;
       }
 
       &.pressed {
         background: #ffe3e7;
-        color: #E94560;
+        color: $primary-color;
       }
     }
 
     &.known {
-      background: #E94560;
+      background: $primary-color;
       color: white;
 
       .count {
@@ -892,11 +892,11 @@
       }
 
       &:hover, &.active {
-        background: #d13651;
+        background: $hover-btn-color;
       }
 
       &.pressed {
-        background: #c62e47;
+        background: $hover-btn-color;
       }
     }
   }
@@ -918,7 +918,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 
   &.known {
-    background: #E94560;
+    background: $primary-color;
     color: white;
   }
 
@@ -1034,7 +1034,7 @@
     }
 
     &.known .count { 
-      color: #E94560; 
+      color: $primary-color; 
     }
     
     &.learning .count { 
@@ -1074,7 +1074,7 @@
     }
 
     &.practice-btn {
-      background: #E94560;
+      background: $primary-color;
       color: white;
 
       &:hover {
@@ -1144,14 +1144,14 @@
       padding: 8px 16px;
       border: none;
       border-radius: 20px;
-      background: #E94560;
+      background: $primary-color;
       color: white;
       font-size: 14px;
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover {
-        background: #d13651;
+        background: $hover-btn-color;
         transform: translateY(-1px);
       }
 
@@ -1253,7 +1253,7 @@
       transition: all 0.2s;
 
       &:hover {
-        background: #E94560;
+        background: $primary-color;
         color: white;
       }
 
@@ -1337,7 +1337,7 @@
 
   &.active {
     background: #ffe3e7;
-    border: 2px solid #E94560;
+    border: 2px solid $primary-color;
   }
 
   .option-icon {
@@ -1351,7 +1351,7 @@
 
     i {
       font-size: 24px;
-      color: #E94560;
+      color: $primary-color;
     }
   }
 
@@ -1397,18 +1397,18 @@
       color: #666;
 
       &:hover {
-        border-color: #E94560;
-        color: #E94560;
+        border-color: $primary-color;
+        color: $primary-color;
       }
     }
 
     &.start-test-btn {
-      background: #E94560;
-      border: 1px solid #E94560;
+      background: $primary-color;
+      border: 1px solid $primary-color;
       color: white;
 
       &:hover:not(:disabled) {
-        background: #d13651;
+        background: $hover-btn-color;
       }
 
       &:disabled {

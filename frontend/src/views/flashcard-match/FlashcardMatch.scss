@@ -36,7 +36,7 @@ p.cards-count {
 
 .timer {
   font-size: 20px;
-  color: #E94560;
+  color: $primary-color;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -87,8 +87,8 @@ p.cards-count {
   }
 
   &.selected {
-    border-color: #E94560;
-    box-shadow: 0 0 0 3px rgba(#E94560, 0.5);
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.5);
   }
 
   &.matched {
@@ -141,7 +141,7 @@ p.cards-count {
     min-width: 300px;
 
     h2 {
-      color: #E94560;
+      color: $primary-color;
       margin-bottom: 15px;
     }
     p {
@@ -160,9 +160,9 @@ p.cards-count {
         border: none;
       }
       .primary-button {
-        background-color: #E94560;
+        background-color: $primary-color;
         color: white;
-        &:hover { background-color: #d13651; }
+        &:hover { background-color: $hover-btn-color; }
       }
       .secondary-button {
         background-color: #f0f0f0;

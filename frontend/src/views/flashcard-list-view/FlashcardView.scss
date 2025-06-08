@@ -47,7 +47,7 @@
 }
 
 .stat-item i {
-  color: #E94560;
+  color: $primary-color;
 }
 
 .categories {
@@ -73,7 +73,7 @@
 }
 
 .category-card.active {
-  background: #E94560;
+  background: $primary-color;
   color: white;
 }
 
@@ -86,7 +86,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  color: #E94560;
+  color: $primary-color;
 }
 
 .category-card.active .category-icon {
@@ -153,13 +153,13 @@
 }
 
 .sort-btn:hover {
-  border-color: #E94560;
-  color: #E94560;
+  border-color: $primary-color;
+  color: $primary-color;
 }
 
 .sort-btn.active {
-  background: #E94560;
-  border-color: #E94560;
+  background: $primary-color;
+  border-color: $primary-color;
   color: white;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .action-btn.study {
-  background: #E94560;
+  background: $primary-color;
   color: white;
 }
 
@@ -277,7 +277,7 @@
 
 .remove-btn:hover {
   background: #fee;
-  color: #E94560;
+  color: $primary-color;
 }
 
 .empty-state {
@@ -320,8 +320,8 @@
 }
 
 .page-btn:hover:not(:disabled) {
-  border-color: #E94560;
-  color: #E94560;
+  border-color: $primary-color;
+  color: $primary-color;
 }
 
 .page-btn:disabled {
@@ -335,7 +335,7 @@
 }
 
 .select-indicator {
-  color: #E94560;
+  color: $primary-color;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 8px;

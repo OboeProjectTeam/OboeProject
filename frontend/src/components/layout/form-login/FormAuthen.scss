@@ -1,6 +1,6 @@
 
-$btn-primary: #b90449;
-$btn-primary-2: #772C3F;
+$primary-color: #b90449;
+$primary-color-2: #772C3F;
 
 .form__login {
     display: flex;
@@ -127,7 +127,7 @@ h1 {
     margin-bottom: 15px;
     font-size: 30px;
     letter-spacing: 0.05em;
-    color: #E94560 ;
+    color: $primary-color ;
     font-family: "GoogleSans-Semibold";
     font-style: normal;
 }
@@ -140,14 +140,14 @@ h1 {
     outline: none;
     background: none;
     position: relative;
-    color: #E94560;
+    color: $primary-color;
     border-radius: 3px;
     margin-bottom: 0px;
     border: none;
     text-transform: uppercase;
     font-weight: 700;
     letter-spacing: 0.1em;
-    background: $btn-primary-2;
+    background: $primary-color-2;
     transition: all 0.3s ease;
     overflow: hidden
 }
@@ -191,7 +191,7 @@ h1 {
 .styled-button:hover,
 .styled-button:active {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    background:$btn-primary ;
+    background:$primary-color ;
     transition: all 0.8s ease;
 }
 
@@ -480,7 +480,7 @@ h1 {
     animation: dash 1.3s ease forwards 0.5s;
     opacity: 0;
     stroke-linecap: round;
-    stroke: $btn-primary;
+    stroke: $primary-color;
     animation-play-state: running
 }
 

@@ -36,7 +36,7 @@
 
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
   }
 
@@ -85,7 +85,7 @@
 
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
   }
 }
@@ -114,7 +114,7 @@
 
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
   }
 }
@@ -122,7 +122,7 @@
 .remove-btn, .remove-option-btn {
   background: none;
   border: none;
-  color: #ff4757;
+  color: $primary-color;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
@@ -164,7 +164,7 @@
 }
 
 .save-btn {
-  background: #E94560;
+  background: $primary-color;
   color: white;
   border: none;
   padding: 12px 24px;

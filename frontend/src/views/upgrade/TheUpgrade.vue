@@ -121,7 +121,7 @@ const goToPayment = () => {
   &.pro-plan {
     border-color: transparent;
     border-width: 2px;
-    border-image: linear-gradient(45deg, $btn-primary, color.adjust($btn-primary, $hue: -20deg, $saturation: 10%)) 1;
+    border-image: linear-gradient(45deg, $primary-color, color.adjust($primary-color, $hue: -20deg, $saturation: 10%)) 1;
   }
 }
 
@@ -130,7 +130,7 @@ const goToPayment = () => {
   top: 15px;
   right: -40px;
   transform: rotate(45deg);
-  background: $btn-primary;
+  background: $primary-color;
   color: white;
   padding: 5px 40px;
   font-size: 12px;
@@ -153,7 +153,7 @@ const goToPayment = () => {
   .plan-price {
     font-size: 2.5rem;
     font-family: $font-family-bold;
-    color: $btn-primary;
+    color: $primary-color;
     margin: 0;
     .price-unit {
       font-size: 1.5rem;
@@ -174,7 +174,7 @@ const goToPayment = () => {
 }
 
 .pro-plan .card-header .plan-price {
-  color: $btn-primary;
+  color: $primary-color;
 }
 
 .plan-card:not(.pro-plan) .card-header .plan-price {
@@ -207,7 +207,7 @@ const goToPayment = () => {
         }
       }
       .pro-feature {
-        color: $btn-primary;
+        color: $primary-color;
       }
     }
   }
@@ -230,13 +230,13 @@ const goToPayment = () => {
   font-size: 1.1rem;
 
   &.btn-primary {
-    background-color: $btn-primary;
+    background-color: $primary-color;
     color: white;
     box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 7px 20px rgba(220, 53, 69, 0.3);
-      background-color: color.adjust($btn-primary, $lightness: -5%);
+      background-color: color.adjust($primary-color, $lightness: -5%);
     }
   }
   &.btn-secondary {

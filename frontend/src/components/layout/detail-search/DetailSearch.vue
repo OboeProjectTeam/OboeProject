@@ -1,5 +1,10 @@
 <template>
-  <div v-if="item" class="detail-page">
+  <div v-if="item" class="detail-page" :class="{ 'has-back-button': showBackButton }">
+    <!-- Back Button -->
+    <button v-if="showBackButton" @click="goBack" class="back-button">
+      <i class="fas fa-arrow-left"></i>
+      Quay lại Thư viện
+    </button>
     <div class="detail-card">
       <!-- Action Buttons -->
       <div class="action-buttons">
@@ -82,6 +87,7 @@
 <script>
 import { defineComponent, ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute, useRouter } from 'vue-router';
 import CommentSection from '@/components/layout/comment/CommentSection.vue';
 
 export default defineComponent({
@@ -147,7 +153,25 @@ export default defineComponent({
   emits: ['relatedItemClick', 'toggleFavorite'],
   setup(props, { emit }) {
     const store = useStore();
-    const isFavorite = ref(false); // TODO: Get from store
+    const route = useRoute();
+    const router = useRouter();
+
+    const showBackButton = computed(() => route.query.from === 'library');
+
+    const goBack = () => {
+      router.push({ path: '/library', query: { tab: 'favorites', favoriteTab: route.query.favoriteTab } });
+    };
+
+    const favoriteType = computed(() => {
+      if (props.type === 'word') return 'vocabulary';
+      if (props.type === 'sentence') return 'sentences';
+      return props.type;
+    });
+
+    const isFavorite = computed(() => {
+        if (!props.item) return false;
+        return store.getters['user/isFavorite'](favoriteType.value, props.item);
+    });
     
     const isInFlashcards = computed(() => 
       store.getters['flashcard/isInFlashcard'](
@@ -161,11 +185,10 @@ export default defineComponent({
     };
 
     const toggleFavorite = () => {
-      isFavorite.value = !isFavorite.value;
-      emit('toggleFavorite', {
-        type: props.type,
-        item: props.item,
-        isFavorite: isFavorite.value
+      if (!props.item) return;
+      store.dispatch('user/toggleFavorite', { 
+        type: favoriteType.value, 
+        item: props.item 
       });
     };
 
@@ -190,7 +213,9 @@ export default defineComponent({
       isFavorite,
       isInFlashcards,
       toggleFavorite,
-      toggleFlashcard
+      toggleFlashcard,
+      showBackButton,
+      goBack
     };
   }
 });

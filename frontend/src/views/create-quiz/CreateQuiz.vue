@@ -104,12 +104,29 @@ const removeOption = (qIndex, oIndex) => {
 }
 
 const saveQuiz = async () => {
-  // TODO: Implement save functionality
-  console.log('Saving quiz:', {
+  if (!title.value.trim()) {
+    alert('Vui lòng nhập tên bài kiểm tra.')
+    return
+  }
+
+  if (questions.value.length === 0) {
+    alert('Vui lòng thêm ít nhất một câu hỏi.')
+    return
+  }
+
+  const quizData = {
     title: title.value,
     description: description.value,
-    questions: questions.value
-  })
+    questions: questions.value,
+  };
+
+  try {
+    await store.dispatch('quiz/createQuiz', quizData)
+    router.push('/library')
+  } catch (error) {
+    console.error('Error saving quiz:', error)
+    alert('Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại.')
+  }
 }
 </script>
 

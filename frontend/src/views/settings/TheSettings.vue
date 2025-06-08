@@ -37,7 +37,7 @@
           </div>
           <div class="item-control">
             <label class="switch">
-              <input type="checkbox">
+              <input type="checkbox" v-model="isDark">
               <span class="slider round"></span>
             </label>
           </div>
@@ -99,8 +99,10 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
+const { isDark } = useDarkMode();
 
 const goToUpgrade = () => {
   router.push('/upgrade');
@@ -152,8 +154,8 @@ const goToUpgrade = () => {
         text-align: center;
       }
       &:hover, &.active {
-        background-color: color.adjust($btn-primary, $alpha: -0.9);
-        color: $btn-primary;
+        background-color: color.adjust($primary-color, $alpha: -0.9);
+        color: $primary-color;
       }
     }
   }
@@ -184,7 +186,7 @@ const goToUpgrade = () => {
   display: flex;
   align-items: center;
   padding: 25px;
-  background: linear-gradient(45deg, color.adjust($btn-primary, $saturation: -15%, $lightness: 10%), color.adjust(#772C3F, $saturation: -10%, $lightness: 15%));
+  background: linear-gradient(45deg, color.adjust($primary-color, $saturation: -15%, $lightness: 10%), color.adjust(#772C3F, $saturation: -10%, $lightness: 15%));
   border-radius: 0 0 12px 12px;
   color: white;
 
@@ -225,15 +227,15 @@ const goToUpgrade = () => {
 
   &.btn-upgrade {
     background: white;
-    color: $btn-primary;
+    color: $primary-color;
     font-weight: 700;
     &:hover { background: #f8f9fa; transform: scale(1.05); }
   }
 
   &.btn-danger {
-    background-color: #dc3545;
+    background-color: $primary-color;
     color: white;
-    &:hover { background-color: color.adjust(#dc3545, $lightness: -7%); }
+    &:hover { background-color: color.adjust($primary-color, $lightness: -7%); }
   }
 }
 
@@ -260,7 +262,7 @@ const goToUpgrade = () => {
       border-radius: 50%;
     }
   }
-  input:checked + .slider { background-color: $btn-primary; }
+  input:checked + .slider { background-color: $primary-color; }
   input:checked + .slider:before { transform: translateX(22px); }
 }
 
@@ -296,4 +298,4 @@ const goToUpgrade = () => {
     color: #dc3545;
   }
 }
-</style> 
+</style>

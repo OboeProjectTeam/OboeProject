@@ -11,7 +11,20 @@
     margin-bottom: 30px;
   }
 }
-
+.ai-btn {
+  background: $primary-color;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover {
+    background: $hover-btn-color;
+  }
+}
 .form-container {
   background: white;
   border-radius: 12px;
@@ -38,7 +51,7 @@
 
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
   }
 
@@ -143,7 +156,7 @@
 
   &:focus {
     outline: none;
-    border-color: #E94560;
+    border-color: $primary-color;
   }
 }
 
@@ -197,12 +210,12 @@
 }
 
 .import-btn {
-  background: #E94560;
+  background: $primary-color;
   color: white;
   border: none;
 
   &:hover {
-    background: #d13651;
+    background: $hover-btn-color;
   }
 
   &:disabled {
@@ -264,7 +277,7 @@
 
     &:focus {
       outline: none;
-      border-color: #E94560;
+      border-color: $primary-color;
     }
   }
 }
@@ -272,7 +285,7 @@
 .remove-btn {
   background: none;
   border: none;
-  color: #ff4757;
+  color: $primary-color;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
@@ -309,7 +322,7 @@
 }
 
 .save-btn {
-  background: #E94560;
+  background: $primary-color;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -319,7 +332,7 @@
   transition: background-color 0.2s;
 
   &:hover {
-    background: #d13651;
+    background: $hover-btn-color;
   }
 }
 
@@ -333,28 +346,27 @@
 
   &:focus {
     outline: none;
-    border-color: #E94560;
+    border-color: $primary-color;
   }
 }
 
 .required {
-  color: #E94560;
+  color: $primary-color;
   margin-left: 4px;
 }
 
 .error {
-  border-color: #E94560 !important;
+  border-color: $primary-color !important;
 }
 
 .error-message {
-  color: #E94560;
+  color: $primary-color;
   font-size: 12px;
   margin-top: 4px;
   display: block;
 }
 
 .header-section {
-  display: flex;
   align-items: center;
   gap: 24px;
   margin-bottom: 30px;
@@ -366,6 +378,7 @@
 }
 
 .back-btn {
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -380,8 +393,8 @@
 
   &:hover {
     background: #fff1f3;
-    border-color: #E94560;
-    color: #E94560;
+    border-color: $primary-color;
+    color: $primary-color;
   }
 
   i {

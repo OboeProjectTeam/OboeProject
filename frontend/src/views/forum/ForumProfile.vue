@@ -296,7 +296,7 @@ onMounted(() => {
   font-size: 0.95rem;
 
   .breadcrumb-link {
-    color: $btn-primary;
+    color: $primary-color;
     text-decoration: none;
     font-weight: 600;
     &:hover {

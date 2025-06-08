@@ -13,8 +13,8 @@
     display: none;
 
     &:checked + .checkmark {
-      background-color: $btn-primary;
-      border-color: $btn-primary;
+      background-color: $primary-color;
+      border-color: $primary-color;
 
       &::after {
         content: "";
