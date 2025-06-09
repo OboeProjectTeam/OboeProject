@@ -1,394 +1,352 @@
-<template>
-  <div class="flashcard-learn" :class="{ 'is-fullscreen': isFullscreen }">
-    <div class="deck-header">
-      <div>
-        <h2 class="deck-title">
-          {{ deckTitle }}
-        </h2>
-        <p class="description-text">mô tả ở đây</p>
-      </div>
-      <div class="creator-info">
-        <div class="creator-card">
-          <div class="creator-avatar">
-            <img :src="creatorInfo.avatar" :alt="creatorInfo.name" />
+  <template>
+    <div class="flashcard-learn" :class="{ 'is-fullscreen': isFullscreen }">
+      <div class="deck-header">
+        <div>
+          <h2 class="deck-title">
+            {{ deckTitle }}
+          </h2>
+          <p class="description-text">mô tả ở đây</p>
+        </div>
+        <div class="creator-info">
+          <div class="creator-card">
+            <div class="creator-avatar">
+              <img :src="creatorInfo.avatar" :alt="creatorInfo.name" />
+            </div>
+            <div class="creator-details">
+              <h3 class="creator-name">{{ creatorInfo.name }}</h3>
+              <p class="creator-date">Đã tạo {{ creatorInfo.createdDate }}</p>
+
+            </div>
           </div>
-          <div class="creator-details">
-            <h3 class="creator-name">{{ creatorInfo.name }}</h3>
-            <p class="creator-date">Đã tạo {{ creatorInfo.createdDate }}</p>
-           
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="main-content">
-      <!-- Menu bên trái -->
-      <div class="side-menu">
-        <div class="menu-item" :class="{ active: activeMode === 'flashcard' }" @click="setMode('flashcard')">
-          <i class="fas fa-sticky-note"></i>
-          <span>Thẻ ghi nhớ</span>
-        </div>
-        <div class="menu-item" :class="{ active: activeMode === 'test' }" @click="openTestOptions">
-          <i class="fas fa-tasks"></i>
-          <span>Kiểm tra</span>
-        </div>
-        <div class="menu-item" :class="{ active: activeMode === 'match' }" @click="setMode('match')">
-          <i class="fas fa-puzzle-piece"></i>
-          <span>Ghép thẻ</span>
         </div>
       </div>
 
-      <!-- Card ở giữa -->
-      <div class="card-section">
-        <TheCard 
-          ref="cardRef"
-          :slides="slides" 
-          :width="isFullscreen ? 900 : 550"
-          :height="isFullscreen ? 500 : 400" 
-          :pagination="{ 
-            type: 'fraction',
-            clickable: true,
-            formatFractionCurrent: (number) => number,
-            formatFractionTotal: (number) => number
-          }" 
-          :canFlip="true"
-          :speed="300"
-          :keyboard="{
-            enabled: true,
-            onlyInViewport: true
-          }"
-          :class="{ 'fullscreen-card': isFullscreen }"
-          @swiper="onSwiper"
-          @card-flipped="onCardFlip"
-          @slideChange="onSlideChange"
-        />
-      </div>
+      <div class="main-content">
+        <!-- Menu bên trái -->
+        <div class="side-menu">
+          <div class="menu-item" :class="{ active: activeMode === 'flashcard' }" @click="setMode('flashcard')">
+            <i class="fas fa-sticky-note"></i>
+            <span>Thẻ ghi nhớ</span>
+          </div>
+          <div class="menu-item" :class="{ active: activeMode === 'test' }" @click="openTestOptions">
+            <i class="fas fa-tasks"></i>
+            <span>Kiểm tra</span>
+          </div>
+          <div class="menu-item" :class="{ active: activeMode === 'match' }" @click="setMode('match')">
+            <i class="fas fa-puzzle-piece"></i>
+            <span>Ghép thẻ</span>
+          </div>
+        </div>
 
-      <!-- Control bar bên phải -->
-      <div class="control-menu">
-        <button class="control-btn" :class="{ 'playing': isAutoPlaying }" @click="toggleAutoplay">
-          <i :class="isAutoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
-          <span>{{ isAutoPlaying ? 'Tạm dừng' : 'Phát' }}</span>
-        </button>
-        <button 
-          class="control-btn" 
-          :class="{ 'disabled': trackProgress }"
-          @click="!trackProgress && shuffleCards"
-        >
-          <i class="fas fa-random"></i>
-          <span>Trộn thẻ</span>
-        </button>
-        <button class="control-btn" @click="openSettings">
-          <i class="fas fa-cog"></i>
-          <span>Cài đặt</span>
-        </button>
-        <button class="control-btn" @click="toggleFullscreen">
-          <i class="fas fa-expand"></i>
-          <span>Toàn màn hình</span>
-        </button>
-      </div>
-    </div>
-<!-- Nút theo dõi tiến độ -->
-<div v-if="trackProgress" class="progress-buttons-container">
-      <div class="progress-buttons">
-        <button 
-          class="progress-btn learning" 
-          :class="{ active: slides[currentSlideIndex]?.status === 'learning', pressed: slides[currentSlideIndex]?.status === 'learning' }"
-          @click="updateCardStatus('learning')"
-        >
-          <i class="fas fa-minus"></i>
-          <span>Đang học</span>
-          <span class="count">({{ learningStats.learning }})</span>
-        </button>
-        <button 
-          class="progress-btn known" 
-          :class="{ active: slides[currentSlideIndex]?.status === 'known', pressed: slides[currentSlideIndex]?.status === 'known' }"
-          @click="updateCardStatus('known')"
-        >
-          <i class="fas fa-plus"></i>
-          <span>Đã biết</span>
-          <span class="count">({{ learningStats.known }})</span>
-        </button>
-      </div>
-    </div>
-    <!-- Creator Info Section -->
-    <div class="description-section">
-      
-      <!-- List Items Section -->
-      <div class="list-items-section">
-        <div class="list-header">
-          <h3>Thuật ngữ trong học phần này</h3>
-          <button class="add-term-btn" @click="navigateToTermCreation">
-            <i class="fas fa-plus"></i>
-            Thêm hoặc xóa thuật ngữ
+        <!-- Card ở giữa -->
+        <div class="card-section">
+          <TheCard ref="cardRef" :slides="slides" :width="isFullscreen ? 900 : 550" :height="isFullscreen ? 500 : 400"
+            :pagination="{
+              type: 'fraction',
+              clickable: true,
+              formatFractionCurrent: (number) => number,
+              formatFractionTotal: (number) => number
+            }" :canFlip="true" :speed="300" :keyboard="{
+              enabled: true,
+              onlyInViewport: true
+            }" :class="{ 'fullscreen-card': isFullscreen }" @swiper="onSwiper" @card-flipped="onCardFlip"
+            @slideChange="onSlideChange" />
+        </div>
+
+        <!-- Control bar bên phải -->
+        <div class="control-menu">
+          <button class="control-btn" :class="{ 'playing': isAutoPlaying }" @click="toggleAutoplay">
+            <i :class="isAutoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+            <span>{{ isAutoPlaying ? 'Tạm dừng' : 'Phát' }}</span>
+          </button>
+          <button class="control-btn" :class="{ 'disabled': trackProgress }" @click="!trackProgress && shuffleCards">
+            <i class="fas fa-random"></i>
+            <span>Trộn thẻ</span>
+          </button>
+          <button class="control-btn" @click="openSettings">
+            <i class="fas fa-cog"></i>
+            <span>Cài đặt</span>
+          </button>
+          <button class="control-btn" @click="toggleFullscreen">
+            <i class="fas fa-expand"></i>
+            <span>Toàn màn hình</span>
           </button>
         </div>
-
-        <!-- Learning Terms -->
-        <div class="terms-list">
-          <h4 class="list-title">
-            Đang học
+      </div>
+      <!-- Nút theo dõi tiến độ -->
+      <div v-if="trackProgress" class="progress-buttons-container">
+        <div class="progress-buttons">
+          <button class="progress-btn learning"
+            :class="{ active: slides[currentSlideIndex]?.status === 'learning', pressed: slides[currentSlideIndex]?.status === 'learning' }"
+            @click="updateCardStatus('learning')">
+            <i class="fas fa-minus"></i>
+            <span>Đang học</span>
             <span class="count">({{ learningStats.learning }})</span>
-          </h4>
-          <TransitionGroup name="list" tag="div" class="terms-container">
-            <div v-for="item in displayLearningItems" 
-                 :key="item.id"
-                 class="term-item"
-                 @click="editTerm(item)">
-              <div class="term-content">
-                <div class="term">{{ getItemContent(item) }}</div>
-                <div class="definition">{{ getItemDefinition(item) }}</div>
-              </div>
-              <div class="term-actions">
-                <!-- <button class="edit-btn" @click.stop="editTerm(item)">
-                  <i class="fas fa-pencil-alt"></i>
-                </button> -->
-                <button class="delete-btn" @click.stop="deleteTerm(item)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </TransitionGroup>
-        </div>
-
-        <!-- Known Terms -->
-        <div v-if="trackProgress" class="terms-list">
-          <h4 class="list-title">
-            Đã biết
+          </button>
+          <button class="progress-btn known"
+            :class="{ active: slides[currentSlideIndex]?.status === 'known', pressed: slides[currentSlideIndex]?.status === 'known' }"
+            @click="updateCardStatus('known')">
+            <i class="fas fa-plus"></i>
+            <span>Đã biết</span>
             <span class="count">({{ learningStats.known }})</span>
-          </h4>
-          <TransitionGroup name="list" tag="div" class="terms-container">
-            <div v-for="item in displayKnownItems" 
-                 :key="item.id"
-                 class="term-item"
-                 @click="editTerm(item)">
-              <div class="term-content">
-                <div class="term">{{ getItemContent(item) }}</div>
-                <div class="definition">{{ getItemDefinition(item) }}</div>
-              </div>
-              <div class="term-actions">
-                <button class="edit-btn" @click.stop="editTerm(item)">
-                  <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="delete-btn" @click.stop="deleteTerm(item)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </TransitionGroup>
+          </button>
         </div>
       </div>
-    </div>
-    <!-- Animation hiển thị trạng thái -->
-    <transition name="status-fade">
-      <div v-if="showStatusAnimation" class="status-animation" :class="currentStatus">
-        <i class="fas" :class="currentStatus === 'known' ? 'fa-check' : 'fa-clock'"></i>
-        <span>{{ currentStatus === 'known' ? 'Đã biết' : 'Đang học' }}</span>
-      </div>
-    </transition>
+      <!-- Creator Info Section -->
+      <div class="description-section">
 
-    <!-- Settings Modal -->
-    <div v-if="showSettings" class="settings-modal">
-      <div class="modal-content">
-        <h3>Cài đặt</h3>
-        
-        <div class="settings-body">
-          <div class="setting-item speed-control">
-            <label>Tốc độ tự động chuyển</label>
-            <div class="speed-buttons">
-              <button 
-                @click="tempSettings.autoplaySpeed = Math.max(1, tempSettings.autoplaySpeed - 1)"
-                class="speed-btn"
-              >
-                <i class="fas fa-minus"></i>
-              </button>
-              <span class="speed-value">{{ tempSettings.autoplaySpeed }}s</span>
-              <button 
-                @click="tempSettings.autoplaySpeed = Math.min(20, tempSettings.autoplaySpeed + 1)"
-                class="speed-btn"
-              >
-                <i class="fas fa-plus"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="settings-group">
-            <div class="setting-item toggle">
-              <span class="setting-label">Theo dõi tiến độ</span>
-              <label class="toggle-switch">
-                <input type="checkbox" v-model="tempSettings.trackProgress" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-item toggle">
-              <span class="setting-label">Đảo mặt thẻ</span>
-              <label class="toggle-switch">
-                <input type="checkbox" v-model="tempSettings.reverseCards" />
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <div class="settings-actions">
-            <button class="action-btn shortcuts-btn" @click="showShortcuts = true">
-              <i class="fas fa-keyboard"></i>
-              <span>Phím tắt</span>
+        <!-- List Items Section -->
+        <div class="list-items-section">
+          <div class="list-header">
+            <h3>Thuật ngữ trong học phần này</h3>
+            <button class="add-term-btn" @click="navigateToTermCreation">
+              <i class="fas fa-plus"></i>
+              Thêm hoặc xóa thuật ngữ
             </button>
+          </div>
 
-            <button class="action-btn reset-btn" @click="resetCards">
+          <!-- Learning Terms -->
+          <div class="terms-list">
+            <h4 class="list-title">
+              Đang học
+              <span class="count">({{ learningStats.learning }})</span>
+            </h4>
+            <TransitionGroup name="list" tag="div" class="terms-container">
+              <div v-for="item in displayLearningItems" :key="item.id" class="term-item" @click="editTerm(item)">
+                <div class="term-content">
+                  <div class="term">{{ getItemContent(item) }}</div>
+                  <div class="definition">{{ getItemDefinition(item) }}</div>
+                </div>
+                <div class="term-actions">
+                  <!-- <button class="edit-btn" @click.stop="editTerm(item)">
+                    <i class="fas fa-pencil-alt"></i>
+                  </button> -->
+                  <button class="delete-btn" @click.stop="deleteTerm(item)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </TransitionGroup>
+          </div>
+
+          <!-- Known Terms -->
+          <div v-if="trackProgress" class="terms-list">
+            <h4 class="list-title">
+              Đã biết
+              <span class="count">({{ learningStats.known }})</span>
+            </h4>
+            <TransitionGroup name="list" tag="div" class="terms-container">
+              <div v-for="item in displayKnownItems" :key="item.id" class="term-item" @click="editTerm(item)">
+                <div class="term-content">
+                  <div class="term">{{ getItemContent(item) }}</div>
+                  <div class="definition">{{ getItemDefinition(item) }}</div>
+                </div>
+                <div class="term-actions">
+                  <button class="edit-btn" @click.stop="editTerm(item)">
+                    <i class="fas fa-pencil-alt"></i>
+                  </button>
+                  <button class="delete-btn" @click.stop="deleteTerm(item)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </TransitionGroup>
+          </div>
+        </div>
+      </div>
+      <!-- Animation hiển thị trạng thái -->
+      <transition name="status-fade">
+        <div v-if="showStatusAnimation" class="status-animation" :class="currentStatus">
+          <i class="fas" :class="currentStatus === 'known' ? 'fa-check' : 'fa-clock'"></i>
+          <span>{{ currentStatus === 'known' ? 'Đã biết' : 'Đang học' }}</span>
+        </div>
+      </transition>
+
+      <!-- Settings Modal -->
+      <div v-if="showSettings" class="settings-modal">
+        <div class="modal-content">
+          <h3>Cài đặt</h3>
+
+          <div class="settings-body">
+            <div class="setting-item speed-control">
+              <label>Tốc độ tự động chuyển</label>
+              <div class="speed-buttons">
+                <button @click="tempSettings.autoplaySpeed = Math.max(1, tempSettings.autoplaySpeed - 1)"
+                  class="speed-btn">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="speed-value">{{ tempSettings.autoplaySpeed }}s</span>
+                <button @click="tempSettings.autoplaySpeed = Math.min(20, tempSettings.autoplaySpeed + 1)"
+                  class="speed-btn">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <div class="setting-item toggle">
+                <span class="setting-label">Theo dõi tiến độ</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="tempSettings.trackProgress" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="setting-item toggle">
+                <span class="setting-label">Đảo mặt thẻ</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="tempSettings.reverseCards" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="action-btn shortcuts-btn" @click="showShortcuts = true">
+                <i class="fas fa-keyboard"></i>
+                <span>Phím tắt</span>
+              </button>
+
+              <button class="action-btn reset-btn" @click="resetCards">
+                <i class="fas fa-redo"></i>
+                <span>Khởi động lại</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="cancel-btn" @click="cancelSettings">Hủy</button>
+            <button class="confirm-btn" @click="applySettings">Xác nhận</button>
+          </div>
+        </div>
+
+        <!-- Shortcuts Modal -->
+        <div v-if="showShortcuts" class="shortcuts-modal">
+          <div class="shortcuts-content">
+            <h4>Phím tắt</h4>
+            <div class="shortcut-list">
+              <div class="shortcut-item">
+                <span class="key">←</span>
+                <span>Thẻ trước</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="key">→</span>
+                <span>Thẻ sau</span>
+              </div>
+              <div class="shortcut-item">
+                <span class="key">↑</span>
+                <span>Lật thẻ</span>
+              </div>
+              <div v-if="trackProgress" class="shortcut-item">
+                <span class="key">-</span>
+                <span>Đánh dấu đang học</span>
+              </div>
+              <div v-if="trackProgress" class="shortcut-item">
+                <span class="key">+</span>
+                <span>Đánh dấu đã biết</span>
+              </div>
+            </div>
+            <button class="close-shortcuts-btn" @click="showShortcuts = false">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kết quả -->
+      <div v-if="showResults" class="results-modal">
+        <div class="modal-overlay"></div>
+        <div class="results-content">
+          <div class="results-header">
+            <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
+            <h2>{{ learningStats.known === slides.length ?
+              'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
+              'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
+          </div>
+
+          <div class="progress-section">
+            <h3>Tiến độ của </h3>
+            <div class="progress-items">
+              <div class="progress-item learning">
+                <div class="label">Đang học</div>
+                <div class="count">{{ learningStats.learning }}</div>
+              </div>
+              <div class="progress-item known">
+                <div class="label">Đã biết</div>
+                <div class="count">{{ learningStats.known }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-steps">
+            <h3>Bước tiếp theo</h3>
+            <button class="practice-btn">
+              <i class="fas fa-sync-alt"></i>
+              Ôn luyện với các câu hỏi
+            </button>
+            <button v-if="learningStats.known !== slides.length" class="review-btn" @click="reviewUnknownCards">
+              <i class="fas fa-graduation-cap"></i>
+              Học lại {{ learningStats.learning }} thẻ chưa thuộc
+            </button>
+            <button class="reset-btn" @click="handleReset">
               <i class="fas fa-redo"></i>
-              <span>Khởi động lại</span>
+              Đặt lại Thẻ ghi nhớ
             </button>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <button class="cancel-btn" @click="cancelSettings">Hủy</button>
-          <button class="confirm-btn" @click="applySettings">Xác nhận</button>
-        </div>
       </div>
 
-      <!-- Shortcuts Modal -->
-      <div v-if="showShortcuts" class="shortcuts-modal">
-        <div class="shortcuts-content">
-          <h4>Phím tắt</h4>
-          <div class="shortcut-list">
-            <div class="shortcut-item">
-              <span class="key">←</span>
-              <span>Thẻ trước</span>
+      <!-- Test Options Modal -->
+      <div v-if="showTestOptions" class="test-options-modal">
+        <div class="modal-overlay" @click="closeTestOptions"></div>
+        <div class="test-options-content">
+          <h3>Chọn loại bài kiểm tra</h3>
+          <div class="test-options">
+            <div class="test-option" :class="{ active: selectedTestType === 'multiple-choice' }"
+              @click="selectedTestType = 'multiple-choice'">
+              <div class="option-icon">
+                <i class="fas fa-list-ul"></i>
+              </div>
+              <div class="option-details">
+                <h4>Trắc nghiệm</h4>
+                <p>Chọn đáp án đúng từ các lựa chọn</p>
+              </div>
             </div>
-            <div class="shortcut-item">
-              <span class="key">→</span>
-              <span>Thẻ sau</span>
+
+            <div class="test-option" :class="{ active: selectedTestType === 'written' }"
+              @click="selectedTestType = 'written'">
+              <div class="option-icon">
+                <i class="fas fa-pen"></i>
+              </div>
+              <div class="option-details">
+                <h4>Tự luận</h4>
+                <p>Viết câu trả lời của </p>
+              </div>
             </div>
-            <div class="shortcut-item">
-              <span class="key">↑</span>
-              <span>Lật thẻ</span>
-            </div>
-            <div v-if="trackProgress" class="shortcut-item">
-              <span class="key">-</span>
-              <span>Đánh dấu đang học</span>
-            </div>
-            <div v-if="trackProgress" class="shortcut-item">
-              <span class="key">+</span>
-              <span>Đánh dấu đã biết</span>
+
+            <div class="test-option" :class="{ active: selectedTestType === 'true-false' }"
+              @click="selectedTestType = 'true-false'">
+              <div class="option-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="option-details">
+                <h4>Đúng/Sai</h4>
+                <p>Xác định câu đúng hay sai</p>
+              </div>
             </div>
           </div>
-          <button class="close-shortcuts-btn" @click="showShortcuts = false">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Kết quả -->
-    <div v-if="showResults" class="results-modal">
-      <div class="modal-overlay"></div>
-      <div class="results-content">
-        <div class="results-header">
-          <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
-          <h2>{{ learningStats.known === slides.length ? 
-            'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' : 
-            'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
-        </div>
-
-        <div class="progress-section">
-          <h3>Tiến độ của </h3>
-          <div class="progress-items">
-            <div class="progress-item learning">
-              <div class="label">Đang học</div>
-              <div class="count">{{ learningStats.learning }}</div>
-            </div>
-            <div class="progress-item known">
-              <div class="label">Đã biết</div>
-              <div class="count">{{ learningStats.known }}</div>
-            </div>
+          <div class="test-options-footer">
+            <button class="cancel-btn" @click="closeTestOptions">Hủy</button>
+            <button class="start-test-btn" :disabled="!selectedTestType" @click="startTest">
+              <i class="fas fa-play"></i>
+              Bắt đầu kiểm tra
+            </button>
           </div>
-        </div>
-
-        <div class="next-steps">
-          <h3>Bước tiếp theo</h3>
-          <button class="practice-btn">
-            <i class="fas fa-sync-alt"></i>
-            Ôn luyện với các câu hỏi
-          </button>
-          <button v-if="learningStats.known !== slides.length" class="review-btn" @click="reviewUnknownCards">
-            <i class="fas fa-graduation-cap"></i>
-            Học lại {{ learningStats.learning }} thẻ chưa thuộc
-          </button>
-          <button class="reset-btn" @click="handleReset">
-            <i class="fas fa-redo"></i>
-            Đặt lại Thẻ ghi nhớ
-          </button>
         </div>
       </div>
     </div>
-
-    <!-- Test Options Modal -->
-    <div v-if="showTestOptions" class="test-options-modal">
-      <div class="modal-overlay" @click="closeTestOptions"></div>
-      <div class="test-options-content">
-        <h3>Chọn loại bài kiểm tra</h3>
-        <div class="test-options">
-          <div 
-            class="test-option" 
-            :class="{ active: selectedTestType === 'multiple-choice' }"
-            @click="selectedTestType = 'multiple-choice'"
-          >
-            <div class="option-icon">
-              <i class="fas fa-list-ul"></i>
-            </div>
-            <div class="option-details">
-              <h4>Trắc nghiệm</h4>
-              <p>Chọn đáp án đúng từ các lựa chọn</p>
-            </div>
-          </div>
-
-          <div 
-            class="test-option"
-            :class="{ active: selectedTestType === 'written' }"
-            @click="selectedTestType = 'written'"
-          >
-            <div class="option-icon">
-              <i class="fas fa-pen"></i>
-            </div>
-            <div class="option-details">
-              <h4>Tự luận</h4>
-              <p>Viết câu trả lời của </p>
-            </div>
-          </div>
-
-          <div 
-            class="test-option"
-            :class="{ active: selectedTestType === 'true-false' }"
-            @click="selectedTestType = 'true-false'"
-          >
-            <div class="option-icon">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="option-details">
-              <h4>Đúng/Sai</h4>
-              <p>Xác định câu đúng hay sai</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="test-options-footer">
-          <button class="cancel-btn" @click="closeTestOptions">Hủy</button>
-          <button 
-            class="start-test-btn" 
-            :disabled="!selectedTestType"
-            @click="startTest"
-          >
-            <i class="fas fa-play"></i>
-            Bắt đầu kiểm tra
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
+  </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
@@ -526,7 +484,7 @@ const startTest = async () => {
     console.error('No test type selected');
     return;
   }
-  
+
   try {
     // 1. Save current state of FlashcardLearn to localStorage
     const learnStateToSave = {
@@ -554,11 +512,11 @@ const startTest = async () => {
       type: item.type || 'word', // Pass item type if available
       status: item.status || 'learning'
     }));
-    
+
     console.log('Saving flashcards to store for test:', currentFlashcards);
     await store.dispatch('flashcard/setLearningItems', currentFlashcards);
     console.log('Successfully saved to store, now navigating...');
-    
+
     // 3. Navigate
     await router.push({
       path: '/flashcard/test',
@@ -598,7 +556,7 @@ const handleFullscreenChange = () => {
 // Xử lý phím tắt
 const handleKeydown = (e) => {
   console.log('handleKeydown called with:', e.code);
-  
+
   if (showSettings.value) {
     console.log('Settings modal is open, ignoring keyboard shortcuts');
     return;
@@ -612,7 +570,7 @@ const handleKeydown = (e) => {
       return;
     }
 
-    switch(e.code) {
+    switch (e.code) {
       case 'ArrowLeft':
         console.log('Previous slide');
         swiper.slidePrev();
@@ -639,16 +597,16 @@ const handleKeydown = (e) => {
     });
 
     // Thêm hiệu ứng nhấn nút
-    const button = e.code.includes('Minus') || e.code.includes('Subtract') 
+    const button = e.code.includes('Minus') || e.code.includes('Subtract')
       ? document.querySelector('.progress-btn.learning')
       : document.querySelector('.progress-btn.known');
-    
+
     if (button) {
       button.classList.add('pressed');
       setTimeout(() => button.classList.remove('pressed'), 200);
     }
 
-    switch(e.code) {
+    switch (e.code) {
       case 'Minus':
       case 'NumpadSubtract':
         console.log('Mark as learning');
@@ -669,7 +627,7 @@ onMounted(() => {
   // Attempt to restore state if returning from test OR match
   const savedLearnStateFromTestString = localStorage.getItem('flashcardLearnStateBeforeTest');
   const savedLearnStateFromMatchString = localStorage.getItem('flashcardLearnStateBeforeMatch');
-  
+
   let savedLearnStateString = null;
   let fromKey = '';
 
@@ -688,7 +646,7 @@ onMounted(() => {
 
       // Restore allItems and dependent states
       allItems.value = addIdsToItems(savedState.allItems || []); // Ensure IDs are re-added if not saved or structure changed
-      
+
       // Restore learningStats
       if (savedState.learningStats) {
         learningStats.known = savedState.learningStats.known || 0;
@@ -703,7 +661,7 @@ onMounted(() => {
       trackProgress.value = savedState.trackProgress || false;
       reverseCards.value = savedState.reverseCards || false;
       isAutoPlaying.value = savedState.isAutoPlaying || false;
-      
+
       // Update tempSettings to reflect restored main settings
       tempSettings.autoplaySpeed = autoplaySpeed.value;
       tempSettings.trackProgress = trackProgress.value;
@@ -782,6 +740,7 @@ const onSwiper = (swiper) => {
   swiperInstance.value = swiper;
 };
 
+// Phương thức để tự động chuyển slide
 const startAutoplay = () => {
   console.log('Starting autoplay...');
   const swiper = swiperInstance.value;
@@ -809,7 +768,7 @@ const startAutoplay = () => {
     }
   }, autoplaySpeed.value * 1000);
 };
-
+// Dừng autoplay
 const stopAutoplay = () => {
   console.log('Stopping autoplay...');
   if (autoplayInterval.value) {
@@ -818,6 +777,7 @@ const stopAutoplay = () => {
   }
 };
 
+// Tạm dừng autoplay khi nhấn nút "Phát"
 const toggleAutoplay = () => {
   console.log('Toggle autoplay, current state:', isAutoPlaying.value);
   const swiper = swiperInstance.value;
@@ -825,7 +785,7 @@ const toggleAutoplay = () => {
     console.log('No swiper instance found');
     return;
   }
-  
+
   if (isAutoPlaying.value) {
     stopAutoplay();
     isAutoPlaying.value = false;
@@ -835,6 +795,9 @@ const toggleAutoplay = () => {
   }
   console.log('New autoplay state:', isAutoPlaying.value);
 };
+
+
+
 
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
@@ -849,7 +812,7 @@ const shuffleCards = () => {
   const currentItems = store.getters['flashcard/getLearningItems'];
   const shuffledItems = [...currentItems].sort(() => Math.random() - 0.5);
   store.commit('flashcard/setLearningItems', shuffledItems);
-  
+
   nextTick(() => {
     const swiper = cardRef.value?.swiper;
     if (swiper) {
@@ -861,6 +824,11 @@ const shuffleCards = () => {
 
 // Hàm mở modal cài đặt
 const openSettings = () => {
+  // Dừng autoplay khi vào cài đặt
+  if (isAutoPlaying.value) {
+    stopAutoplay();
+    isAutoPlaying.value = false; // Đảm bảo nút "Phát" chuyển thành "Tạm dừng"
+  }
   // Sao chép giá trị hiện tại vào tempSettings
   tempSettings.autoplaySpeed = autoplaySpeed.value;
   tempSettings.trackProgress = trackProgress.value;
@@ -878,16 +846,17 @@ const cancelSettings = () => {
 const applySettings = () => {
   // Áp dụng các giá trị từ tempSettings
   autoplaySpeed.value = tempSettings.autoplaySpeed;
-  
+
   // Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
   if (tempSettings.trackProgress && !trackProgress.value) {
     if (isAutoPlaying.value) {
       stopAutoplay();
-      isAutoPlaying.value = false;
+      isAutoPlaying.value = false; // Đảm bảo autoplay dừng khi chọn "Theo dõi tiến độ"
     }
   }
+
   trackProgress.value = tempSettings.trackProgress;
-  
+
   // Xử lý đảo mặt thẻ nếu có thay đổi
   if (reverseCards.value !== tempSettings.reverseCards) {
     reverseCards.value = tempSettings.reverseCards;
@@ -900,14 +869,12 @@ const applySettings = () => {
           backcontent: slide.backcontent,
           backdescription: slide.backdescription
         };
-        console.log('Before swap:', {...slide});
         slide.content = temp.backcontent;
         slide.description = temp.backdescription;
         slide.backcontent = temp.content;
         slide.backdescription = temp.description;
-        console.log('After swap:', {...slide});
       });
-      
+
       nextTick(() => {
         swiperInstance.value.update();
       });
@@ -924,6 +891,7 @@ const applySettings = () => {
   showSettings.value = false;
   showShortcuts.value = false;
 };
+
 
 const toggleFullscreen = () => {
   if (!document.fullscreenElement) {
@@ -1002,10 +970,10 @@ const handleReset = () => {
 // Thêm hàm reviewUnknownCards
 const reviewUnknownCards = () => {
   console.log('=== Reviewing Unknown Cards ===');
-  
+
   // Lọc ra các thẻ chưa thuộc
   const unknownCards = allItems.value.filter(item => item.status !== 'known');
-  
+
   // Reset trạng thái của các thẻ chưa thuộc về 'learning'
   const updatedItems = allItems.value.map(item => {
     if (item.status !== 'known') {
@@ -1084,7 +1052,7 @@ const updateCardStatus = (status) => {
     console.log('Track progress is disabled');
     return;
   }
-  
+
   const currentIndex = swiperInstance.value?.activeIndex || 0;
   console.log('Updating card status:', { currentIndex, status });
 
@@ -1099,7 +1067,7 @@ const updateCardStatus = (status) => {
 
     // Update store
     store.commit('flashcard/setLearningItems', allItems.value);
-    
+
     // Update counts
     updateCounts();
 
@@ -1180,7 +1148,7 @@ watch([displayLearningItems, displayKnownItems], ([newLearning, newKnown], [oldL
       status: item.status
     }))
   });
-  
+
   console.log('Known list changed:', {
     count: newKnown.length,
     oldCount: oldKnown?.length,
@@ -1214,15 +1182,15 @@ const navigateToTermCreation = () => {
     },
     fromLearningPage: true
   };
-  
+
   // Dừng autoplay nếu đang chạy
   if (isAutoPlaying.value) {
     stopAutoplay();
   }
-  
+
   // Lưu state vào localStorage
   localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
-  
+
   // Chuyển hướng đến trang tạo thuật ngữ với query params
   router.push({
     name: 'CreateFlashcard',
@@ -1256,8 +1224,8 @@ watch(allItems, (newItems) => {
     slides.value = newItems.map(item => {
       let frontContent, backContent, description, backDescription;
       let title = 'Từ vựng';
-      
-      switch(item.type) {
+
+      switch (item.type) {
         case 'kanji':
           title = 'Hán tự';
           frontContent = item.kanji || '';
@@ -1265,7 +1233,7 @@ watch(allItems, (newItems) => {
           backContent = item.kanjiname || '';
           backDescription = item.kunyomi || '';
           break;
-          
+
         case 'grammar':
           title = 'Ngữ pháp';
           frontContent = item.kana || '';
@@ -1273,15 +1241,15 @@ watch(allItems, (newItems) => {
           backContent = item.meaning || '';
           backDescription = '';
           break;
-          
+
         case 'sentence':
           title = 'Mẫu câu';
           frontContent = item.sentence || '';
-          description =  '';
-          backContent =  item.translation || '';
-          backDescription =  '';
+          description = '';
+          backContent = item.translation || '';
+          backDescription = '';
           break;
-          
+
         case 'word':
         default:
           frontContent = item.front || item.kanji || '';
@@ -1329,14 +1297,14 @@ const saveFlashcard = async () => {
       })),
       cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
     };
-    
+
     // Cập nhật store với các thẻ mới
     await store.dispatch('flashcard/setLearningItems', flashcardData.cards);
-    
+
     // Clean up storage
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('flashcardLearnState');
-    
+
     // Navigate based on source
     if (fromLearningPage.value) {
       goBackToLearning();
@@ -1352,4 +1320,3 @@ const saveFlashcard = async () => {
 <style lang="scss" scoped>
 @use '@/views/flashcard-learn/FlashcardLearn.scss';
 </style>
-  
