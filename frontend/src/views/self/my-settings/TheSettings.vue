@@ -68,13 +68,34 @@
         <div class="setting-item">
           <div class="item-info">
             <label>Tài khoản riêng tư</label>
-            <p class="item-description">Nếu bật, hồ sơ và các hoạt động của  sẽ không hiển thị công khai.</p>
+            <p class="item-description">Nếu bật, hồ sơ và các hoạt động của bạn sẽ không hiển thị công khai.</p>
           </div>
           <div class="item-control">
             <label class="switch">
               <input type="checkbox" checked>
               <span class="slider round"></span>
             </label>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="setting-item-divider"></div>
+        <div class="setting-item">
+          <div class="item-info">
+            <label>Đổi mật khẩu</label>
+            <p class="item-description">Thay đổi mật khẩu của bạn để tăng cường bảo mật.</p>
+          </div>
+          <div class="item-control">
+            <button v-if="!isChangingPassword" class="btn btn-secondary" @click="isChangingPassword = true">Đổi mật khẩu</button>
+            <div v-else class="password-fields">
+              <input v-model="oldPassword" type="password" placeholder="Mật khẩu cũ" class="password-input">
+              <input v-model="newPassword" type="password" placeholder="Mật khẩu mới" class="password-input">
+              <input v-model="confirmPassword" type="password" placeholder="Xác nhận mật khẩu mới" class="password-input">
+              <div class="password-buttons">
+                <button class="btn btn-secondary" @click="isChangingPassword = false">Hủy</button>
+                <button class="btn btn-primary">Lưu thay đổi</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -86,7 +107,7 @@
         <div class="setting-item">
           <div class="item-info">
             <label>Xóa tài khoản</label>
-            <p class="item-description">Hành động này không thể hoàn tác. Tất cả dữ liệu của  sẽ bị xóa vĩnh viễn.</p>
+            <p class="item-description">Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.</p>
           </div>
           <div class="item-control">
             <button class="btn btn-danger">Xóa tài khoản của tôi</button>
@@ -98,11 +119,17 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
 const { isDark } = useDarkMode();
+const isChangingPassword = ref(false);
+
+const oldPassword = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
 
 const goToUpgrade = () => {
   router.push('/upgrade');

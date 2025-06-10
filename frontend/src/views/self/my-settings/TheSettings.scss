@@ -104,6 +104,40 @@
   }
 }
 
+.setting-item-divider {
+  border-top: 1px solid #dfe4e9;
+  margin: 0 25px;
+}
+
+.password-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+
+  .password-input {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 15px;
+    width: 250px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px color.adjust($primary-color, $alpha: -0.8);
+    }
+  }
+
+  .password-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between !important;
+    margin-top: 4px;
+  }
+}
+
 .btn {
   padding: 10px 20px;
   border-radius: 8px;
@@ -124,6 +158,23 @@
     background-color: $primary-color;
     color: white;
     &:hover { background-color: color.adjust($primary-color, $lightness: -7%); }
+  }
+
+  &.btn-primary {
+    background-color: $primary-color;
+    color: white;
+    padding: 10px 20px;
+    &:hover { background-color: color.adjust($primary-color, $lightness: -7%); }
+  }
+
+  &.btn-secondary {
+    background-color: transparent;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    &:hover { 
+      background-color: #f8f9fa;
+      border-color: #adb5bd;
+    }
   }
 }
 
