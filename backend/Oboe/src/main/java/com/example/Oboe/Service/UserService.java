@@ -43,7 +43,7 @@ public class UserService implements UserDetailsService {
             String verificationToken = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-            String verificationLink = "http://13.229.97.53:8080/api/auth/verify?token=" + verificationToken;
+            String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
             String emailSubject = "Xác nhận tài khoản Oboe";
             String emailBody = """
             Xin chào,

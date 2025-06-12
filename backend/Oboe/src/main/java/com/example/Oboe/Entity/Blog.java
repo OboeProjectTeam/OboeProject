@@ -42,7 +42,7 @@ public class Blog {
     @JsonBackReference("user-blogs") // Tương ứng với @JsonManagedReference trong User
     private User user;
 
-    // Mối quan hệ một-nhiều với Comments (nếu bạn muốn thêm sau này)
+
     @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference("blog-comments")
     private List<Comment> comments = new ArrayList<>();
