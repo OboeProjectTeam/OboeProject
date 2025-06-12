@@ -25,7 +25,7 @@
     <slot />
   </button>
 </template>
-
+<!-- script setup -->
 <script setup>
 import { ref, } from 'vue'
 
