@@ -1,62 +1,86 @@
 package com.example.Oboe.Service;
 
-import com.example.Oboe.Entity.Blog;
+import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Entity.Comment;
-import com.example.Oboe.Entity.User;
-import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
+
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
-    private final BlogRepository blogRepository;
 
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, BlogRepository blogRepository) {
+    public CommentService(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-        this.blogRepository = blogRepository;
     }
 
-    public List<Comment> getCommentsByBlogId(UUID blogId) {
-        return commentRepository.findByBlog_BlogId(blogId);
+    public List<CommentDTOs> getCommentsByBlogId(UUID blogId) {
+        return commentRepository.findByBlog_BlogId(blogId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
-//    public List<Comment> getCommentsByUserId(UUID userId) {
-//        return commentRepository.findByUser_User_id(userId);
-//    }
 
+    public CommentDTOs createComment(Comment comment) {
+        Comment savedComment = commentRepository.save(comment);
+        return toDTO(savedComment);
+    }
 
-    public Comment createComment(Comment comment, UUID userId, UUID blogId) {
-        Optional<User> user = userRepository.findById(userId);
-        Optional<Blog> blog = blogRepository.findById(blogId);
-
-        if (user.isPresent() && blog.isPresent()) {
-            comment.setUser(user.get());
-            comment.setBlog(blog.get());
-            return commentRepository.save(comment);
-        } else {
-            throw new RuntimeException("User or Blog not found.");
-        }
+    public CommentDTOs getCommentById(UUID commentId) {
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        return comment.map(this::toDTO).orElse(null);
     }
 
     public void deleteComment(UUID commentId) {
         commentRepository.deleteById(commentId);
     }
 
-    public Comment updateComment(UUID commentId, Comment newCommentData) {
-        return commentRepository.findById(commentId)
-                .map(existingComment -> {
-                    existingComment.setTitle(newCommentData.getTitle());
-                    existingComment.setContent(newCommentData.getContent());
-                    return commentRepository.save(existingComment);
-                })
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+    public List<CommentDTOs> getCommentsByUserId(UUID userId) {
+        return commentRepository.findByUser_UserId(userId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
+    public CommentDTOs updateComment(UUID commentId, CommentDTOs commentDTO) {
+        Optional<Comment> optionalComment = commentRepository.findById(commentId);
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            comment.setTitle(commentDTO.getTitle());
+            comment.setContent(commentDTO.getContent());
+            Comment updatedComment = commentRepository.save(comment);
+            return toDTO(updatedComment);
+        }
+        return null;
+    }
+
+    public Long getCommentCountByBlogId(UUID blogId) {
+        return commentRepository.countByBlogId(blogId);
+    }
+
+    // Chuyển đổi Comment entity sang CommentDTO
+    private CommentDTOs toDTO(Comment comment) {
+        CommentDTOs dto = new CommentDTOs();
+        dto.setCommentId(comment.getCommentId());
+        dto.setTitle(comment.getTitle());
+        dto.setContent(comment.getContent());
+        dto.setCreatedAt(comment.getCreatedAt());
+
+        // Thông tin user
+        if (comment.getUser() != null) {
+            dto.setUserId(comment.getUser().getUser_id());
+            dto.setUserName(comment.getUser().getUserName());
+        }
+
+        // Thông tin blog
+        if (comment.getBlog() != null) {
+            dto.setBlogId(comment.getBlog().getBlogId());
+            dto.setBlogTitle(comment.getBlog().getTitle());
+        }
+
+        return dto;
+    }
 }

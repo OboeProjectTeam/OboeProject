@@ -45,8 +45,13 @@ public class BlogService {
     public void deleteBlog(UUID id) {
         blogRepository.deleteById(id);
     }
+
     public List<Blog> searchBlogsByTitle(String keyword) {
         return blogRepository.findByTitleContainingIgnoreCase(keyword);
     }
 
+    // Method lấy tất cả blog của user
+    public List<Blog> getBlogsByUserId(UUID userId) {
+        return blogRepository.findBlogsByUserId(userId);
+    }
 }
