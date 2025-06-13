@@ -23,6 +23,8 @@ import TheSettings from '@/views/self/my-settings/TheSettings.vue';
 import TheUpgrade from '@/views/pay-fee/upgrade/TheUpgrade.vue';
 import ThePayment from '@/views/pay-fee/payment/ThePayment.vue';
 import SearchResults from '@/views/home/search-results/SearchResults.vue';
+import TheMessages from '@/views/self/my-messages/MyMessages.vue'
+
 const routes = [
   {
     path: "/",
@@ -196,6 +198,14 @@ const routes = [
     name: 'SearchResults',
     component: SearchResults,
     props: route => ({ query: route.query.q })
+  },
+  {
+    path: '/messages',
+    name: 'messages',
+    component: TheMessages,
+    meta: {
+      requiresAuth: true
+    }
   },
 ]
 

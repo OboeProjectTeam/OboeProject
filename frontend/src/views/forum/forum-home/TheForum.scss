@@ -9,10 +9,7 @@
 
 // --- Forum Header ---
 .forum-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 0;
     border-bottom: 1px solid #e9ecef;
     margin-bottom: 20px;
 
@@ -334,5 +331,46 @@
     transition: background 0.2s;
     &:hover {
         background: $hover-btn-color;
+    }
+}
+.forum-header {
+    width: 100%;
+    .header-content {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        
+        h1 {
+            margin: 0;
+        }
+        
+        .header-actions {
+            width: 100%;
+            align-items: center;
+            gap: 1rem;
+            
+            .search-container {
+                flex: 1;
+                max-width: 400px;
+                
+                .search-input {
+                    width: 100%;
+                    padding: 0.5rem 1rem;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 1rem;
+                    
+                    &:focus {
+                        outline: none;
+                        border-color: #007bff;
+                        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+                    }
+                }
+            }
+            
+            .create-post-btn {
+                white-space: nowrap;
+            }
+        }
     }
 }

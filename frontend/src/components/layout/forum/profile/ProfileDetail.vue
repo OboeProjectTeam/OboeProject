@@ -22,7 +22,7 @@
               </template>
             </div>
             <template v-else>
-              <button class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi tin nhắn</button>
+              <button class="btn btn-primary" @click="handleSendMessage"><i class="fas fa-envelope"></i> Gửi tin nhắn</button>
             </template>
           </div>
       </div>
@@ -141,6 +141,8 @@
   
   <script setup>
   import { ref, computed, watch } from 'vue';
+  import { useStore } from 'vuex';
+  import { useRouter } from 'vue-router';
 
     const props = defineProps({
     user: {
@@ -153,7 +155,11 @@
     },
     });
 
-  const emit = defineEmits(['save-profile']);
+  const router = useRouter();
+
+  const emit = defineEmits(['save-profile', 'send-message']);
+
+  const store = useStore();
 
   const isEditing = ref(false);
   const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
@@ -225,6 +231,12 @@
   watch(currentTab, () => {
     currentPage.value = 1;
   });
+
+  function handleSendMessage() {
+    if (router.currentRoute.value.meta.emit) {
+      router.currentRoute.value.meta.emit('send-message', props.user);
+    }
+  }
   
   </script>
   

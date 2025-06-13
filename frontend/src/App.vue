@@ -4,9 +4,15 @@
     <OboeProButton v-if="!isAuthRoute" @click="goToUpgrade" />
     <FlashcardList v-if="!isAuthRoute" />
     <div class="router-view-wrapper">
-      <router-view />
+      <router-view @send-message="openChatBox" />
     </div>
     <TheFooter />
+    <ChatBox
+      v-if="chatBoxVisible"
+      :user="chatBoxUser"
+      :visible="chatBoxVisible"
+      @close="closeChatBox"
+    />
   </div>
 </template>
 
@@ -16,10 +22,11 @@ import TheHeader from '@/components/layout/header/TheHeader.vue'
 import FlashcardList from '@/components/layout/flashcard-list/FlashcardList.vue'
 import OboeProButton from '@/components/layout/pro-button/OboeProButton.vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { auth } from '@/firebase'
+import ChatBox from '@/components/layout/chat-box/ChatBox.vue'
 
 const route = useRoute()
 const store = useStore()
@@ -32,6 +39,9 @@ const isAuthRoute = computed(() => {
 const goToUpgrade = () => {
   router.push('/upgrade');
 };
+
+const chatBoxUser = ref(null)
+const chatBoxVisible = ref(false)
 
 onMounted(() => {
   // Listen for auth state changes
@@ -48,16 +58,44 @@ onMounted(() => {
       store.dispatch('auth/setUser', null)
     }
   })
+
+  // Add event listener for send-message events
+  router.afterEach((to) => {
+    to.meta.emit = (event, ...args) => {
+      if (event === 'send-message') {
+        openChatBox(...args);
+      }
+    };
+  });
 })
+
+function openChatBox(user) {
+  chatBoxUser.value = user
+  chatBoxVisible.value = true
+}
+
+function closeChatBox() {
+  chatBoxVisible.value = false
+  chatBoxUser.value = null
+}
 </script>
 
 <style lang="scss">
 .app-container {
   position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .router-view-wrapper {
   margin-top: 140px;
   padding: 20px 165px;
+  flex: 1;
+}
+
+/* Ensure chat box appears above other elements */
+.chatbox {
+  z-index: 9999;
 }
 </style>

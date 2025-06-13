@@ -144,6 +144,7 @@
         :style="floatingStyles"
         :post-id="currentPostId"
         :post-title="postTitle"
+        @send-message="handleSendMessage"
       />
     </Teleport>
 
@@ -155,7 +156,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import UserProfileCard from '@/components/layout/forum/profilecard/UserProfileCard.vue';
 import { useFloating, autoUpdate, offset } from '@floating-ui/vue';
-
 
 const router = useRouter();
 const replyingTo = ref(null);
@@ -268,6 +268,10 @@ const replies = ref([
     replies: [],
   }
 ]);
+
+function handleSendMessage(user) {
+  router.currentRoute.value.meta.emit?.('send-message', user);
+}
 </script>
 
 <style lang="scss" scoped>

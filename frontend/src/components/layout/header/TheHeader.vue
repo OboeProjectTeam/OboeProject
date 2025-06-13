@@ -63,6 +63,10 @@
                   <i class="fas fa-user"></i>
                   Hồ sơ
                 </router-link>
+                <router-link to="/messages" class="menu-item">
+                  <i class="fas fa-envelope"></i>
+                  Tin nhắn
+                </router-link>
                 <router-link to="/settings" class="menu-item">
                   <i class="fas fa-cog"></i>
                   Cài đặt
