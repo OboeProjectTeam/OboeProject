@@ -1,5 +1,9 @@
 <template>
-  <div class="app-container">
+  <!-- Admin Layout -->
+  <router-view v-if="isAdminRoute" />
+
+  <!-- Main App Layout -->
+  <div v-else class="app-container">
     <TheHeader />
     <OboeProButton v-if="!isAuthRoute" @click="goToUpgrade" />
     <FlashcardList v-if="!isAuthRoute" />
@@ -34,6 +38,10 @@ const router = useRouter()
 
 const isAuthRoute = computed(() => {
   return ['/login', '/register','/intro'].includes(route.path)
+})
+
+const isAdminRoute = computed(() => {
+  return route.path.startsWith('/admin')
 })
 
 const goToUpgrade = () => {

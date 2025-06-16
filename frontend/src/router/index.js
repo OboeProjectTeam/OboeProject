@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 import routes from "./routes";
 import { auth } from '../firebase';
 
+// Admin layout and views
+
+
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -26,12 +29,15 @@ router.beforeEach((to, from, next) => {
 
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
   
   auth.onAuthStateChanged((user) => {
     if (requiresAuth && !user) {
       next('/login');
     } else if (requiresGuest && user) {
       next('/');
+    } else if (requiresAdmin && !user) {
+      next('/'); // Redirect to home if not admin
     } else {
       next();
     }

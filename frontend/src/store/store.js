@@ -9,6 +9,7 @@ import auth from './modules/auth';
 import quiz from './modules/quiz';
 import history from './modules/history';
 import user from './modules/user';
+import forum from './modules/forum';
 
 export default createStore({
   modules: {
@@ -21,6 +22,7 @@ export default createStore({
     auth,
     quiz,
     history,
+    forum
   },
 });
 

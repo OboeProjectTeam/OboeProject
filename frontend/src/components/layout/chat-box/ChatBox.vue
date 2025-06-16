@@ -132,7 +132,7 @@
     display: flex;
     align-items: center;
     background: radial-gradient(circle at 80% 90%, rgba(185, 4, 73, 0.15) 0, rgba(185, 4, 73, 0.08) 60%), rgb(185 4 73 / 0%);
-    color: #666666ab;
+    color: #666;
     padding: 12px 16px;
     cursor: pointer;
     user-select: none;
@@ -164,7 +164,7 @@
       button {
         background: none;
         border: none;
-        color: #666666ab;
+        color: #666;
         font-size: 1.15rem;
         cursor: pointer;
         padding: 4px 6px;
