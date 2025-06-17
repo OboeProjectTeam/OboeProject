@@ -1,0 +1,39 @@
+@use '@/assets/css/index.scss' as *;
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.forum-profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+
+  .breadcrumb-link {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-separator {
+    margin: 0 10px;
+    font-size: 0.8rem;
+    color: #adb5bd;
+  }
+
+  .breadcrumb-current {
+    color: #6c757d;
+    font-weight: 400;
+  }
+}

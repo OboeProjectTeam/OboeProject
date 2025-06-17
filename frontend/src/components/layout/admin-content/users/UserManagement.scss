@@ -1,0 +1,281 @@
+.user-management {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.filters {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+  
+  i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #718096;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px 10px 10px 35px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    
+    &:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+  }
+}
+
+.filter-options {
+  display: flex;
+  gap: 10px;
+  
+  select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.9rem;
+    
+    &:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  
+  div {
+    display: flex;
+    flex-direction: column;
+    
+    .user-name {
+      font-weight: 500;
+    }
+    
+    .user-username {
+      color: #718096;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+.role-badge, .status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.role-badge {
+  &.admin {
+    background: #ebf8ff;
+    color: #2b6cb0;
+  }
+  
+  &.moderator {
+    background: #faf5ff;
+    color: #6b46c1;
+  }
+  
+  &.user {
+    background: #f0fff4;
+    color: #2f855a;
+  }
+}
+
+.status-badge {
+  &.active {
+    background: #f0fff4;
+    color: #2f855a;
+  }
+  
+  &.inactive {
+    background: #f7fafc;
+    color: #718096;
+  }
+  
+  &.banned {
+    background: #fff5f5;
+    color: #c53030;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  
+  button {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: #f7fafc;
+    }
+    
+    &.btn-edit {
+      color: #4299e1;
+    }
+    
+    &.btn-ban {
+      color: #e53e3e;
+    }
+    
+    &.btn-unban {
+      color: #48bb78;
+    }
+    
+    &.btn-delete {
+      color: #e53e3e;
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  
+  button {
+    background: none;
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    &:not(:disabled):hover {
+      background: #f7fafc;
+    }
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    
+    h3 {
+      margin: 0 0 20px;
+    }
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    
+    &:focus {
+      outline: none;
+      border-color: #4299e1;
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  
+  button {
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    
+    &.btn-cancel {
+      background: none;
+      border: 1px solid #e2e8f0;
+      
+      &:hover {
+        background: #f7fafc;
+      }
+    }
+    
+    &.btn-save {
+      background: #4299e1;
+      color: #fff;
+      border: none;
+      
+      &:hover {
+        background: #3182ce;
+      }
+    }
+  }
+}

@@ -1,0 +1,257 @@
+@use '@/assets/css/index.scss' as *;
+@use 'sass:color';
+
+.payment-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 140px);
+  font-family: $font-family-regular;
+}
+
+.payment-layout {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  max-width: 1100px;
+}
+
+// --- Left Column ---
+.payment-main-column {
+  border: 1px solid #dfe4e9;
+  flex: 2;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+  overflow: hidden;
+
+  .form-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-family: $font-family-bold;
+    }
+  }
+
+  .payment-form {
+    padding: 25px;
+  }
+}
+
+// --- Right Column ---
+.payment-sidebar-column {
+  flex: 1;
+  position: sticky;
+  top: 160px; /* Adjust based on header height */
+}
+
+.order-summary-card {
+  border: 1px solid #dfe4e9;
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 20px -5px rgba(0,0,0,0.05);
+
+  h4 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    font-family: $font-family-bold;
+  }
+}
+
+.order-summary {
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    color: #495057;
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
+    &.total {
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e9ecef;
+    }
+    .total-price {
+      color: $primary-color;
+      font-size: 1.5rem;
+    }
+  }
+}
+
+// --- Shared & Specific Component Styles ---
+.payment-methods {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+
+  .method-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    background-color: #f8f9fa;
+    color: #495057;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    
+    i { margin-right: 8px; }
+
+    &:hover {
+      border-color: $primary-color;
+      color: $primary-color;
+    }
+
+    &.active {
+      border-color: $primary-color;
+      background-color: color.adjust($primary-color, $alpha: -0.9);
+      color: $primary-color;
+      font-weight: 700;
+    }
+  }
+}
+
+.payment-details {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #343a40;
+    font-size: 0.9rem;
+  }
+  input, select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+  .half-width { width: 50%; }
+}
+
+.input-with-icon {
+  position: relative;
+  .input-icon, .input-icon-help {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+  }
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: $primary-color;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  i { margin-right: 10px; }
+  &:hover {
+    background-color: color.adjust($primary-color, $lightness: -5%);
+    transform: translateY(-2px);
+  }
+}
+
+.btn-paypal {
+  background-color: #00457C;
+  &:hover { background-color: color.adjust(#00457C, $lightness: -5%); }
+}
+
+.external-payment-info {
+  text-align: center;
+  color: #495057;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.momo-view {
+  text-align: center;
+}
+
+.qr-code-container {
+  padding: 15px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 15px;
+  .qr-code-img {
+    width: 200px;
+    height: 200px;
+    display: block;
+  }
+}
+
+.momo-instructions {
+  font-weight: 500;
+  color: #343a40;
+  text-align: center;
+  margin-top: 15px;
+}
+
+.terms {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 20px;
+  a {
+    color: $primary-color;
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.trust-badges {
+  text-align: center;
+  margin-top: 20px;
+  color: #6c757d;
+  font-size: 0.9rem;
+  i { margin-right: 8px; color: $primary-color; }
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .payment-layout {
+    flex-direction: column;
+  }
+  .payment-sidebar-column {
+    position: static;
+    top: auto;
+  }
+}

@@ -5,7 +5,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9998;
+  z-index: 1001;
   padding: 20px 80px;
   box-shadow: 0 0 20px $header-footer-shadow;
   border-radius: 0 0 $header-footer-border-radius $header-footer-border-radius;
@@ -75,7 +75,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   width: 280px;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .user-info {
@@ -171,7 +171,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   width: 200px;
-  z-index: 1000;
+  z-index: 9999;
   
   .menu-item {
     display: flex;

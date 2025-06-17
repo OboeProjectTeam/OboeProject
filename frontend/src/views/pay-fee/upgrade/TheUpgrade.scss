@@ -1,0 +1,188 @@
+@use '@/assets/css/index.scss' as *;
+@use 'sass:color';
+
+.upgrade-page-container {
+  min-height: calc(100vh - 140px);
+  font-family: $font-family-regular;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 50px;
+  .main-title {
+    font-size: 3rem;
+    font-family: $font-family-bold;
+    color: #212529;
+    margin: 0;
+  }
+  .subtitle {
+    font-size: 1.25rem;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 10px auto 0;
+  }
+}
+
+.pricing-table {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.plan-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #dee2e6;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px -10px rgba(0,0,0,0.15);
+  }
+
+  &.pro-plan {
+    border-color: transparent;
+    border-width: 2px;
+    border-image: linear-gradient(45deg, $primary-color, color.adjust($primary-color, $hue: -20deg, $saturation: 10%)) 1;
+  }
+}
+
+.recommended-badge {
+  position: absolute;
+  top: 15px;
+  right: -40px;
+  transform: rotate(45deg);
+  background: $primary-color;
+  color: white;
+  padding: 5px 40px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  .fa-star {
+    margin-right: 5px;
+  }
+}
+
+.card-header {
+  padding: 30px;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+  .plan-name {
+    font-size: 1.75rem;
+    font-family: $font-family-bold;
+    margin: 0 0 10px;
+  }
+  .plan-price {
+    font-size: 2.5rem;
+    font-family: $font-family-bold;
+    color: $primary-color;
+    margin: 0;
+    .price-unit {
+      font-size: 1.5rem;
+      vertical-align: super;
+      margin-left: 2px;
+    }
+    .price-term {
+      font-size: 1rem;
+      color: #6c757d;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+  }
+  .plan-description {
+    color: #6c757d;
+    margin: 10px 0 0;
+  }
+}
+
+.pro-plan .card-header .plan-price {
+  color: $primary-color;
+}
+
+.plan-card:not(.pro-plan) .card-header .plan-price {
+  color: #343a40;
+}
+
+.card-body {
+  padding: 30px;
+  flex-grow: 1;
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      color: #212529;
+      font-size: 1rem;
+      .feature-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+        color: #28a745;
+      }
+      &.disabled {
+        color: #adb5bd;
+        text-decoration: line-through;
+        .feature-icon {
+          color: #adb5bd;
+        }
+      }
+      .pro-feature {
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+.card-footer {
+  padding: 30px;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.btn {
+  padding: 15px 25px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  font-size: 1.1rem;
+
+  &.btn-primary {
+    background-color: $primary-color;
+    color: white;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(220, 53, 69, 0.3);
+      background-color: color.adjust($primary-color, $lightness: -5%);
+    }
+  }
+  &.btn-secondary {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .pricing-table {
+    flex-direction: column;
+    align-items: center;
+  }
+  .page-header .main-title {
+    font-size: 2.5rem;
+  }
+}

@@ -1,27 +1,34 @@
 // filepath: src/router/index.js
 import TheHome from "@/views/home/TheHome.vue";
 import TheIntro from "@/views/intro/TheIntro.vue";
-import TheLogin from "@/views/login/TheLogin.vue";
-import TheRegister from "@/views/register/TheRegister.vue";
-import WordDetail from '@/views/word-detail/WordDetail.vue' 
-import KanjiDetail from '@/views/kanji-detail/KanjiDetail.vue'
-import GrammarDetail from '@/views/grammar-detail/GrammarDetail.vue'
-import SentenceDetail from '@/views/sentence-detail/SentenceDetail.vue'
-import FlashcardView from '@/views/flashcard-list-view/FlashcardView.vue'
-import FlashcardLearn from '@/views/flashcard-learn/FlashcardLearn.vue'
-import CreateFlashcard from '@/views/create-flashcard/CreateFlashcard.vue'
-import CreateQuiz from '@/views/create-quiz/CreateQuiz.vue'
-import Library from '@/views/my-library/MyLibrary.vue'
-import FlashcardTest from '@/views/flashcard-test/FlashcardTest.vue'
-import FlashcardMatch from '@/views/flashcard-match/FlashcardMatch.vue'
-import TheForum from "../views/forum/TheForum.vue";
-import ForumPostDetail from "../views/forum/ForumPostDetail.vue";
-import CreateForumPost from "../views/forum/CreateForumPost.vue";
-import ProfileDetail from "../views/forum/ForumProfile.vue";
-import MyProfile from '@/views/my-profile/MyProfile.vue';
-import TheSettings from '@/views/settings/TheSettings.vue';
-import TheUpgrade from '@/views/upgrade/TheUpgrade.vue';
-import ThePayment from '@/views/payment/ThePayment.vue';
+import TheLogin from "@/views/auth/login/TheLogin.vue";
+import TheRegister from "@/views/auth/register/TheRegister.vue";
+import WordDetail from '@/views/search-japanese/word-detail/WordDetail.vue' 
+import KanjiDetail from '@/views/search-japanese/kanji-detail/KanjiDetail.vue'
+import GrammarDetail from '@/views/search-japanese/grammar-detail/GrammarDetail.vue'
+import SentenceDetail from '@/views/search-japanese/sentence-detail/SentenceDetail.vue'
+import FlashcardView from '@/views/flashcard/flashcard-list-view/FlashcardView.vue'
+import FlashcardLearn from '@/views/flashcard/flashcard-learn/FlashcardLearn.vue'
+import CreateFlashcard from '@/views/create-learn/create-flashcard/CreateFlashcard.vue'
+import CreateQuiz from '@/views/create-learn/create-quiz/CreateQuiz.vue'
+import Library from '@/views/self/my-library/MyLibrary.vue'
+import FlashcardTest from '@/views/flashcard/flashcard-test/FlashcardTest.vue'
+import FlashcardMatch from '@/views/flashcard/flashcard-match/FlashcardMatch.vue'
+import TheForum from "../views/forum/forum-home/TheForum.vue";
+import ForumPostDetail from "../views/forum/forum-post-detail/ForumPostDetail.vue";
+import CreateForumPost from "../views/forum/forum-post-create/CreateForumPost.vue";
+import ProfileDetail from "../views/forum/forum-profile/ForumProfile.vue";
+import MyProfile from '@/views/self/my-profile/MyProfile.vue';
+import TheSettings from '@/views/self/my-settings/TheSettings.vue';
+import TheUpgrade from '@/views/pay-fee/upgrade/TheUpgrade.vue';
+import ThePayment from '@/views/pay-fee/payment/ThePayment.vue';
+import SearchResults from '@/views/home/search-results/SearchResults.vue';
+import TheMessages from '@/views/self/my-messages/MyMessages.vue'
+import AdminLayout from '@/views/admin/AdminLayout.vue';
+import UserManagement from '@/components/layout/admin-content/users/UserManagement.vue';
+import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
+import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
+import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
 
 const routes = [
   {
@@ -190,7 +197,53 @@ const routes = [
     name: 'FlashcardMatch',
     component: FlashcardMatch,
     meta: { requiresAuth: true }
-  }
+  },
+  {
+    path: '/search',
+    name: 'SearchResults',
+    component: SearchResults,
+    props: route => ({ query: route.query.q })
+  },
+  {
+    path: '/messages',
+    name: 'messages',
+    component: TheMessages,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+  path: '/admin',
+  name: 'admin',
+  component: AdminLayout,
+  // meta: { requiresAuth: true, requiresAdmin: true },
+  children: [
+    {
+      path: '',
+      name: 'admin-dashboard',
+      component: DashboardView,
+      meta: { title: 'Tổng quan' }
+    },
+    {
+      path: 'users',
+      name: 'admin-users',
+      component: UserManagement,
+      meta: { title: 'Quản lý người dùng' }
+    },
+    {
+      path: 'reports',
+      name: 'admin-reports',
+      component: ReportManagement,
+      meta: { title: 'Quản lý báo cáo' }
+    },
+    {
+      path: 'feedback',
+      name: 'admin-feedback',
+      component: FeedbackManagement,
+      meta: { title: 'Quản lý đóng góp ý kiến' }
+    }
+  ]
+  },
 ]
 
 export default routes;
