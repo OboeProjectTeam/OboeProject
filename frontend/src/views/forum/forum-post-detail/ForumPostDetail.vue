@@ -36,7 +36,7 @@
               <span class="author-name" @click.stop="toggleUserCard($event, postAuthor)">
                 {{ postAuthor.username }}
               </span>
-              <span class="post-time">Đăng {{ postAuthor.stats?.posted || 'vừa xong' }}</span>
+              <span class="post-time">{{ postAuthor.stats?.posted || 'vừa xong' }}</span>
             </div>
           </div>
           
@@ -112,6 +112,14 @@
                   <button @click="toggleReplyForm(reply.id)" class="btn-link">
                     <i class="fas fa-reply"></i> Trả lời
                   </button>
+                  <button 
+                    v-if="reply.replies && reply.replies.length > 0" 
+                    @click="toggleReplies(reply.id)" 
+                    class="btn-link toggle-replies"
+                  >
+                    <i class="fas" :class="isRepliesShown(reply.id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    {{ isRepliesShown(reply.id) ? 'Ẩn câu trả lời' : `Xem ${reply.replies.length} câu trả lời` }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -122,53 +130,55 @@
                 <div class="reply-form">
                   <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${reply.author.username}...`"></textarea>
                   <div class="reply-form-actions">
-                    <button class="btn btn-primary submit-reply-btn">Gửi</button>
                     <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                    <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
                   </div>
                 </div>
               </div>
             </transition>
 
             <!-- Nested Replies -->
-            <div class="nested-replies" v-if="reply.replies && reply.replies.length > 0">
-              <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
-                <div class="reply-item">
-                  <img 
-                    :src="nestedReply.author.avatar" 
-                    :alt="nestedReply.author.username" 
-                    class="author-avatar"
-                    @click.stop="toggleUserCard($event, nestedReply.author)"
-                  >
-                  <div class="reply-content-wrapper">
-                    <div class="reply-meta">
-                      <span class="author-name" @click.stop="toggleUserCard($event, nestedReply.author)">{{ nestedReply.author.username }}</span>
-                      <span class="post-time">{{ nestedReply.time }}</span>
-                    </div>
-                    <div class="reply-content">
-                      <p>{{ nestedReply.text }}</p>
-                    </div>
-                    <div class="reply-actions">
-                      <button @click="toggleReplyForm(nestedReply.id)" class="btn-link">
-                        <i class="fas fa-reply"></i> Trả lời
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Reply Form (for nested reply) -->
-                <transition name="slide-fade">
-                  <div v-if="replyingTo === nestedReply.id" class="nested-reply-form">
-                    <div class="reply-form">
-                      <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${nestedReply.author.username}...`"></textarea>
-                      <div class="reply-form-actions">
-                        <button class="btn btn-primary submit-reply-btn">Gửi</button>
-                        <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+            <transition name="slide-fade">
+              <div v-if="reply.replies && reply.replies.length > 0 && isRepliesShown(reply.id)" class="nested-replies">
+                <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
+                  <div class="reply-item">
+                    <img 
+                      :src="nestedReply.author.avatar" 
+                      :alt="nestedReply.author.username" 
+                      class="author-avatar"
+                      @click.stop="toggleUserCard($event, nestedReply.author)"
+                    >
+                    <div class="reply-content-wrapper">
+                      <div class="reply-meta">
+                        <span class="author-name" @click.stop="toggleUserCard($event, nestedReply.author)">{{ nestedReply.author.username }}</span>
+                        <span class="post-time">{{ nestedReply.time }}</span>
+                      </div>
+                      <div class="reply-content">
+                        <p>{{ nestedReply.text }}</p>
+                      </div>
+                      <div class="reply-actions">
+                        <button @click="toggleReplyForm(nestedReply.id)" class="btn-link">
+                          <i class="fas fa-reply"></i> Trả lời
+                        </button>
                       </div>
                     </div>
                   </div>
-                </transition>
+
+                  <!-- Reply Form (for nested reply) -->
+                  <transition name="slide-fade">
+                    <div v-if="replyingTo === nestedReply.id" class="nested-reply-form">
+                      <div class="reply-form">
+                        <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${nestedReply.author.username}...`"></textarea>
+                        <div class="reply-form-actions">
+                          <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                          <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -303,11 +313,54 @@ import ThePopup from '@/components/common/popup/ThePopup.vue';
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
-const replyingTo = ref(null);
 const activeUserCard = ref(null);
 const showPostMenu = ref(false);
 const isCommentsLocked = ref(false);
 const isLoading = ref(true);
+const replyingTo = ref(null);
+
+// Mock replies data for demonstration
+const replies = ref([
+  {
+    id: 1,
+    author: {
+      username: 'Hùng Trần',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+    },
+    time: '1 giờ 45 phút trước',
+    text: 'Mình thấy học theo sách "Look & Learn" khá hiệu quả, hình ảnh minh họa dễ nhớ lắm . Kết hợp với app Anki để ôn tập mỗi ngày nữa là ổn.',
+    replies: [],
+  },
+  {
+    id: 2,
+    author: {
+      username: 'Lan Anh',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
+    },
+    time: '1 giờ 20 phút trước',
+    text: 'Đúng rồi, học theo bộ thủ là cách nhớ lâu nhất đó. Thử tìm hiểu về 214 bộ thủ cơ bản trước, sau đó ghép Kanji sẽ thấy logic hơn nhiều.',
+    replies: [
+      {
+        id: 4,
+        author: {
+          username: 'Mai An',
+          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        },
+        time: '1 giờ 10 phút trước',
+        text: 'Cảm ơn Lan Anh, mình sẽ thử tìm hiểu xem sao. Mình cũng nghe nhiều người khen phương pháp này.',
+      },
+      {
+        id: 5,
+        author: {
+          username: 'Hùng Trần',
+          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+        },
+        time: '1 giờ trước',
+        text: 'Đồng ý với Lan Anh. Mình cũng học theo cách này và thấy rất hiệu quả.',
+      }
+    ],
+  }
+]);
 
 // Floating UI setup
 const referenceEl = ref(null);
@@ -510,217 +563,22 @@ const toggleReplyForm = (replyId) => {
     replyingTo.value = replyId; // Open for this reply
   }
 };
+
+const shownReplies = ref(new Set());
+
+const toggleReplies = (replyId) => {
+  if (shownReplies.value.has(replyId)) {
+    shownReplies.value.delete(replyId);
+  } else {
+    shownReplies.value.add(replyId);
+  }
+};
+
+const isRepliesShown = (replyId) => {
+  return shownReplies.value.has(replyId);
+};
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-post-detail/ForumPostDetail.scss';
-@use '@/assets/css/index.scss' ;
-.post-meta-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.post-actions {
-  position: relative;
-}
-
-.btn-menu {
-  background: none;
-  border: none;
-  padding: 8px;
-  cursor: pointer;
-  color: #666;
-  border-radius: 50%;
-  
-  &:hover {
-    background-color: #f5f5f5;
-  }
-}
-
-.post-menu-dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 180px;
-  z-index: 1000;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-  color: #333;
-  
-  &:hover {
-    background-color: #f5f5f5;
-  }
-  
-  i {
-    width: 16px;
-  }
-}
-
-.loading-state,
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  text-align: center;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid $primary-color;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-state {
-  p {
-    color: #666;
-    margin-bottom: 16px;
-  }
-}
-
-.report-dialog {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.report-dialog-content {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e2e8f0;
-  
-  h3 {
-    margin: 0;
-    font-size: 1.25rem;
-    color: #2d3748;
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    color: #718096;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 6px;
-    
-    &:hover {
-      background: #f7fafc;
-      color: #4a5568;
-    }
-  }
-}
-
-.report-form {
-  padding: 20px;
-  
-  .form-group {
-    margin-bottom: 20px;
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #2d3748;
-    }
-    
-    select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      color: #4a5568;
-      
-      &:focus {
-        outline: none;
-        border-color: $primary-color;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-      }
-    }
-    
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-  }
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-  
-  button {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    
-    &.btn-cancel {
-      background: #f7fafc;
-      border: 1px solid #e2e8f0;
-      color: #4a5568;
-      
-      &:hover {
-        background: #edf2f7;
-      }
-    }
-    
-    &.btn-submit {
-      background: $primary-color;
-      border: none;
-      color: white;
-      
-      &:hover {
-        background: $hover-btn-color;
-      }
-    }
-  }
-}
 </style> 

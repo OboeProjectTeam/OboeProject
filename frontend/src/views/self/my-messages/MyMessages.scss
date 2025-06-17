@@ -1,0 +1,340 @@
+@use '@/assets/css/index.scss' as *;
+.messages-container {
+  display: flex;
+  height: calc(100vh - 140px);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.messages-sidebar {
+  width: 320px;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-header {
+    padding: 19.5px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .new-message-btn {
+      padding: 8px 16px;
+      background: $primary-color;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &:hover {
+        background: $hover-btn-color;
+      }
+    }
+  }
+
+  .search-box {
+    padding: 15px;
+    position: relative;
+
+    input {
+      width: 100%;
+      padding: 10px 15px 10px 35px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 0.9rem;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    i {
+      position: absolute;
+      left: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+    }
+  }
+
+  .conversations-list {
+    flex: 1;
+    overflow-y: auto;
+
+    .conversation-item {
+      padding: 15px;
+      display: flex;
+      gap: 20px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+
+      &.active {
+        background-color: #e9ecef;
+      }
+
+      .avatar {
+        position: relative;
+        margin-right: 12px;
+
+        img {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .status {
+          position: absolute;
+          bottom: 2px;
+          right: 2px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: $primary-color;
+          border: 2px solid white;
+        }
+      }
+
+      .conversation-info {
+        flex: 1;
+        min-width: 0;
+
+        .conversation-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 4px;
+
+          h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+          }
+
+          .time {
+            font-size: 0.8rem;
+            color: #666;
+          }
+        }
+
+        .conversation-preview {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+          }
+
+          .unread-badge {
+            background: $primary-color;
+            color: white;
+            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+          }
+        }
+      }
+    }
+  }
+}
+
+.messages-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  .chat-header {
+    padding: 16px 21px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .chat-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .status-text {
+        font-size: 0.8rem;
+        color: #666;
+      }
+    }
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      max-width: 70%;
+
+      &.message-sent {
+        align-self: flex-end;
+
+        .message-content {
+          background: $primary-color;
+          color: white;
+
+          .message-time {
+            color: rgba(255, 255, 255, 0.8);
+          }
+        }
+      }
+
+      .message-content {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 15px;
+        position: relative;
+
+        p {
+          margin: 0;
+          font-size: 0.95rem;
+        }
+
+        .message-time {
+          font-size: 0.75rem;
+          color: #666;
+          margin-top: 4px;
+          display: block;
+        }
+      }
+    }
+  }
+
+  .chat-input {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+
+    input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      font-size: 0.95rem;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    .attachment-btn,
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: #f8f9fa;
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background: #e9ecef;
+        color: $primary-color;
+      }
+    }
+  }
+
+  .no-chat-selected {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    text-align: center;
+    padding: 20px;
+
+    i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #ddd;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.5rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+.sidebar-user-menu {
+  position: fixed;
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  min-width: 160px;
+  padding: 8px 0;
+  .menu-item {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: #333;
+    font-size: 1rem;
+    transition: background 0.2s;
+    &:hover {
+      background: #f5f5f5;
+      color: $primary-color;
+    }
+    &:not(:last-child) {
+      border-bottom: 1px solid #f0f0f0;
+    }
+  }
+}

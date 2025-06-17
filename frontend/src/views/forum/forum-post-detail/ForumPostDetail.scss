@@ -114,6 +114,7 @@
     border-bottom: 1px solid #e9ecef;
     padding-bottom: 20px;
   }
+  margin-bottom: 40px;
 }
 
 .reply-thread {
@@ -152,8 +153,8 @@
     margin-right: 15px;
     flex-shrink: 0;
     cursor: pointer;
-
   }
+  
   .reply-content-wrapper {
     flex-grow: 1;
     .reply-meta {
@@ -189,6 +190,9 @@
 
 .reply-actions {
   margin-top: 10px;
+  display: flex;
+  gap: 15px;
+  
   .btn-link {
     background: none;
     border: none;
@@ -211,6 +215,18 @@
     &:hover {
       color: $primary-color;
       background-color: color.adjust($primary-color, $alpha: -0.9);
+    }
+
+    &.toggle-replies {
+      i {
+        transition: transform 0.2s ease;
+        &.fa-chevron-up {
+          transform: rotate(0);
+        }
+        &.fa-chevron-down {
+          transform: rotate(0);
+        }
+      }
     }
   }
 }
@@ -239,22 +255,23 @@
 }
 
 .reply-textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    font-size: 1rem;
-    font-family: inherit;
-    resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    
-    &:focus {
-      outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
-    }
+  width: 100%;
+  min-height: 100px;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+  }
 }
+
 .submit-reply-btn, .cancel-reply-btn {
   padding: 8px 18px;
   font-size: 0.95rem;
@@ -264,6 +281,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .submit-reply-btn {
   background-color: $primary-color;
   color: white;
@@ -285,6 +303,7 @@
 }
 
 .add-reply-card {
+  margin-top: 40px;
   background: white;
   border-radius: 12px;
   padding: 30px;
@@ -305,6 +324,257 @@
     .submit-reply-btn {
       padding: 10px 20px;
       font-size: 1rem;
+      margin-left: auto;
+      display: block;
+    }
+  }
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  
+  .reply-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 15px;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+    }
+  }
+}
+
+.reply-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+
+  .cancel-reply-btn {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+    &:hover {
+      background-color: #e9ecef;
+      border-color: #ced4da;
+    }
+  }
+}
+.post-meta-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.post-actions {
+  position: relative;
+}
+
+.btn-menu {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #666;
+  border-radius: 50%;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.post-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+  z-index: 3000;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  
+  i {
+    width: 16px;
+  }
+}
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  p {
+    color: #666;
+    margin-bottom: 16px;
+  }
+}
+
+.report-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.report-dialog-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #2d3748;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    
+    &:hover {
+      background: #f7fafc;
+      color: #4a5568;
+    }
+  }
+}
+
+.report-form {
+  padding: 20px;
+  
+  .form-group {
+    margin-bottom: 20px;
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #2d3748;
+    }
+    
+    select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: #4a5568;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+      }
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  
+  button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &.btn-cancel {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      color: #4a5568;
+      
+      &:hover {
+        background: #edf2f7;
+      }
+    }
+    
+    &.btn-submit {
+      background: $primary-color;
+      border: none;
+      color: white;
+      
+      &:hover {
+        background: $hover-btn-color;
+      }
     }
   }
 }

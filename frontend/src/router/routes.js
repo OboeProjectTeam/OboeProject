@@ -28,7 +28,7 @@ import AdminLayout from '@/views/admin/AdminLayout.vue';
 import UserManagement from '@/components/layout/admin-content/users/UserManagement.vue';
 import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
 import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
-import DashboardView from '@/components/layout/admin-content/dashboad/DashboardView.vue'
+import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
 
 const routes = [
   {
