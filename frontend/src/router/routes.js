@@ -23,6 +23,13 @@ import TheSettings from '@/views/self/my-settings/TheSettings.vue';
 import TheUpgrade from '@/views/pay-fee/upgrade/TheUpgrade.vue';
 import ThePayment from '@/views/pay-fee/payment/ThePayment.vue';
 import SearchResults from '@/views/home/search-results/SearchResults.vue';
+import TheMessages from '@/views/self/my-messages/MyMessages.vue'
+import AdminLayout from '@/views/admin/AdminLayout.vue';
+import UserManagement from '@/components/layout/admin-content/users/UserManagement.vue';
+import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
+import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
+import DashboardView from '@/components/layout/admin-content/dashboad/DashboardView.vue'
+
 const routes = [
   {
     path: "/",
@@ -196,6 +203,46 @@ const routes = [
     name: 'SearchResults',
     component: SearchResults,
     props: route => ({ query: route.query.q })
+  },
+  {
+    path: '/messages',
+    name: 'messages',
+    component: TheMessages,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+  path: '/admin',
+  name: 'admin',
+  component: AdminLayout,
+  // meta: { requiresAuth: true, requiresAdmin: true },
+  children: [
+    {
+      path: '',
+      name: 'admin-dashboard',
+      component: DashboardView,
+      meta: { title: 'Tổng quan' }
+    },
+    {
+      path: 'users',
+      name: 'admin-users',
+      component: UserManagement,
+      meta: { title: 'Quản lý người dùng' }
+    },
+    {
+      path: 'reports',
+      name: 'admin-reports',
+      component: ReportManagement,
+      meta: { title: 'Quản lý báo cáo' }
+    },
+    {
+      path: 'feedback',
+      name: 'admin-feedback',
+      component: FeedbackManagement,
+      meta: { title: 'Quản lý đóng góp ý kiến' }
+    }
+  ]
   },
 ]
 

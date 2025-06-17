@@ -11,7 +11,7 @@
           <p class="title">{{ user.title }}</p>
         </div>
         <div class="card-actions">
-          <button class="btn btn-primary"><i class="fas fa-envelope"></i> Gửi tin nhắn</button>
+          <button class="btn btn-primary" @click="$emit('send-message', user)"><i class="fas fa-envelope"></i> Gửi tin nhắn</button>
           <button class="btn btn-secondary"><i class="fas fa-filter"></i> {{ user.postsInTopic }} bài viết</button>
         </div>
       </div>
@@ -61,6 +61,8 @@ const props = defineProps({
     default: null
   }
 });
+
+defineEmits(['send-message']);
 
 const profileLink = computed(() => {
   let link = `/forum/u/${props.user.username}`;

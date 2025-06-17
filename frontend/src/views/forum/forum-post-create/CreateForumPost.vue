@@ -6,10 +6,10 @@
         <p>Chia sẻ kiến thức và câu hỏi của  với cộng đồng</p>
       </div>
       <div class="card-body">
-        <form @submit.prevent>
+        <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="post-title">Tiêu đề</label>
-            <input type="text" id="post-title" placeholder="Nhập tiêu đề hấp dẫn cho bài viết của ...">
+            <input type="text" id="post-title" v-model="postTitle" placeholder="Nhập tiêu đề hấp dẫn cho bài viết của ...">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -64,7 +64,7 @@
           </div>
           <div class="form-group">
             <label for="post-content">Nội dung</label>
-            <textarea id="post-content" rows="12" placeholder="Viết nội dung chi tiết ở đây.  có thể sử dụng markdown để định dạng."></textarea>
+            <textarea id="post-content" v-model="postContent" rows="12" placeholder="Viết nội dung chi tiết ở đây.  có thể sử dụng markdown để định dạng."></textarea>
           </div>
            <div class="form-actions">
             <button type="button" class="btn btn-secondary" @click="goBackToForum">Hủy</button>
@@ -79,16 +79,23 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
+const store = useStore();
 
 // --- STATE ---
+const postTitle = ref('');
+const postContent = ref('');
 const selectedCategory = ref('');
 const selectedTags = ref([]);
 const tagSearch = ref('');
 const isTagDropdownActive = ref(false);
 const tagInputRef = ref(null);
 const tagsContainerRef = ref(null);
+
+// Get current user from store
+const currentUser = computed(() => store.state.auth.user);
 
 // --- DATA ---
 const categories = ref([
@@ -182,6 +189,56 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleOutsideClick, true);
 });
+
+const handleSubmit = async (event) => {
+  event.preventDefault(); // Prevent default form submission
+
+  if (!postTitle.value || !postContent.value || !selectedCategory.value) {
+    alert('Vui lòng điền đầy đủ thông tin bài viết');
+    return;
+  }
+
+  const newPost = {
+    id: Date.now().toString(),
+    title: postTitle.value,
+    content: postContent.value,
+    category: selectedCategory.value,
+    tags: selectedTags.value,
+    timestamp: new Date().toISOString(),
+    author: {
+      id: 'current-user-123', // Sử dụng ID giả để kiểm tra quyền sở hữu bài viết
+      username: 'Người dùng hiện tại',
+      fullName: 'Người dùng hiện tại',
+      title: 'Thành viên mới',
+      avatar: 'https://i.pravatar.cc/150?u=current-user',
+      bio: 'Chưa có thông tin giới thiệu.',
+      website: '',
+      websiteUrl: '#',
+      location: 'Việt Nam',
+      stats: { 
+        posted: 'Vừa xong', 
+        joined: new Date().toLocaleDateString('vi-VN'), 
+        read: '1 giờ', 
+        solutions: 0 
+      }
+    },
+    stats: {
+      replies: 0,
+      views: 0
+    }
+  };
+
+  try {
+    // Add post to store
+    await store.dispatch('forum/createPost', newPost);
+    
+    // Navigate to post detail page
+    await router.push(`/forum/post/${newPost.id}`);
+  } catch (error) {
+    console.error('Error creating post:', error);
+    alert('Có lỗi xảy ra khi tạo bài viết. Vui lòng thử lại sau.');
+  }
+};
 
 </script>
 

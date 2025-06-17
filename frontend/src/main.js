@@ -7,6 +7,5 @@ import './firebase'
 const app = createApp(App);
 
 app.use(router);
-app.use(store); // Sử dụng Vuex store
-
+app.use(store);
 app.mount("#app");

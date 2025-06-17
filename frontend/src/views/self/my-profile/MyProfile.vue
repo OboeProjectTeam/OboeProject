@@ -1,26 +1,60 @@
 <template>
-  <ProfileDetail v-if="user" :user="user" :is-my-profile="true" @save-profile="handleProfileSave" />
+  <ProfileDetail 
+    v-if="user" 
+    :user="user" 
+    :is-my-profile="true" 
+    :active-tab="activeTab"
+    @save-profile="handleProfileSave" 
+  />
   <div v-else class="loading">
     Đang tải hồ sơ...
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { useRoute } from 'vue-router';
 import ProfileDetail from '@/components/layout/forum/profile/ProfileDetail.vue';
 
 const store = useStore();
+const route = useRoute();
 const user = ref(null);
 
 // Lấy người dùng đã đăng nhập từ Vuex store
 const firebaseUser = computed(() => store.state.auth.user);
+
+// Get active tab from route query
+const activeTab = computed(() => route.query.tab || 'activities');
 
 function handleProfileSave(updatedUser) {
   user.value = updatedUser;
   // Trong một ứng dụng thực tế,  sẽ gửi yêu cầu API ở đây để lưu thay đổi vào máy chủ.
   console.log('Profile saved!', updatedUser);
 }
+
+// Watch for new post flag in route query
+watch(() => route.query.newPost, async (newPost) => {
+  if (newPost === 'true') {
+    // Refresh user data to include the new post
+    const latestPost = await store.getters['forum/getLatestPost'];
+    if (latestPost) {
+      // Add the new post to the user's activities
+      const newActivity = {
+        type: 'post',
+        id: `post-${latestPost.id}`,
+        title: latestPost.title,
+        timestamp: 'Vừa xong',
+        topic: latestPost.category,
+        url: `/forum/post/${latestPost.id}`
+      };
+      
+      if (user.value && user.value.activities) {
+        user.value.activities.unshift(newActivity);
+      }
+    }
+  }
+}, { immediate: true });
 
 // Đây là dữ liệu chi tiết của hồ sơ. Trong ứng dụng thực tế,  sẽ lấy dữ liệu này
 // từ cơ sở dữ liệu của riêng  bằng cách sử dụng UID của người dùng từ firebaseUser.

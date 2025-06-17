@@ -4,11 +4,21 @@
         <div class="forum-header">
             <div class="header-content">
                 <h1>Diễn đàn Oboe</h1>
-                <p>Nơi chia sẻ, học hỏi và thảo luận về mọi khía cạnh của tiếng Nhật.</p>
+                <div class="header-actions flex-jsb">
+                    <div class="search-container">
+                        <input 
+                            type="text" 
+                            v-model="searchQuery" 
+                            placeholder="Tìm kiếm bài viết..." 
+                            class="search-input"
+                            @input="handleSearch"
+                        >
+                    </div>
+                    <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
+                        <i class="fas fa-edit"></i> Tạo bài viết mới
+                    </button>
+                </div>
             </div>
-            <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
-                <i class="fas fa-edit"></i> Tạo bài viết mới
-            </button>
         </div>
 
         <!-- Forum Body -->
@@ -127,6 +137,7 @@ const sortKey = ref('activity'); // 'activity', 'replies', 'views'
 const sortOrder = ref('desc'); // 'asc', 'desc'
 const selectedCategory = ref('all');
 const selectedTag = ref('all');
+const searchQuery = ref('');
 
 // --- DATA ---
 const categories = ref([
@@ -165,12 +176,25 @@ const allTags = computed(() => {
 
 const filteredPosts = computed(() => {
     let result = posts.value;
+    
+    // Apply search filter
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(post => 
+            post.title.toLowerCase().includes(query)
+        );
+    }
+    
+    // Apply category filter
     if (selectedCategory.value !== 'all') {
         result = result.filter(post => post.category === selectedCategory.value);
     }
+    
+    // Apply tag filter
     if (selectedTag.value !== 'all') {
         result = result.filter(post => post.tags && post.tags.includes(selectedTag.value));
     }
+    
     return result;
 });
 
@@ -263,8 +287,14 @@ function formatTimeAgo(date) {
     if (interval > 1) return Math.floor(interval) + " phút trước";
     return "Vài giây trước";
 }
+
+const handleSearch = () => {
+    currentPage.value = 1; // Reset to first page when searching
+};
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-home/TheForum.scss';
+
+
 </style>
