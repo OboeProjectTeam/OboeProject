@@ -1,4 +1,4 @@
-@import '@/assets/css/index.scss';
+@use '@/assets/css/index.scss' as *;
 .search-results-page {
   .container {
     max-width: 1200px;
