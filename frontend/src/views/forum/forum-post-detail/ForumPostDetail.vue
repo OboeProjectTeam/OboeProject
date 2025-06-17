@@ -36,7 +36,7 @@
               <span class="author-name" @click.stop="toggleUserCard($event, postAuthor)">
                 {{ postAuthor.username }}
               </span>
-              <span class="post-time">Đăng {{ postAuthor.stats?.posted || 'vừa xong' }}</span>
+              <span class="post-time">{{ postAuthor.stats?.posted || 'vừa xong' }}</span>
             </div>
           </div>
           
@@ -112,6 +112,14 @@
                   <button @click="toggleReplyForm(reply.id)" class="btn-link">
                     <i class="fas fa-reply"></i> Trả lời
                   </button>
+                  <button 
+                    v-if="reply.replies && reply.replies.length > 0" 
+                    @click="toggleReplies(reply.id)" 
+                    class="btn-link toggle-replies"
+                  >
+                    <i class="fas" :class="isRepliesShown(reply.id) ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                    {{ isRepliesShown(reply.id) ? 'Ẩn câu trả lời' : `Xem ${reply.replies.length} câu trả lời` }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -122,53 +130,55 @@
                 <div class="reply-form">
                   <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${reply.author.username}...`"></textarea>
                   <div class="reply-form-actions">
-                    <button class="btn btn-primary submit-reply-btn">Gửi</button>
                     <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                    <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
                   </div>
                 </div>
               </div>
             </transition>
 
             <!-- Nested Replies -->
-            <div class="nested-replies" v-if="reply.replies && reply.replies.length > 0">
-              <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
-                <div class="reply-item">
-                  <img 
-                    :src="nestedReply.author.avatar" 
-                    :alt="nestedReply.author.username" 
-                    class="author-avatar"
-                    @click.stop="toggleUserCard($event, nestedReply.author)"
-                  >
-                  <div class="reply-content-wrapper">
-                    <div class="reply-meta">
-                      <span class="author-name" @click.stop="toggleUserCard($event, nestedReply.author)">{{ nestedReply.author.username }}</span>
-                      <span class="post-time">{{ nestedReply.time }}</span>
-                    </div>
-                    <div class="reply-content">
-                      <p>{{ nestedReply.text }}</p>
-                    </div>
-                    <div class="reply-actions">
-                      <button @click="toggleReplyForm(nestedReply.id)" class="btn-link">
-                        <i class="fas fa-reply"></i> Trả lời
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Reply Form (for nested reply) -->
-                <transition name="slide-fade">
-                  <div v-if="replyingTo === nestedReply.id" class="nested-reply-form">
-                    <div class="reply-form">
-                      <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${nestedReply.author.username}...`"></textarea>
-                      <div class="reply-form-actions">
-                        <button class="btn btn-primary submit-reply-btn">Gửi</button>
-                        <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+            <transition name="slide-fade">
+              <div v-if="reply.replies && reply.replies.length > 0 && isRepliesShown(reply.id)" class="nested-replies">
+                <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
+                  <div class="reply-item">
+                    <img 
+                      :src="nestedReply.author.avatar" 
+                      :alt="nestedReply.author.username" 
+                      class="author-avatar"
+                      @click.stop="toggleUserCard($event, nestedReply.author)"
+                    >
+                    <div class="reply-content-wrapper">
+                      <div class="reply-meta">
+                        <span class="author-name" @click.stop="toggleUserCard($event, nestedReply.author)">{{ nestedReply.author.username }}</span>
+                        <span class="post-time">{{ nestedReply.time }}</span>
+                      </div>
+                      <div class="reply-content">
+                        <p>{{ nestedReply.text }}</p>
+                      </div>
+                      <div class="reply-actions">
+                        <button @click="toggleReplyForm(nestedReply.id)" class="btn-link">
+                          <i class="fas fa-reply"></i> Trả lời
+                        </button>
                       </div>
                     </div>
                   </div>
-                </transition>
+
+                  <!-- Reply Form (for nested reply) -->
+                  <transition name="slide-fade">
+                    <div v-if="replyingTo === nestedReply.id" class="nested-reply-form">
+                      <div class="reply-form">
+                        <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${nestedReply.author.username}...`"></textarea>
+                        <div class="reply-form-actions">
+                          <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                          <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -303,11 +313,54 @@ import ThePopup from '@/components/common/popup/ThePopup.vue';
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
-const replyingTo = ref(null);
 const activeUserCard = ref(null);
 const showPostMenu = ref(false);
 const isCommentsLocked = ref(false);
 const isLoading = ref(true);
+const replyingTo = ref(null);
+
+// Mock replies data for demonstration
+const replies = ref([
+  {
+    id: 1,
+    author: {
+      username: 'Hùng Trần',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+    },
+    time: '1 giờ 45 phút trước',
+    text: 'Mình thấy học theo sách "Look & Learn" khá hiệu quả, hình ảnh minh họa dễ nhớ lắm . Kết hợp với app Anki để ôn tập mỗi ngày nữa là ổn.',
+    replies: [],
+  },
+  {
+    id: 2,
+    author: {
+      username: 'Lan Anh',
+      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
+    },
+    time: '1 giờ 20 phút trước',
+    text: 'Đúng rồi, học theo bộ thủ là cách nhớ lâu nhất đó. Thử tìm hiểu về 214 bộ thủ cơ bản trước, sau đó ghép Kanji sẽ thấy logic hơn nhiều.',
+    replies: [
+      {
+        id: 4,
+        author: {
+          username: 'Mai An',
+          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+        },
+        time: '1 giờ 10 phút trước',
+        text: 'Cảm ơn Lan Anh, mình sẽ thử tìm hiểu xem sao. Mình cũng nghe nhiều người khen phương pháp này.',
+      },
+      {
+        id: 5,
+        author: {
+          username: 'Hùng Trần',
+          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+        },
+        time: '1 giờ trước',
+        text: 'Đồng ý với Lan Anh. Mình cũng học theo cách này và thấy rất hiệu quả.',
+      }
+    ],
+  }
+]);
 
 // Floating UI setup
 const referenceEl = ref(null);
@@ -510,6 +563,20 @@ const toggleReplyForm = (replyId) => {
     replyingTo.value = replyId; // Open for this reply
   }
 };
+
+const shownReplies = ref(new Set());
+
+const toggleReplies = (replyId) => {
+  if (shownReplies.value.has(replyId)) {
+    shownReplies.value.delete(replyId);
+  } else {
+    shownReplies.value.add(replyId);
+  }
+};
+
+const isRepliesShown = (replyId) => {
+  return shownReplies.value.has(replyId);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -547,7 +614,7 @@ const toggleReplyForm = (replyId) => {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   min-width: 180px;
-  z-index: 1000;
+  z-index: 3000;
 }
 
 .menu-item {
@@ -613,7 +680,7 @@ const toggleReplyForm = (replyId) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 3000;
 }
 
 .report-dialog-content {

@@ -114,6 +114,7 @@
     border-bottom: 1px solid #e9ecef;
     padding-bottom: 20px;
   }
+  margin-bottom: 40px;
 }
 
 .reply-thread {
@@ -152,8 +153,8 @@
     margin-right: 15px;
     flex-shrink: 0;
     cursor: pointer;
-
   }
+  
   .reply-content-wrapper {
     flex-grow: 1;
     .reply-meta {
@@ -189,6 +190,9 @@
 
 .reply-actions {
   margin-top: 10px;
+  display: flex;
+  gap: 15px;
+  
   .btn-link {
     background: none;
     border: none;
@@ -211,6 +215,18 @@
     &:hover {
       color: $primary-color;
       background-color: color.adjust($primary-color, $alpha: -0.9);
+    }
+
+    &.toggle-replies {
+      i {
+        transition: transform 0.2s ease;
+        &.fa-chevron-up {
+          transform: rotate(0);
+        }
+        &.fa-chevron-down {
+          transform: rotate(0);
+        }
+      }
     }
   }
 }
@@ -239,22 +255,23 @@
 }
 
 .reply-textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ced4da;
-    font-size: 1rem;
-    font-family: inherit;
-    resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    
-    &:focus {
-      outline: none;
-      border-color: $primary-color;
-      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
-    }
+  width: 100%;
+  min-height: 100px;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+  }
 }
+
 .submit-reply-btn, .cancel-reply-btn {
   padding: 8px 18px;
   font-size: 0.95rem;
@@ -264,6 +281,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .submit-reply-btn {
   background-color: $primary-color;
   color: white;
@@ -285,6 +303,7 @@
 }
 
 .add-reply-card {
+  margin-top: 40px;
   background: white;
   border-radius: 12px;
   padding: 30px;
@@ -305,6 +324,49 @@
     .submit-reply-btn {
       padding: 10px 20px;
       font-size: 1rem;
+      margin-left: auto;
+      display: block;
+    }
+  }
+}
+
+.reply-form {
+  display: flex;
+  flex-direction: column;
+  
+  .reply-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    margin-bottom: 15px;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+    }
+  }
+}
+
+.reply-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+
+  .cancel-reply-btn {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+    &:hover {
+      background-color: #e9ecef;
+      border-color: #ced4da;
     }
   }
 }
