@@ -50,7 +50,7 @@ public class MessageController {
 
             Message message = messageService.sendMessage(sender, receiver, content);
 
-            // Sửa MessageDTO constructor - thêm đầy đủ parameters
+
             MessageDTO dto = new MessageDTO(
                     UUID.fromString(message.getMessageID().toString()),
                     message.getSent_message(),
