@@ -1,6 +1,21 @@
 @use '@/assets/css/index.scss' as *;
 @use 'sass:color';
 
+// Scroll Reveal Animations
+.scroll-reveal {
+  opacity: 0;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.from-top {
+    transform: translateY(-50px);
+  }
+
+  &.is-visible {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
 .upgrade-page-container {
   min-height: calc(100vh - 140px);
   font-family: $font-family-regular;
@@ -39,10 +54,17 @@
   max-width: 380px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid #dee2e6;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  border: 1px solid #dee2e6;
+
+  transition: box-shadow 0.3s ease;
+
+  &.scroll-reveal {
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease;
+  }
 
   &:hover {
     transform: translateY(-10px);
@@ -184,5 +206,214 @@
   }
   .page-header .main-title {
     font-size: 2.5rem;
+  }
+}
+.features-section,
+.testimonials-section,
+.faq-section {
+  margin-bottom: 80px;
+
+  .section-title {
+    text-align: center;
+    font-size: 28px;
+    color: #333;
+    margin: 40px 0;
+  }
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  padding: 0 20px;
+
+  .feature-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-icon {
+      font-size: 36px;
+      color: $primary-color;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: #666;
+      line-height: 1.6;
+    }
+  }
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  padding: 0 20px;
+
+  .testimonial-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+
+      .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: cover;
+      }
+
+      .user-details {
+        h4 {
+          font-size: 18px;
+          color: #333;
+          margin-bottom: 5px;
+        }
+
+        p {
+          color: #666;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .testimonial-text {
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+
+    .rating {
+      color: #ffc107;
+      font-size: 16px;
+
+      i {
+        margin-right: 2px;
+      }
+    }
+  }
+}
+
+.faq-section {
+  .faq-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    .faq-item {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      .faq-question {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        color: #333;
+
+        i {
+          color: #666;
+          transition: transform 0.3s ease;
+        }
+      }
+
+      .faq-answer {
+        padding: 0 20px;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        color: #666;
+        line-height: 1.6;
+
+        &.open {
+          padding: 0 20px 20px;
+          max-height: 200px;
+        }
+      }
+    }
+  }
+}
+
+.cta-section {
+  text-align: center;
+  padding: 60px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin: 0 20px 40px;
+
+  h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 30px;
+  }
+
+  .btn-large {
+    padding: 12px 24px;
+    font-size: 16px;
+    background: $primary-color;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    max-width: 300px;
+    margin: 0 auto;
+
+    i {
+      margin-left: 8px;
+    }
+
+    &:hover {
+      background: $hover-btn-color;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .features-grid,
+  .testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section {
+    padding: 40px 20px;
+
+    h2 {
+      font-size: 24px;
+    }
+
+    .btn-large {
+      width: 100%;
+    }
   }
 }

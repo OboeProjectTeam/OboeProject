@@ -258,7 +258,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
+          <img src="@/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
           <h2>{{ learningStats.known === slides.length ?
             'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
