@@ -182,16 +182,6 @@
 
         <form @submit.prevent="submitResolve" class="resolve-form">
           <div class="form-group">
-            <label>Mức độ vi phạm</label>
-            <select v-model="resolveData.severity" required>
-              <option value="low">Thấp - Cảnh báo</option>
-              <option value="medium">Trung bình - Hạn chế tính năng</option>
-              <option value="high">Cao - Cấm tạm thời</option>
-              <option value="urgent">Nghiêm trọng - Cấm vĩnh viễn</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label>Hành động</label>
             <select v-model="resolveData.action" required>
               <option value="warning">Gửi cảnh báo</option>
@@ -211,16 +201,6 @@
               required
             ></textarea>
           </div>
-
-          <div class="form-group">
-            <label>Ghi chú nội bộ</label>
-            <textarea 
-              v-model="resolveData.internalNote"
-              placeholder="Ghi chú cho đội ngũ quản trị..."
-              rows="2"
-            ></textarea>
-          </div>
-
           <div class="modal-actions">
             <button type="button" class="btn-cancel" @click="showResolveModal = false">
               Hủy

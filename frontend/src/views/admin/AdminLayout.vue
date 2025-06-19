@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <div class="admin-sidebar" :class="{ 'collapsed': isSidebarCollapsed }">
       <div class="sidebar-header">
-          <img src="/src/assets/img/logo_tab_oboe.svg" alt="Logo" class="w-45px" />
+          <img src="/src/assets/img/logo/logo_tab_oboe.svg" alt="Logo" class="w-45px" />
         <h1>Admin Panel</h1>
       </div>
       

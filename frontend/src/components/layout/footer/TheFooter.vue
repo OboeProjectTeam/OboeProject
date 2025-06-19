@@ -11,9 +11,9 @@
             <p class="footer-infortext">{{ item.title }}</p>
           </li>
         </ul>
-        <ul class="flex">
+        <ul class="flex social-links">
           <li class="mr-10" v-for="(item, index) in listCNC" :key="index">
-            <a :href="item.src">
+            <a :href="item.src" target="_blank" rel="noopener noreferrer">
               <i :class="item.icon" class="w-100"></i>
             </a>
           </li>
@@ -32,13 +32,18 @@
                   'p-hover': outerIndex !== listServies.length - 1
                 }
               ]" v-for="(item, innerIndex) in items.service" :key="innerIndex">
-                <a :href="item.link || '#'">
+                <router-link v-if="item.link" :to="item.link">
                   <p>{{ item.title }}</p>
-                </a>
+                </router-link>
+                <p v-else>{{ item.title }}</p>
               </li>
-              <MsButton class="button-hover footer-comment-btn" border="1px solid #000" height="40px" backgroundColor="#ffff"
-                color="black" v-if="outerIndex === listServies.length - 1">
-                SEND COMMENTS
+              <MsButton 
+                v-if="outerIndex === listServies.length - 1" 
+                class="button-hover footer-comment-btn" 
+                height="40px" 
+                @click="handleFeedbackClick"
+              >
+                GỬI Ý KIẾN
               </MsButton>
             </ul>
           </li>
@@ -49,22 +54,25 @@
 </template>
 
 <script setup>
-import { useStore } from 'vuex'; // Import useStore to access Vuex store
+import { ref } from 'vue';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 import TheLogo from '@/components/layout/logo/TheLogo.vue';
 import MsButton from '@/components/common/button/MsButton.vue';
 
-const store = useStore(); // Get Vuex store
+const store = useStore();
+const router = useRouter();
 
 // Fetch the data from Vuex store
 const listInfor = store.getters['footer/ListInfor'];
 const listCNC = store.getters['footer/ListCNC'];
 const listServies = store.getters['footer/ListServies'];
+
+const handleFeedbackClick = () => {
+  router.push('/footer-services/contact');
+};
 </script>
 
 <style lang="scss" scoped>
 @use '@/components/layout/footer/TheFooter.scss';
-
-.footer-comment-btn {
-  width: 100%;
-}
 </style>

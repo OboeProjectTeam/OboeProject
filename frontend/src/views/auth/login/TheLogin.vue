@@ -5,7 +5,7 @@
   </template>
   
 <script setup>
-  import loginBg from '@/assets/img/login.jpg'
+  import loginBg from '@/assets/img/login/login.jpg'
   import '@/views/auth/login/TheLogin.scss';
   import FormAuthen from '@/components/layout/form-login/FormAuthen.vue';
 
