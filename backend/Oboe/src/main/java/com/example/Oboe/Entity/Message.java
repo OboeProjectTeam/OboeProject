@@ -11,7 +11,7 @@ public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "MessageID", updatable = false, nullable = false)
-    private String MessageID;
+    private UUID MessageID;
     private String sent_message;
     private LocalDateTime sent_at = LocalDateTime.now();
 
@@ -37,11 +37,11 @@ public class Message {
         return receiver != null ? receiver.getUser_id() : null;
     }
 
-    public String getMessageID() {
+    public UUID getMessageID() {
         return MessageID;
     }
 
-    public void setMessageID(String messageID) {
+    public void setMessageID(UUID messageID) {
         MessageID = messageID;
     }
 
@@ -76,4 +76,12 @@ public class Message {
     public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
+    public LocalDateTime getSentAt() {
+        return sent_at;
+    }
+
+
+
+
+
 }

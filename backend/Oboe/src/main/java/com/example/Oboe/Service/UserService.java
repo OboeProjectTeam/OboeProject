@@ -1,8 +1,5 @@
 package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.PassWordChangeDTOs;
-import com.example.Oboe.Entity.AccountType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.User;
@@ -35,39 +32,16 @@ public class UserService implements UserDetailsService {
         this.mailService = mailService;
     }
 
-    public boolean registerWithEmail(UserDTOs userDTOs) {
-        String userName = userDTOs.getUserName();
+    public void registerWithEmail(UserDTOs userDTOs) {
+        String verificationToken = UUID.randomUUID().toString();
 
-        if (userName != null && userName.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+        VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-            String verificationToken = UUID.randomUUID().toString();
-            VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
+        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
+        String emailSubject = "Please verify your email";
+        String emailBody = "Click the link to verify your account: " + verificationLink;
 
-            String verificationLink = "http://13.229.97.53:8080/api/auth/verify?token=" + verificationToken;
-            String emailSubject = "Xác nhận tài khoản Oboe";
-            String emailBody = """
-            Xin chào,
-            
-            Cảm ơn bạn đã đăng ký tài khoản tại Oboe.
-            
-            Để xác nhận tài khoản, vui lòng click vào link sau:""" + verificationLink + """
-                Link này sẽ hết hạn sau 24 giờ.
-            Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.
-            Trân trọng,
-            Đội ngũ Oboe""";
-
-            mailService.sendMail(userName, emailSubject, emailBody);
-            return true;
-        }
-        else if (userName != null && userName.matches("^(03|05|07|08|09)\\d{8}$")) {
-
-            userDTOs.setVerified(true);
-            addUser(userDTOs);
-            return false;
-        }
-        else {
-            throw new IllegalArgumentException("Username must be a valid email or phone number.");
-        }
+        mailService.sendMail(userDTOs.getUserName(), emailSubject, emailBody);
     }
 
     public User verifyAccount(String token) {
@@ -99,7 +73,6 @@ public class UserService implements UserDetailsService {
         user.setVerified(userDTOs.isVerified());
         user.setCreate_at(userDTOs.getCreate_at());
         user.setUpdate_at(userDTOs.getUpdate_at());
-        user.setAccountType(AccountType.FREE);
 
         return userRepository.save(user);
     }
@@ -154,5 +127,9 @@ public class UserService implements UserDetailsService {
                 password.matches(".*[a-z].*") && //it nhat 1 chu in thuong
                 password.matches(".*\\d.*") && //it nhat 1 so
                 password.matches(".*[!@#$%^&*()].*"); // it nhat 1 ki tu dac biet
+    }
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
 }

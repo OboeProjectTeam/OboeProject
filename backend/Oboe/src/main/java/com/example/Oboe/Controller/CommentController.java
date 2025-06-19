@@ -1,10 +1,12 @@
 package com.example.Oboe.Controller;
 
-import com.example.Oboe.Entity.Comment;
+import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Service.CommentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,34 +19,58 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
-    //lấy tất cả comment của blogs
+
+    // Lấy tất cả comment của một blog
     @GetMapping("/blog/{blogId}")
-    public List<Comment> getCommentsByBlog(@PathVariable UUID blogId) {
-        return commentService.getCommentsByBlogId(blogId);
+    public ResponseEntity<List<CommentDTOs>> getCommentsByBlog(@PathVariable UUID blogId) {
+        return ResponseEntity.ok(commentService.getCommentsByBlogId(blogId));
     }
-    //lấy tất cả comment của Userid
-//    @GetMapping("/user/{userId}")
-//    public List<Comment> findByUserId(@PathVariable UUID userId) {
-//        return commentService.getCommentsByUserId(userId);
-//    }
-    //comment vào blogs
-    @PostMapping("/blog/{blogId}/user/{userId}")
-    public ResponseEntity<Comment> createComment(
+
+    // Lấy tất cả comment của user hiện tại
+    @GetMapping("/my-comments")
+    public ResponseEntity<List<CommentDTOs>> getMyComments(Authentication authentication) {
+        return ResponseEntity.ok(commentService.getCommentsByUsername(authentication.getName()));
+    }
+
+    // Tạo comment mới cho blog
+    @PostMapping("/blog/{blogId}")
+    public ResponseEntity<CommentDTOs> createComment(
             @PathVariable UUID blogId,
-            @PathVariable UUID userId,
-            @RequestBody Comment comment) {
-        return ResponseEntity.ok(commentService.createComment(comment, userId, blogId));
+            @Valid @RequestBody CommentDTOs commentDTO,
+            Authentication authentication) {
+
+        CommentDTOs created = commentService.createComment(blogId, authentication.getName(), commentDTO);
+        return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
     }
-    //delete
+
+    // Lấy comment theo ID
+    @GetMapping("/{id}")
+    public ResponseEntity<CommentDTOs> getCommentById(@PathVariable UUID id) {
+        CommentDTOs comment = commentService.getCommentDTOById(id);
+        return comment != null ? ResponseEntity.ok(comment) : ResponseEntity.notFound().build();
+    }
+
+    // Xóa comment (chỉ nếu là owner)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable UUID id) {
-        commentService.deleteComment(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> deleteComment(@PathVariable UUID id, Authentication authentication) {
+        boolean deleted = commentService.deleteComment(id, authentication.getName());
+        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.status(403).build();
     }
-    //update
+
+    // Cập nhật comment (chỉ nếu là owner)
     @PutMapping("/{id}")
-    public ResponseEntity<Comment> updateComment(@PathVariable UUID id, @RequestBody Comment comment) {
-        Comment updatedComment = commentService.updateComment(id, comment);
-        return ResponseEntity.ok(updatedComment);
+    public ResponseEntity<CommentDTOs> updateComment(
+            @PathVariable UUID id,
+            @Valid @RequestBody CommentDTOs commentDTO,
+            Authentication authentication) {
+
+        CommentDTOs updated = commentService.updateComment(id, authentication.getName(), commentDTO);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.status(403).build();
+    }
+
+    // Đếm số comment của một blog
+    @GetMapping("/blog/{blogId}/count")
+    public ResponseEntity<Long> getCommentCount(@PathVariable UUID blogId) {
+        return ResponseEntity.ok(commentService.getCommentCountByBlogId(blogId));
     }
 }

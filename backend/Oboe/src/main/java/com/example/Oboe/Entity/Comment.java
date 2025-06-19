@@ -1,16 +1,20 @@
 package com.example.Oboe.Entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "comments")
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "comment_id", updatable = false, nullable = false)
@@ -26,23 +30,32 @@ public class Comment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Mối quan hệ nhiều-một với User
+    // Nhiều - Một với User
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference("user-comments") // Tương ứng với @JsonManagedReference trong User
+    @JsonBackReference("user-comments")
     private User user;
 
-    // Mối quan hệ nhiều-một với Blog
+    // Nhiều - Một với Blog
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "blog_id", nullable = false)
-    @JsonBackReference("blog-comments") // Tương ứng với @JsonManagedReference trong Blog
+    @JsonBackReference("blog-comments")
     private Blog blog;
 
-    // Constructor mặc định
-    public Comment() {
-    }
+    // Quan hệ tự tham chiếu - comment cha
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    @JsonBackReference("comment-parent")
+    private Comment parentComment;
 
-    // Constructor với các trường cơ bản
+    // Danh sách comment con (replies)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("comment-parent")
+    private List<Comment> replies = new ArrayList<>();
+
+    // Constructors
+    public Comment() {}
+
     public Comment(String title, String content, User user, Blog blog) {
         this.title = title;
         this.content = content;
@@ -97,5 +110,21 @@ public class Comment {
 
     public void setBlog(Blog blog) {
         this.blog = blog;
+    }
+
+    public Comment getParentComment() {
+        return parentComment;
+    }
+
+    public void setParentComment(Comment parentComment) {
+        this.parentComment = parentComment;
+    }
+
+    public List<Comment> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<Comment> replies) {
+        this.replies = replies;
     }
 }

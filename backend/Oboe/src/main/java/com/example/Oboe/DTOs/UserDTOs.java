@@ -2,10 +2,6 @@ package com.example.Oboe.DTOs;
 
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.Role;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Size;
-import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +12,7 @@ import java.time.LocalDateTime;
 //@NoArgsConstructor
 //@AllArgsConstructor
 public class UserDTOs {
+
     private String userName;
     private String passWord;
     private String lastName;
