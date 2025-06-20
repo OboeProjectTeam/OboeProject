@@ -113,7 +113,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="@/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
+          <img :src="celebrationImage" alt="Celebration" class="celebration-image" />
           <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
         </div>
 
@@ -656,6 +656,8 @@ onUnmounted(() => {
     clearInterval(timer.value);
   }
 });
+
+const celebrationImage = new URL('@/assets/img/learn/celebration.jpg', import.meta.url).href;
 </script>
 
 <style lang="scss" scoped>

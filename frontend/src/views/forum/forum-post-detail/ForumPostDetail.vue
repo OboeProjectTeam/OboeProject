@@ -326,6 +326,18 @@ const replies = ref([
     author: {
       username: 'Hùng Trần',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+      fullName: 'Trần Mạnh Hùng',
+      title: 'Thành viên tích cực',
+      bio: 'Người học tiếng Nhật đam mê',
+      website: 'hungtran.blog',
+      websiteUrl: 'https://hungtran.blog',
+      location: 'Hà Nội',
+      stats: {
+        posted: 45,
+        joined: '6 tháng trước',
+        read: 120,
+        solutions: 15
+      }
     },
     time: '1 giờ 45 phút trước',
     text: 'Mình thấy học theo sách "Look & Learn" khá hiệu quả, hình ảnh minh họa dễ nhớ lắm . Kết hợp với app Anki để ôn tập mỗi ngày nữa là ổn.',
@@ -336,6 +348,18 @@ const replies = ref([
     author: {
       username: 'Lan Anh',
       avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
+      fullName: 'Nguyễn Lan Anh',
+      title: 'Người mới bắt đầu',
+      bio: 'Yêu thích văn hóa Nhật Bản',
+      website: 'lananh.blog',
+      websiteUrl: 'https://lananh.blog',
+      location: 'Hồ Chí Minh',
+      stats: {
+        posted: 12,
+        joined: '2 tháng trước',
+        read: 45,
+        solutions: 3
+      }
     },
     time: '1 giờ 20 phút trước',
     text: 'Đúng rồi, học theo bộ thủ là cách nhớ lâu nhất đó. Thử tìm hiểu về 214 bộ thủ cơ bản trước, sau đó ghép Kanji sẽ thấy logic hơn nhiều.',
@@ -345,6 +369,18 @@ const replies = ref([
         author: {
           username: 'Mai An',
           avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
+          fullName: 'Phạm Mai An',
+          title: 'Người mới bắt đầu',
+          bio: 'Đang học N3',
+          website: 'maian.blog',
+          websiteUrl: 'https://maian.blog',
+          location: 'Đà Nẵng',
+          stats: {
+            posted: 8,
+            joined: '1 tháng trước',
+            read: 30,
+            solutions: 2
+          }
         },
         time: '1 giờ 10 phút trước',
         text: 'Cảm ơn Lan Anh, mình sẽ thử tìm hiểu xem sao. Mình cũng nghe nhiều người khen phương pháp này.',
@@ -354,6 +390,18 @@ const replies = ref([
         author: {
           username: 'Hùng Trần',
           avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
+          fullName: 'Trần Mạnh Hùng',
+          title: 'Thành viên tích cực',
+          bio: 'Người học tiếng Nhật đam mê',
+          website: 'hungtran.blog',
+          websiteUrl: 'https://hungtran.blog',
+          location: 'Hà Nội',
+          stats: {
+            posted: 45,
+            joined: '6 tháng trước',
+            read: 120,
+            solutions: 15
+          }
         },
         time: '1 giờ trước',
         text: 'Đồng ý với Lan Anh. Mình cũng học theo cách này và thấy rất hiệu quả.',
