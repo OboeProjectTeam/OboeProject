@@ -69,7 +69,7 @@ const profileDetailsMock = {
     hometown: 'Hải Dương',
     address: '123 Phố Huế, Q. Hai Bà Trưng, Hà Nội',
     stats: {
-      posted: '258',
+      learning_materials: '12',
       joined: '12 tháng 1, 2023', // Sẽ được ghi đè nếu có thể
       read: '152 giờ',
       solutions: 89,

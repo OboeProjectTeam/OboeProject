@@ -285,7 +285,7 @@ const routes = [
       },
       {
         path: 'flashcard',
-        name: 'flashcard',
+        name: 'flashcard-footer',
         component: () => import('@/views/footer-services/why-flashcard/TheWhyFlashcard.vue'),
         meta: {
           title: 'Tại sao nên học với Flashcard - Oboe'

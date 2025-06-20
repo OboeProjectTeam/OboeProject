@@ -248,9 +248,6 @@ const culturalEvents = ref([
 <style lang="scss" scoped>
 .japan-news-page {
   min-height: 100vh;
-  background-color: #f5f5f5;
-  padding: 40px 0;
-
   .japan-news-container {
     max-width: 1200px;
     margin: 0 auto;
