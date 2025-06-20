@@ -89,6 +89,7 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import { initScrollReveal } from '@/assets/js/common';
 import TheCard from '@/components/layout/card/TheCard.vue';
 import { useStore } from 'vuex'; // Import useStore to access Vuex state
 const store = useStore(); // Access Vuex store
@@ -96,22 +97,10 @@ const slides = store.getters['cart/slides']; // Get slides from the Vuex store
 
 
 onMounted(() => {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target); // unobserve sau khi hiển thị
-      }
-    });
-  }, {
-    threshold: 0.1
-  });
-
-  const revealElements = document.querySelectorAll('.scroll-reveal');
-  revealElements.forEach(el => observer.observe(el));
+  initScrollReveal();
 });
 </script>
 
 <style lang="scss" scoped>
-@use './TheIntro.scss';
+@use '@/views/intro/TheIntro.scss';
 </style>

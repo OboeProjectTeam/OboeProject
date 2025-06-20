@@ -29,6 +29,8 @@ import UserManagement from '@/components/layout/admin-content/users/UserManageme
 import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
 import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
 import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
+import TheTerms from '@/views/footer-services/terms/TheTerms.vue';
+import ThePrivacy from '@/views/footer-services/privacy/ThePrivacy.vue';
 
 const routes = [
   {
@@ -243,6 +245,92 @@ const routes = [
       meta: { title: 'Quản lý đóng góp ý kiến' }
     }
   ]
+  },
+  {
+    path: '/footer-services',
+    name: 'footer-services',
+    component: () => import('@/views/footer-services/FooterServicesLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'terms',
+        component: TheTerms,
+        meta: {
+          title: 'Điều khoản dịch vụ - Oboe'
+        }
+      },
+      {
+        path: 'security',
+        name: 'privacy',
+        component: ThePrivacy,
+        meta: {
+          title: 'Chính sách quyền riêng tư - Oboe'
+        }
+      },
+      {
+        path: 'study-guide',
+        name: 'study-guide',
+        component: () => import('@/views/footer-services/study-guide/TheStudyGuide.vue'),
+        meta: {
+          title: 'Hướng dẫn tự học - Oboe'
+        }
+      },
+      {
+        path: 'payment-guide',
+        name: 'payment-guide',
+        component: () => import('@/views/footer-services/payment-guide/ThePaymentGuide.vue'),
+        meta: {
+          title: 'Hướng dẫn thanh toán - Oboe'
+        }
+      },
+      {
+        path: 'flashcard',
+        name: 'flashcard-footer',
+        component: () => import('@/views/footer-services/why-flashcard/TheWhyFlashcard.vue'),
+        meta: {
+          title: 'Tại sao nên học với Flashcard - Oboe'
+        }
+      },
+      {
+        path: 'hiragana-katakana',
+        name: 'hiragana-katakana',
+        component: () => import('@/views/footer-services/writing-guide/TheWritingGuide.vue'),
+        meta: {
+          title: 'Phân biệt Hiragana và Katakana - Oboe'
+        }
+      },
+      {
+        path: 'benefits-japanese',
+        name: 'benefits-japanese',
+        component: () => import('@/views/footer-services/japanese-benefits/TheBenefits.vue'),
+        meta: {
+          title: 'Lợi ích của việc học tiếng Nhật - Oboe'
+        }
+      },
+      {
+        path: 'kanji-recognition',
+        name: 'kanji-recognition',
+        component: () => import('@/views/footer-services/kanji-guide/TheKanjiGuide.vue'),
+        meta: {
+          title: 'Cách Nhận Diện Chữ Hán | Oboe',
+          requiresAuth: false
+        }
+      },
+      {
+        path: 'news',
+        name: 'japan-news',
+        component: () => import('@/views/footer-services/japan-news/TheJapanNews.vue'),
+        meta: {
+          title: 'Tin Tức Thị Trường Nhật Bản | Oboe',
+          requiresAuth: false
+        }
+      },
+      {
+        path: 'contact',
+        name: 'contact',
+        component: () => import('@/views/footer-services/contact/TheContact.vue'),
+      },
+    ]
   },
 ]
 

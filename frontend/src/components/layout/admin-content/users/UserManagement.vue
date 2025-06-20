@@ -15,16 +15,19 @@
         <select v-model="roleFilter">
           <option value="">Tất cả vai trò</option>
           <option value="user">Người dùng</option>
-          <option value="moderator">Người kiểm duyệt</option>
           <option value="admin">Quản trị viên</option>
         </select>
         
         <select v-model="statusFilter">
           <option value="">Tất cả trạng thái</option>
           <option value="active">Hoạt động</option>
-          <option value="inactive">Không hoạt động</option>
           <option value="banned">Đã cấm</option>
         </select>
+
+        <button class="btn-add-user" @click="showAddModal = true">
+          <i class="fas fa-user-plus"></i>
+          Thêm người dùng
+        </button>
       </div>
     </div>
 
@@ -136,7 +139,6 @@
             <label>Vai trò</label>
             <select v-model="editingUser.role">
               <option value="user">Người dùng</option>
-              <option value="moderator">Người kiểm duyệt</option>
               <option value="admin">Quản trị viên</option>
             </select>
           </div>
@@ -144,7 +146,6 @@
             <label>Trạng thái</label>
             <select v-model="editingUser.status">
               <option value="active">Hoạt động</option>
-              <option value="inactive">Không hoạt động</option>
               <option value="banned">Đã cấm</option>
             </select>
           </div>
@@ -154,6 +155,42 @@
             </button>
             <button type="submit" class="btn-save">
               Lưu thay đổi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" v-if="showAddModal">
+      <div class="modal-content">
+        <h3>Thêm người dùng mới</h3>
+        <form @submit.prevent="saveNewUser">
+          <div class="form-group">
+            <label>Họ Tên</label>
+            <input type="text" v-model="newUser.name" required>
+          </div>
+          <div class="form-group">
+            <label>Email/Số điện thoại</label>
+            <input type="text" v-model="newUser.contact" required>
+          </div>
+          <div class="form-group">
+            <label>Mật khẩu</label>
+            <input type="password" v-model="newUser.password" required>
+          </div>
+          <div class="form-group">
+            <label>Vai trò</label>
+            <select v-model="newUser.role" required>
+              <option value="user">Người dùng</option>
+              <option value="admin">Quản trị viên</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" @click="showAddModal = false">
+              Hủy
+            </button>
+            <button type="submit" class="btn-save">
+              Thêm người dùng
             </button>
           </div>
         </form>
@@ -187,6 +224,13 @@ const currentPage = ref(1);
 const itemsPerPage = 10;
 const showEditModal = ref(false);
 const editingUser = ref(null);
+const showAddModal = ref(false);
+const newUser = ref({
+  name: '',
+  contact: '',
+  password: '',
+  role: 'user'
+});
 
 // Computed properties
 const filteredUsers = computed(() => {
@@ -220,7 +264,6 @@ const totalPages = computed(() =>
 const getRoleName = (role) => {
   const roles = {
     user: 'Người dùng',
-    moderator: 'Người kiểm duyệt',
     admin: 'Quản trị viên'
   };
   return roles[role] || role;
@@ -229,7 +272,6 @@ const getRoleName = (role) => {
 const getStatusName = (status) => {
   const statuses = {
     active: 'Hoạt động',
-    inactive: 'Không hoạt động',
     banned: 'Đã cấm'
   };
   return statuses[status] || status;
@@ -276,6 +318,32 @@ const deleteUser = (user) => {
   if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
     users.value = users.value.filter(u => u.id !== user.id);
   }
+};
+
+const saveNewUser = () => {
+  // Add new user to the list
+  const user = {
+    id: users.value.length + 1, // In real app, this would come from the backend
+    name: newUser.value.name,
+    email: newUser.value.contact, // Using contact field for email/phone
+    role: newUser.value.role,
+    status: 'active',
+    joinDate: new Date().toISOString().split('T')[0],
+    avatar: `https://i.pravatar.cc/150?u=${newUser.value.name.replace(/\s+/g, '')}`
+  };
+  
+  users.value.push(user);
+  
+  // Reset form
+  newUser.value = {
+    name: '',
+    contact: '',
+    password: '',
+    role: 'user'
+  };
+  
+  // Close modal
+  showAddModal.value = false;
 };
 </script>
 

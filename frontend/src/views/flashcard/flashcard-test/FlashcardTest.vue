@@ -113,7 +113,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="@/assets/img/celebration.jpg" alt="Celebration" class="celebration-image" />
+          <img src="@/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
           <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
         </div>
 
