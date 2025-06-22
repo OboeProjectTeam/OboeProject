@@ -258,7 +258,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="@/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
+          <img :src="celebrationImage" alt="Celebration" class="celebration-image" />
           <h2>{{ learningStats.known === slides.length ?
             'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
@@ -414,6 +414,8 @@ const fromLibrary = route.query.source === 'library';
 const setTitle = route.query.title;
 return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
 });
+
+const celebrationImage = new URL('@/assets/img/learn/celebration.jpg', import.meta.url).href;
 
 // Method to handle mode changes
 const setMode = async (mode) => {

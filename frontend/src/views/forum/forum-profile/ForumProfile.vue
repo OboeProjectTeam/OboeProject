@@ -42,7 +42,7 @@ const mockUsers = {
       website: 'thietkesarah.com',
       websiteUrl: 'https://thietkesarah.com',
       stats: {
-        posted: '1.2k',
+        learning_materials: '12',
         joined: '15 tháng 5, 2022',
         read: '10 giờ',
         solutions: 42,
@@ -150,7 +150,7 @@ const mockUsers = {
       website: 'my-japanese-journey.com',
       websiteUrl: 'https://oboe.com',
       stats: {
-        posted: '258',
+        learning_materials: '12',
         joined: '12 tháng 1, 2023',
         read: '152 giờ',
         solutions: 89,
