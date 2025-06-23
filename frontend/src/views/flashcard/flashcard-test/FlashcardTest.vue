@@ -657,7 +657,7 @@ onUnmounted(() => {
   }
 });
 
-const celebrationImage = new URL('@/assets/img/learn/celebration.jpg', import.meta.url).href;
+const celebrationImage =@/assets/img/learn/celebration.jpg;
 </script>
 
 <style lang="scss" scoped>

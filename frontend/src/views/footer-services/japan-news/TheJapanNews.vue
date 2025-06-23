@@ -127,7 +127,7 @@ const lastUpdated = ref('15/03/2024');
 
 const featuredNews = ref([
   {
-    image: new URL('@/assets/img/footer/japan-visa.jpg', import.meta.url).href,
+    image: @/assets/img/footer/japan-visa.jpg;
     category: 'Kinh Tế',
     title: 'Nhật Bản Mở Rộng Chính Sách Visa Cho Lao Động Nước Ngoài',
     excerpt: 'Chính phủ Nhật Bản vừa thông qua đề xuất mới về việc nới lỏng các điều kiện visa cho lao động nước ngoài trong các ngành nghề trọng điểm.',
@@ -135,7 +135,7 @@ const featuredNews = ref([
     source: 'Nikkei Asia'
   },
   {
-    image: new URL('@/assets/img/footer/japan-ai.jpg', import.meta.url).href,
+    image: @/assets/img/footer/japan-ai.jpg;
     category: 'Công Nghệ',
     title: 'Làn Sóng AI Tại Nhật Bản: Cơ Hội Việc Làm Mới',
     excerpt: 'Sự phát triển của AI đang tạo ra nhiều cơ hội việc làm mới trong lĩnh vực công nghệ tại Nhật Bản.',
@@ -229,14 +229,14 @@ const educationUpdates = ref([
 
 const culturalEvents = ref([
   {
-    image: new URL('@/assets/img/footer/japan-sakura.jpg', import.meta.url).href,
+    image:@/assets/img/footer/japan-sakura.jpg;
     date: '20/04/2024',
     title: 'Lễ Hội Hoa Anh Đào 2024',
     description: 'Lễ hội hoa anh đào lớn nhất năm tại công viên Ueno, Tokyo.',
     location: 'Công viên Ueno, Tokyo'
   },
   {
-    image: new URL('@/assets/img/footer/japan-culture.webp', import.meta.url).href,
+    image: @/assets/img/footer/japan-culture.webp;
     date: '15/05/2024',
     title: 'Triển Lãm Văn Hóa Việt-Nhật',
     description: 'Sự kiện giao lưu văn hóa giữa Việt Nam và Nhật Bản.',

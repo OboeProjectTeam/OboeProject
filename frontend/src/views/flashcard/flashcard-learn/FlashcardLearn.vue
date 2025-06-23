@@ -415,7 +415,7 @@ const setTitle = route.query.title;
 return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
 });
 
-const celebrationImage = new URL('@/assets/img/learn/celebration.jpg', import.meta.url).href;
+const celebrationImage = @/assets/img/learn/celebration.jpg;
 
 // Method to handle mode changes
 const setMode = async (mode) => {

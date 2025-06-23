@@ -12,7 +12,7 @@
 </template>
 
 <script setup>
-const logoUrl = new URL('@/assets/img/logo/logo_tab_oboe.svg', import.meta.url).href;
+const logoUrl = @/assets/img/logo/logo_tab_oboe.svg ;
 </script>
 
 <style lang="scss" scoped>
