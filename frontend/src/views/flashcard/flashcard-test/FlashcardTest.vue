@@ -113,7 +113,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img :src="celebrationImage" alt="Celebration" class="celebration-image" />
+          <img src="/src/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
           <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
         </div>
 
@@ -657,7 +657,7 @@ onUnmounted(() => {
   }
 });
 
-const celebrationImage =@/assets/img/learn/celebration.jpg;
+
 </script>
 
 <style lang="scss" scoped>

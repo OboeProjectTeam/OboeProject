@@ -58,7 +58,7 @@
               class="fas fa-arrow-right"></i></router-link>
         </div>
         <div class="ip-feature-image-placeholder scroll-reveal from-left delay-2">
-          <img class="img-test-flashcard" src="@/assets/img/intro/test-flashcard.png" alt="test-flashcard">
+          <img class="img-test-flashcard" src="/src/assets/img/intro/test-flashcard.png" alt="test-flashcard">
         </div>
       </div>
     </section>
@@ -72,7 +72,7 @@
               class="fas fa-arrow-right"></i></router-link>
         </div>
         <div class="ip-feature-image-placeholder scroll-reveal from-right delay-2">
-          <img class="img-forum" src="@/assets/img/intro/forum.png" alt="forum">
+          <img class="img-forum" src="/src/assets/img/intro/forum.png" alt="forum">
         </div>
       </div>
     </section>
