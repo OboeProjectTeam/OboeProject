@@ -3,7 +3,7 @@
     <!-- Sidebar -->
     <div class="admin-sidebar" :class="{ 'collapsed': isSidebarCollapsed }">
       <div class="sidebar-header">
-        <img :src="logoUrl" alt="Logo" class="w-45px" />
+        <img src="/src/assets/img/logo/logo_tab_oboe.svg" alt="Logo" class="w-45px" />
         <h1>Admin Panel</h1>
       </div>
       
@@ -107,7 +107,7 @@ const toggleSidebar = () => {
 const adminAvatar = 'https://i.pravatar.cc/150?u=admin';
 const adminName = 'Admin';
 
-const logoUrl = /src/assets/img/logo/logo_tab_oboe.svg;
+
 
 const currentPageTitle = computed(() => {
   switch (route.path) {

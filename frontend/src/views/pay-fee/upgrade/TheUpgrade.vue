@@ -95,7 +95,7 @@
       <div class="testimonials-grid">
         <div class="testimonial-card scroll-reveal from-left delay-2">
           <div class="user-info">
-            <img :src="defaultAvatar" alt="User Avatar" class="user-avatar">
+            <img src="/src/assets/img/avatar/default-avatar.jpg" alt="User Avatar" class="user-avatar">
             <div class="user-details">
               <h4>Nguyễn Văn A</h4>
               <p>Học viên N3</p>
@@ -180,7 +180,7 @@ const faqs = ref(FAQ_ITEMS.map(item => ({
   isOpen: false
 })));
 
-const defaultAvatar = /src/assets/img/avatar/default-avatar.jpg;
+
 </script>
 
 <style lang="scss" scoped>
