@@ -107,7 +107,7 @@ const toggleSidebar = () => {
 const adminAvatar = 'https://i.pravatar.cc/150?u=admin';
 const adminName = 'Admin';
 
-const logoUrl = @/assets/img/logo/logo_tab_oboe.svg;
+const logoUrl = /src/assets/img/logo/logo_tab_oboe.svg;
 
 const currentPageTitle = computed(() => {
   switch (route.path) {

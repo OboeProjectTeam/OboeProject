@@ -180,7 +180,7 @@ const faqs = ref(FAQ_ITEMS.map(item => ({
   isOpen: false
 })));
 
-const defaultAvatar = @/assets/img/avatar/default-avatar.jpg;
+const defaultAvatar = /src/assets/img/avatar/default-avatar.jpg;
 </script>
 
 <style lang="scss" scoped>
