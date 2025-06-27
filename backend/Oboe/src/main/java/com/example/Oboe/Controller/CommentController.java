@@ -1,7 +1,10 @@
 package com.example.Oboe.Controller;
 
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
+import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Service.CommentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +25,9 @@ public class CommentController {
 
     // Lấy tất cả comment của một blog
     @GetMapping("/blog/{blogId}")
+    //trả về dạng cây
     public ResponseEntity<List<CommentDTOs>> getCommentsByBlog(@PathVariable UUID blogId) {
-        return ResponseEntity.ok(commentService.getCommentsByBlogId(blogId));
+        return ResponseEntity.ok(commentService.getCommentsByBlogIdFull(blogId));
     }
 
     // Lấy tất cả comment của user hiện tại
@@ -40,6 +44,26 @@ public class CommentController {
             Authentication authentication) {
 
         CommentDTOs created = commentService.createComment(blogId, authentication.getName(), commentDTO);
+        return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
+    }
+    //reply một comment qua idComment
+    @PostMapping("/ReplyComments/{commentIdParent}")
+    public ResponseEntity<CommentDTOs> replyComment(
+            @PathVariable UUID commentIdParent,
+            @RequestBody CommentDTOs commentDTO,
+            Authentication authentication
+
+    ) {
+        CommentDTOs createdReply = commentService.Commentreply(commentIdParent, authentication.getName(), commentDTO);
+        return createdReply != null ? ResponseEntity.ok(createdReply) : ResponseEntity.badRequest().build();
+    }
+    @PostMapping("/CommentKanji/{KanjiId}")
+    public ResponseEntity<CommentDTOs> kanjiComment(
+            @PathVariable UUID KanjiId,
+            @Valid @RequestBody CommentDTOs commentDTOs ,
+            Authentication authentication
+    ){
+        CommentDTOs created = commentService.createCommentKanji(KanjiId, authentication.getName(), commentDTOs);
         return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
     }
 
@@ -73,4 +97,10 @@ public class CommentController {
     public ResponseEntity<Long> getCommentCount(@PathVariable UUID blogId) {
         return ResponseEntity.ok(commentService.getCommentCountByBlogId(blogId));
     }
+    @GetMapping("/my-Comments")
+    public ResponseEntity<List<CommentDTOs>> getcomments(Authentication authentication) {
+        return ResponseEntity.ok(commentService.getCommentsByUsername(authentication.getName()));
+    }
+
+
 }

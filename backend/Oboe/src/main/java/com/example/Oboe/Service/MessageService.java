@@ -42,7 +42,7 @@ public class MessageService {
 
     private MessageDTO convertToDTO(Message msg) {
         return new MessageDTO(
-                UUID.fromString(msg.getMessageID().toString()),        // Đã là String, không cần .toString()
+                UUID.fromString(msg.getMessageID().toString()),
                 msg.getSent_message(),
                 msg.getSent_at(),
                 msg.getSender().getUser_id(),
@@ -51,7 +51,7 @@ public class MessageService {
                 msg.getReceiver().getFirstName() + " " + msg.getReceiver().getLastName()
         );
     }
-    // Hoặc convert sang DTO đơn giản
+
     public List<ContactDTO> getContactsDTO(User currentUser) {
         List<User> users = messageRepository.findUsersWithMessages(currentUser);
 

@@ -38,7 +38,7 @@ public class Comment {
 
     // Nhiều - Một với Blog
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "blog_id", nullable = false)
+    @JoinColumn(name = "blog_id", nullable = true)
     @JsonBackReference("blog-comments")
     private Blog blog;
 
@@ -52,6 +52,10 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("comment-parent")
     private List<Comment> replies = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "kanji_id" , nullable = true)
+    @JsonBackReference("kanji-comments")
+    private Kanji kanji;
 
     // Constructors
     public Comment() {}
@@ -126,5 +130,12 @@ public class Comment {
 
     public void setReplies(List<Comment> replies) {
         this.replies = replies;
+    }
+    public Kanji getKanji() {
+        return kanji;
+    }
+
+    public void setKanji(Kanji kanji) {
+        this.kanji = kanji;
     }
 }

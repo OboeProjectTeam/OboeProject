@@ -1,13 +1,18 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Service.BlogService;
+import com.example.Oboe.Service.CommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -15,6 +20,7 @@ import java.util.UUID;
 public class BlogController {
 
     private final BlogService blogService;
+
 
     public BlogController(BlogService blogService) {
         this.blogService = blogService;
@@ -30,7 +36,6 @@ public class BlogController {
         BlogDTO dto = blogService.getBlogDTOById(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
-
     @PostMapping
     public ResponseEntity<BlogDTO> createBlog(@Valid @RequestBody BlogDTO blogDTO, Authentication authentication) {
         BlogDTO created = blogService.createBlogFromDTO(blogDTO, authentication.getName());

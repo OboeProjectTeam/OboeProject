@@ -49,4 +49,8 @@ public class Level {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public UUID getLevelID() {
+        return LevelId;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.Oboe.DTOs;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class BlogDTO {
@@ -79,4 +80,5 @@ public class BlogDTO {
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
+    private List<CommentDTOs> comments;
 }

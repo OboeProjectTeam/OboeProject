@@ -3,6 +3,8 @@ package com.example.Oboe.DTOs;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CommentDTOs {
@@ -24,15 +26,48 @@ public class CommentDTOs {
     private UUID blogId;
     private String blogTitle;
 
+    public UUID getCommentIdParent() {
+        return CommentIdParent;
+    }
+
+    public void setCommentIdParent(UUID commentIdParent) {
+        CommentIdParent = commentIdParent;
+    }
+
+    private UUID CommentIdParent;
+    //list comment con
+    public List<CommentDTOs> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<CommentDTOs> replies) {
+        this.replies = replies;
+    }
+
+    private List<CommentDTOs> replies = new ArrayList<>();
+
     // Constructors
     public CommentDTOs() {}
 
     public CommentDTOs(UUID commentId, String title, String content, LocalDateTime createdAt,
-                      UUID userId, String userName, UUID blogId, String blogTitle) {
+                         UUID userId, String userName, UUID blogId, String blogTitle) {
         this.commentId = commentId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
+        this.userId = userId;
+        this.userName = userName;
+        this.blogId = blogId;
+        this.blogTitle = blogTitle;
+    }
+    public CommentDTOs(UUID commentId, String title, String content, LocalDateTime createdAt,
+                       UUID commentIdParent, UUID userId, String userName,
+                       UUID blogId, String blogTitle) {
+        this.commentId = commentId;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.CommentIdParent = commentIdParent;
         this.userId = userId;
         this.userName = userName;
         this.blogId = blogId;
@@ -103,4 +138,6 @@ public class CommentDTOs {
     public void setBlogTitle(String blogTitle) {
         this.blogTitle = blogTitle;
     }
+
+
 }

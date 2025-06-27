@@ -1,5 +1,6 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,8 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     // Đếm số comments của một blog
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.blog.blogId = :blogId")
     Long countByBlogId(@Param("blogId") UUID blogId);
+
+    // Method lấy tất cả comment của user
+    @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
+    List<Comment> findCommentByCommentId(@Param("userId") UUID userId);
 }

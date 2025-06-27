@@ -1,9 +1,11 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -85,10 +87,10 @@ public class BlogService {
     }
 
     public List<BlogDTO> getBlogDTOsByUsername(String username) {
-        Optional<User> userOpt = userService.findByUserName(username);
-        if (userOpt.isEmpty()) return Collections.emptyList();
+        Optional<User> Tennguoidung = userService.findByUserName(username);
+        if (Tennguoidung.isEmpty()) return Collections.emptyList();
 
-        return blogRepository.findBlogsByUserId(userOpt.get().getUser_id())
+        return blogRepository.findBlogsByUserId(Tennguoidung.get().getUser_id())
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
@@ -106,5 +108,7 @@ public class BlogService {
     public Blog getBlogById(UUID id) {
         return blogRepository.findById(id).orElse(null);
     }
+
+
 
 }
