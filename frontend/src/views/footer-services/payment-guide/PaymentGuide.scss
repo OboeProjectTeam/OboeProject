@@ -1,0 +1,125 @@
+@use '@/assets/css/index.scss' as *;
+.payment-guide-page {
+    min-height: 100vh;
+  
+    .payment-guide-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .payment-guide-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #eee;
+  
+      h1 {
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+  
+      .last-updated {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+  
+    .payment-guide-content {
+      .guide-section {
+        margin-bottom: 40px;
+  
+        h2 {
+          color: #2c3e50;
+          font-size: 24px;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #eee;
+        }
+  
+        .sub-section {
+          margin-bottom: 24px;
+  
+          h3 {
+            color: #34495e;
+            font-size: 20px;
+            margin-bottom: 16px;
+          }
+  
+          p {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 16px;
+          }
+  
+          ul, ol {
+            padding-left: 20px;
+            margin-bottom: 16px;
+  
+            li {
+              color: #444;
+              line-height: 1.6;
+              margin-bottom: 8px;
+            }
+          }
+  
+          ul {
+            list-style-type: disc;
+          }
+  
+          ol {
+            list-style-type: decimal;
+          }
+  
+          .faq-item {
+            margin-bottom: 20px;
+  
+            .question {
+              font-weight: 600;
+              color: #2c3e50;
+              margin-bottom: 8px;
+            }
+  
+            .answer {
+              color: #444;
+              padding-left: 16px;
+              border-left: 3px solid #ddd;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Responsive styles
+  @media (max-width: 768px) {
+    .payment-guide-page {
+      padding: 20px 10px;
+  
+      .payment-guide-container {
+        padding: 20px;
+      }
+  
+      .payment-guide-header {
+        h1 {
+          font-size: 28px;
+        }
+      }
+  
+      .payment-guide-content {
+        .guide-section {
+          h2 {
+            font-size: 22px;
+          }
+  
+          .sub-section h3 {
+            font-size: 18px;
+          }
+        }
+      }
+    }
+  }
