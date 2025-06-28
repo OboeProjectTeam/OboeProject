@@ -31,7 +31,15 @@ import FeedbackManagement from '@/components/layout/admin-content/feedback/Feedb
 import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
 import TheTerms from '@/views/footer-services/terms/TheTerms.vue';
 import ThePrivacy from '@/views/footer-services/privacy/ThePrivacy.vue';
-
+import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
+import StudyGuide from '@/views/footer-services/study-guide/StudyGuide.vue';
+import PaymentGuide from '@/views/footer-services/payment-guide/PaymentGuide.vue';
+import WhyFlashcard from '@/views/footer-services/why-flashcard/WhyFlashcard.vue';
+import WritingGuide from '@/views/footer-services/writing-guide/WritingGuide.vue';
+import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
+import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
+import JapanNews from '@/views/footer-services/japan-news/JapanNews.vue';
+import TheContact from '@/views/footer-services/contact/TheContact.vue';
 const routes = [
   {
     path: "/",
@@ -249,7 +257,7 @@ const routes = [
   {
     path: '/footer-services',
     name: 'footer-services',
-    component: () => import('@/views/footer-services/FooterServicesLayout.vue'),
+    component: FooterServicesLayout,
     children: [
       {
         path: '',
@@ -270,7 +278,7 @@ const routes = [
       {
         path: 'study-guide',
         name: 'study-guide',
-        component: () => import('@/views/footer-services/study-guide/TheStudyGuide.vue'),
+        component: StudyGuide,
         meta: {
           title: 'Hướng dẫn tự học - Oboe'
         }
@@ -278,15 +286,15 @@ const routes = [
       {
         path: 'payment-guide',
         name: 'payment-guide',
-        component: () => import('@/views/footer-services/payment-guide/ThePaymentGuide.vue'),
+        component: PaymentGuide,
         meta: {
           title: 'Hướng dẫn thanh toán - Oboe'
         }
       },
       {
         path: 'flashcard',
-        name: 'flashcard',
-        component: () => import('@/views/footer-services/why-flashcard/TheWhyFlashcard.vue'),
+        name: 'footer-flashcard',
+        component: WhyFlashcard,
         meta: {
           title: 'Tại sao nên học với Flashcard - Oboe'
         }
@@ -294,7 +302,7 @@ const routes = [
       {
         path: 'hiragana-katakana',
         name: 'hiragana-katakana',
-        component: () => import('@/views/footer-services/writing-guide/TheWritingGuide.vue'),
+        component: WritingGuide,
         meta: {
           title: 'Phân biệt Hiragana và Katakana - Oboe'
         }
@@ -302,7 +310,7 @@ const routes = [
       {
         path: 'benefits-japanese',
         name: 'benefits-japanese',
-        component: () => import('@/views/footer-services/japanese-benefits/TheBenefits.vue'),
+        component: TheBenefits,
         meta: {
           title: 'Lợi ích của việc học tiếng Nhật - Oboe'
         }
@@ -310,7 +318,7 @@ const routes = [
       {
         path: 'kanji-recognition',
         name: 'kanji-recognition',
-        component: () => import('@/views/footer-services/kanji-guide/TheKanjiGuide.vue'),
+        component: KanjiGuide,
         meta: {
           title: 'Cách Nhận Diện Chữ Hán | Oboe',
           requiresAuth: false
@@ -319,7 +327,7 @@ const routes = [
       {
         path: 'news',
         name: 'japan-news',
-        component: () => import('@/views/footer-services/japan-news/TheJapanNews.vue'),
+        component: JapanNews,
         meta: {
           title: 'Tin Tức Thị Trường Nhật Bản | Oboe',
           requiresAuth: false
@@ -328,7 +336,11 @@ const routes = [
       {
         path: 'contact',
         name: 'contact',
-        component: () => import('@/views/footer-services/contact/TheContact.vue'),
+        component: TheContact,
+        meta: {
+          title: 'Liên Hệ | Oboe',
+          requiresAuth: false
+        }
       },
     ]
   },
