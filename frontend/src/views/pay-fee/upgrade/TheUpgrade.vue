@@ -95,7 +95,7 @@
       <div class="testimonials-grid">
         <div class="testimonial-card scroll-reveal from-left delay-2">
           <div class="user-info">
-            <img src="/src/assets/img/avatar/default-avatar.jpg" alt="User Avatar" class="user-avatar">
+            <img :src="ImagePaths.avatar.default" alt="User Avatar" class="user-avatar">
             <div class="user-details">
               <h4>Nguyễn Văn A</h4>
               <p>Học viên N3</p>
@@ -113,7 +113,7 @@
 
         <div class="testimonial-card scroll-reveal from-right delay-2">
           <div class="user-info">
-            <img :src="defaultAvatar" alt="User Avatar" class="user-avatar">
+            <img :src="ImagePaths.avatar.default" alt="User Avatar" class="user-avatar">
             <div class="user-details">
               <h4>Trần Thị B</h4>
               <p>Học viên N2</p>
@@ -160,6 +160,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { initScrollReveal } from '@/assets/js/common';

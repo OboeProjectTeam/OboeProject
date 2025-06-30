@@ -113,7 +113,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="/src/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />
+          <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />
           <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
         </div>
 
@@ -154,6 +154,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';

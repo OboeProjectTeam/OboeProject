@@ -258,7 +258,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img src="/src/assets/img/learn/celebration.jpg" alt="Celebration" class="celebration-image" />                 
+          <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />                 
           <h2>{{ learningStats.known === slides.length ?
             'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
@@ -349,6 +349,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -403,7 +404,7 @@ remaining: 0
 const isCurrentUserCreator = ref(false); // Will be true if current user is creator
 const isFollowing = ref(false);
 const creatorInfo = ref({
-avatar: 'path_to_avatar', // This should come from your data
+avatar: ImagePaths.avatar.default, // This should come from your data
 name: 'hoangdul999', // This should come from your data
 createdDate: '3 ngày trước', // This should come from your data
 });
