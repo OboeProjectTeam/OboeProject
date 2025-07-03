@@ -19,14 +19,14 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // ✅ 1. Lấy tất cả comment theo ID (blog, kanji, etc.)
+    //   Lấy tất cả comment theo ID (blog, kanji, etc.)
     @GetMapping("/{id}")
     public ResponseEntity<List<CommentDTOs>> getCommentsByTeamId(@PathVariable("id") UUID id) {
         List<CommentDTOs> comments = commentService.getCommentsByTeamId(id);
         return ResponseEntity.ok(comments);
     }
 
-    // ✅ 2. Tạo comment mới cho 1 id
+    //  Tạo comment mới cho 1 id
     @PostMapping("/{id}")
     public ResponseEntity<CommentDTOs> createComment(
             @PathVariable("id") UUID id,
@@ -35,11 +35,11 @@ public class CommentController {
     ) {
         String username = authentication.getName();
         CommentDTOs created = commentService.createComment(id, username, dto);
-        if (created == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(created);
     }
 
-    // ✅ 3. Trả lời comment
+
+    // Trả lời comment
     @PostMapping("/reply/{commentId}")
     public ResponseEntity<CommentDTOs> replyComment(
             @PathVariable UUID commentId,

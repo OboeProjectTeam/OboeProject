@@ -24,7 +24,6 @@ public class FlashCards {
     private User user;
 
 
-
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name="TopicId",nullable = false)
     @JsonBackReference("Topic-FlashCards")

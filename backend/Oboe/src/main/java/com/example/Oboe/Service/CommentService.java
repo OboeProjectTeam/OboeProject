@@ -1,15 +1,15 @@
 package com.example.Oboe.Service;
 
-import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
-import com.example.Oboe.DTOs.KanjiDTO;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
-import com.example.Oboe.Entity.Kanji;
 import com.example.Oboe.Entity.User;
+import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.Repository.KanjiRepository;
+import com.example.Oboe.Repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -17,17 +17,18 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
-
+    private  BlogRepository BLogRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
 
-    public CommentService(CommentRepository commentRepository, UserService userService) {
+    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository BlogRepository) {
         this.commentRepository = commentRepository;
         this.userService = userService;
+        this.BLogRepository = BlogRepository;
     }
 
     public List<CommentDTOs> getCommentsByTeamId(UUID teamId) {
-        List<Comment> comments = commentRepository.findByTeamId(teamId);
+        List<Comment> comments = commentRepository.findByReferenceId(teamId);
         List<CommentDTOs> allDtos = comments.stream().map(this::toDTO).collect(Collectors.toList());
 
         Map<UUID, CommentDTOs> dtoMap = allDtos.stream()
@@ -50,14 +51,18 @@ public class CommentService {
 
     public CommentDTOs createComment(UUID teamId, String username, CommentDTOs dto) {
         Optional<User> userOpt = userService.findByUserName(username);
-        if (userOpt.isEmpty()) return null;
-
+        if (userOpt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ");
+        }
+        if (!BLogRepository.existsById(teamId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Blog ID không tồn tại");
+        }
         Comment comment = new Comment();
         comment.setTitle(dto.getTitle());
         comment.setContent(dto.getContent());
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUser(userOpt.get());
-        comment.setTeamId(teamId);
+        comment.setreferenceId(teamId);
 
         Comment saved = commentRepository.save(comment);
         return toDTO(saved);
@@ -78,7 +83,7 @@ public class CommentService {
         reply.setCreatedAt(LocalDateTime.now());
         reply.setUser(userOpt.get());
         reply.setParentComment(parent);
-        reply.setTeamId(parent.getTeamId()); // kế thừa teamId từ comment cha
+        reply.setreferenceId(parent.getreferenceId()); // kế thừa teamId từ comment cha
 
         Comment saved = commentRepository.save(reply);
         return toDTO(saved);
@@ -118,7 +123,7 @@ public class CommentService {
     }
 
     public Long getCommentCountByTeamId(UUID teamId) {
-        return commentRepository.countByTeamId(teamId);
+        return commentRepository.countByReferenceId(teamId);
     }
 
     private CommentDTOs toDTO(Comment comment) {
@@ -137,7 +142,7 @@ public class CommentService {
             dto.setCommentIdParent(comment.getParentComment().getCommentId());
         }
 
-        dto.setTeamId(comment.getTeamId());
+        dto.setReferenceId(comment.getreferenceId());
         dto.setReplies(new ArrayList<>());
         return dto;
     }

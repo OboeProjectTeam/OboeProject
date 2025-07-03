@@ -36,9 +36,9 @@ public class Comment {
     @JsonBackReference("user-comments")
     private User user;
 
-    // 🔄 Gộp mục tiêu vào 1 trường teamId
-    @Column(name = "team_id", nullable = false)
-    private UUID teamId;
+    // 🔄 Gộp mục tiêu vào 1 trường referenceId
+    @Column(name = "reference_Id", nullable = false)
+    private UUID referenceId;
 
     // Quan hệ tự tham chiếu - comment cha
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,7 +58,7 @@ public class Comment {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.teamId = teamId;
+        this.referenceId = teamId;
     }
 
     // Getters and Setters
@@ -102,12 +102,12 @@ public class Comment {
         this.user = user;
     }
 
-    public UUID getTeamId() {
-        return teamId;
+    public UUID getreferenceId() {
+        return referenceId;
     }
 
-    public void setTeamId(UUID teamId) {
-        this.teamId = teamId;
+    public void setreferenceId(UUID teamId) {
+        this.referenceId = teamId;
     }
 
     public Comment getParentComment() {

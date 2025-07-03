@@ -21,7 +21,7 @@ public class CommentDTOs {
 
     private UUID commentIdParent;
 
-    private UUID teamId; // đại diện cho blog, kanji, hoặc loại nội dung khác
+    private UUID ReferenceId; // đại diện cho blog, kanji, hoặc loại nội dung khác
 
     private List<CommentDTOs> replies = new ArrayList<>();
 
@@ -86,12 +86,12 @@ public class CommentDTOs {
         this.commentIdParent = commentIdParent;
     }
 
-    public UUID getTeamId() {
-        return teamId;
+    public UUID getReferenceId() {
+        return ReferenceId;
     }
 
-    public void setTeamId(UUID teamId) {
-        this.teamId = teamId;
+    public void setReferenceId(UUID referenceId) {
+        this.ReferenceId = referenceId;
     }
 
     public List<CommentDTOs> getReplies() {

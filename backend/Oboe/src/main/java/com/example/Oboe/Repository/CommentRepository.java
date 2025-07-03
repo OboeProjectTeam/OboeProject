@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
-    List<Comment> findByTeamId(UUID teamId);
-    Long countByTeamId(UUID teamId);
-
+    List<Comment> findByReferenceId(UUID referenceId);
+    Long countByReferenceId(UUID referenceId);
 }

@@ -20,16 +20,6 @@ public class Kanji {
     private String meaning;    // Nghĩa
     private String strokes;    // Số nét
     private String example;    // Ví dụ
-    private String comment;
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
 
     public String getExample() {
         return example;
