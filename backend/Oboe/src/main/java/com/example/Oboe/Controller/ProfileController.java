@@ -1,5 +1,7 @@
 package com.example.Oboe.Controller;
 
+import com.example.Oboe.Config.CustomUserDetails;
+import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,9 +19,20 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<?> getProfile(Authentication authentication) {
-        String username = authentication.getName();
 
-        return userService.findByUserName(username)
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof CustomUserDetails customUserDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid principal");
+        }
+
+        String username = customUserDetails.getUsername();
+        AuthProvider authProvider = customUserDetails.getAuthProvider();
+
+        return userService.findByUserNameAndAuthProvider(username, authProvider)
                 .<ResponseEntity<?>>map(user -> {
                     user.setPassWord(null);
                     return ResponseEntity.ok(user);

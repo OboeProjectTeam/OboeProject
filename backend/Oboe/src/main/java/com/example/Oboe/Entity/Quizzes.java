@@ -17,7 +17,6 @@ public class Quizzes {
     private String description;
 
 
-
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Questions> questions;
 
@@ -47,6 +46,7 @@ public class Quizzes {
     public void setDescription(String description) {
         this.description = description;
     }
+
 
     public List<Questions> getQuestions() {
         return questions;

@@ -9,20 +9,14 @@ public class MessageDTO {
     private LocalDateTime sent_at;
     private UUID senderId;
     private UUID receiverId;
-    private String senderUsername;      // Thêm mới
-    private String receiverUsername;    // Thêm mới
+    private String senderUsername;
+    private String receiverUsername;
 
-    public MessageDTO(UUID messageID, String sent_message, LocalDateTime sent_at,
-                      UUID senderId, UUID receiverId,
-                      String senderUsername, String receiverUsername) {
-        this.messageID = messageID.toString();
-        this.sent_message = sent_message;
-        this.sent_at = sent_at;
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.senderUsername = senderUsername;
-        this.receiverUsername = receiverUsername;
-    }
+
+
+
+
+
     public String getSenderUsername() {
         return senderUsername;
     }
@@ -38,7 +32,6 @@ public class MessageDTO {
     public void setReceiverUsername(String receiverUsername) {
         this.receiverUsername = receiverUsername;
     }
-
 
     public LocalDateTime getSent_at() {
         return sent_at;

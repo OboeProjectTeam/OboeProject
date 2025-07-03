@@ -14,6 +14,6 @@ public class Gramma {
     private String structure;
     private String explanation;
     private String example;
-
+    private String grammarType;
 
 }
