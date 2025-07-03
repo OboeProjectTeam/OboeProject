@@ -10,6 +10,8 @@ public class OboeApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(OboeApplication.class, args);
+		System.out.println("Application started successfully!");
+
 	}
 
 }

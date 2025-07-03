@@ -1,6 +1,7 @@
 package com.example.Oboe.Service;
 
 
+import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.UserRepository;
@@ -21,9 +22,8 @@ public class AdminService {
 
     @Transactional
     public User changeUserRole(String username, String role) {
-        User user = userRepository.findByUserName(username)
+        User user = userRepository.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
 
         Role newRole;
         try {
@@ -33,9 +33,9 @@ public class AdminService {
         }
 
         user.setRole(newRole);
-
         return userRepository.save(user);
     }
+
     public void deleteUserByUserId(UUID userid) {
         if (!userRepository.existsById(userid)) {
             throw new IllegalArgumentException("User not found with username: " + userid);

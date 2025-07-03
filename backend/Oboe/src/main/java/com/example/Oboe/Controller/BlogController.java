@@ -58,7 +58,7 @@ public class BlogController {
             Blog blog = new Blog();
             blog.setTitle(blogDTO.getTitle());
             blog.setContent(blogDTO.getContent());
-            blog.setTags(blogDTO.getTags());
+
             blog.setUser(user);
 
             Blog savedBlog = blogService.createBlog(blog);
@@ -95,7 +95,7 @@ public class BlogController {
             Blog blogDetails = new Blog();
             blogDetails.setTitle(blogDTO.getTitle());
             blogDetails.setContent(blogDTO.getContent());
-            blogDetails.setTags(blogDTO.getTags());
+
             blogDetails.setUser(user);
 
             Blog updated = blogService.updateBlog(id, blogDetails);
@@ -176,7 +176,7 @@ public class BlogController {
         dto.setId(blog.getBlogId()); // hoặc blog.getBlogId() tùy theo entity của bạn
         dto.setTitle(blog.getTitle());
         dto.setContent(blog.getContent());
-        dto.setTags(blog.getTags());
+
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
         // Sửa lỗi method name - sử dụng getUserId() thay vì getUser_id()

@@ -35,7 +35,7 @@ public class BlogService {
             Blog blog = optionalBlog.get();
             blog.setTitle(blogDetails.getTitle());
             blog.setContent(blogDetails.getContent());
-            blog.setTags(blogDetails.getTags());
+
             blog.setUpdatedAt(blogDetails.getUpdatedAt());
             return blogRepository.save(blog);
         }

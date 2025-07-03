@@ -1,27 +1,27 @@
 package com.example.Oboe.Entity;
 
+import com.example.Oboe.Entity.*;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Kanji")
+@Table(name = "kanji")
 public class Kanji {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "kanjiID", updatable = false, nullable = false)
-    private UUID kanjiID;
+    @Column(name = "kanjiId", updatable = false, nullable = false)
+    private UUID kanjiId;
 
     @Column(nullable = false)
     private String character_name; // Ký tự Kanji
 
-    private String onyomi;     // Âm Hán Nhật
-    private String kunyomi;    // Âm Nhật
-    private String meaning;    // Nghĩa
-    private String strokes;    // Số nét
-    private String example;    // Ví dụ
+    private String meaning;
 
-    @ManyToOne
-    @JoinColumn(name = "LevelID")
-    private Level level;
+    private String strokes;  // Số nét
+
+
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 //@NoArgsConstructor
@@ -17,18 +17,21 @@ import java.util.UUID;
 //@Builder
 //@Data
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"userName", "auth_provider"})
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "user_id", updatable = false, nullable = false, columnDefinition = "BINARY(16)")
     private UUID user_id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String userName;
 
+    @JsonIgnore
     @Size(min = 8, message = "Mật khẩu ít nhất 8 ký tự!")
-    @Column(nullable = false)
+    @Column(nullable = true) // Cho phép null cho tài khoản OAuth2
     private String passWord;
 
     @Column(nullable = false)
@@ -53,6 +56,17 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AccountType accountType = AccountType.FREE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider", nullable = false)
+    private AuthProvider authProvider;
+
+    @Column(name = "provider_id")
+    private String providerId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Status status = Status.ACTION;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime create_at = LocalDateTime.now();
@@ -84,6 +98,15 @@ public class User {
     @OneToMany(mappedBy = "receiver")
     private List<Message> receivedMessages;
 
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
     public UUID getUser_id() {
         return user_id;
     }
@@ -106,6 +129,14 @@ public class User {
 
     public void setPassWord(@Size(min = 8, message = "Mật khẩu ít nhất 8 ký tự!") String passWord) {
         this.passWord = passWord;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
     }
 
     public String getLastName() {
@@ -218,5 +249,13 @@ public class User {
 
     public void setNotifications(List<Notifications> notifications) {
         this.notifications = notifications;
+    }
+
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider;
     }
 }

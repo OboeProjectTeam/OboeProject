@@ -12,7 +12,10 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "MessageID", updatable = false, nullable = false)
     private UUID MessageID;
+
     private String sent_message;
+
+
     private LocalDateTime sent_at = LocalDateTime.now();
 
     @PreUpdate
@@ -52,34 +55,6 @@ public class Message {
     public void setSent_message(String sent_message) {
         this.sent_message = sent_message;
     }
-
-    public LocalDateTime getSent_at() {
-        return sent_at;
-    }
-
-    public void setSent_at(LocalDateTime sent_at) {
-        this.sent_at = sent_at;
-    }
-
-    public User getSender() {
-        return sender;
-    }
-
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
-    public User getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
-    }
-    public LocalDateTime getSentAt() {
-        return sent_at;
-    }
-
 
 
 
