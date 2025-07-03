@@ -1,15 +1,11 @@
 package com.example.Oboe.Controller;
 
-import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
-import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Service.CommentService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,84 +19,67 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    // Lấy tất cả comment của một blog
-    @GetMapping("/blog/{blogId}")
-    //trả về dạng cây
-    public ResponseEntity<List<CommentDTOs>> getCommentsByBlog(@PathVariable UUID blogId) {
-        return ResponseEntity.ok(commentService.getCommentsByBlogIdFull(blogId));
-    }
-
-    // Lấy tất cả comment của user hiện tại
-    @GetMapping("/my-comments")
-    public ResponseEntity<List<CommentDTOs>> getMyComments(Authentication authentication) {
-        return ResponseEntity.ok(commentService.getCommentsByUsername(authentication.getName()));
-    }
-
-    // Tạo comment mới cho blog
-    @PostMapping("/blog/{blogId}")
-    public ResponseEntity<CommentDTOs> createComment(
-            @PathVariable UUID blogId,
-            @Valid @RequestBody CommentDTOs commentDTO,
-            Authentication authentication) {
-
-        CommentDTOs created = commentService.createComment(blogId, authentication.getName(), commentDTO);
-        return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
-    }
-    //reply một comment qua idComment
-    @PostMapping("/ReplyComments/{commentIdParent}")
-    public ResponseEntity<CommentDTOs> replyComment(
-            @PathVariable UUID commentIdParent,
-            @RequestBody CommentDTOs commentDTO,
-            Authentication authentication
-
-    ) {
-        CommentDTOs createdReply = commentService.Commentreply(commentIdParent, authentication.getName(), commentDTO);
-        return createdReply != null ? ResponseEntity.ok(createdReply) : ResponseEntity.badRequest().build();
-    }
-    @PostMapping("/CommentKanji/{KanjiId}")
-    public ResponseEntity<CommentDTOs> kanjiComment(
-            @PathVariable UUID KanjiId,
-            @Valid @RequestBody CommentDTOs commentDTOs ,
-            Authentication authentication
-    ){
-        CommentDTOs created = commentService.createCommentKanji(KanjiId, authentication.getName(), commentDTOs);
-        return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
-    }
-
-    // Lấy comment theo ID
+    // ✅ 1. Lấy tất cả comment theo ID (blog, kanji, etc.)
     @GetMapping("/{id}")
-    public ResponseEntity<CommentDTOs> getCommentById(@PathVariable UUID id) {
-        CommentDTOs comment = commentService.getCommentDTOById(id);
-        return comment != null ? ResponseEntity.ok(comment) : ResponseEntity.notFound().build();
+    public ResponseEntity<List<CommentDTOs>> getCommentsByTeamId(@PathVariable("id") UUID id) {
+        List<CommentDTOs> comments = commentService.getCommentsByTeamId(id);
+        return ResponseEntity.ok(comments);
     }
 
-    // Xóa comment (chỉ nếu là owner)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable UUID id, Authentication authentication) {
-        boolean deleted = commentService.deleteComment(id, authentication.getName());
-        return deleted ? ResponseEntity.noContent().build() : ResponseEntity.status(403).build();
+    // ✅ 2. Tạo comment mới cho 1 id
+    @PostMapping("/{id}")
+    public ResponseEntity<CommentDTOs> createComment(
+            @PathVariable("id") UUID id,
+            @RequestBody CommentDTOs dto,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        CommentDTOs created = commentService.createComment(id, username, dto);
+        if (created == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(created);
     }
 
-    // Cập nhật comment (chỉ nếu là owner)
-    @PutMapping("/{id}")
+    // ✅ 3. Trả lời comment
+    @PostMapping("/reply/{commentId}")
+    public ResponseEntity<CommentDTOs> replyComment(
+            @PathVariable UUID commentId,
+            @RequestBody CommentDTOs dto,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        CommentDTOs reply = commentService.Commentreply(commentId, username, dto);
+        if (reply == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(reply);
+    }
+
+    // ✅ 4. Cập nhật comment
+    @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTOs> updateComment(
-            @PathVariable UUID id,
-            @Valid @RequestBody CommentDTOs commentDTO,
-            Authentication authentication) {
-
-        CommentDTOs updated = commentService.updateComment(id, authentication.getName(), commentDTO);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.status(403).build();
+            @PathVariable UUID commentId,
+            @RequestBody CommentDTOs dto,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        CommentDTOs updated = commentService.updateComment(commentId, username, dto);
+        if (updated == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(updated);
     }
 
-    // Đếm số comment của một blog
-    @GetMapping("/blog/{blogId}/count")
-    public ResponseEntity<Long> getCommentCount(@PathVariable UUID blogId) {
-        return ResponseEntity.ok(commentService.getCommentCountByBlogId(blogId));
-    }
-    @GetMapping("/my-Comments")
-    public ResponseEntity<List<CommentDTOs>> getcomments(Authentication authentication) {
-        return ResponseEntity.ok(commentService.getCommentsByUsername(authentication.getName()));
+    // ✅ 5. Xóa comment
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<?> deleteComment(
+            @PathVariable UUID commentId,
+            Authentication authentication
+    ) {
+        String username = authentication.getName();
+        boolean deleted = commentService.deleteComment(commentId, username);
+        if (!deleted) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok().build();
     }
 
-
+    // ✅ 6. Đếm comment theo id
+    @GetMapping("/count/{id}")
+    public ResponseEntity<Long> countComments(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(commentService.getCommentCountByTeamId(id));
+    }
 }

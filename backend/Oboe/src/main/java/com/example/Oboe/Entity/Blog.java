@@ -43,10 +43,8 @@ public class Blog {
     @JsonBackReference("user-blogs") // Tương ứng với @JsonManagedReference trong User
     private User user;
 
-    // Mối quan hệ một-nhiều với Comments (nếu bạn muốn thêm sau này)
-    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference("blog-comments")
-    private List<Comment> comments = new ArrayList<>();
+
+
 
     // Constructor mặc định
     public Blog() {
@@ -60,16 +58,6 @@ public class Blog {
         this.user = user;
     }
 
-    // Helper methods để quản lý mối quan hệ hai chiều với Comment
-    public void addComment(Comment comment) {
-        comments.add(comment);
-        comment.setBlog(this);
-    }
-
-    public void removeComment(Comment comment) {
-        comments.remove(comment);
-        comment.setBlog(null);
-    }
 
     @PreUpdate
     public void preUpdate() {
@@ -132,14 +120,5 @@ public class Blog {
     public void setUser(User user) {
         this.user = user;
     }
-
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
 
 }

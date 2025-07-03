@@ -20,18 +20,16 @@ public class Kanji {
     private String meaning;    // Nghĩa
     private String strokes;    // Số nét
     private String example;    // Ví dụ
+    private String comment;
 
-    @ManyToOne
-    @JoinColumn(name = "LevelID")
-    private Level level;
-
-    public Level getLevel() {
-        return level;
+    public String getComment() {
+        return comment;
     }
 
-    public void setLevel(Level level) {
-        this.level = level;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
+
 
     public String getExample() {
         return example;

@@ -4,6 +4,7 @@ import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Service.BlogService;
 import com.example.Oboe.Service.CommentService;
+import com.example.Oboe.response.BaseResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,11 @@ public class BlogController {
         this.blogService = blogService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<BlogDTO>> getAllBlogs() {
+    @GetMapping("/get_all")
+    public ResponseEntity<BaseResponse<List<BlogDTO>>> getAllBlogs() {
         return ResponseEntity.ok(blogService.getAllBlogDTOs());
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BlogDTO> getBlogById(@PathVariable UUID id) {

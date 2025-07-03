@@ -15,7 +15,5 @@ public class Gramma {
     private String explanation;
     private String example;
 
-    @ManyToOne
-    @JoinColumn(name = "LevelID")
-    private Level level;
+
 }

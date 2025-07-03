@@ -1,10 +1,12 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.Constant.Constant;
 import com.example.Oboe.DTOs.BlogDTO;
-import com.example.Oboe.DTOs.CommentDTOs;
+
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.response.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +25,42 @@ public class BlogService {
         this.userService = userService;
     }
 
-    public List<BlogDTO> getAllBlogDTOs() {
-        return blogRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    public BaseResponse<List<BlogDTO>> getAllBlogDTOs() {
+        BaseResponse<List<BlogDTO>> response = new BaseResponse<>();
+        try {
+            List<Blog> blogs = blogRepository.findAll();
+
+            if (blogs.isEmpty()) {
+                response.setCode(Constant.NOT_FOUND_CODE);
+                response.setMessage(Constant.BLOG_EMPTY_LIST);
+                response.setData(Collections.emptyList());
+            } else {
+                List<BlogDTO> dtos = blogs.stream().map(this::toDTO).collect(Collectors.toList());
+                response.setCode(Constant.SUCCESS_CODE);
+                response.setMessage(Constant.SUCCESS_GET_ALL);
+                response.setData(dtos);
+            }
+        } catch (Exception e) {
+            response.setCode("500");
+            response.setMessage("Đã xảy ra lỗi khi lấy danh sách blog.");
+            response.setData(Collections.emptyList());
+        }
+        return response;
     }
 
+
+
+
     public BlogDTO getBlogDTOById(UUID id) {
-        return blogRepository.findById(id).map(this::toDTO).orElse(null);
+        Optional<Blog> blogOpt = blogRepository.findById(id);
+
+        if (blogOpt.isEmpty()) {
+            System.out.println(Constant.BLOG_NOT_FOUND); // ✅ Ghi log
+
+            return null;
+        }
+
+        return toDTO(blogOpt.get());
     }
 
     public BlogDTO createBlogFromDTO(BlogDTO blogDTO, String username) {

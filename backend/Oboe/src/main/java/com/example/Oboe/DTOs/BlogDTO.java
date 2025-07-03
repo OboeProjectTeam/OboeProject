@@ -25,6 +25,7 @@ public class BlogDTO {
         this.userId = userId;
     }
 
+
     public UUID getId() {
         return id;
     }
@@ -80,5 +81,6 @@ public class BlogDTO {
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
-    private List<CommentDTOs> comments;
+
+
 }

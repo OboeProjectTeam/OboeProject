@@ -10,15 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
-    List<Comment> findByBlog_BlogId(UUID blogId);
-    // Lấy comments theo user ID
-    @Query("SELECT c FROM Comment c WHERE c.user.user_id = :userId ORDER BY c.createdAt DESC")
-    List<Comment> findByUser_UserId(@Param("userId") UUID userId);
-    // Đếm số comments của một blog
-    @Query("SELECT COUNT(c) FROM Comment c WHERE c.blog.blogId = :blogId")
-    Long countByBlogId(@Param("blogId") UUID blogId);
+    List<Comment> findByTeamId(UUID teamId);
+    Long countByTeamId(UUID teamId);
 
-    // Method lấy tất cả comment của user
-    @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
-    List<Comment> findCommentByCommentId(@Param("userId") UUID userId);
 }

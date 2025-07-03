@@ -36,11 +36,9 @@ public class Comment {
     @JsonBackReference("user-comments")
     private User user;
 
-    // Nhiều - Một với Blog
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "blog_id", nullable = true)
-    @JsonBackReference("blog-comments")
-    private Blog blog;
+    // 🔄 Gộp mục tiêu vào 1 trường teamId
+    @Column(name = "team_id", nullable = false)
+    private UUID teamId;
 
     // Quan hệ tự tham chiếu - comment cha
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,19 +50,15 @@ public class Comment {
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("comment-parent")
     private List<Comment> replies = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "kanji_id" , nullable = true)
-    @JsonBackReference("kanji-comments")
-    private Kanji kanji;
 
     // Constructors
     public Comment() {}
 
-    public Comment(String title, String content, User user, Blog blog) {
+    public Comment(String title, String content, User user, UUID teamId) {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.blog = blog;
+        this.teamId = teamId;
     }
 
     // Getters and Setters
@@ -108,12 +102,12 @@ public class Comment {
         this.user = user;
     }
 
-    public Blog getBlog() {
-        return blog;
+    public UUID getTeamId() {
+        return teamId;
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
+    public void setTeamId(UUID teamId) {
+        this.teamId = teamId;
     }
 
     public Comment getParentComment() {
@@ -130,12 +124,5 @@ public class Comment {
 
     public void setReplies(List<Comment> replies) {
         this.replies = replies;
-    }
-    public Kanji getKanji() {
-        return kanji;
-    }
-
-    public void setKanji(Kanji kanji) {
-        this.kanji = kanji;
     }
 }

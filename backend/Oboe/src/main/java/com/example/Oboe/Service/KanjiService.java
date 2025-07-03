@@ -2,9 +2,8 @@ package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.KanjiDTO;
 import com.example.Oboe.Entity.Kanji;
-import com.example.Oboe.Entity.Level;
 import com.example.Oboe.Repository.KanjiRepository;
-import com.example.Oboe.Repository.LevelRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +16,10 @@ public class KanjiService {
     private KanjiRepository kanjiRepository;
 
 
-    private LevelRepository levelRepository;
+
     @Autowired
-    public KanjiService(KanjiRepository kanjiRepository, LevelRepository levelRepository) {
+    public KanjiService(KanjiRepository kanjiRepository) {
         this.kanjiRepository = kanjiRepository;
-        this.levelRepository = levelRepository;
     }
 
     public List<KanjiDTO> getAllKanjis(){
@@ -57,8 +55,7 @@ public class KanjiService {
        kanjiDTO.setMeaning(kanji.getMeaning());
        kanjiDTO.setStrokes(kanji.getStrokes());
        kanjiDTO.setExample(kanji.getExample());
-       if (kanji.getLevel() != null) kanjiDTO.setLevelID(kanji.getLevel().getLevelID());
-       return kanjiDTO ;
+       return kanjiDTO;
    };
    public Kanji convertDTOToKanji(KanjiDTO dto) {
        Kanji kanji = new Kanji();
@@ -69,10 +66,6 @@ public class KanjiService {
        kanji.setMeaning(dto.getMeaning());
        kanji.setStrokes(dto.getStrokes());
        kanji.setExample(dto.getExample());
-       if (dto.getLevelID() != null) {
-           Level level = levelRepository.findById(dto.getLevelID()).orElse(null);
-           kanji.setLevel(level);
-       }
        return kanji;
    }
 

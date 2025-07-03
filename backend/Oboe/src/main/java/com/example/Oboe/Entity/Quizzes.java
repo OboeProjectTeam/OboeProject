@@ -16,9 +16,7 @@ public class Quizzes {
     private String title;
     private String description;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "LevelId", nullable = false)
-    private Level level;
+
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Questions> questions;
@@ -48,14 +46,6 @@ public class Quizzes {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Level getLevel() {
-        return level;
-    }
-
-    public void setLevel(Level level) {
-        this.level = level;
     }
 
     public List<Questions> getQuestions() {

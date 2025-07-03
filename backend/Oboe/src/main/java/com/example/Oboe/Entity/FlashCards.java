@@ -22,10 +22,8 @@ public class FlashCards {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference("users-FlashCards")
     private User user;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "LevelId", nullable = false)
-    @JsonBackReference("Level-FlashCards")
-    private Level level;
+
+
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name="TopicId",nullable = false)
@@ -36,13 +34,12 @@ public class FlashCards {
     private LocalDateTime Created = LocalDateTime.now();
 
     public FlashCards() {}
-    public FlashCards(String Term, String Description, String ImageUrl, String AudioUrl, User user,Level level, Topic topic) {
+    public FlashCards(String Term, String Description, String ImageUrl, String AudioUrl, User user, Topic topic) {
         this.Term = Term;
         this.Description = Description;
         this.ImageUrl = ImageUrl;
         this.AudioUrl = AudioUrl;
         this.user = user;
-        this.level = level;
         this.topic = topic;
     }
 
@@ -94,13 +91,7 @@ public class FlashCards {
         this.user = user;
     }
 
-    public Level getLevel() {
-        return level;
-    }
 
-    public void setLevel(Level level) {
-        this.level = level;
-    }
 
     public Topic getTopic() {
         return topic;

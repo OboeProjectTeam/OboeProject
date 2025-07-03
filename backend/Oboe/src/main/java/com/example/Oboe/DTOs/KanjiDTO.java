@@ -27,7 +27,6 @@ public class KanjiDTO  {
     @NotBlank(message = "example không được để trống")
     private String example;
 
-    private UUID levelID;
     private UUID kanjiID;
 
 
@@ -87,13 +86,6 @@ public class KanjiDTO  {
         this.example = example;
     }
 
-    public UUID getLevelID() {
-        return levelID;
-    }
-
-    public void setLevelID(UUID levelID) {
-        this.levelID = levelID;
-    }
 
 
 }
