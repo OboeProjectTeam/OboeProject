@@ -1,5 +1,6 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
@@ -49,8 +50,8 @@ public class CommentService {
         return rootComments;
     }
 
-    public CommentDTOs createComment(UUID teamId, String username, CommentDTOs dto) {
-        Optional<User> userOpt = userService.findByUserName(username);
+    public CommentDTOs createComment(UUID teamId, UUID userId, CommentDTOs dto) {
+        Optional<User> userOpt = userService.findById(userId); //
         if (userOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ");
         }
@@ -68,8 +69,8 @@ public class CommentService {
         return toDTO(saved);
     }
 
-    public CommentDTOs Commentreply(UUID parentCommentId, String username, CommentDTOs dto) {
-        Optional<User> userOpt = userService.findByUserName(username);
+    public CommentDTOs Commentreply(UUID parentCommentId ,UUID userId, CommentDTOs dto) {
+        Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
 
         Optional<Comment> parentOpt = commentRepository.findById(parentCommentId);
@@ -89,11 +90,11 @@ public class CommentService {
         return toDTO(saved);
     }
 
-    public CommentDTOs updateComment(UUID commentId, String username, CommentDTOs dto) {
+    public CommentDTOs updateComment(UUID commentId, UUID userId, CommentDTOs dto) {
         Comment comment = getCommentEntityById(commentId);
         if (comment == null) return null;
 
-        Optional<User> userOpt = userService.findByUserName(username);
+        Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
 
         if (!comment.getUser().getUser_id().equals(userOpt.get().getUser_id())) return null;
@@ -105,11 +106,11 @@ public class CommentService {
         return toDTO(commentRepository.save(comment));
     }
 
-    public boolean deleteComment(UUID commentId, String username) {
+    public boolean deleteComment(UUID commentId, UUID userId) {
         Comment comment = getCommentEntityById(commentId);
         if (comment == null) return false;
 
-        Optional<User> userOpt = userService.findByUserName(username);
+        Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return false;
 
         if (!comment.getUser().getUser_id().equals(userOpt.get().getUser_id())) return false;
@@ -117,6 +118,14 @@ public class CommentService {
         commentRepository.deleteById(commentId);
         return true;
     }
+    public List<CommentDTOs> getCommentByUserId(UUID userId) {
+
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return null;
+        List<Comment> Comment = commentRepository.findCommentByUserId(userId);
+        return Comment.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
 
     public Comment getCommentEntityById(UUID commentId) {
         return commentRepository.findById(commentId).orElse(null);

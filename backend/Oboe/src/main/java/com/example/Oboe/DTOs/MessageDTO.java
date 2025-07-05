@@ -4,41 +4,18 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class MessageDTO {
-    private String messageID;
-    private String sent_message;
-    private LocalDateTime sent_at;
     private UUID senderId;
     private UUID receiverId;
-    private String senderUsername;
-    private String receiverUsername;
-
-
-
-
-
-
-    public String getSenderUsername() {
-        return senderUsername;
+    private String sentMessage;
+    private LocalDateTime sentDateTime;
+    private String senderName;
+    private UUID messageId;
+    // Getters & Setters
+    public UUID getSenderId() {
+        return senderId;
     }
-
-    public void setSenderUsername(String senderUsername) {
-        this.senderUsername = senderUsername;
-    }
-
-    public String getReceiverUsername() {
-        return receiverUsername;
-    }
-
-    public void setReceiverUsername(String receiverUsername) {
-        this.receiverUsername = receiverUsername;
-    }
-
-    public LocalDateTime getSent_at() {
-        return sent_at;
-    }
-
-    public void setSent_at(LocalDateTime sent_at) {
-        this.sent_at = sent_at;
+    public void setSenderId(UUID senderId) {
+        this.senderId = senderId;
     }
 
     public UUID getReceiverId() {
@@ -49,29 +26,29 @@ public class MessageDTO {
         this.receiverId = receiverId;
     }
 
-    public UUID getSenderId() {
-        return senderId;
+    public String getSentMessage() {
+        return sentMessage;
     }
 
-    public void setSenderId(UUID senderId) {
-        this.senderId = senderId;
+    public void setSentMessage(String sentMessage) {
+        this.sentMessage = sentMessage;
     }
-
-    public String getSent_message() {
-        return sent_message;
+    public LocalDateTime getSentDateTime() {
+        return sentDateTime;
     }
-
-    public void setSent_message(String sent_message) {
-        this.sent_message = sent_message;
+    public void setSentDateTime(LocalDateTime sentDateTime) {
+        this.sentDateTime = sentDateTime;
     }
-
-    public String getMessageID() {
-        return messageID;
+    public String getSenderName() {
+        return senderName;
     }
-
-    public void setMessageID(String messageID) {
-        this.messageID = messageID;
+    public void setSenderName(String senderName) {
+        this.senderName = senderName;
     }
-
-
+    public UUID getMessageId() {
+        return messageId;
+    }
+    public void setMessageId(UUID messageId) {
+        this.messageId = messageId;
+    }
 }

@@ -49,13 +49,11 @@ public class BlogService {
     }
 
 
-
-
     public BlogDTO getBlogDTOById(UUID id) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
 
         if (blogOpt.isEmpty()) {
-            System.out.println(Constant.BLOG_NOT_FOUND); // ✅ Ghi log
+            System.out.println(Constant.BLOG_NOT_FOUND);
 
             return null;
         }
@@ -63,14 +61,14 @@ public class BlogService {
         return toDTO(blogOpt.get());
     }
 
-    public BlogDTO createBlogFromDTO(BlogDTO blogDTO, String username) {
-        Optional<User> userOpt = userService.findByUserName(username);
+    public BlogDTO createBlogFromDTO(BlogDTO blogDTO, UUID userId) {
+        Optional<User> userOpt = userService.findById(userId); //
+
         if (userOpt.isEmpty()) return null;
 
         Blog blog = new Blog();
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
-        blog.setTags(blogDTO.getTags());
         blog.setUser(userOpt.get());
         blog.setCreatedAt(LocalDateTime.now());
         blog.setUpdatedAt(LocalDateTime.now());
@@ -79,12 +77,12 @@ public class BlogService {
         return toDTO(saved);
     }
 
-    public BlogDTO updateBlogFromDTO(UUID id, BlogDTO blogDTO, String username) {
+    public BlogDTO updateBlogFromDTO(UUID id, BlogDTO blogDTO, UUID userId) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
         if (blogOpt.isEmpty()) return null;
 
         Blog blog = blogOpt.get();
-        Optional<User> userOpt = userService.findByUserName(username);
+        Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
 
         User user = userOpt.get();
@@ -92,19 +90,18 @@ public class BlogService {
 
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
-        blog.setTags(blogDTO.getTags());
         blog.setUpdatedAt(LocalDateTime.now());
 
         Blog updated = blogRepository.save(blog);
         return toDTO(updated);
     }
 
-    public boolean deleteBlogById(UUID id, String username) {
+    public boolean deleteBlogById(UUID id, UUID userId) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
         if (blogOpt.isEmpty()) return false;
 
         Blog blog = blogOpt.get();
-        Optional<User> userOpt = userService.findByUserName(username);
+        Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return false;
 
         if (!Objects.equals(blog.getUser().getUser_id(), userOpt.get().getUser_id())) return false;
@@ -118,28 +115,32 @@ public class BlogService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<BlogDTO> getBlogDTOsByUsername(String username) {
-        Optional<User> Tennguoidung = userService.findByUserName(username);
-        if (Tennguoidung.isEmpty()) return Collections.emptyList();
-
-        return blogRepository.findBlogsByUserId(Tennguoidung.get().getUser_id())
-                .stream().map(this::toDTO).collect(Collectors.toList());
+    public List<BlogDTO> getAllBlogbyUserId(UUID userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return null;
+        List<Blog> blogs = blogRepository.findBlogsByUserId(userId);
+        return blogs.stream().map(this::toDTO).collect(Collectors.toList());
     }
+
 
     private BlogDTO toDTO(Blog blog) {
         BlogDTO dto = new BlogDTO();
         dto.setId(blog.getBlogId());
         dto.setTitle(blog.getTitle());
         dto.setContent(blog.getContent());
-        dto.setTags(blog.getTags());
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
-        dto.setUserId(blog.getUser() != null ? blog.getUser().getUser_id() : null);
+
+        if (blog.getUser() != null) {
+            dto.setUserId(blog.getUser().getUser_id());
+            dto.setAuthor(blog.getUser().getUserName());
+
+        }
+
         return dto;
     }
-    public Blog getBlogById(UUID id) {
-        return blogRepository.findById(id).orElse(null);
-    }
+
+
 
 
 

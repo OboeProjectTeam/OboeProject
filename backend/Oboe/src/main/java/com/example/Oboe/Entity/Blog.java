@@ -28,9 +28,6 @@ public class Blog {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Size(max = 255, message = "Tags không được vượt quá 255 ký tự")
-    private String tags;
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -43,18 +40,15 @@ public class Blog {
     @JsonBackReference("user-blogs") // Tương ứng với @JsonManagedReference trong User
     private User user;
 
-
-
-
     // Constructor mặc định
     public Blog() {
     }
 
     // Constructor với các trường cơ bản
-    public Blog(String title, String content, String tags, User user) {
+    public Blog(String title, String content, User user) {
         this.title = title;
         this.content = content;
-        this.tags = tags;
+
         this.user = user;
     }
 
@@ -89,13 +83,7 @@ public class Blog {
         this.content = content;
     }
 
-    public String getTags() {
-        return tags;
-    }
 
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

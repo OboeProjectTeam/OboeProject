@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class CustomUserDetails implements UserDetails {
     private final User user;
@@ -33,6 +34,9 @@ public class CustomUserDetails implements UserDetails {
     }
     public AuthProvider getAuthProvider() {
         return user.getAuthProvider();
+    }
+    public UUID getUserID() {
+        return user.getUser_id();
     }
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }

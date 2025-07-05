@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
     List<Comment> findByReferenceId(UUID referenceId);
     Long countByReferenceId(UUID referenceId);
+    @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
+    List<Comment> findCommentByUserId(@Param("userId") UUID userId);
 }

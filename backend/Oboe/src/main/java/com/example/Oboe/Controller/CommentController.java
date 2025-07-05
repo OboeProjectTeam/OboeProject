@@ -1,5 +1,7 @@
 package com.example.Oboe.Controller;
 
+import com.example.Oboe.Config.CustomUserDetails;
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Service.CommentService;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +20,12 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
-
     //   Lấy tất cả comment theo ID (blog, kanji, etc.)
     @GetMapping("/{id}")
     public ResponseEntity<List<CommentDTOs>> getCommentsByTeamId(@PathVariable("id") UUID id) {
         List<CommentDTOs> comments = commentService.getCommentsByTeamId(id);
         return ResponseEntity.ok(comments);
     }
-
     //  Tạo comment mới cho 1 id
     @PostMapping("/{id}")
     public ResponseEntity<CommentDTOs> createComment(
@@ -33,8 +33,9 @@ public class CommentController {
             @RequestBody CommentDTOs dto,
             Authentication authentication
     ) {
-        String username = authentication.getName();
-        CommentDTOs created = commentService.createComment(id, username, dto);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        CommentDTOs created = commentService.createComment(id, userId, dto);
         return ResponseEntity.ok(created);
     }
 
@@ -46,40 +47,49 @@ public class CommentController {
             @RequestBody CommentDTOs dto,
             Authentication authentication
     ) {
-        String username = authentication.getName();
-        CommentDTOs reply = commentService.Commentreply(commentId, username, dto);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        CommentDTOs reply = commentService.Commentreply(commentId, userId, dto);
         if (reply == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(reply);
     }
 
-    // ✅ 4. Cập nhật comment
+    //  Cập nhật comment
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTOs> updateComment(
             @PathVariable UUID commentId,
             @RequestBody CommentDTOs dto,
             Authentication authentication
     ) {
-        String username = authentication.getName();
-        CommentDTOs updated = commentService.updateComment(commentId, username, dto);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        CommentDTOs updated = commentService.updateComment(commentId, userId, dto);
         if (updated == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(updated);
     }
 
-    // ✅ 5. Xóa comment
+    //  Xóa comment
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(
             @PathVariable UUID commentId,
             Authentication authentication
     ) {
-        String username = authentication.getName();
-        boolean deleted = commentService.deleteComment(commentId, username);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        boolean deleted = commentService.deleteComment(commentId, userId);
         if (!deleted) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok().build();
     }
-
-    // ✅ 6. Đếm comment theo id
+    // Đếm comment theo id
     @GetMapping("/count/{id}")
     public ResponseEntity<Long> countComments(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(commentService.getCommentCountByTeamId(id));
+    }
+    @GetMapping("/user/comment")
+    public ResponseEntity<List<CommentDTOs>> getUserBlogs(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        List<CommentDTOs> blogs = commentService.getCommentByUserId(userId);
+        return ResponseEntity.ok(blogs);
     }
 }
