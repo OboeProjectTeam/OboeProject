@@ -22,10 +22,6 @@ public class JwtUtil {
     private final long jwtExpirationMs = 86400000;
 
 
-//  public String generateToken(UserDetails userDetails) {
-//        return generateToken(userDetails, "EMAIL");
-//    }
-
     //  Tạo token với provider cụ thể (GOOGLE, FACEBOOK, EMAIL,...)
     public String generateToken(UserDetails userDetails, String provider) {
         String roles = userDetails.getAuthorities().stream()
