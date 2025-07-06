@@ -1,57 +1,147 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.Constant.Constant;
+import com.example.Oboe.DTOs.BlogDTO;
+
 import com.example.Oboe.Entity.Blog;
+import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.response.BaseResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BlogService {
 
     private final BlogRepository blogRepository;
+    private final UserService userService;
 
-    public BlogService(BlogRepository blogRepository) {
+    public BlogService(BlogRepository blogRepository, UserService userService) {
         this.blogRepository = blogRepository;
+        this.userService = userService;
     }
 
-    public List<Blog> getAllBlogs() {
-        return blogRepository.findAll();
-    }
+    public BaseResponse<List<BlogDTO>> getAllBlogDTOs() {
+        BaseResponse<List<BlogDTO>> response = new BaseResponse<>();
+        try {
+            List<Blog> blogs = blogRepository.findAll();
 
-    public Blog getBlogById(UUID id) {
-        return blogRepository.findById(id).orElse(null);
-    }
-
-    public Blog createBlog(Blog blog) {
-        return blogRepository.save(blog);
-    }
-
-    public Blog updateBlog(UUID id, Blog blogDetails) {
-        Optional<Blog> optionalBlog = blogRepository.findById(id);
-        if (optionalBlog.isPresent()) {
-            Blog blog = optionalBlog.get();
-            blog.setTitle(blogDetails.getTitle());
-            blog.setContent(blogDetails.getContent());
-
-            blog.setUpdatedAt(blogDetails.getUpdatedAt());
-            return blogRepository.save(blog);
+            if (blogs.isEmpty()) {
+                response.setCode(Constant.NOT_FOUND_CODE);
+                response.setMessage(Constant.BLOG_EMPTY_LIST);
+                response.setData(Collections.emptyList());
+            } else {
+                List<BlogDTO> dtos = blogs.stream().map(this::toDTO).collect(Collectors.toList());
+                response.setCode(Constant.SUCCESS_CODE);
+                response.setMessage(Constant.SUCCESS_GET_ALL);
+                response.setData(dtos);
+            }
+        } catch (Exception e) {
+            response.setCode("500");
+            response.setMessage("Đã xảy ra lỗi khi lấy danh sách blog.");
+            response.setData(Collections.emptyList());
         }
-        return null;
+        return response;
     }
 
-    public void deleteBlog(UUID id) {
+
+    public BlogDTO getBlogDTOById(UUID id) {
+        Optional<Blog> blogOpt = blogRepository.findById(id);
+
+        if (blogOpt.isEmpty()) {
+            System.out.println(Constant.BLOG_NOT_FOUND);
+
+            return null;
+        }
+
+        return toDTO(blogOpt.get());
+    }
+
+    public BlogDTO createBlogFromDTO(BlogDTO blogDTO, UUID userId) {
+        Optional<User> userOpt = userService.findById(userId); //
+
+        if (userOpt.isEmpty()) return null;
+
+        Blog blog = new Blog();
+        blog.setTitle(blogDTO.getTitle());
+        blog.setContent(blogDTO.getContent());
+        blog.setUser(userOpt.get());
+        blog.setCreatedAt(LocalDateTime.now());
+        blog.setUpdatedAt(LocalDateTime.now());
+
+        Blog saved = blogRepository.save(blog);
+        return toDTO(saved);
+    }
+
+    public BlogDTO updateBlogFromDTO(UUID id, BlogDTO blogDTO, UUID userId) {
+        Optional<Blog> blogOpt = blogRepository.findById(id);
+        if (blogOpt.isEmpty()) return null;
+
+        Blog blog = blogOpt.get();
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return null;
+
+        User user = userOpt.get();
+        if (!Objects.equals(blog.getUser().getUser_id(), user.getUser_id())) return null;
+
+        blog.setTitle(blogDTO.getTitle());
+        blog.setContent(blogDTO.getContent());
+        blog.setUpdatedAt(LocalDateTime.now());
+
+        Blog updated = blogRepository.save(blog);
+        return toDTO(updated);
+    }
+
+    public boolean deleteBlogById(UUID id, UUID userId) {
+        Optional<Blog> blogOpt = blogRepository.findById(id);
+        if (blogOpt.isEmpty()) return false;
+
+        Blog blog = blogOpt.get();
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return false;
+
+        if (!Objects.equals(blog.getUser().getUser_id(), userOpt.get().getUser_id())) return false;
+
         blogRepository.deleteById(id);
+        return true;
     }
 
-    public List<Blog> searchBlogsByTitle(String keyword) {
-        return blogRepository.findByTitleContainingIgnoreCase(keyword);
+    public List<BlogDTO> searchBlogDTOsByTitle(String keyword) {
+        return blogRepository.findByTitleContainingIgnoreCase(keyword)
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // Method lấy tất cả blog của user
-    public List<Blog> getBlogsByUserId(UUID userId) {
-        return blogRepository.findBlogsByUserId(userId);
+    public List<BlogDTO> getAllBlogbyUserId(UUID userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return null;
+        List<Blog> blogs = blogRepository.findBlogsByUserId(userId);
+        return blogs.stream().map(this::toDTO).collect(Collectors.toList());
     }
+
+
+    private BlogDTO toDTO(Blog blog) {
+        BlogDTO dto = new BlogDTO();
+        dto.setId(blog.getBlogId());
+        dto.setTitle(blog.getTitle());
+        dto.setContent(blog.getContent());
+        dto.setCreatedAt(blog.getCreatedAt());
+        dto.setUpdatedAt(blog.getUpdatedAt());
+
+        if (blog.getUser() != null) {
+            dto.setUserId(blog.getUser().getUser_id());
+            dto.setAuthor(blog.getUser().getUserName());
+
+        }
+
+        return dto;
+    }
+
+
+
+
+
 }

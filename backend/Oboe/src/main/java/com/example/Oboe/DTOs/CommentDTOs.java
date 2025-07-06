@@ -1,45 +1,35 @@
 package com.example.Oboe.DTOs;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CommentDTOs {
+
     private UUID commentId;
 
-    @Size(max = 255, message = "Tiêu đề không được vượt quá 255 ký tự")
     private String title;
 
-    @NotBlank(message = "Nội dung không được để trống")
     private String content;
 
     private LocalDateTime createdAt;
 
-    // Thông tin user (không cần toàn bộ User object)
     private UUID userId;
+
     private String userName;
 
-    // Thông tin blog (không cần toàn bộ Blog object)
-    private UUID blogId;
-    private String blogTitle;
+    private UUID commentIdParent;
 
-    // Constructors
+    private UUID ReferenceId; // đại diện cho blog, kanji, hoặc loại nội dung khác
+
+    private List<CommentDTOs> replies = new ArrayList<>();
+
+    // ======== Constructors =========
     public CommentDTOs() {}
 
-    public CommentDTOs(UUID commentId, String title, String content, LocalDateTime createdAt,
-                      UUID userId, String userName, UUID blogId, String blogTitle) {
-        this.commentId = commentId;
-        this.title = title;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.userId = userId;
-        this.userName = userName;
-        this.blogId = blogId;
-        this.blogTitle = blogTitle;
-    }
+    // ======== Getters and Setters =========
 
-    // Getters and Setters
     public UUID getCommentId() {
         return commentId;
     }
@@ -88,19 +78,27 @@ public class CommentDTOs {
         this.userName = userName;
     }
 
-    public UUID getBlogId() {
-        return blogId;
+    public UUID getCommentIdParent() {
+        return commentIdParent;
     }
 
-    public void setBlogId(UUID blogId) {
-        this.blogId = blogId;
+    public void setCommentIdParent(UUID commentIdParent) {
+        this.commentIdParent = commentIdParent;
     }
 
-    public String getBlogTitle() {
-        return blogTitle;
+    public UUID getReferenceId() {
+        return ReferenceId;
     }
 
-    public void setBlogTitle(String blogTitle) {
-        this.blogTitle = blogTitle;
+    public void setReferenceId(UUID referenceId) {
+        this.ReferenceId = referenceId;
+    }
+
+    public List<CommentDTOs> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<CommentDTOs> replies) {
+        this.replies = replies;
     }
 }

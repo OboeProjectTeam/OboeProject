@@ -1,0 +1,203 @@
+@use '@/assets/css/index.scss' as *;
+
+.detail-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+  position: relative;
+
+  &.has-back-button {
+    padding-top: 4rem;
+  }
+}
+
+.detail-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0px 4px rgba(0, 0, 0, 0.4);
+  padding: 24px;
+  position: relative;
+}
+
+.action-buttons {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1.5rem;
+  color: #666;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.action-btn.active {
+  color: $primary-color;
+}
+
+.action-btn.active:hover {
+  background-color: #fde8ec;
+}
+
+.main-info {
+  margin-bottom: 40px;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.main-text {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+  line-height: 1.4;
+  color: v-bind("type === 'kanji' || type === 'word' ? '#cc382c' : '#333'");
+}
+
+.reading-text {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.4;
+}
+
+.meaning-text {
+  font-size: 1.25rem;
+  color: #444;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.related-section {
+  margin-top: 24px;
+  border-top: 1px solid #eee;
+  padding-top: 24px;
+}
+
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.related-item {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.related-item:hover {
+  background-color: #f0f0f0;
+}
+
+.related-main {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.related-info {
+  font-size: 0.875rem;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.examples-section {
+  margin-top: 24px;
+  border-top: 1px solid #eee;
+  padding-top: 24px;
+}
+
+.examples-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.example-item {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.example-item .japanese {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.example-item .meaning {
+  color: #666;
+}
+
+.empty-message {
+  color: #666;
+}
+
+.not-found {
+  text-align: center;
+  color: #666;
+  padding: 24px;
+  font-size: 1.25rem;
+}
+
+.related-kana {
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.related-meaning {
+  color: #444;
+}
+
+.back-button {
+  margin-left: 24px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s, color 0.2s;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  
+  i {
+    font-size: 0.8rem;
+  }
+}

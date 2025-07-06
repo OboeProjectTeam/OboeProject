@@ -1,0 +1,179 @@
+@use '@/assets/css/index.scss' as *;
+.create-quiz {
+  max-width: 800px;
+  margin: 0px auto;
+  padding: 0 20px;
+
+  h1 {
+    color: #333;
+    margin-bottom: 30px;
+  }
+}
+
+.form-container {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+  }
+
+  input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+
+  textarea {
+    height: 100px;
+    resize: vertical;
+  }
+}
+
+.questions-container {
+  margin-top: 30px;
+
+  h2 {
+    color: #444;
+    margin-bottom: 20px;
+  }
+}
+
+.question-item {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  span {
+    font-weight: 600;
+    color: #666;
+  }
+}
+
+.question-content {
+  > input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  input[type="radio"] {
+    margin: 0;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+}
+
+.remove-btn, .remove-option-btn {
+  background: none;
+  border: none;
+  color: $primary-color;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background: #ffebee;
+  }
+}
+
+.add-question-btn, .add-option-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f1f1f1;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+
+  &:hover {
+    background: #e9e9e9;
+    border-color: #ccc;
+  }
+}
+
+.add-option-btn {
+  margin-top: 8px;
+  padding: 8px;
+}
+
+.form-actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  background: $primary-color;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #d13651;
+  }
+}

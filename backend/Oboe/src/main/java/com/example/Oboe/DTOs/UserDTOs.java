@@ -6,6 +6,7 @@ import com.example.Oboe.Entity.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class UserDTOs {
 
@@ -22,6 +23,7 @@ public class UserDTOs {
     private AccountType accountType = AccountType.FREE; // Mặc định tài khoản FREE
     private LocalDateTime create_at = LocalDateTime.now();
     private LocalDateTime update_at = LocalDateTime.now();
+
 
     private AuthProvider authProvider = AuthProvider.EMAIL; // Mặc định là EMAIL
 
@@ -129,4 +131,5 @@ public class UserDTOs {
     public void setAuthProvider(AuthProvider authProvider) {
         this.authProvider = authProvider;
     }
+
 }
