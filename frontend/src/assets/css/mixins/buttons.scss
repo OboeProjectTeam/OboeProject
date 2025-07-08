@@ -1,0 +1,59 @@
+// Button mixins
+@mixin button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-size($size: 'medium') {
+  @if $size == 'small' {
+    padding: 6px 12px;
+    font-size: 14px;
+  } @else if $size == 'medium' {
+    padding: 8px 16px;
+    font-size: 16px;
+  } @else if $size == 'large' {
+    padding: 12px 24px;
+    font-size: 18px;
+  }
+}
+
+@mixin button-variant($background, $color, $hover-background: darken($background, 10%)) {
+  background-color: $background;
+  color: $color;
+
+  &:hover:not(:disabled) {
+    background-color: $hover-background;
+  }
+}
+
+@mixin button-outline($color) {
+  background-color: transparent;
+  border: 1px solid $color;
+  color: $color;
+
+  &:hover:not(:disabled) {
+    background-color: $color;
+    color: white;
+  }
+}
+
+@mixin button-icon($gap: 8px) {
+  gap: $gap;
+
+  i, svg {
+    font-size: 1.2em;
+  }
+}

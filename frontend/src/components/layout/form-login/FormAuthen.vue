@@ -1,5 +1,5 @@
 <template>
-  <form class="form__login">
+  <form class="form__login" :style="{ width: formWidth }">
     <div class="form__cover"></div>
     <div class="form__loader">
       <div class="spinner active">
@@ -54,11 +54,11 @@
         <MCheckbox v-model="remember">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu" style="color: $primary-color; " target="_blank">
+            <router-link to="/dieu-khoan-dich-vu"  target="_blank">
               Điều khoản dịch vụ
             </router-link>
             và
-            <router-link to="/quyen-rieng-tu" style="color: $primary-color; " target="_blank">
+            <router-link to="/quyen-rieng-tu"  target="_blank">
               Chính sách quyền riêng tư
             </router-link>
             của Oboe
@@ -106,6 +106,10 @@ const props = defineProps({
   isRegister: {
     type: Boolean,
     default: false
+  },
+  formWidth: {
+    type: String,
+    default: '400px'
   }
 });
 

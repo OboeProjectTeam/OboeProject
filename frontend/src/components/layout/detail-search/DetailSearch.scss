@@ -201,3 +201,21 @@
     font-size: 0.8rem;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .detail-page {
+      .comments-section {
+        :deep(.comment-item) {
+          .comment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+
+            .comment-time {
+              margin-left: 0;
+            }
+          }
+        }
+      }
+    }
+  }

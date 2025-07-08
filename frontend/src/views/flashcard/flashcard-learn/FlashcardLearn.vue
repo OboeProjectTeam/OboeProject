@@ -40,17 +40,31 @@
 
       <!-- Card ở giữa -->
       <div class="card-section">
-        <TheCard ref="cardRef" :slides="slides" :width="isFullscreen ? 900 : 550" :height="isFullscreen ? 500 : 400"
+        <TheCard 
+          ref="cardRef" 
+          :slides="slides" 
+          :width="isFullscreen ? 900 : isMobile ? 300 : 550" 
+          :height="isFullscreen ? 500 : isMobile ? 200 : 400"
+          :button-font-size="isMobile ? '8px' : '14px'"
+          :title-font-size="isMobile ? '8px' : '24px'"
+          :button-padding="isMobile ? '4px 8px' : '10px 24px'"
           :pagination="{
             type: 'fraction',
             clickable: true,
             formatFractionCurrent: (number) => number,
             formatFractionTotal: (number) => number
-          }" :canFlip="true" :speed="300" :keyboard="{
+          }" 
+          :canFlip="true" 
+          :speed="300" 
+          :keyboard="{
             enabled: true,
             onlyInViewport: true
-          }" :class="{ 'fullscreen-card': isFullscreen }" @swiper="onSwiper" @card-flipped="onCardFlip"
-          @slideChange="onSlideChange" />
+          }" 
+          :class="{ 'fullscreen-card': isFullscreen }" 
+          @swiper="onSwiper" 
+          @card-flipped="onCardFlip"
+          @slideChange="onSlideChange" 
+        />
       </div>
 
       <!-- Control bar bên phải -->

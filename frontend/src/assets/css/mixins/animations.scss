@@ -1,0 +1,69 @@
+// Animation mixins
+@mixin transition($properties...) {
+  $transitions: ();
+  @each $prop in $properties {
+    $transitions: append($transitions, $prop 0.2s ease, comma);
+  }
+  transition: $transitions;
+}
+
+@mixin fade-in {
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  animation: fadeIn 0.3s ease-in;
+}
+
+@mixin slide-in($direction: 'down') {
+  @if $direction == 'down' {
+    @keyframes slideInDown {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    animation: slideInDown 0.3s ease-out;
+  } @else if $direction == 'up' {
+    @keyframes slideInUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    animation: slideInUp 0.3s ease-out;
+  }
+}
+
+@mixin scale-in {
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  animation: scaleIn 0.2s ease-out;
+}
+
+@mixin hover-lift {
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+  }
+} 

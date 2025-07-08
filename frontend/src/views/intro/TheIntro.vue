@@ -43,7 +43,7 @@
           <router-link to="/create/flashcard" class="ip-feature-link">Bắt đầu tạo <i
               class="fas fa-arrow-right"></i></router-link>
         </div>
-          <TheCard class="scroll-reveal from-right delay-2" :slides="slides" :width="400" :height="300" :autoplay="true" :pagination="{ clickable: true }"  />
+          <TheCard class="ip-feature-card scroll-reveal from-right delay-2" :slides="slides" :width="400" :height="300" :autoplay="true" :pagination="{ clickable: true }"  />
       </div>
     </section>
 
