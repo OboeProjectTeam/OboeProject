@@ -48,6 +48,16 @@ jobs:
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
+    # 5.5. Dọn thư mục dist cũ trên server trước khi upload
+    - name: Clean dist folder before upload
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          rm -rf /var/www/OboeProject/frontend/dist/*
+          echo "Old dist folder cleaned!"
 
     # 6. Upload dist to server
     - name: Upload frontend dist to server
@@ -59,6 +69,7 @@ jobs:
         source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
+        overwrite: true  
 
     # 7. Restart frontend PM2
     - name: Restart frontend via SSH (PM2)
