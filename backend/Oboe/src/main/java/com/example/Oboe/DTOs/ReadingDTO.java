@@ -1,33 +1,30 @@
-package com.example.Oboe.Entity;
+package com.example.Oboe.DTOs;
 
-import jakarta.persistence.*;
 import java.util.UUID;
 
-@Entity
-@Table(name = "reading")
-public class Reading {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "readingid", updatable = false, nullable = false)
+public class ReadingDTO {
     private UUID readingID;
+    private String readingText;
+    private String readingType;
+    private String ownerType;
+    private UUID ownerId;
 
-    @Column(name = "reading_text", nullable = false)
-    private String readingText;  // Cách đọc thực tế
+    // Constructors
+    public ReadingDTO() {}
 
-    @Column(name = "reading_type", nullable = false)
-    private String readingType;  // Loại đọc: onyomi, kunyomi, nanori, hiragana, katakana, grammar,...
-
-    @Column(name = "owner_type", nullable = false)
-    private String ownerType;    // Bảng cha: "kanji", "vocabulary", "gramma"
-
-    @Column(name = "owner_id", nullable = false)
-    private UUID ownerId;        // ID từ bảng cha (UUID của Kanji, Vocabulary hoặc Gramma)
+    public ReadingDTO(UUID readingID, String readingText, String readingType, String ownerType, UUID ownerId) {
+        this.readingID = readingID;
+        this.readingText = readingText;
+        this.readingType = readingType;
+        this.ownerType = ownerType;
+        this.ownerId = ownerId;
+    }
 
     // Getters and Setters
     public UUID getReadingID() {
         return readingID;
     }
+
     public void setReadingID(UUID readingID) {
         this.readingID = readingID;
     }
@@ -35,6 +32,7 @@ public class Reading {
     public String getReadingText() {
         return readingText;
     }
+
     public void setReadingText(String readingText) {
         this.readingText = readingText;
     }
@@ -42,6 +40,7 @@ public class Reading {
     public String getReadingType() {
         return readingType;
     }
+
     public void setReadingType(String readingType) {
         this.readingType = readingType;
     }
@@ -49,6 +48,7 @@ public class Reading {
     public String getOwnerType() {
         return ownerType;
     }
+
     public void setOwnerType(String ownerType) {
         this.ownerType = ownerType;
     }
@@ -56,6 +56,7 @@ public class Reading {
     public UUID getOwnerId() {
         return ownerId;
     }
+
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
     }

@@ -8,6 +8,8 @@ import com.example.Oboe.Entity.Message;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.MessageRepository;
 import com.example.Oboe.Repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,7 +63,10 @@ public class MessageService {
     }
     //lấy tất cả cuộc hội thoại
     public List<MessageDTO> getMessagesBetweenUsers(UUID userA, UUID userB) {
-        List<Message> messages = messageRepository.findConversation(userA, userB);
+        Pageable top30 = PageRequest.of(0, 30); // chỉ lấy 30 tin mới nhất
+        List<Message> messages = messageRepository.findConversation(userA, userB,top30);
+
+        Collections.reverse(messages); //  chuyển tin nhắn từ  cũ sang mới
 
         return messages.stream()
                 .map(this::toDTO)
@@ -77,8 +82,8 @@ public class MessageService {
         return true;
     }
 
-    public Message getMessage(UUID commentId) {
-        return messageRepository.findById(commentId).orElse(null);
+    public Message getMessage(UUID messageId) {
+        return messageRepository.findById(messageId).orElse(null);
     }
 
     private MessageDTO toDTO(Message message) {

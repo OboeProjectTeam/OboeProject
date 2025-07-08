@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -22,10 +23,15 @@ public class CommentController {
     }
     //   Lấy tất cả comment theo ID (blog, kanji, etc.)
     @GetMapping("/{id}")
-    public ResponseEntity<List<CommentDTOs>> getCommentsByTeamId(@PathVariable("id") UUID id) {
-        List<CommentDTOs> comments = commentService.getCommentsByTeamId(id);
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<Map<String, Object>> getComments(
+            @PathVariable("id") UUID teamId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        return ResponseEntity.ok(commentService.getCommentsByTeamId(teamId, page, size));
     }
+
+
     //  Tạo comment mới cho 1 id
     @PostMapping("/{id}")
     public ResponseEntity<CommentDTOs> createComment(

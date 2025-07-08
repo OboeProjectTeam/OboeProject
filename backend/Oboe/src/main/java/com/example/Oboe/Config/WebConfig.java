@@ -78,7 +78,8 @@ public class WebConfig {
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/oauth2/**"
+                                "/oauth2/**",
+                                "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

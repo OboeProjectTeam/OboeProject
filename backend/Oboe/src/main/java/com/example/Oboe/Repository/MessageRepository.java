@@ -27,7 +27,10 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
             "(m.sender.user_id = :userA AND m.receiver.user_id = :userB) OR " +
             "(m.sender.user_id = :userB AND m.receiver.user_id = :userA) " +
             "ORDER BY m.sent_at DESC")
-    List<Message> findConversation(@Param("userA") UUID userA, @Param("userB") UUID userB);
+    List<Message> findConversation(@Param("userA") UUID userA,
+                                         @Param("userB") UUID userB,
+                                         org.springframework.data.domain.Pageable pageable);
+
 
 
 

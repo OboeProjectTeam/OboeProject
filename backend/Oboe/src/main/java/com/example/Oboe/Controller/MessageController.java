@@ -8,6 +8,7 @@ import com.example.Oboe.Entity.User;
 import com.example.Oboe.Service.MessageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +21,40 @@ import java.util.UUID;
 public class MessageController {
 
     private final MessageService messageService;
+    private final SimpMessagingTemplate messagingTemplate; // ✅
 
-    public MessageController(MessageService messageService) {
+    public MessageController(MessageService messageService, SimpMessagingTemplate messagingTemplate) {
         this.messageService = messageService;
+        this.messagingTemplate = messagingTemplate;
     }
 
-    // Gửi tin nhắn
+
+    // Gửi tin nhắn mới từ client đến server
     @PostMapping
     public ResponseEntity<MessageDTO> sendMessage(@RequestBody MessageDTO messageDto) {
+
+        // Lưu tin nhắn vào database
         MessageDTO savedMessage = messageService.sendMessage(messageDto);
+
+        // Gửi tin nhắn realtime đến người nhận (qua WebSocket),
+        // Đây là phương thức gửi tin nhắn từ server → client thông qua WebSocket.
+
+        messagingTemplate.convertAndSend(
+                "/receiver/" + savedMessage.getReceiverId(),
+                savedMessage
+        );
+        // Gửi thêm thông báo "Bạn có tin nhắn mới"
+        String notification = "Bạn có tin nhắn mới từ " + savedMessage.getSenderName();
+        messagingTemplate.convertAndSend(
+                "/notification/" + savedMessage.getReceiverId(),
+                notification
+        );
+
         return ResponseEntity.ok(savedMessage);
     }
+
+
+
     @GetMapping("/partners")
     public ResponseEntity<List<UserSummaryDTO>> getChatPartners() {
         // Lấy thông tin user từ SecurityContext
@@ -40,6 +64,7 @@ public class MessageController {
 
         return ResponseEntity.ok(messageService.getChatPartners(userId));
     }
+
     @GetMapping("/conversation/{userB}")
     public ResponseEntity<List<MessageDTO>> getConversation(@PathVariable UUID userB) {
         UUID userId = ((CustomUserDetails) SecurityContextHolder
