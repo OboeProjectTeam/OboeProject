@@ -36,11 +36,9 @@ public class Comment {
     @JsonBackReference("user-comments")
     private User user;
 
-    // Nhiều - Một với Blog
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "blog_id", nullable = false)
-    @JsonBackReference("blog-comments")
-    private Blog blog;
+    // 🔄 Gộp mục tiêu vào 1 trường referenceId
+    @Column(name = "reference_Id", nullable = false)
+    private UUID referenceId;
 
     // Quan hệ tự tham chiếu - comment cha
     @ManyToOne(fetch = FetchType.LAZY)
@@ -56,11 +54,11 @@ public class Comment {
     // Constructors
     public Comment() {}
 
-    public Comment(String title, String content, User user, Blog blog) {
+    public Comment(String title, String content, User user, UUID teamId) {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.blog = blog;
+        this.referenceId = teamId;
     }
 
     // Getters and Setters
@@ -104,12 +102,12 @@ public class Comment {
         this.user = user;
     }
 
-    public Blog getBlog() {
-        return blog;
+    public UUID getreferenceId() {
+        return referenceId;
     }
 
-    public void setBlog(Blog blog) {
-        this.blog = blog;
+    public void setreferenceId(UUID teamId) {
+        this.referenceId = teamId;
     }
 
     public Comment getParentComment() {

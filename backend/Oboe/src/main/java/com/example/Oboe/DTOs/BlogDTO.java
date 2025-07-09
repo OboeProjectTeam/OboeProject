@@ -1,28 +1,40 @@
 package com.example.Oboe.DTOs;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class BlogDTO {
     private UUID id;
     private String title;
     private String content;
-    private String tags;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UUID userId;
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    private String author;
+
     public BlogDTO() {}
 
-    public BlogDTO(UUID id, String title, String content, String tags, LocalDateTime createdAt, LocalDateTime updatedAt, UUID userId) {
+    public BlogDTO(UUID id, String title, String content,  LocalDateTime createdAt, LocalDateTime updatedAt, UUID userId) {
         this.id = id;
         this.title = title;
         this.content = content;
-        this.tags = tags;
+
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.userId = userId;
     }
+
 
     public UUID getId() {
         return id;
@@ -48,14 +60,6 @@ public class BlogDTO {
         this.content = content;
     }
 
-    public String getTags() {
-        return tags;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -79,4 +83,6 @@ public class BlogDTO {
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
+
+
 }

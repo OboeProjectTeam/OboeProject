@@ -1,30 +1,23 @@
 package com.example.Oboe.Config;
 
-import com.example.Oboe.Entity.User;
-import com.example.Oboe.Repository.UserRepository;
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 @EnableWebSecurity
@@ -37,52 +30,76 @@ public class WebConfig {
         this.jwtUtil = jwtUtil;
     }
 
+
+    @Bean
+    public HttpFirewall allowUrlEncodedDoubleSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowSemicolon(true);
+        return firewall;
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(HttpFirewall firewall) {
+        return web -> web.httpFirewall(firewall);
+    }
+
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     public JwtAuthencation jwtAuthenticationFilter(UserService userService) {
         return new JwtAuthencation(userService, jwtUtil);
     }
 
+
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, UserService userService) throws Exception {
-        PasswordEncoder passwordEncoder = passwordEncoder();
-
-        return authentication -> {
-            String username = authentication.getName();
-            String password = authentication.getCredentials().toString();
-
-            User user = userService.findByUserName(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            if (!passwordEncoder.matches(password, user.getPassWord())) {
-                throw new BadCredentialsException("Invalid password");
-            }
-
-            UserDetails userDetails = userService.loadUserByUsername(username);
-            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        };
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthencation jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthencation jwtAuthenticationFilter,
+                                                   UserService userService) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/verify",
                                 "/api/auth/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/oauth2/**",
+                                "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(new CustomOAuth2SuccessHandler(userService, jwtUtil))
+                        .failureHandler((request, response, exception) -> {
+                            exception.printStackTrace(); // Debug
+                            response.sendRedirect("/login?error=" + exception.getMessage());
+                        })
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.getWriter().write("Logout successful");
+                            response.sendRedirect("/login");
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 }
-

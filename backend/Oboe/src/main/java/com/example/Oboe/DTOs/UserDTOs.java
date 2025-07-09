@@ -1,36 +1,47 @@
 package com.example.Oboe.DTOs;
 
 import com.example.Oboe.Entity.AccountType;
+import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-
-//@Getter
-//@Setter
-//@NoArgsConstructor
-//@AllArgsConstructor
 public class UserDTOs {
 
-    private String userName;
-    private String passWord;
+    private String userName;              // Có thể là email, sdt hoặc username
+    private String passWord;              // Chỉ sử dụng khi đăng nhập bằng EMAIL
     private String lastName;
     private String firstName;
     private LocalDate day_of_birth;
     private String address;
-    private Role role;
-    private boolean verified;
-    private AccountType accountType;
+    private String providerId;
+
+    private Role role = Role.ROLE_USER;   // Mặc định là USER
+    private boolean verified = false;     // Mặc định chưa xác minh
+    private AccountType accountType = AccountType.FREE; // Mặc định tài khoản FREE
     private LocalDateTime create_at = LocalDateTime.now();
     private LocalDateTime update_at = LocalDateTime.now();
 
+
+    private AuthProvider authProvider = AuthProvider.EMAIL; // Mặc định là EMAIL
+
+    // ======== GETTER - SETTER ========
     public String getUserName() {
         return userName;
     }
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
     }
 
     public String getPassWord() {
@@ -89,6 +100,14 @@ public class UserDTOs {
         this.verified = verified;
     }
 
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
     public LocalDateTime getCreate_at() {
         return create_at;
     }
@@ -105,11 +124,12 @@ public class UserDTOs {
         this.update_at = update_at;
     }
 
-    public AccountType getAccountType() {
-        return accountType;
+    public AuthProvider getAuthProvider() {
+        return authProvider;
     }
 
-    public void setAccountType(AccountType accountType) {
-        this.accountType = accountType;
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider;
     }
+
 }
