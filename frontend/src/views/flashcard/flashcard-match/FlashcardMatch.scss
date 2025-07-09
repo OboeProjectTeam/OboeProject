@@ -173,3 +173,19 @@ p.cards-count {
     }
   }
 }
+@media screen and (max-width: 768px){
+  .header-top-line{
+    h1{
+      font-size: 16px;
+    }
+    .header-actions{
+      :deep(.exit-button){
+          font-size: 0.5rem !important;
+      }
+      .timer{
+          font-size: 10px !important;
+      }
+  }
+  }
+  
+}
