@@ -337,3 +337,63 @@
 .confirm-exit-popup .results-content {
   max-width: 400px;
 }
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+  .flashcard-test {
+    .header-actions{
+        :deep(.exit-button){
+            font-size: 0.5rem !important;
+        }
+        .timer{
+            font-size: 10px !important;
+        }
+    }
+    .test-header {
+      .header-top-line {
+        h2 {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .action-buttons {
+      button {
+        padding: 8px 12px;
+        font-size: 12px;
+        
+        i {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .results-modal {
+      .results-content {
+        .results-actions {
+          .results-actions-row {
+            gap: 8px;
+            
+            button {
+              padding: 8px 12px;
+              font-size: 12px;
+              
+              i {
+                font-size: 12px;
+              }
+            }
+          }
+
+          .full-width-button {
+            padding: 8px 12px;
+            font-size: 12px;
+            
+            i {
+              font-size: 12px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

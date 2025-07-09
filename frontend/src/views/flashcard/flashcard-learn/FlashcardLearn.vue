@@ -43,11 +43,7 @@
         <TheCard 
           ref="cardRef" 
           :slides="slides" 
-          :width="isFullscreen ? 900 : isMobile ? 300 : 550" 
-          :height="isFullscreen ? 500 : isMobile ? 200 : 400"
-          :button-font-size="isMobile ? '8px' : '14px'"
-          :title-font-size="isMobile ? '8px' : '24px'"
-          :button-padding="isMobile ? '4px 8px' : '10px 24px'"
+    
           :pagination="{
             type: 'fraction',
             clickable: true,
