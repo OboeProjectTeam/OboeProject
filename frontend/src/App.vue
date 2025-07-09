@@ -123,6 +123,7 @@ html, body {
   padding: 20px;
   flex: 1;
   width: 100%;
+  min-height: 400px;
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;

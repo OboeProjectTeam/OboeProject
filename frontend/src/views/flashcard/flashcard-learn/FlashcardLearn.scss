@@ -145,6 +145,8 @@
 }
 
 .main-content {
+  display: flex;
+  flex-direction: row;
   gap: 24px;
   align-items: center;
   margin-top: 20px;
@@ -152,6 +154,7 @@
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 12px;
+    display: block;
   }
 }
 
@@ -1246,7 +1249,7 @@
   }
 }
 .description-section {
-  margin: 32px 0;
+  margin: 32px 0 0 0;
 
 
   .section-title {
