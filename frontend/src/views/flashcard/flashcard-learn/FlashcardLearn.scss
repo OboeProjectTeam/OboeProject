@@ -3,7 +3,6 @@
   max-width: 1000px;
   margin: 0 auto;
   min-height: 100vh;
-  display: flex;
   flex-direction: column;
   background: white;
   padding: 0 20px;
@@ -146,9 +145,7 @@
 }
 
 .main-content {
-  display: flex;
   gap: 24px;
-  justify-content: space-between;
   align-items: center;
   margin-top: 20px;
 
@@ -166,6 +163,7 @@
 
   @media (max-width: 768px) {
     width: 100%;
+    margin: 20px 0px;
   }
 }
 
@@ -482,7 +480,7 @@
   }
 
   .main-content-text {
-    font-size: 2.4rem !important;
+    font-size: 3.4rem !important;
     line-height: 1.4 !important;
   }
 
@@ -1654,7 +1652,7 @@
 
     :deep(.swiper) {
       width: 300px !important;
-      height: 200px !important;
+      height: 400px !important;
     }
   }
 
