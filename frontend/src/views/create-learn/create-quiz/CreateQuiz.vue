@@ -1,6 +1,11 @@
 <template>
   <div class="create-quiz">
-    <h1>Tạo Bài Kiểm Tra Mới</h1>
+    <div class="header-section">
+      <div class="flex-jsb">
+        <h1>Tạo Bài Kiểm Tra Mới</h1>
+        <button class="ai-btn">Tạo bằng AI</button>
+      </div>
+    </div>
     <div class="form-container">
       <div class="form-group">
         <label>Tên bài kiểm tra</label>

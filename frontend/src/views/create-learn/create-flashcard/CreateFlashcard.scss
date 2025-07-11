@@ -6,30 +6,54 @@
   margin: 0px auto;
   padding: 0 20px;
 
+  @include mobile-only {
+    padding: 0 15px;
+  }
+
   h1 {
     color: #333;
     margin-bottom: 30px;
+
+    @include mobile-only {
+      @include flex-center;
+      @include font-size(24px);
+      margin-bottom: 20px;
+    }
   }
 }
+
+
 .ai-btn {
   background: $primary-color;
   color: #fff;
   border: none;
   border-radius: 8px;
   padding: 12px 22px;
-  font-size: 1rem;
+  @include font-size(16px);
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
+
+  @include mobile-only {
+    padding: 10px 18px;
+    @include font-size(10px);
+  }
+
   &:hover {
     background: $hover-btn-color;
   }
 }
+
 .form-container {
   background: white;
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  @include shadow-md;
+
+  @include mobile-only {
+    padding: 20px 15px;
+    border-radius: 8px;
+  }
 }
 
 .form-group {
@@ -47,7 +71,12 @@
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 14px;
+    @include font-size(14px);
+
+    @include mobile-only {
+      padding: 10px;
+      @include font-size(13px);
+    }
 
     &:focus {
       outline: none;
@@ -62,20 +91,27 @@
 }
 
 .cards-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @include flex-between;
   margin-bottom: 20px;
+
+  @include mobile-only {
+    @include flex-column;
+    gap: 15px;
+    align-items: flex-start;
+  }
 
   h2 {
     color: #444;
     margin: 0;
+
+    @include mobile-only {
+      @include font-size(20px);
+    }
   }
 }
 
 .import-toggle-btn {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: 8px;
   padding: 8px 16px;
   background: #f8f9fa;
@@ -91,7 +127,7 @@
   }
 
   i {
-    font-size: 14px;
+    @include font-size(14px);
   }
 }
 
@@ -105,13 +141,18 @@
 .import-instruction {
   color: #666;
   margin-bottom: 16px;
-  font-size: 14px;
+  @include font-size(14px);
 }
 
 .separator-options {
-  display: flex;
+  @include flex;
   gap: 32px;
   margin-bottom: 16px;
+
+  @include mobile-only {
+    @include flex-column;
+    gap: 16px;
+  }
 }
 
 .separator-group {
@@ -126,15 +167,16 @@
 }
 
 .radio-group {
-  display: flex;
+  @include flex($wrap: wrap, $align: center);
   gap: 16px;
-  flex-wrap: wrap;
-  align-items: center;
+
+  @include mobile-only {
+    gap: 12px;
+  }
 }
 
 .radio-label {
-  display: flex;
-  align-items: center;
+  @include flex($align: center);
   gap: 4px;
   color: #666;
   cursor: pointer;
@@ -186,6 +228,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+
+  @include mobile-only {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
 .preview-front, .preview-back {
@@ -199,6 +246,15 @@
   display: flex;
   gap: 12px;
   margin-top: 24px;
+
+  @include mobile-only {
+    flex-direction: column;
+    gap: 10px;
+
+    button {
+      width: 100%;
+    }
+  }
 }
 
 .import-btn, .cancel-btn {
@@ -268,12 +324,22 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 
+  @include mobile-only {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
   input {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
+
+    @include mobile-only {
+      padding: 10px;
+      font-size: 13px;
+    }
 
     &:focus {
       outline: none;
@@ -344,6 +410,12 @@
   font-size: 14px;
   margin-left: 8px;
 
+  @include mobile-only {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+
   &:focus {
     outline: none;
     border-color: $primary-color;
@@ -371,9 +443,18 @@
   gap: 24px;
   margin-bottom: 30px;
 
+  @include mobile-only {
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
   h1 {
     margin: 0;
     color: #333;
+
+    @include mobile-only {
+      @include font-size(15px);
+    }
   }
 }
 
@@ -390,6 +471,11 @@
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
+
+  @include mobile-only {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
 
   &:hover {
     background: #fff1f3;

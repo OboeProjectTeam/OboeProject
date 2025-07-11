@@ -1,7 +1,7 @@
 <template>
   <div class="messages-container">
     <!-- Sidebar with conversations -->
-    <div class="messages-sidebar">
+    <div class="messages-sidebar" :class="{ 'mobile-hidden': isMobileAndChatOpen }">
       <div class="sidebar-header">
         <h2>Tin nhắn</h2>
       </div>
@@ -39,9 +39,13 @@
     </div>
 
     <!-- Main chat area -->
-    <div class="messages-main">
+    <div class="messages-main" :class="{ 'mobile-visible': isMobileAndChatOpen }">
       <template v-if="selectedChat">
         <div class="chat-header">
+          <!-- Add back button for mobile -->
+          <div v-if="isMobileView" class="back-button" @click="closeChat">
+            <i class="fas fa-arrow-left"></i>
+          </div>
           <div class="chat-user-info">
             <img :src="selectedChat.avatar" :alt="selectedChat.name">
             <div>
@@ -118,6 +122,10 @@ const newMessage = ref('')
 const messagesContainer = ref(null)
 const sidebarMenuUser = ref(null)
 const sidebarMenuPosition = ref({ x: 0, y: 0 })
+const isMobileView = ref(false)
+
+// Add mobile view state
+const isMobileAndChatOpen = ref(false)
 
 const confirmDialog = ref({
   show: false,
@@ -174,6 +182,26 @@ const selectChat = (chat) => {
   selectedChat.value = chat
   chat.unreadCount = 0
   scrollToBottom()
+  
+  // Add mobile view handling
+  if (window.innerWidth <= 768) {
+    isMobileAndChatOpen.value = true
+  }
+}
+
+// Add close chat function for mobile
+const closeChat = () => {
+  if (window.innerWidth <= 768) {
+    isMobileAndChatOpen.value = false
+  }
+}
+
+// Add window resize handler
+const handleResize = () => {
+  isMobileView.value = window.innerWidth <= 768
+  if (!isMobileView.value) {
+    isMobileAndChatOpen.value = false
+  }
 }
 
 const sendMessage = () => {
@@ -263,13 +291,40 @@ function handleCancel() {
   confirmDialog.value.show = false
 }
 
+const updateHeaderHeight = () => {
+  const header = document.querySelector('.header') 
+  if (header) {
+    document.documentElement.style.setProperty('--header-height', `${header.offsetHeight}px`)
+  }
+}
+
 onMounted(() => {
   scrollToBottom()
   window.addEventListener('click', closeSidebarMenu)
+  
+  // Add mobile-related event listeners
+  window.addEventListener('resize', handleResize)
+  handleResize() // Initial check
+  
+  // Handle browser back button
+  window.addEventListener('popstate', () => {
+    if (isMobileAndChatOpen.value) {
+      closeChat()
+    }
+  })
+  
+  // Theo dõi chiều cao header
+  updateHeaderHeight()
+  window.addEventListener('scroll', updateHeaderHeight)
+  window.addEventListener('resize', updateHeaderHeight)
 })
 
 onUnmounted(() => {
   window.removeEventListener('click', closeSidebarMenu)
+  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('popstate', closeChat)
+  window.removeEventListener('scroll', updateHeaderHeight)
+  window.removeEventListener('resize', updateHeaderHeight)
 })
 </script>
 
