@@ -124,8 +124,7 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+
 }
 
 .form-group {
@@ -247,6 +246,8 @@
 
 // Responsive
 @media (max-width: 992px) {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
   .payment-layout {
     flex-direction: column;
   }

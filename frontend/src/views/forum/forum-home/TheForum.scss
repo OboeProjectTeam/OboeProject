@@ -1,17 +1,12 @@
 @use '@/assets/css/index.scss' as *;
 @use 'sass:color';
 
-@mixin mobile {
-    @media (max-width: 768px) {
-        @content;
-    }
-}
 
 .forum-container {
     width: 100%;
     margin: 0 auto;
     font-family: $font-family-regular;
-    @include mobile {
+    @include mobile-only {
         padding: 0 5px;
         overflow-x: hidden; // Prevent horizontal scroll
     }
@@ -69,7 +64,7 @@
         }
     }
 
-    @include mobile {
+    @include mobile-only {
         margin-bottom: 10px;
         
         .header-content {
@@ -121,7 +116,7 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
-    @include mobile {
+    @include mobile-only {
         padding: 4px 8px;
         font-size: 0.8rem;
         gap: 4px;
@@ -280,7 +275,7 @@
         }
     }
 
-    @include mobile {
+    @include mobile-only {
         padding: 5px;
         font-size: 0.65rem;
         gap: 5px;
@@ -515,7 +510,7 @@
         }
     }
 
-    @include mobile {
+    @include mobile-only {
         padding: 6px;
         gap: 5px;
 
@@ -583,7 +578,7 @@
     align-items: center;
     gap: 8px;
     
-    @include mobile {
+    @include mobile-only {
         gap: 2px;
         margin-top: 10px;
     }
@@ -620,7 +615,7 @@
         cursor: not-allowed;
     }
     
-    @include mobile {
+    @include mobile-only {
         min-width: 24px;
         height: 24px;
         font-size: 0.7rem;

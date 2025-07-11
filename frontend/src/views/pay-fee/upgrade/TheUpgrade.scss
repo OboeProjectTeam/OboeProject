@@ -198,16 +198,6 @@
     cursor: not-allowed;
   }
 }
-
-@media (max-width: 768px) {
-  .pricing-table {
-    flex-direction: column;
-    align-items: center;
-  }
-  .page-header .main-title {
-    font-size: 2.5rem;
-  }
-}
 .features-section,
 .testimonials-section,
 .faq-section {
@@ -226,7 +216,6 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 30px;
   padding: 0 20px;
-
   .feature-card {
     background: white;
     border-radius: 12px;
@@ -399,7 +388,101 @@
   }
 }
 
-@media (max-width: 768px) {
+@include mobile-only {
+  .features-grid{
+    display: block;
+    padding: 30 10px;
+  }
+  .upgrade-page-container {
+    padding: 20px 15px;
+  }
+
+  .page-header {
+    margin-bottom: 30px;
+    .main-title {
+      font-size: 1.5rem;
+    }
+    .subtitle {
+      font-size: 1rem;
+      padding: 0 15px;
+    }
+  }
+
+  .pricing-table {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 10px;
+  }
+
+  .plan-card {
+    max-width: 100%;
+    margin: 0 auto;
+    
+    .card-header {
+      padding: 20px;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .card-footer {
+      padding: 20px;
+    }
+  }
+
+  .features-section,
+  .testimonials-section,
+  .faq-section {
+    margin-bottom: 40px;
+    padding: 0 15px;
+  }
+
+  .features-grid {
+    display: block;
+    padding: 0 10px;
+    
+    .feature-card {
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+  }
+
+  .testimonials-grid {
+    display: block;
+    padding: 0 10px;
+    
+    .testimonial-card {
+      margin-bottom: 20px;
+      padding: 20px;
+      
+      .user-info {
+        margin-bottom: 15px;
+      }
+    }
+  }
+
+  .faq-section {
+    .faq-container {
+      padding: 0 10px;
+      
+      .faq-item {
+        .faq-question {
+          padding: 15px;
+        }
+        
+        .faq-answer.open {
+          padding: 0 15px 15px;
+        }
+      }
+    }
+  }
+
+  .cta-section {
+    margin: 0 10px 30px;
+    padding: 30px 15px;
+  }
   .features-grid,
   .testimonials-grid {
     grid-template-columns: 1fr;

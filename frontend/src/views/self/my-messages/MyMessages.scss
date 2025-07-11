@@ -1,11 +1,5 @@
 @use '@/assets/css/index.scss' as *;
 
-// Mobile breakpoint mixin
-@mixin mobile {
-  @media (max-width: 768px) {
-    @content;
-  }
-}
 
 .messages-container {
   display: flex;
@@ -15,7 +9,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 
-  @include mobile {
+   @include mobile-only{
     height: 100vh;
     border-radius: 0;
   }
@@ -27,7 +21,7 @@
   display: flex;
   flex-direction: column;
 
-  @include mobile {
+   @include mobile-only{
     width: 100%;
     border-right: none;
     
@@ -190,7 +184,7 @@
   height: 100%;
   position: relative;
 
-  @include mobile {
+   @include mobile-only{
     position: fixed;
     top: var(--header-height, 0px);
     left: 0;
@@ -214,7 +208,7 @@
     flex-shrink: 0;
     background: #fff;
 
-    @include mobile {
+     @include mobile-only{
       padding: 12px 16px;
       gap: 12px;
     }
@@ -222,7 +216,7 @@
     .back-button {
       display: none;
 
-      @include mobile {
+       @include mobile-only{
         display: flex;
         align-items: center;
         justify-content: center;
@@ -314,7 +308,7 @@
     position: relative;
     -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
 
-    @include mobile {
+     @include mobile-only{
       padding-top: calc(20px + env(safe-area-inset-top));
       padding-bottom: calc(65px + env(safe-area-inset-bottom));
     }
@@ -324,7 +318,7 @@
       flex-direction: column;
       max-width: 70%;
 
-      @include mobile {
+       @include mobile-only{
         max-width: 80%;
       }
 
@@ -376,7 +370,7 @@
     width: 100%;
     z-index: 2;
 
-    @include mobile {
+     @include mobile-only{
       padding-bottom: calc(15px + env(safe-area-inset-bottom));
     }
 
@@ -406,7 +400,7 @@
       align-items: center;
       justify-content: center;
 
-      @include mobile {
+       @include mobile-only{
         width: 35px;
         height: 35px;
       }
