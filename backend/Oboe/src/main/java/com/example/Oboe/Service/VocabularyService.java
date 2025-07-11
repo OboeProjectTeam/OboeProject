@@ -28,7 +28,7 @@ public class VocabularyService {
         this.readingRepository = readingRepository;
     }
 
-    // ✅ Get all vocabularies with pagination
+    // Get all vocabularies with pagination
     public Map<String, Object> getAllVocabulary(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Vocabulary> vocabPage = vocabularyRepository.findAll(pageable);
@@ -47,7 +47,7 @@ public class VocabularyService {
         return response;
     }
 
-    // ✅ Create new vocabulary
+    // Create new vocabulary
     public VocabularyDTOs createVocabulary(VocabularyDTOs dto) {
         checkAdminAccess();
 
@@ -71,14 +71,14 @@ public class VocabularyService {
         return vocabToDTO(saved);
     }
 
-    // ✅ Get by ID
+    // Get by ID
     public VocabularyDTOs getVocabularyById(UUID id) {
         Vocabulary vocab = vocabularyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy từ vựng với ID: " + id));
         return vocabToDTO(vocab);
     }
 
-    // ✅ Update
+    // Update
     public VocabularyDTOs updateVocabulary(UUID id, VocabularyDTOs dto) {
         checkAdminAccess();
 
@@ -108,7 +108,7 @@ public class VocabularyService {
         return vocabToDTO(updated);
     }
 
-    // ✅ Delete
+    // Delete
     public void deleteVocabulary(UUID id) {
         checkAdminAccess();
 
@@ -121,7 +121,7 @@ public class VocabularyService {
         vocabularyRepository.delete(vocab);
     }
 
-    // ✅ Search
+    // Search
     public List<VocabularyDTOs> searchVocabulary(String keyword) {
         List<Vocabulary> results = vocabularyRepository.searchVocabulary(keyword); // @Query cần định nghĩa
         return results.stream().map(this::vocabToDTO).collect(Collectors.toList());
