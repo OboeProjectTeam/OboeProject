@@ -23,7 +23,7 @@ public class Favorites {
 
     @ManyToOne
     @JoinColumn(name ="grammaID")
-    private Gramma gramma;
+    private Grammar gramma;
 
     @ManyToOne
     @JoinColumn(name ="kanjiId")
