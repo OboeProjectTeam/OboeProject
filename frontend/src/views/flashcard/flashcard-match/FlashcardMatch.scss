@@ -45,18 +45,21 @@ p.cards-count {
 
 .match-grid {
   display: grid;
-  gap: 15px;
-  /* Default, can be overridden by dynamic classes */
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.match-grid.grid-cols-2 {
+.grid-cols-2 {
   grid-template-columns: repeat(2, 1fr);
 }
-.match-grid.grid-cols-3 {
+
+.grid-cols-3 {
   grid-template-columns: repeat(3, 1fr);
 }
-.match-grid.grid-cols-4 {
+
+.grid-cols-4 {
   grid-template-columns: repeat(4, 1fr);
 }
 
@@ -120,7 +123,7 @@ p.cards-count {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
 
   .popup-overlay {
     position: absolute;
@@ -171,5 +174,23 @@ p.cards-count {
         &:hover { background-color: #e0e0e0; }
       }
     }
+  }
+}
+@media screen and (max-width: 768px){
+  .header-top-line{
+    h1{
+      font-size: 13px;
+    }
+    .header-actions{
+      :deep(.exit-button){
+          font-size: 0.5rem !important;
+      }
+      .timer{
+          font-size: 10px !important;
+      }
+  }
+  }
+  .cell-content{
+    font-size: 12px !important;
   }
 }

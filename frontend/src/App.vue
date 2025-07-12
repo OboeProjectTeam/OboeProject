@@ -5,11 +5,11 @@
   <!-- Main App Layout -->
   <div v-else class="app-container">
     <TheHeader />
-    <OboeProButton v-if="!isAuthRoute" @click="goToUpgrade" />
+    <OboeProButton v-if="!isAuthRoute" @click="goToUpgrade" class="oboe-pro-button" />
     <FlashcardList v-if="!isAuthRoute" />
-    <div class="router-view-wrapper">
+    <main class="main-content">
       <router-view @send-message="openChatBox" />
-    </div>
+    </main>
     <TheFooter />
     <ChatBox
       v-if="chatBoxVisible"
@@ -89,21 +89,98 @@ function closeChatBox() {
 </script>
 
 <style lang="scss">
+@use '@/assets/css/index.scss' as *;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 .app-container {
   position: relative;
   min-height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
-.router-view-wrapper {
+.main-content {
   margin-top: 140px;
-  padding: 20px 165px;
+  padding: 20px;
   flex: 1;
+  width: 100%;
+  min-height: 400px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media (min-width: $breakpoint-xl) {
+    padding: 20px 40px;
+  }
+
+  @media (max-width: $breakpoint-lg) {
+    margin-top: 160px;
+    padding: 20px 30px;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    margin-top: 160px;
+    padding: 15px 20px;
+  }
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 160px;
+    padding: 15px;
+  }
 }
 
 /* Ensure chat box appears above other elements */
 .chatbox {
   z-index: 9999;
+}
+
+/* Global styles for better mobile experience */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+/* Hide scrollbar but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+.oboe-pro-button {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
 }
 </style>

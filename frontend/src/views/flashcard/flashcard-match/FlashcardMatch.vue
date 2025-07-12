@@ -76,12 +76,18 @@ const formattedTime = computed(() => {
 
 const gridLayoutClass = computed(() => {
   const itemCount = gridItems.value.length;
-  if (itemCount === 0) return ''; // Handle empty case
-  if (itemCount <= 4) return 'grid-cols-2'; // e.g. 2xN
-  if (itemCount <= 6) return 'grid-cols-3'; // e.g. 3xN
-  if (itemCount <= 8) return 'grid-cols-4'; // e.g. 4xN
-  if (itemCount <= 12) return 'grid-cols-4';// Default to 4 columns for up to 12 items
-  return 'grid-cols-4'; // Fallback
+  if (itemCount === 0) return '';
+  
+  // Check if we're on mobile
+  if (window.innerWidth <= 768) {
+    return 'grid-cols-2';
+  }
+  
+  // Desktop layout
+  if (itemCount <= 4) return 'grid-cols-2';
+  if (itemCount <= 6) return 'grid-cols-3';
+  if (itemCount <= 12) return 'grid-cols-4';
+  return 'grid-cols-4';
 });
 
 const startGameTimer = () => {

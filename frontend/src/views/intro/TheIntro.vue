@@ -43,7 +43,7 @@
           <router-link to="/create/flashcard" class="ip-feature-link">Bắt đầu tạo <i
               class="fas fa-arrow-right"></i></router-link>
         </div>
-          <TheCard class="scroll-reveal from-right delay-2" :slides="slides" :width="400" :height="300" :autoplay="true" :pagination="{ clickable: true }"  />
+          <TheCard class="ip-feature-card scroll-reveal from-right delay-2" :slides="slides" :width="400" :height="300" :autoplay="true" :pagination="{ clickable: true }"  />
       </div>
     </section>
 
@@ -58,7 +58,7 @@
               class="fas fa-arrow-right"></i></router-link>
         </div>
         <div class="ip-feature-image-placeholder scroll-reveal from-left delay-2">
-          <img class="img-test-flashcard" src="@/assets/img/intro/test-flashcard.png" alt="test-flashcard">
+          <img class="img-test-flashcard" :src="ImagePaths.intro.testFlashcard" alt="test-flashcard">
         </div>
       </div>
     </section>
@@ -72,7 +72,7 @@
               class="fas fa-arrow-right"></i></router-link>
         </div>
         <div class="ip-feature-image-placeholder scroll-reveal from-right delay-2">
-          <img class="img-forum" src="@/assets/img/intro/forum.png" alt="forum">
+          <img class="img-forum" :src="ImagePaths.intro.forum" alt="forum">
         </div>
       </div>
     </section>
@@ -88,6 +88,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { onMounted } from 'vue';
 import { initScrollReveal } from '@/assets/js/common';
 import TheCard from '@/components/layout/card/TheCard.vue';

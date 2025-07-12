@@ -1,22 +1,38 @@
 @use '@/assets/css/index.scss' as *;
+
 .flashcard-container {
   padding-bottom: 40px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 12px;
+  }
 }
 
 .left-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
 }
 
 .left-column h1 {
   font-size: 2rem;
   color: #333;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+    margin-left: 8px;
+  }
 }
 
 .right-column {
@@ -25,18 +41,37 @@
 }
 
 .page-header {
-  margin-bottom: 32px;
-}
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 0;
 
-.page-header h1 {
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 16px;
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 1.1rem;
+    }
+  }
 }
 
 .header-stats {
   display: flex;
   gap: 24px;
+  margin-left: auto;
+  padding-right: 16px;
+
+  @media (max-width: 768px) {
+    gap: 8px;
+    padding-right: 0;
+  }
 }
 
 .stat-item {
@@ -44,16 +79,44 @@
   align-items: center;
   gap: 8px;
   color: #666;
-}
 
-.stat-item i {
-  color: $primary-color;
+  @media (max-width: 768px) {
+    gap: 4px;
+    font-size: 0.75rem;
+
+    i {
+      font-size: 0.8rem;
+    }
+  }
+
+  i {
+    color: $primary-color;
+  }
 }
 
 .categories {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    justify-content: space-between;
+    
+    /* Ẩn thanh scrollbar nhưng vẫn cho phép scroll */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    &::after {
+      content: '';
+      padding-right: 1px;
+    }
+  }
 }
 
 .category-card {
@@ -65,6 +128,18 @@
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 4px;
+    min-width: 65px;
+    max-width: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    margin: 0 2px;
+  }
 }
 
 .category-card:hover {
@@ -87,6 +162,13 @@
   justify-content: center;
   font-size: 1.2rem;
   color: $primary-color;
+
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
 }
 
 .category-card.active .category-icon {
@@ -94,25 +176,45 @@
   color: white;
 }
 
-.category-info h3 {
-  margin: 0;
-  font-size: 1rem;
-}
+.category-info {
+  @media (max-width: 768px) {
+    text-align: center;
+    width: 100%;
+  }
 
-.category-info .count {
-  font-size: 0.875rem;
-  opacity: 0.8;
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+  }
+
+  .count {
+    font-size: 0.875rem;
+    opacity: 0.8;
+
+    @media (max-width: 768px) {
+      font-size: 0.7rem;
+    }
+  }
 }
 
 .items-section {
   background: white;
   border-radius: 12px;
-  padding: 47px 0;
-  padding-bottom: 5px;
-  max-height: calc(100vh - 200px);
-  overflow: hidden;
+  padding: 16px 0;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    height: calc(100vh - 240px);
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 12px 0;
+  }
 }
 
 .section-header {
@@ -120,23 +222,45 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-}
+  padding: 0;
 
-.section-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #333;
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+    white-space: nowrap;
+    padding-left: 16px;
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      padding-left: 0px;
+    }
+  }
 }
 
 .actions {
   display: flex;
   align-items: center;
   gap: 16px;
+  padding-right: 16px;
+
+  @media (max-width: 768px) {
+    gap: 8px;
+    padding-right: 0px;
+  }
 }
 
 .sort-controls {
   display: flex;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    gap: 4px;
+  }
 }
 
 .sort-btn {
@@ -150,23 +274,39 @@
   color: #666;
   cursor: pointer;
   transition: all 0.2s ease;
-}
+  font-size: 0.9rem;
+  white-space: nowrap;
 
-.sort-btn:hover {
-  border-color: $primary-color;
-  color: $primary-color;
-}
+  @media (max-width: 768px) {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+    gap: 3px;
 
-.sort-btn.active {
-  background: $primary-color;
-  border-color: $primary-color;
-  color: white;
+    i {
+      font-size: 0.75rem;
+    }
+  }
+
+  &:hover {
+    border-color: $primary-color;
+    color: $primary-color;
+  }
+
+  &.active {
+    background: $primary-color;
+    border-color: $primary-color;
+    color: white;
+  }
 }
 
 .action-controls {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    margin-left: 4px;
+  }
 }
 
 .action-btn {
@@ -179,16 +319,22 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
-}
+  white-space: nowrap;
 
-.action-btn.study {
-  background: $primary-color;
-  color: white;
-}
+  @media (max-width: 768px) {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    gap: 4px;
+    
+    i {
+      font-size: 0.8rem;
+    }
+  }
 
-.action-btn.study:hover {
-  background: #d63d56;
-  transform: translateY(-1px);
+  &.study {
+    background: $primary-color;
+    color: white;
+  }
 }
 
 .action-btn.delete {
@@ -219,9 +365,14 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  padding: 0 16px;
   overflow-y: auto;
-  flex: 1;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 0 12px;
+  }
 }
 
 .item-card {
@@ -233,105 +384,195 @@
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
+  min-height: 80px;
+  max-height: 120px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    min-height: 64px;
+    max-height: 100px;
+  }
 }
 
 .item-content {
   flex: 1;
   min-width: 0;
   margin-right: 12px;
+  width: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    margin-right: 8px;
+  }
 }
 
 .item-main {
   font-size: 1.25rem;
   margin-bottom: 8px;
   color: #333;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.4;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 4px;
+    -webkit-line-clamp: 2;
+    line-height: 1.3;
+  }
 }
 
 .item-sub {
+  font-size: 0.9rem;
   color: #666;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  word-break: break-word;
+  line-height: 1.4;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+    line-height: 1.3;
+  }
 }
 
 .item-actions {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .remove-btn {
-  background: none;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
+  border-radius: 4px;
+  background: transparent;
   color: #666;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
   transition: all 0.2s ease;
-}
+  padding: 0;
 
-.remove-btn:hover {
-  background: #fee;
-  color: $primary-color;
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: $primary-color;
+  }
+
+  i {
+    font-size: 1rem;
+
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+    }
+  }
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
   text-align: center;
-  padding: 48px 0;
   color: #666;
-}
 
-.empty-state i {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  color: #ddd;
-}
+  @media (max-width: 768px) {
+    padding: 24px 12px;
+  }
 
-.empty-state p {
-  margin: 0;
-  font-size: 1.1rem;
+  i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+      font-size: 1.75rem;
+      margin-bottom: 12px;
+    }
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 0.875rem;
+    }
+  }
 }
 
 .pagination {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   gap: 16px;
-  margin-top: 24px;
-}
+  padding: 16px;
+  margin-top: auto;
 
-.page-btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #ddd;
-  border-radius: 50%;
-  background: white;
-  color: #666;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
+  @media (max-width: 768px) {
+    gap: 8px;
+    padding: 12px;
+  }
 
-.page-btn:hover:not(:disabled) {
-  border-color: $primary-color;
-  color: $primary-color;
-}
+  .page-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
 
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-.page-info {
-  font-size: 0.9rem;
-  color: #666;
+    @media (max-width: 768px) {
+      width: 28px;
+      height: 28px;
+      font-size: 0.875rem;
+    }
+  }
+
+  .page-info {
+    font-size: 0.875rem;
+    color: #666;
+
+    @media (max-width: 768px) {
+      font-size: 0.8rem;
+    }
+  }
 }
 
 .select-indicator {

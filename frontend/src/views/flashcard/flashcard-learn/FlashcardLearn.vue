@@ -40,17 +40,27 @@
 
       <!-- Card ở giữa -->
       <div class="card-section">
-        <TheCard ref="cardRef" :slides="slides" :width="isFullscreen ? 900 : 550" :height="isFullscreen ? 500 : 400"
+        <TheCard 
+          ref="cardRef" 
+          :slides="slides" 
+    
           :pagination="{
             type: 'fraction',
             clickable: true,
             formatFractionCurrent: (number) => number,
             formatFractionTotal: (number) => number
-          }" :canFlip="true" :speed="300" :keyboard="{
+          }" 
+          :canFlip="true" 
+          :speed="300" 
+          :keyboard="{
             enabled: true,
             onlyInViewport: true
-          }" :class="{ 'fullscreen-card': isFullscreen }" @swiper="onSwiper" @card-flipped="onCardFlip"
-          @slideChange="onSlideChange" />
+          }" 
+          :class="{ 'fullscreen-card': isFullscreen }" 
+          @swiper="onSwiper" 
+          @card-flipped="onCardFlip"
+          @slideChange="onSlideChange" 
+        />
       </div>
 
       <!-- Control bar bên phải -->
@@ -258,7 +268,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img :src="celebrationImage" alt="Celebration" class="celebration-image" />
+          <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />                 
           <h2>{{ learningStats.known === slides.length ?
             'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
@@ -349,6 +359,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -403,7 +414,7 @@ remaining: 0
 const isCurrentUserCreator = ref(false); // Will be true if current user is creator
 const isFollowing = ref(false);
 const creatorInfo = ref({
-avatar: 'path_to_avatar', // This should come from your data
+avatar: ImagePaths.avatar.default, // This should come from your data
 name: 'hoangdul999', // This should come from your data
 createdDate: '3 ngày trước', // This should come from your data
 });
@@ -415,7 +426,6 @@ const setTitle = route.query.title;
 return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
 });
 
-const celebrationImage = new URL('@/assets/img/learn/celebration.jpg', import.meta.url).href;
 
 // Method to handle mode changes
 const setMode = async (mode) => {

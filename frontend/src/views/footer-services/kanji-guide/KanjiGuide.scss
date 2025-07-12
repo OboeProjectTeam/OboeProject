@@ -1,0 +1,236 @@
+@use '@/assets/css/index.scss' as *;
+.kanji-guide-page {
+    min-height: 100vh;
+  
+    .kanji-guide-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  
+    .kanji-guide-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #eee;
+  
+      h1 {
+        font-size: 32px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+  
+      .last-updated {
+        color: #666;
+        font-size: 14px;
+      }
+    }
+  
+    .kanji-guide-content {
+      .guide-section {
+        margin-bottom: 40px;
+  
+        h2 {
+          color: #2c3e50;
+          font-size: 24px;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #eee;
+        }
+  
+        .sub-section {
+          margin-bottom: 24px;
+  
+          h3 {
+            color: #34495e;
+            font-size: 20px;
+            margin-bottom: 16px;
+          }
+  
+          p {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 16px;
+          }
+  
+          ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-bottom: 16px;
+  
+            li {
+              color: #444;
+              line-height: 1.6;
+              margin-bottom: 8px;
+            }
+          }
+  
+          .kanji-example-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+  
+            .kanji-item {
+              background-color: #f8f9fa;
+              padding: 20px;
+              border-radius: 8px;
+              text-align: center;
+  
+              .kanji {
+                font-size: 36px;
+                color: #2c3e50;
+                margin-bottom: 10px;
+              }
+  
+              .meaning {
+                font-weight: 600;
+                color: #34495e;
+                margin-bottom: 8px;
+              }
+  
+              .examples {
+                font-size: 14px;
+                color: #666;
+              }
+            }
+          }
+  
+          .stroke-order-box {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+  
+            .stroke-example {
+              background-color: #f8f9fa;
+              padding: 20px;
+              border-radius: 8px;
+  
+              .kanji {
+                font-size: 48px;
+                color: #2c3e50;
+                text-align: center;
+                margin-bottom: 16px;
+              }
+  
+              ol {
+                padding-left: 20px;
+  
+                li {
+                  color: #444;
+                  line-height: 1.6;
+                  margin-bottom: 8px;
+                }
+              }
+            }
+          }
+  
+          .reading-example {
+            .kanji-reading {
+              background-color: #f8f9fa;
+              padding: 16px;
+              border-radius: 8px;
+              margin-bottom: 12px;
+              display: flex;
+              align-items: center;
+              gap: 16px;
+  
+              .kanji {
+                font-size: 24px;
+                color: #2c3e50;
+              }
+  
+              .reading {
+                color: #34495e;
+                font-weight: 600;
+              }
+  
+              .example {
+                color: #666;
+                font-style: italic;
+              }
+            }
+          }
+  
+          .tips-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+  
+            .tip-item {
+              background-color: #f8f9fa;
+              padding: 20px;
+              border-radius: 8px;
+              text-align: center;
+  
+              h4 {
+                color: #2c3e50;
+                font-size: 18px;
+                margin-bottom: 10px;
+              }
+  
+              p {
+                color: #666;
+                font-size: 14px;
+                line-height: 1.4;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Responsive styles
+  @media (max-width: 768px) {
+    .kanji-guide-page {
+      .kanji-guide-container {
+        padding: 20px;
+      }
+  
+      .kanji-guide-header {
+        h1 {
+          font-size: 28px;
+        }
+      }
+  
+      .kanji-guide-content {
+        .guide-section {
+          h2 {
+            font-size: 22px;
+          }
+  
+          .sub-section {
+            h3 {
+              font-size: 18px;
+            }
+  
+            .kanji-example-box {
+              grid-template-columns: 1fr;
+            }
+  
+            .stroke-order-box {
+              grid-template-columns: 1fr;
+            }
+  
+            .tips-box {
+              grid-template-columns: 1fr;
+            }
+  
+            .reading-example {
+              .kanji-reading {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }

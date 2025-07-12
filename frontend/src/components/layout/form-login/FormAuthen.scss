@@ -1,4 +1,3 @@
-
 $primary-color: #b90449;
 $primary-color-2: #772C3F;
 
@@ -13,7 +12,33 @@ $primary-color-2: #772C3F;
     border-radius: 5px;
     margin-left: 50%;
     transform: scale(1.2);
-    
+}
+
+.form__circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 290px;
+    height: 290px;
+    border-radius: 50%;
+    background: $primary-color;
+    z-index: 1;
+}
+
+@media screen and (max-width: 768px) {
+    .form__login {
+        margin-left: 0;
+        width: 285px !important;
+        height: auto;
+    }
+    .form__content {
+        padding: 20px;
+    }
+    .form__circle {
+        width: 250px;
+        height: 250px;
+    }
 }
 
 .form__loader {
@@ -43,10 +68,16 @@ $primary-color-2: #772C3F;
     padding:20px 80px;
 
 }
+
+@media screen and (max-width: 768px) {
+    .form__content {
+        padding:20px;
+    }
+}
 .checkbox-container {
     display: flex;
     align-items: center;
-    margin-bottom: 20px; /* 👈 cách xa nút đăng nhập */
+    margin-bottom: 20px; /*  cách xa nút đăng nhập */
     gap: 10px; /* nếu có label bên phải */
   }
   
@@ -546,4 +577,32 @@ h1 {
   font-size: 10px;
   color: #888888;
   font-weight: bold;
+}
+
+@media screen and (max-width: 768px) {
+    .form__login {
+        margin-left: 0;
+        width: 290px !important;
+        height: auto;
+    }
+    .form__content {
+        padding: 20px;
+    }
+    body.on-start .form__cover:before,
+    body.on-start .form__cover:after {
+        width: 250px;
+        height: 250px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0.15);
+    }
+    
+    body.document-loaded .form__cover:before,
+    body.document-loaded .form__cover:after {
+        width: 250px;
+        height: 250px;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(4);
+    }
 }

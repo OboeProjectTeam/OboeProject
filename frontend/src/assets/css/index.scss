@@ -1,3 +1,10 @@
+// @use mixins 
+@forward 'mixins/breakpoints';
+@forward 'mixins/flex';
+@forward 'mixins/buttons';
+@forward 'mixins/typography';
+@forward 'mixins/animations';
+@forward 'mixins/shadows';
 // Định nghĩa biến SCSS
 $primary-color: #b90449;
 $secondary-color: #ffc107;
@@ -5,9 +12,6 @@ $accent-color: #c50000;
 $background-color: #f8f9fa;
 $border-color: #444;
 $hover-btn-color: #9a082c;
-
-
-
 
 // $menu-bg-color: rgb(233, 233, 233);
 // $form-bg-color: rgb(156, 4, 4);

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -24,9 +25,12 @@ public class BlogController {
     }
 
         @GetMapping("/get_all")
-    public ResponseEntity<BaseResponse<List<BlogDTO>>> getAllBlogs() {
-        return ResponseEntity.ok(blogService.getAllBlogDTOs());
-    }
+        public ResponseEntity<Map<String, Object>> getBlogs(
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "10") int size) {
+            return ResponseEntity.ok(blogService.getAllBlogDTOs(page, size));
+        }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BlogDTO> getBlogById(@PathVariable UUID id) {

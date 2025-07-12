@@ -1,10 +1,10 @@
 <template>
-    <div class="logo">
+    <div>
         <router-link to="/intro" class="cur">
             <div class="flex">
-                <img :src="logoUrl" alt="Logo" class="w-65px" />
-                <svg xmlns="http://www.w3.org/2000/svg" width="70" height="60" viewBox="0 0 70 60">
-                    <text x="34" y="57" font-size="40" fill="#b90449" text-anchor="middle" font-weight="600">boe</text>
+                <img :src="ImagePaths.logo.logoTab" alt="Logo" :style="{ width: imgWidth + 'px' }" />
+                <svg xmlns="http://www.w3.org/2000/svg" :width="svgWidth" :height="svgHeight" viewBox="0 0 70 60">
+                    <text :x="textX" :y="textY" :font-size="fontSize" fill="#b90449" text-anchor="middle" font-weight="600">boe</text>
                 </svg>
             </div>
         </router-link>
@@ -12,8 +12,45 @@
 </template>
 
 <script setup>
-const logoUrl = new URL('@/assets/img/logo/logo_tab_oboe.svg', import.meta.url).href;
+import { ImagePaths } from '@/assets/img/imagePaths';
+
+defineProps({
+    imgWidth: {
+        type: Number,
+        default: 65
+    },
+    svgWidth: {
+        type: Number,
+        default: 70
+    },
+    svgHeight: {
+        type: Number,
+        default: 60
+    },
+    fontSize: {
+        type: Number,
+        default: 40
+    },
+    textX: {
+        type: Number,
+        default: 34
+    },
+    textY: {
+        type: Number,
+        default: 57
+    }
+});
 </script>
 
 <style lang="scss" scoped>
+.flex {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.cur {
+    cursor: pointer;
+    text-decoration: none;
+}
 </style>

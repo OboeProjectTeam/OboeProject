@@ -90,7 +90,6 @@
 
 
 .card-title {
-	font-size: 2.2rem;
 	font-weight: 800;
 	margin: 0 0 14px;
 	color: #fff;
@@ -173,7 +172,6 @@
 	position: relative;
 	color: #fff;
 	padding: 10px 24px;
-	font-size: 0.85rem;
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 2px;
@@ -355,4 +353,38 @@ Loại bỏ mọi hiệu ứng thanh sáng
 
 .card-content.back.visible {
   display: flex;
+}
+
+@media screen and (max-width: 768px) {
+	.ip-feature-card{
+		width: 250px !important;
+		height: 400px !important;
+	}
+}
+
+@media (max-width: 768px) {
+  .slider-button {
+    display: none !important;
+  }
+
+  .card-title {
+    font-size: 12px !important;
+  }
+
+  .cta-button {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .card-description {
+    font-size: 8px;
+  }
+
+  .main-content-text {
+    font-size: 12px;
+  }
 }
