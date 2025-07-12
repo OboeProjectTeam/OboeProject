@@ -1,11 +1,15 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.CommentDTOs;
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
+import com.example.Oboe.Entity.Notifications;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
+import com.example.Oboe.Repository.NotificationsRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,11 +23,15 @@ public class CommentService {
     private final BlogRepository blogRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
+    private final NotificationsRepository notificationsRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository) {
+    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.blogRepository = blogRepository;
+        this.notificationsRepository = notificationsRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
 
@@ -92,46 +100,95 @@ public class CommentService {
 
     //  Tạo comment mới (comment cha)
     public CommentDTOs createComment(UUID teamId, UUID userId, CommentDTOs dto) {
-        Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ");
-        }
+        User sender = userService.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
-        // Kiểm tra blog (team) tồn tại không
-        if (!blogRepository.existsById(teamId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Blog ID không tồn tại");
-        }
+        // Lấy blog theo ID
+        Blog blog = blogRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Blog ID không tồn tại"));
 
+        // Tạo Comment
         Comment comment = new Comment();
         comment.setTitle(dto.getTitle());
         comment.setContent(dto.getContent());
         comment.setCreatedAt(LocalDateTime.now());
-        comment.setUser(userOpt.get());
+        comment.setUser(sender);
         comment.setreferenceId(teamId);
 
         Comment saved = commentRepository.save(comment);
-        return toDTO(saved);
+
+        // Gửi WebSocket: Bình luận mới
+        CommentDTOs commentDTO = toDTO(saved);
+        messagingTemplate.convertAndSend(
+                "/blog/" + blog.getBlogId() + "/comments",
+                commentDTO
+        );
+
+
+
+        User receiver = blog.getUser();
+
+        Notifications notification = new Notifications();
+        notification.setUser(receiver);
+        notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
+        notification.setRead(false);
+        notification.setUpdate_at(LocalDateTime.now());
+
+        Notifications savedNoti = notificationsRepository.save(notification);
+
+        // Gửi WebSocket thông báo cho chủ blog
+        messagingTemplate.convertAndSend(
+                "/notification/" + receiver.getUser_id(),
+                savedNoti.getText_notification()
+
+        );
+
+        return commentDTO;
+
     }
 
     // Tạo phản hồi (comment con) dựa trên comment cha
     public CommentDTOs Commentreply(UUID parentCommentId, UUID userId, CommentDTOs dto) {
-        Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) return null;
+        //  Lấy người gửi
+        User sender = userService.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
-        Optional<Comment> parentOpt = commentRepository.findById(parentCommentId);
-        if (parentOpt.isEmpty()) return null;
+        //  Lấy comment cha
+        Comment parent = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bình luận cha"));
 
+        //  Tạo phản hồi (comment con)
         Comment reply = new Comment();
         reply.setTitle(dto.getTitle());
         reply.setContent(dto.getContent());
         reply.setCreatedAt(LocalDateTime.now());
-        reply.setUser(userOpt.get());
-        reply.setParentComment(parentOpt.get());
-        reply.setreferenceId(parentOpt.get().getreferenceId()); // Kế thừa blogId
+        reply.setUser(sender);
+        reply.setParentComment(parent);
+        reply.setreferenceId(parent.getreferenceId()); // blogId
 
-        Comment saved = commentRepository.save(reply);
-        return toDTO(saved);
+        Comment savedReply = commentRepository.save(reply);
+
+        //  Gửi thông báo nếu người nhận khác người gửi
+        User receiver = parent.getUser();
+
+            Notifications notification = new Notifications();
+            notification.setUser(receiver);
+            notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
+            notification.setRead(false);
+            notification.setUpdate_at(LocalDateTime.now());
+
+            Notifications savedNoti = notificationsRepository.save(notification);
+
+            // Gửi WebSocket thông báo riêng cho Comment cha
+            messagingTemplate.convertAndSend(
+                    "/notification/" + receiver.getUser_id(),
+                    savedNoti.getText_notification()
+            );
+
+
+        return toDTO(savedReply);
     }
+
 
     //  Cập nhật comment (chỉ người tạo mới được sửa)
     public CommentDTOs updateComment(UUID commentId, UUID userId, CommentDTOs dto) {
@@ -175,6 +232,7 @@ public class CommentService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
     //  Lấy số lượng comment theo teamId (blogId)
     public Long getCommentCountByTeamId(UUID teamId) {

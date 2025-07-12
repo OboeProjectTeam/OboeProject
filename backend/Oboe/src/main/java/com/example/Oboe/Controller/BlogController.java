@@ -39,13 +39,21 @@ public class BlogController {
     }
 
     @PostMapping
-    public ResponseEntity<BlogDTO> createBlog(@Valid @RequestBody BlogDTO blogDTO, Authentication authentication) {
+    public ResponseEntity<?> createBlog(@Valid @RequestBody BlogDTO blogDTO, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userId = userDetails.getUserID();
         BlogDTO created = blogService.createBlogFromDTO(blogDTO, userId);
-        return created != null ? ResponseEntity.ok(created) : ResponseEntity.badRequest().build();
+        if (created != null) {
+            return ResponseEntity.ok(
+                    Map.of(
+                            "message", "Đăng bài thành công!",
+                            "data", created
+                    )
+            );
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "Tạo blog thất bại!"));
+        }
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<BlogDTO> updateBlog(@PathVariable UUID id,

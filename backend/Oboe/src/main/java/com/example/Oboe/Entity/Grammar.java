@@ -7,20 +7,6 @@ import java.util.UUID;
 @Entity
 @Table(name = "Gramma")
 public class Grammar {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "grammaID", updatable = false, nullable = false)
-    private UUID grammaID;
-    private String structure;
-
-    public String getExplanation() {
-        return explanation;
-    }
-
-    public void setExplanation(String explanation) {
-        this.explanation = explanation;
-    }
-
     public UUID getGrammaID() {
         return grammaID;
     }
@@ -35,6 +21,14 @@ public class Grammar {
 
     public void setStructure(String structure) {
         this.structure = structure;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
     }
 
     public String getExample() {
@@ -53,6 +47,11 @@ public class Grammar {
         this.grammarType = grammarType;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "grammaID", updatable = false, nullable = false)
+    private UUID grammaID;
+    private String structure;
     private String explanation;
     private String example;
     private String grammarType;

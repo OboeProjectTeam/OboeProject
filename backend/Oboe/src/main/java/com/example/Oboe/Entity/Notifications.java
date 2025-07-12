@@ -9,6 +9,7 @@ import java.util.UUID;
 @Entity
 @Table(name="Notifications")
 public class Notifications {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "NotifiId", updatable = false, nullable = false)
@@ -34,4 +35,44 @@ public class Notifications {
         this.text_notification = text_notification;
         this.isRead = isRead;
     }
+
+    public String getText_notification() {
+        return text_notification;
+    }
+
+    public void setText_notification(String text_notification) {
+        this.text_notification = text_notification;
+    }
+
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    public UUID getNotifiId() {
+        return NotifiId;
+    }
+
+    public void setNotifiId(UUID notifiId) {
+        NotifiId = notifiId;
+    }
+
+    public LocalDateTime getUpdate_at() {
+        return update_at;
+    }
+
+    public void setUpdate_at(LocalDateTime update_at) {
+        this.update_at = update_at;
+    }
+
 }
