@@ -22,7 +22,6 @@ public class KanjiController {
 
     //  GET all kanji
     @GetMapping
-
     public ResponseEntity<Map<String, Object>> getKanjis(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

@@ -177,9 +177,7 @@ public class KanjiService {
 
 
 
-
-
-    private KanjiDTOs kanjiToDTO(Kanji kanji) {
+    public KanjiDTOs kanjiToDTO(Kanji kanji) {
         KanjiDTOs dto = new KanjiDTOs();
         dto.setKanjiId(kanji.getKanjiId());
         dto.setCharacterName(kanji.getCharacter_name());

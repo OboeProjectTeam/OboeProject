@@ -21,40 +21,21 @@ import java.util.UUID;
 public class MessageController {
 
     private final MessageService messageService;
-    private final SimpMessagingTemplate messagingTemplate; // ✅
 
-    public MessageController(MessageService messageService, SimpMessagingTemplate messagingTemplate) {
+
+    public MessageController(MessageService messageService) {
         this.messageService = messageService;
-        this.messagingTemplate = messagingTemplate;
+
     }
 
 
     // Gửi tin nhắn mới từ client đến server
     @PostMapping
     public ResponseEntity<MessageDTO> sendMessage(@RequestBody MessageDTO messageDto) {
-
-        // Lưu tin nhắn vào database
         MessageDTO savedMessage = messageService.sendMessage(messageDto);
-
-        // Gửi tin nhắn realtime đến người nhận (qua WebSocket),
-        // Đây là phương thức gửi tin nhắn từ server → client thông qua WebSocket.
-
-        messagingTemplate.convertAndSend(
-                "/receiver/" + savedMessage.getReceiverId(),
-                savedMessage
-        );
-        // Gửi thêm thông báo "Bạn có tin nhắn mới"
-        String notification = "Bạn có tin nhắn mới từ " + savedMessage.getSenderName();
-        messagingTemplate.convertAndSend(
-                "/notification/" + savedMessage.getReceiverId(),
-                notification
-        );
-
         return ResponseEntity.ok(savedMessage);
     }
-
-
-
+    //lấy ra những người đã nhắn tin
     @GetMapping("/partners")
     public ResponseEntity<List<UserSummaryDTO>> getChatPartners() {
         // Lấy thông tin user từ SecurityContext

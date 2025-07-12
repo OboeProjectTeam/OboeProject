@@ -33,16 +33,14 @@ public class CommentController {
 
 
     //  Tạo comment mới cho 1 id
-    @PostMapping("/{id}")
+    @PostMapping("/{teamId}")
     public ResponseEntity<CommentDTOs> createComment(
-            @PathVariable("id") UUID id,
+            @PathVariable("teamId") UUID blogId,
             @RequestBody CommentDTOs dto,
             Authentication authentication
     ) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        UUID userId = userDetails.getUserID();
-        CommentDTOs created = commentService.createComment(id, userId, dto);
-        return ResponseEntity.ok(created);
+        UUID userId = ((CustomUserDetails) authentication.getPrincipal()).getUserID();
+        return ResponseEntity.ok(commentService.createComment(blogId, userId, dto));
     }
 
 
