@@ -2,9 +2,11 @@
 
 .flashcard-container {
   position: fixed;
-  top: 200px;
   right: 80px;
   z-index: 1000;
+  transition: transform 0.1s ease;
+  will-change: transform;
+  touch-action: none; // Prevent default touch actions
 
   @media screen and (max-width: 768px) {
     right: 15px !important;
@@ -20,12 +22,20 @@
   border: none;
   color: white;
   font-size: 1.25rem;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  &:active {
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
 }
 
 .flashcard-btn:hover {
