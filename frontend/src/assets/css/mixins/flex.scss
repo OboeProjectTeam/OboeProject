@@ -1,0 +1,46 @@
+// Flex mixins
+@mixin flex($direction: row, $justify: flex-start, $align: stretch, $wrap: nowrap) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: $justify;
+  align-items: $align;
+  flex-wrap: $wrap;
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+@mixin flex-grow($value: 1) {
+  flex-grow: $value;
+}
+
+@mixin flex-shrink($value: 1) {
+  flex-shrink: $value;
+}
+
+@mixin flex-wrap {
+  flex-wrap: wrap;
+}
+
+@mixin flex-basis($value) {
+  flex-basis: $value;
+}

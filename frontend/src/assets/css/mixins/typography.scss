@@ -1,0 +1,42 @@
+// Typography mixins
+@mixin font-size($size) {
+  font-size: $size;
+  line-height: 1.5;
+}
+
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin multi-line-ellipsis($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin heading($size) {
+  @if $size == 'h1' {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  } @else if $size == 'h2' {
+    font-size: 2rem;
+    line-height: 1.3;
+  } @else if $size == 'h3' {
+    font-size: 1.75rem;
+    line-height: 1.4;
+  } @else if $size == 'h4' {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  } @else if $size == 'h5' {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  } @else if $size == 'h6' {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  font-weight: bold;
+  margin-bottom: 0.5em;
+} 

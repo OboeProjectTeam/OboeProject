@@ -121,13 +121,14 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref } from 'vue';
 
 const lastUpdated = ref('15/03/2024');
 
 const featuredNews = ref([
   {
-    image: new URL('@/assets/img/footer/japan-visa.jpg', import.meta.url).href,
+    image: ImagePaths.footer.japanVisa,
     category: 'Kinh Tế',
     title: 'Nhật Bản Mở Rộng Chính Sách Visa Cho Lao Động Nước Ngoài',
     excerpt: 'Chính phủ Nhật Bản vừa thông qua đề xuất mới về việc nới lỏng các điều kiện visa cho lao động nước ngoài trong các ngành nghề trọng điểm.',
@@ -135,7 +136,7 @@ const featuredNews = ref([
     source: 'Nikkei Asia'
   },
   {
-    image: new URL('@/assets/img/footer/japan-ai.jpg', import.meta.url).href,
+    image: ImagePaths.footer.japanAi,
     category: 'Công Nghệ',
     title: 'Làn Sóng AI Tại Nhật Bản: Cơ Hội Việc Làm Mới',
     excerpt: 'Sự phát triển của AI đang tạo ra nhiều cơ hội việc làm mới trong lĩnh vực công nghệ tại Nhật Bản.',
@@ -229,14 +230,14 @@ const educationUpdates = ref([
 
 const culturalEvents = ref([
   {
-    image: new URL('@/assets/img/footer/japan-sakura.jpg', import.meta.url).href,
+    image: ImagePaths.footer.japanSakura,
     date: '20/04/2024',
     title: 'Lễ Hội Hoa Anh Đào 2024',
     description: 'Lễ hội hoa anh đào lớn nhất năm tại công viên Ueno, Tokyo.',
     location: 'Công viên Ueno, Tokyo'
   },
   {
-    image: new URL('@/assets/img/footer/japan-culture.webp', import.meta.url).href,
+    image: ImagePaths.footer.japanCulture,
     date: '15/05/2024',
     title: 'Triển Lãm Văn Hóa Việt-Nhật',
     description: 'Sự kiện giao lưu văn hóa giữa Việt Nam và Nhật Bản.',
@@ -246,359 +247,5 @@ const culturalEvents = ref([
 </script>
 
 <style lang="scss" scoped>
-.japan-news-page {
-  min-height: 100vh;
-  .japan-news-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-
-  .japan-news-header {
-    text-align: center;
-    margin-bottom: 40px;
-
-    h1 {
-      font-size: 36px;
-      color: #333;
-      margin-bottom: 10px;
-    }
-
-    .last-updated {
-      color: #666;
-      font-size: 14px;
-    }
-  }
-
-  .news-section {
-    background-color: white;
-    border-radius: 8px;
-    padding: 30px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    h2 {
-      font-size: 24px;
-      color: #2c3e50;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #eee;
-    }
-  }
-
-  .featured-news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-
-    .featured-news-item {
-      border: 1px solid #eee;
-      border-radius: 8px;
-      overflow: hidden;
-
-      .news-image {
-        height: 200px;
-        overflow: hidden;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
-
-      .news-content {
-        padding: 20px;
-
-        .news-category {
-          display: inline-block;
-          padding: 4px 8px;
-          background-color: #e3f2fd;
-          color: #1976d2;
-          border-radius: 4px;
-          font-size: 12px;
-          margin-bottom: 10px;
-        }
-
-        h3 {
-          font-size: 18px;
-          color: #333;
-          margin-bottom: 10px;
-          line-height: 1.4;
-        }
-
-        .news-excerpt {
-          color: #666;
-          font-size: 14px;
-          line-height: 1.6;
-          margin-bottom: 15px;
-        }
-
-        .news-meta {
-          display: flex;
-          justify-content: space-between;
-          color: #999;
-          font-size: 12px;
-        }
-      }
-    }
-  }
-
-  .market-trends-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-
-    .trend-item {
-      display: flex;
-      align-items: flex-start;
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-
-      .trend-icon {
-        font-size: 24px;
-        color: #1976d2;
-        margin-right: 15px;
-      }
-
-      .trend-content {
-        flex: 1;
-
-        h3 {
-          font-size: 16px;
-          color: #333;
-          margin-bottom: 5px;
-        }
-
-        p {
-          color: #666;
-          font-size: 14px;
-          margin-bottom: 10px;
-        }
-
-        .trend-stats {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-
-          .trend-value {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-          }
-
-          .trend-change {
-            font-size: 14px;
-            
-            &.positive {
-              color: #4caf50;
-            }
-
-            &.negative {
-              color: #f44336;
-            }
-
-            i {
-              margin-right: 4px;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .job-categories {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-
-    .job-category {
-      h3 {
-        font-size: 18px;
-        color: #2c3e50;
-        margin-bottom: 15px;
-      }
-
-      .job-list {
-        li {
-          background-color: #f8f9fa;
-          border-radius: 8px;
-          padding: 15px;
-          margin-bottom: 10px;
-
-          .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-
-            .job-title {
-              font-weight: 600;
-              color: #333;
-            }
-
-            .job-salary {
-              color: #1976d2;
-              font-size: 14px;
-            }
-          }
-
-          .job-details {
-            display: flex;
-            gap: 15px;
-            font-size: 13px;
-            color: #666;
-
-            i {
-              margin-right: 5px;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .education-updates {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-
-    .update-item {
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      padding: 20px;
-
-      .update-icon {
-        font-size: 24px;
-        color: #1976d2;
-        margin-bottom: 15px;
-      }
-
-      h3 {
-        font-size: 18px;
-        color: #333;
-        margin-bottom: 10px;
-      }
-
-      p {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 15px;
-      }
-
-      .update-details {
-        list-style-type: none;
-        padding: 0;
-
-        li {
-          color: #666;
-          font-size: 14px;
-          margin-bottom: 5px;
-          padding-left: 20px;
-          position: relative;
-
-          &:before {
-            content: "•";
-            color: #1976d2;
-            position: absolute;
-            left: 0;
-          }
-        }
-      }
-    }
-  }
-
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-
-    .event-item {
-      border: 1px solid #eee;
-      border-radius: 8px;
-      overflow: hidden;
-
-      .event-image {
-        height: 200px;
-        overflow: hidden;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
-
-      .event-content {
-        padding: 20px;
-
-        .event-date {
-          display: inline-block;
-          padding: 4px 8px;
-          background-color: #e3f2fd;
-          color: #1976d2;
-          border-radius: 4px;
-          font-size: 12px;
-          margin-bottom: 10px;
-        }
-
-        h3 {
-          font-size: 18px;
-          color: #333;
-          margin-bottom: 10px;
-        }
-
-        p {
-          color: #666;
-          font-size: 14px;
-          margin-bottom: 15px;
-        }
-
-        .event-location {
-          color: #666;
-          font-size: 14px;
-
-          i {
-            margin-right: 5px;
-            color: #1976d2;
-          }
-        }
-      }
-    }
-  }
-}
-
-// Responsive styles
-@media (max-width: 768px) {
-  .japan-news-page {
-    padding: 20px 0;
-
-    .japan-news-container {
-      padding: 0 15px;
-    }
-
-    .japan-news-header {
-      h1 {
-        font-size: 28px;
-      }
-    }
-
-    .news-section {
-      padding: 20px;
-
-      h2 {
-        font-size: 22px;
-      }
-    }
-
-    .featured-news-grid,
-    .market-trends-grid,
-    .job-categories,
-    .education-updates,
-    .events-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-}
+@use '@/views/footer-services/japan-news/JapanNews.scss';
 </style> 

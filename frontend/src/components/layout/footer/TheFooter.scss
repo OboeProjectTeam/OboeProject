@@ -1,5 +1,11 @@
 @use '@/assets/css/index.scss' as *;
 
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
 .form__login {
   display: flex;
   align-items: center;
@@ -11,6 +17,12 @@
   border-radius: 5px;
   margin-left: 50%;
   transform: scale(1.2);
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    margin-left: 0;
+    transform: scale(1);
+  }
 }
 // Previous SCSS code remains above
 
@@ -23,31 +35,83 @@
   &-logo {
     width: 200px;
     margin-bottom: 20px;
+
+    @media (max-width: $breakpoint-md) {
+      width: 160px;
+      margin-bottom: 15px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      width: 140px;
+      margin-bottom: 10px;
+    }
   }
 
   &-bot {
     padding: 30px 80px;
+
+    @media (max-width: $breakpoint-lg) {
+      padding: 25px 40px;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      padding: 20px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: 15px;
+      flex-direction: column;
+      gap: 30px;
+    }
   }
 
   &-infor {
     flex-basis: 24%;
 
+    @media (max-width: $breakpoint-md) {
+      flex-basis: 100%;
+    }
+
     .footer-infortext {
       font-size: 120%;
+
+      @media (max-width: $breakpoint-md) {
+        font-size: 110%;
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: 100%;
+      }
     }
 
     .footer-inforicon {
       width: 25px;
+
+      @media (max-width: $breakpoint-sm) {
+        width: 20px;
+      }
     }
   }
 
   .fas,
   .far {
     font-size: 20px;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 18px;
+    }
   }
 
   .fab {
     font-size: 40px;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 32px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 28px;
+    }
   }
 }
 
@@ -56,19 +120,43 @@
   width: 30%;
   margin-top: 10px;
   margin-bottom: 15px;
+
+  @media (max-width: $breakpoint-sm) {
+    width: 50%;
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
 }
 
 .listservies-box {
   flex-basis: 24%;
+
+  @media (max-width: $breakpoint-lg) {
+    flex-basis: 48%;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex-basis: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 .listservies-detail {
   margin-bottom: 15px;
   font-size: 110%;
+
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: 12px;
+    font-size: 100%;
+  }
 }
 
 .listservies-title {
   font-size: 120%;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 110%;
+  }
 }
 .footer-comment-btn {
   width: 100%;
@@ -94,21 +182,40 @@
     width: 100%;
     max-width: 500px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 15px;
+
+    @media (max-width: $breakpoint-sm) {
+      padding: 16px;
+    }
 
     h3 {
       margin: 0 0 20px;
       font-size: 20px;
       color: #333;
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: 18px;
+        margin: 0 0 16px;
+      }
     }
 
     .form-group {
       margin-bottom: 16px;
+
+      @media (max-width: $breakpoint-sm) {
+        margin-bottom: 12px;
+      }
 
       label {
         display: block;
         margin-bottom: 8px;
         font-weight: 500;
         color: #333;
+
+        @media (max-width: $breakpoint-sm) {
+          margin-bottom: 6px;
+          font-size: 14px;
+        }
       }
 
       input, select, textarea {
@@ -117,6 +224,11 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 14px;
+
+        @media (max-width: $breakpoint-sm) {
+          padding: 6px;
+          font-size: 13px;
+        }
 
         &:focus {
           outline: none;
@@ -127,6 +239,10 @@
       textarea {
         resize: vertical;
         min-height: 100px;
+
+        @media (max-width: $breakpoint-sm) {
+          min-height: 80px;
+        }
       }
     }
 
@@ -136,12 +252,22 @@
       gap: 10px;
       margin-top: 24px;
 
+      @media (max-width: $breakpoint-sm) {
+        margin-top: 16px;
+        gap: 8px;
+      }
+
       button {
         padding: 8px 16px;
         border-radius: 4px;
         font-size: 14px;
         cursor: pointer;
         transition: background-color 0.2s;
+
+        @media (max-width: $breakpoint-sm) {
+          padding: 6px 12px;
+          font-size: 13px;
+        }
 
         &.btn-cancel {
           background-color: #f5f5f5;

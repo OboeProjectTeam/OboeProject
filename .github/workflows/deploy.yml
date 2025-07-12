@@ -48,6 +48,16 @@ jobs:
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
+    # 5.5. Dọn thư mục dist cũ trên server trước khi upload
+    - name: Clean dist folder before upload
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          rm -rf /var/www/OboeProject/frontend/dist/*
+          echo "Old dist folder cleaned!"
 
     # 6. Upload dist to server
     - name: Upload frontend dist to server
@@ -59,6 +69,7 @@ jobs:
         source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
+        overwrite: true  
 
     # 7. Restart frontend PM2
     - name: Restart frontend via SSH (PM2)
@@ -79,19 +90,28 @@ jobs:
     - name: Grant execute permission to mvnw
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Cài Java 21
+    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    - name: Check ddl-auto safety
+      run: |
+        if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
+          echo "Không được deploy: ddl-auto có giá trị nguy hiểm!"
+          exit 1
+        else
+          echo "ddl-auto hợp lệ (none hoặc validate)"
+        fi
+    # 10. Cài Java 21
     - name: Setup Java 21
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '21'
-
-    # 10. Build backend bằng Maven
+    
+    # 11. Build backend bằng Maven
     - name: Build backend (Maven)
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 11. Upload backend jar
+    # 12. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -101,7 +121,7 @@ jobs:
         source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
         strip_components: 3
-    # 12. Restart backend
+    # 13. Restart backend
     - name: Restart backend via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:

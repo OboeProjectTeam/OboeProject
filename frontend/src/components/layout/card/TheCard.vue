@@ -13,7 +13,7 @@
         :class="{ 'is-flipped': flippedIndex === index, 'animation-started': animationStartedList[index] }"
         @click="flipCard(index)">
         <div class="card-content flex" :class="{ 'front': true, 'hidden': showBackIndex === index }">
-          <h2 class="card-title">{{ slide.title }}</h2>
+          <h2 class="card-title" :style="{ fontSize: titleFontSize }">{{ slide.title }}</h2>
           <div class="slide-content card-description flex">
             <slot name="content" :slide="slide">
               <template v-if="isImage(slide.content)">
@@ -26,11 +26,11 @@
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.description }}</p>
           <div class="flex see-more">
-            <button class="cta-button" @click.stop="onSeeMore(slide)">Hỏi AI</button>
+            <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Hỏi AI</button>
           </div>
         </div>
         <div class="card-content flex" :class="{ 'back': true, 'visible': showBackIndex === index }">
-          <h2 class="card-title">{{ slide.title }}</h2>
+          <h2 class="card-title" :style="{ fontSize: titleFontSize }">{{ slide.title }}</h2>
           <div class="slide-content card-description flex">
             <slot name="backcontent" :slide="slide">
               <template v-if="isImage(slide.backcontent)">
@@ -43,7 +43,7 @@
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p>
           <div class="flex see-more">
-            <button class="cta-button" @click.stop="onSeeMore(slide)">Hỏi AI</button>
+            <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Hỏi AI</button>
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@ import 'swiper/css/effect-cards'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 
-const { slides, width, height, pagination, autoplay, canFlip } = defineProps({
+const { slides, width, height, pagination, autoplay, canFlip, buttonFontSize, titleFontSize, buttonPadding } = defineProps({
   slides: {
     type: Array,
     required: true
@@ -89,6 +89,18 @@ const { slides, width, height, pagination, autoplay, canFlip } = defineProps({
   canFlip: {
     type: Boolean,
     default: true
+  },
+  buttonFontSize: {
+    type: String,
+    default: '14px'
+  },
+  titleFontSize: {
+    type: String,
+    default: '24px'
+  },
+  buttonPadding: {
+    type: String,
+    default: '10px 24px'
   }
 });
 
