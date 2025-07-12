@@ -29,7 +29,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { auth } from '@/firebase'
+
 import ChatBox from '@/components/layout/chat-box/ChatBox.vue'
 
 const route = useRoute()
@@ -51,31 +51,7 @@ const goToUpgrade = () => {
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
 
-onMounted(() => {
-  // Listen for auth state changes
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      const userData = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: user.uid
-      }
-      store.dispatch('auth/setUser', userData)
-    } else {
-      store.dispatch('auth/setUser', null)
-    }
-  })
 
-  // Add event listener for send-message events
-  router.afterEach((to) => {
-    to.meta.emit = (event, ...args) => {
-      if (event === 'send-message') {
-        openChatBox(...args);
-      }
-    };
-  });
-})
 
 function openChatBox(user) {
   chatBoxUser.value = user
