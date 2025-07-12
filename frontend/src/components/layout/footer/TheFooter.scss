@@ -25,30 +25,19 @@ $breakpoint-xl: 1200px;
   }
 }
 // Previous SCSS code remains above
-
+.footer-logo{
+  margin-bottom: 20px;
+}
 .footer {
   color: #333;
   margin-top: 20px;
   box-shadow: 0 0 20px $header-footer-shadow;
   border-radius: $header-footer-border-radius $header-footer-border-radius 0 0;
 
-  &-logo {
-    width: 200px;
-    margin-bottom: 20px;
-
-    @media (max-width: $breakpoint-md) {
-      width: 160px;
-      margin-bottom: 15px;
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      width: 140px;
-      margin-bottom: 10px;
-    }
-  }
-
   &-bot {
     padding: 30px 80px;
+    display: flex;
+    gap: 40px;
 
     @media (max-width: $breakpoint-lg) {
       padding: 25px 40px;
@@ -56,39 +45,96 @@ $breakpoint-xl: 1200px;
 
     @media (max-width: $breakpoint-md) {
       padding: 20px;
+      flex-direction: column;
+      gap: 30px;
     }
 
     @media (max-width: $breakpoint-sm) {
       padding: 15px;
-      flex-direction: column;
-      gap: 30px;
+      gap: 25px;
     }
   }
 
   &-infor {
-    flex-basis: 24%;
+    flex: 0 0 300px;
 
     @media (max-width: $breakpoint-md) {
-      flex-basis: 100%;
+      flex: none;
+      width: 100%;
+    }
+
+    ul {
+      margin-bottom: 20px;
+
+      @media (max-width: $breakpoint-sm) {
+        margin-bottom: 15px;
+      }
     }
 
     .footer-infortext {
-      font-size: 120%;
+      font-size: 16px;
+      line-height: 1.4;
 
       @media (max-width: $breakpoint-md) {
-        font-size: 110%;
+        font-size: 15px;
       }
 
       @media (max-width: $breakpoint-sm) {
-        font-size: 100%;
+        font-size: 14px;
       }
     }
 
     .footer-inforicon {
       width: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       @media (max-width: $breakpoint-sm) {
         width: 20px;
+      }
+    }
+  }
+
+  &-listservies-hr {
+    flex: 1;
+
+    > ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+
+      @media (max-width: $breakpoint-lg) {
+        gap: 20px;
+      }
+
+      @media (max-width: $breakpoint-md) {
+        gap: 15px;
+      }
+    }
+  }
+
+  .social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+
+    @media (max-width: $breakpoint-sm) {
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $primary-color;
+        }
       }
     }
   }
@@ -103,63 +149,78 @@ $breakpoint-xl: 1200px;
   }
 
   .fab {
-    font-size: 40px;
+    font-size: 32px;
 
     @media (max-width: $breakpoint-md) {
-      font-size: 32px;
+      font-size: 28px;
     }
 
     @media (max-width: $breakpoint-sm) {
-      font-size: 28px;
+      font-size: 24px;
     }
+  }
+}
+
+.listservies-box {
+  flex: 1;
+  min-width: 200px;
+
+  @media (max-width: $breakpoint-lg) {
+    flex: 0 0 calc(50% - 10px);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex: 0 0 100%;
   }
 }
 
 .listservies-hr {
   border-bottom: 1px solid black;
   width: 30%;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  margin: 10px 0 15px;
 
   @media (max-width: $breakpoint-sm) {
     width: 50%;
-    margin-top: 8px;
-    margin-bottom: 12px;
-  }
-}
-
-.listservies-box {
-  flex-basis: 24%;
-
-  @media (max-width: $breakpoint-lg) {
-    flex-basis: 48%;
-  }
-
-  @media (max-width: $breakpoint-md) {
-    flex-basis: 100%;
-    margin-bottom: 20px;
+    margin: 8px 0 12px;
   }
 }
 
 .listservies-detail {
   margin-bottom: 15px;
-  font-size: 110%;
+  font-size: 15px;
 
   @media (max-width: $breakpoint-md) {
     margin-bottom: 12px;
-    font-size: 100%;
+    font-size: 14px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $primary-color;
+    }
   }
 }
 
 .listservies-title {
-  font-size: 120%;
+  font-size: 18px;
+  font-weight: 600;
 
   @media (max-width: $breakpoint-md) {
-    font-size: 110%;
+    font-size: 16px;
   }
 }
+
 .footer-comment-btn {
   width: 100%;
+  margin-top: 10px;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 5px;
+  }
 }
 
 // Modal styles
