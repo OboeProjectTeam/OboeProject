@@ -12,7 +12,7 @@ public class VocabularyDTOs {
     private String scriptType;
     private UUID kanjiId;
 
-    // ❗️Bạn bị thiếu dòng này nên báo lỗi:
+
     private List<ReadingDTO> readings;
 
     // Getters & Setters

@@ -2,9 +2,12 @@ package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.FavoritesDTO;
 import com.example.Oboe.Entity.Favorites;
+import com.example.Oboe.Entity.Grammar;
 import com.example.Oboe.Entity.Kanji;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.*;
+import com.example.Oboe.Entity.Vocabulary;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,44 +21,61 @@ public class FavoritesService {
     private final KanjiRepository kanjiRepository;
     private final UserRepository userRepository;
     private final FavoritesRepository favoritesRepository;
-    private final KanjiService kanjiService;
+    private final GrammarRepository grammarRepository;
+    private final VocabularyRepository vocabularyRepository;
 
     public FavoritesService(KanjiRepository kanjiRepository,
                             UserRepository userRepository,
                             FavoritesRepository favoritesRepository,
-                            KanjiService kanjiService) {
+                            GrammarRepository grammarRepository,
+                            VocabularyRepository vocabularyRepository
+                           ) {
         this.kanjiRepository = kanjiRepository;
         this.userRepository = userRepository;
         this.favoritesRepository = favoritesRepository;
-        this.kanjiService = kanjiService;
+        this.grammarRepository = grammarRepository;
+        this.vocabularyRepository = vocabularyRepository;
+
     }
 
 
     public FavoritesDTO createFavorite(FavoritesDTO dto, UUID userId) {
         Favorites favorites = new Favorites();
 
-        // Gán ngày nếu có, ngược lại dùng ngày hiện tại
         favorites.setFavories_at(dto.getFavoritesAt() != null ? dto.getFavoritesAt() : java.time.LocalDate.now());
 
-        // Lấy và gán user từ DB
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         favorites.setUser(user);
 
-        // Hiện tại chỉ xử lý Kanji
         if (dto.getKanjiId() != null) {
             Kanji kanji = kanjiRepository.findById(dto.getKanjiId())
                     .orElseThrow(() -> new RuntimeException("Kanji not found"));
             favorites.setKanji(kanji);
             favorites.setTitle(kanji.getCharacter_name());
             favorites.setContent(kanji.getMeaning());
-        } else {
-            throw new RuntimeException("Phải cung cấp ít nhất 1 loại nội dung yêu thích (Kanji).");
+
+        } else if (dto.getGrammaId() != null) {
+            Grammar grammar = grammarRepository.findById(dto.getGrammaId())
+                    .orElseThrow(() -> new RuntimeException("Grammar not found"));
+            favorites.setGramma(grammar);
+            favorites.setTitle(grammar.getStructure());
+            favorites.setContent(grammar.getExplanation());
+        }  else if (dto.getVocabularyId() != null) {
+        Vocabulary vocabulary = vocabularyRepository.findById(dto.getVocabularyId())
+                .orElseThrow(() -> new RuntimeException("Vocabulary not found"));
+        favorites.setVocabulary(vocabulary);
+        favorites.setTitle(vocabulary.getWords());
+        favorites.setContent(vocabulary.getMeanning());
+    }
+        else {
+            throw new RuntimeException("Phải cung cấp ít nhất 1 loại nội dung yêu thích (Kanji, Grammar, ...).");
         }
 
         favoritesRepository.save(favorites);
         return toDTO(favorites);
     }
+
     //lấy tất các từ yêu thích theo type
     public List<FavoritesDTO> getFavoritesByUserIdAndType(UUID userId, String type) {
         List<Favorites> list = favoritesRepository.findByUserId(userId);
