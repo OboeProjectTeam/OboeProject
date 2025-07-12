@@ -79,20 +79,46 @@
       <!-- Study Sets Tab -->
       <div v-else-if="activeTab === 'sets'" class="study-sets-content">
         <div class="study-sets-container">
+          <!-- List section -->
           <div class="study-sets-list">
             <div class="list-header">
               <h2>Học liệu</h2>
               <div class="results-count">{{ studySets.length }} kết quả</div>
             </div>
             <div class="sets-grid">
-              <div v-for="set in paginatedList" :key="set.id" 
-                   @click="selectStudySet(set)"
-                   :class="['study-set-card', { 'active': selectedSet?.id === set.id }]">
+              <div v-for="set in paginatedList" 
+                   :key="set.id" 
+                   class="study-set-card"
+                   :class="{ 'active': selectedSet?.id === set.id }"
+                   @click="selectStudySet(set)">
                 <h3>{{ set.title }}</h3>
                 <p class="term-count">{{ set.termCount }} thuật ngữ</p>
                 <div class="author-info">
                   <img :src="set.author.avatar" :alt="set.author.name" class="author-avatar"/>
                   <span>{{ set.author.name }}</span>
+                </div>
+                
+                <!-- Mobile Preview - only show on mobile -->
+                <div v-if="selectedSet?.id === set.id && isMobileView" class="mobile-preview">
+                  <div class="preview-header">
+                    <div class="header-top">
+                      <button class="learn-btn">
+                        <i class="fas fa-graduation-cap"></i>Học
+                      </button>
+                    </div>
+                  </div>
+                  <div class="terms-preview">
+                    <div class="terms-header">
+                      <div>Mặt trước</div>
+                      <div>Mặt sau</div>
+                    </div>
+                    <div class="terms-list">
+                      <div v-for="(term, index) in set.terms" :key="index" class="term-row">
+                        <div class="front">{{ term.front }}</div>
+                        <div class="back">{{ term.back }}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,7 +132,9 @@
               </button>
             </div>
           </div>
-          <div class="study-set-preview" v-if="selectedSet">
+
+          <!-- Preview section -->
+          <div v-if="selectedSet" class="preview-section">
             <div class="preview-header">
               <div class="header-top">
                 <h1>{{ selectedSet.title }}</h1>
@@ -115,23 +143,20 @@
                 </button>
               </div>
             </div>
-
-            <!-- Terms Preview -->
             <div class="terms-preview">
               <div class="terms-header">
                 <div>Mặt trước</div>
                 <div>Mặt sau</div>
               </div>
               <div class="terms-list">
-                <div v-for="(term, index) in selectedSet.terms" :key="index"
-                     class="term-row">
+                <div v-for="(term, index) in selectedSet.terms" :key="index" class="term-row">
                   <div class="front">{{ term.front }}</div>
                   <div class="back">{{ term.back }}</div>
                 </div>
               </div>
             </div>
           </div>
-          <div v-else class="empty-preview">
+          <div v-else class="preview-section empty-preview">
             <div class="empty-content">
               <i class="fas fa-book-open"></i>
               <p>Chọn một học liệu để xem trước</p>
@@ -215,6 +240,7 @@ export default {
         users: 12,     // 4 columns * 3 rows
       },
       selectedSet: null,
+      isMobileView: false,
       tabs: [
         { key: 'all', name: 'Tất cả kết quả' },
         { key: 'sets', name: 'Học liệu' },
@@ -409,7 +435,17 @@ export default {
     },
     goToUserProfile(user) {
       this.$router.push({ name: 'ProfileDetail', params: { username: user.name } });
+    },
+    checkMobileView() {
+      this.isMobileView = window.innerWidth <= 768;
     }
+  },
+  mounted() {
+    this.checkMobileView();
+    window.addEventListener('resize', this.checkMobileView);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.checkMobileView);
   },
   watch: {
     activeTab: {

@@ -53,6 +53,12 @@
         &:focus {
           border: 1.5px solid $primary-color;
         }
+        
+      }
+      @include mobile-only{
+        ::placeholder{
+          font-size: 13px;
+        }
       }
 
       button {
@@ -83,7 +89,7 @@
       margin-bottom: 1.5rem;
       
       h2 {
-        font-size: 1.8rem;
+        font-size: 1.2rem;
       }
       
       .view-all-link {
