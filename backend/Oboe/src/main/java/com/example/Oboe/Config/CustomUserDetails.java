@@ -1,6 +1,7 @@
 package com.example.Oboe.Config;
 
 import com.example.Oboe.Entity.AuthProvider;
+import com.example.Oboe.Entity.Status;
 import com.example.Oboe.Entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -41,6 +42,10 @@ public class CustomUserDetails implements UserDetails {
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+    @Override
+    public boolean isEnabled() {
+        return user.getStatus() != null && user.getStatus() != Status.BAN;
+    }
+
 }
 
