@@ -10,6 +10,8 @@
       <i class="fas fa-book"></i>
       <span v-if="totalItems > 0" class="item-count">{{ totalItems }}</span>
     </button>
+
+    <!-- Dropdown List -->
     <div v-if="isOpen" class="flashcard-list">
       <div class="list-header">
         <h3>Danh sách Flashcard</h3>
