@@ -20,7 +20,7 @@ public class SecurityConfig {
                                            CustomOAuth2SuccessHandler successHandler) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth -> oauth
