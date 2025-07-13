@@ -38,16 +38,16 @@
             this.notificationsRepository = notificationsRepository;
             this.messagingTemplate = messagingTemplate;
         }
-        public MessageDTO sendMessage(MessageDTO messageDto) {
-            // Lấy người gửi
-            User sender = userRepository.findById(messageDto.getSenderId())
+        public MessageDTO sendMessage(UUID senderId, MessageDTO messageDto) {
+            // Lấy người gửi từ token
+            User sender = userRepository.findById(senderId)
                     .orElseThrow(() -> new RuntimeException("Sender not found"));
 
-            // Lấy người nhận
+            // Lấy người nhận từ DTO
             User receiver = userRepository.findById(messageDto.getReceiverId())
                     .orElseThrow(() -> new RuntimeException("Receiver not found"));
 
-            // Tạo đối tượng Message
+            // Tạo và lưu message
             Message message = new Message();
             message.setSender(sender);
             message.setReceiver(receiver);
@@ -56,23 +56,23 @@
 
             Message savedMessage = messageRepository.save(message);
 
+            // Tạo thông báo
             Notifications notification = new Notifications();
             notification.setUser(receiver);
             notification.setText_notification("Bạn nhận được một tin nhắn mới từ " + sender.getUserName());
-            notification.setRead(false); // mặc định chưa đọc
+            notification.setRead(false);
             notification.setUpdate_at(LocalDateTime.now());
 
             notificationsRepository.save(notification);
-            // Gửi WebSocket
-            MessageDTO dto = toDTO(savedMessage);
 
+            // Gửi WebSocket đến client
+            MessageDTO dto = toDTO(savedMessage);
             messagingTemplate.convertAndSend("/receiver/" + receiver.getUser_id(), dto);
             messagingTemplate.convertAndSend("/notification/" + receiver.getUser_id(), notification.getText_notification());
 
-            // Lưu và trả về DTO
             return dto;
-
         }
+
 
 
         public List<UserSummaryDTO> getChatPartners(UUID userId) {

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,13 +29,16 @@ public class MessageController {
 
     }
 
-
-    // Gửi tin nhắn mới từ client đến server
+    // Gửi tin nhắn mới
     @PostMapping
-    public ResponseEntity<MessageDTO> sendMessage(@RequestBody MessageDTO messageDto) {
-        MessageDTO savedMessage = messageService.sendMessage(messageDto);
+    public ResponseEntity<MessageDTO> sendMessage(@RequestBody MessageDTO messageDto,
+                                                  Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        MessageDTO savedMessage = messageService.sendMessage(userId,messageDto);
         return ResponseEntity.ok(savedMessage);
     }
+
     //lấy ra những người đã nhắn tin
     @GetMapping("/partners")
     public ResponseEntity<List<UserSummaryDTO>> getChatPartners() {
