@@ -1,170 +1,170 @@
-package com.example.Oboe.Controller;
+    package com.example.Oboe.Controller;
 
-import com.example.Oboe.DTOs.LoginRequest;
-import com.example.Oboe.DTOs.PassWordChangeDTOs;
-import com.example.Oboe.DTOs.UserDTOs;
-import com.example.Oboe.Entity.AuthProvider;
-import com.example.Oboe.Entity.User;
-import com.example.Oboe.Service.UserService;
-import com.example.Oboe.Util.JwtUtil;
-import jakarta.validation.constraints.Email;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+    import com.example.Oboe.DTOs.LoginRequest;
+    import com.example.Oboe.DTOs.PassWordChangeDTOs;
+    import com.example.Oboe.DTOs.UserDTOs;
+    import com.example.Oboe.Entity.AuthProvider;
+    import com.example.Oboe.Entity.User;
+    import com.example.Oboe.Service.UserService;
+    import com.example.Oboe.Util.JwtUtil;
+    import jakarta.validation.constraints.Email;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.security.authentication.AuthenticationManager;
+    import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.security.core.context.SecurityContextHolder;
+    import org.springframework.security.core.userdetails.UserDetails;
+    import org.springframework.security.core.userdetails.UsernameNotFoundException;
+    import org.springframework.security.crypto.password.PasswordEncoder;
+    import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+    import java.util.HashMap;
+    import java.util.Map;
+    import java.util.Optional;
 
-@RestController
-@RequestMapping("/api/auth")
-@CrossOrigin
-public class AuthController {
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    @RestController
+    @RequestMapping("/api/auth")
+    @CrossOrigin
+    public class AuthController {
+        private final UserService userService;
+        private final AuthenticationManager authenticationManager;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtUtil jwtUtil;
 
-    @Autowired
-    public AuthController(UserService userService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
-
-
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserDTOs userDTOs) {
-        if (userDTOs.getUserName() == null || userDTOs.getUserName().isEmpty()) {
-            return ResponseEntity.badRequest().body("Username is required.");
+        @Autowired
+        public AuthController(UserService userService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+            this.userService = userService;
+            this.authenticationManager = authenticationManager;
+            this.passwordEncoder = passwordEncoder;
+            this.jwtUtil = jwtUtil;
         }
 
-        if (userDTOs.getPassWord() == null || userDTOs.getPassWord().isEmpty()) {
-            return ResponseEntity.badRequest().body("Password is required.");
-        }
 
-        AuthProvider currentProvider = userDTOs.getAuthProvider() != null ? userDTOs.getAuthProvider() : AuthProvider.EMAIL;
-        Optional<User> existingUserOpt = userService.findByUserName(userDTOs.getUserName());
-
-        if (existingUserOpt.isPresent()) {
-            AuthProvider existingProvider = existingUserOpt.get().getAuthProvider();
-            if (existingProvider == currentProvider) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Tài khoản đã tồn tại với nhà cung cấp " + currentProvider);
+        @PostMapping("/signup")
+        public ResponseEntity<?> signup(@RequestBody UserDTOs userDTOs) {
+            if (userDTOs.getUserName() == null || userDTOs.getUserName().isEmpty()) {
+                return ResponseEntity.badRequest().body("Username is required.");
             }
 
+            if (userDTOs.getPassWord() == null || userDTOs.getPassWord().isEmpty()) {
+                return ResponseEntity.badRequest().body("Password is required.");
+            }
+
+            AuthProvider currentProvider = userDTOs.getAuthProvider() != null ? userDTOs.getAuthProvider() : AuthProvider.EMAIL;
+            Optional<User> existingUserOpt = userService.findByUserName(userDTOs.getUserName());
+
+            if (existingUserOpt.isPresent()) {
+                AuthProvider existingProvider = existingUserOpt.get().getAuthProvider();
+                if (existingProvider == currentProvider) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("Tài khoản đã tồn tại với nhà cung cấp " + currentProvider);
+                }
+
+            }
+
+            // gửi mail xác thực
+            userService.registerWithEmail(userDTOs);
+            return ResponseEntity.ok("Verification email sent. Please check your email.");
         }
 
-        // gửi mail xác thực
-        userService.registerWithEmail(userDTOs);
-        return ResponseEntity.ok("Verification email sent. Please check your email.");
+
+
+        @GetMapping("/verify")
+        public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
+            try {
+                userService.verifyAccount(token);
+                return ResponseEntity.ok("Account verified successfully.");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+        }
+
+
+        @PostMapping("/login")
+        public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+            String username = loginRequest.getUserName();
+            String password = loginRequest.getPassWord();
+
+            // Kiểm tra người dùng có tồn tại
+            Optional<User> userOptional = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
+
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+
+            User user = userOptional.get();
+
+            // Không cho đăng nhập nếu chưa xác minh
+            if (!user.isVerified()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Please verify your email before logging in.");
+            }
+
+            // Nếu là tài khoản Google/Facebook, không cho đăng nhập password
+            if (user.getAuthProvider() != AuthProvider.EMAIL) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Hãy đăng nhập bằng " + user.getAuthProvider());
+            }
+
+            try {
+                // Thực hiện xác thực Spring Security
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(username, password)
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Lấy userDetails từ authentication và sinh JWT
+                UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+                String jwt = jwtUtil.generateToken(userDetails, AuthProvider.EMAIL.name());
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Login successful!");
+                response.put("token", jwt);
+                response.put("user", Map.of(
+                        "username", user.getUserName(),
+                        "firstName", user.getFirstName(),
+                        "lastName", user.getLastName(),
+                        "role", user.getRole().name()
+                ));
+
+                return ResponseEntity.ok(response);
+
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
+            }
+        }
+
+        @PutMapping("/updateProfile")
+        public ResponseEntity<?> updateProfile(@RequestBody UserDTOs userDTOs, Authentication authentication) {
+            String username = authentication.getName();
+
+            try {
+                User updatedUser = userService.updateMyOwnProfile(username,AuthProvider.EMAIL,userDTOs);
+                return ResponseEntity.ok(updatedUser);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+        }
+
+
+        @PutMapping("/changePassword")
+        public ResponseEntity<?> changePassword(@RequestBody PassWordChangeDTOs passwordChange,
+                                                Authentication authentication) {
+            String username = authentication.getName();
+
+            try {
+                userService.changePassword(username, passwordChange);
+                return ResponseEntity.ok("Password changed successfully");
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            } catch (UsernameNotFoundException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+            }
+        }
+
     }
-
-
-
-    @GetMapping("/verify")
-    public ResponseEntity<?> verifyAccount(@RequestParam("token") String token) {
-        try {
-            userService.verifyAccount(token);
-            return ResponseEntity.ok("Account verified successfully.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        String username = loginRequest.getUserName();
-        String password = loginRequest.getPassWord();
-
-        // Kiểm tra người dùng có tồn tại
-        Optional<User> userOptional = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
-
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
-        }
-
-        User user = userOptional.get();
-
-        // Không cho đăng nhập nếu chưa xác minh
-        if (!user.isVerified()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Please verify your email before logging in.");
-        }
-
-        // Nếu là tài khoản Google/Facebook, không cho đăng nhập password
-        if (user.getAuthProvider() != AuthProvider.EMAIL) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Hãy đăng nhập bằng " + user.getAuthProvider());
-        }
-
-        try {
-            // Thực hiện xác thực Spring Security
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Lấy userDetails từ authentication và sinh JWT
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String jwt = jwtUtil.generateToken(userDetails, AuthProvider.EMAIL.name());
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Login successful!");
-            response.put("token", jwt);
-            response.put("user", Map.of(
-                    "username", user.getUserName(),
-                    "firstName", user.getFirstName(),
-                    "lastName", user.getLastName(),
-                    "role", user.getRole().name()
-            ));
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
-        }
-    }
-
-    @PutMapping("/updateProfile")
-    public ResponseEntity<?> updateProfile(@RequestBody UserDTOs userDTOs, Authentication authentication) {
-        String username = authentication.getName();
-
-        try {
-            User updatedUser = userService.updateMyOwnProfile(username,AuthProvider.EMAIL,userDTOs);
-            return ResponseEntity.ok(updatedUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
-
-
-    @PutMapping("/changePassword")
-    public ResponseEntity<?> changePassword(@RequestBody PassWordChangeDTOs passwordChange,
-                                            Authentication authentication) {
-        String username = authentication.getName();
-
-        try {
-            userService.changePassword(username, passwordChange);
-            return ResponseEntity.ok("Password changed successfully");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
-        }
-    }
-
-}

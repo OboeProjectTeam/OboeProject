@@ -64,7 +64,7 @@ public class UserService implements UserDetailsService {
         AuthProvider provider = userDTOs.getAuthProvider();
         String username = userDTOs.getUserName();
 
-        // ✅ Cho phép trùng username nếu khác provider
+        // Cho phép trùng username nếu khác provider
         Optional<User> existingOpt = userRepository.findByUserNameAndAuthProvider(username, provider);
         if (existingOpt.isPresent()) {
             if (provider == AuthProvider.EMAIL) {
@@ -124,6 +124,10 @@ public class UserService implements UserDetailsService {
         if (!user.isVerified()) {
             throw new UsernameNotFoundException("Tài khoản chưa xác minh email.");
         }
+        if (user.getStatus() != null && user.getStatus().toString().equalsIgnoreCase("BANNED")) {
+            throw new UsernameNotFoundException("Tài khoản đã bị khóa.");
+        }
+
 
         return buildPrincipal(user);
     }
@@ -132,7 +136,9 @@ public class UserService implements UserDetailsService {
         User user = userRepository
                 .findByUserNameAndAuthProvider(username, provider)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found (" + provider + ")"));
-
+        if (user.getStatus() != null && user.getStatus().toString().equalsIgnoreCase("BANNED")) {
+            throw new UsernameNotFoundException("Tài khoản đã bị khóa.");
+        }
         return buildPrincipal(user);
     }
 
@@ -175,20 +181,20 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public UserDTOs convertOAuthToDTO(String email, String firstName, String lastName, AuthProvider provider) {
-        UserDTOs dto = new UserDTOs();
-        dto.setUserName(email);
-        dto.setFirstName(firstName);
-        dto.setLastName(lastName);
-        dto.setVerified(true);
-        dto.setPassWord(null);
-        dto.setRole(Role.ROLE_USER);
-        dto.setAccountType(AccountType.FREE);
-        dto.setCreate_at(LocalDateTime.now());
-        dto.setUpdate_at(LocalDateTime.now());
-        dto.setAuthProvider(provider);
-        return dto;
-    }
+//    public UserDTOs convertOAuthToDTO(String email, String firstName, String lastName, AuthProvider provider) {
+//        UserDTOs dto = new UserDTOs();
+//        dto.setUserName(email);
+//        dto.setFirstName(firstName);
+//        dto.setLastName(lastName);
+//        dto.setVerified(true);
+//        dto.setPassWord(null);
+//        dto.setRole(Role.ROLE_USER);
+//        dto.setAccountType(AccountType.FREE);
+//        dto.setCreate_at(LocalDateTime.now());
+//        dto.setUpdate_at(LocalDateTime.now());
+//        dto.setAuthProvider(provider);
+//        return dto;
+//    }
 
     private void validatePassword(String password) {
         if (password == null || password.isBlank()) {
