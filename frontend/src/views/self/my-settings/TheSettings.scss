@@ -1,11 +1,18 @@
 @use '@/assets/css/index.scss' as *;
 @use 'sass:color';
 
+// Mobile breakpoint mixin
+
 .settings-page-container {
   display: flex;
   background-color: #ffffff;
   min-height: calc(100vh - 140px);
   font-family: $font-family-regular;
+
+   @include mobile-only{
+    flex-direction: column;
+    min-height: auto;
+  }
 }
 
 .settings-sidebar {
@@ -15,17 +22,55 @@
   padding: 30px;
   border-right: 1px solid #e9ecef;
 
+   @include mobile-only{
+    display: none; // Hide entire sidebar on mobile
+  }
+
   .sidebar-title {
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 30px 0;
     color: #333;
+
+     @include mobile-only{
+      font-size: 20px;
+      margin: 0 0 20px 0;
+    }
   }
 
   .nav-menu {
     list-style: none;
     padding: 0;
     margin: 0;
+
+     @include mobile-only{
+      display: flex;
+      overflow-x: auto;
+      padding: 0 20px 10px;
+      margin: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      width: 100%;
+      box-sizing: border-box;
+
+      &::-webkit-scrollbar {
+        display: none; /* WebKit */
+      }
+    }
+
+    li {
+       @include mobile-only{
+        flex: 0 0 auto;
+        margin-right: 12px;
+        white-space: nowrap;
+
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+    }
+
     .nav-link {
       display: flex;
       align-items: center;
@@ -36,11 +81,20 @@
       color: #495057;
       font-weight: 500;
       transition: background-color 0.2s ease, color 0.2s ease;
+      white-space: nowrap;
+
+       @include mobile-only{
+        margin-bottom: 0;
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+
       .icon {
         margin-right: 12px;
         width: 20px;
         text-align: center;
       }
+
       &:hover, &.active {
         background-color: color.adjust($primary-color, $alpha: -0.9);
         color: $primary-color;
@@ -51,8 +105,17 @@
 
 .settings-content {
   flex-grow: 1;
-  padding: 40px;
+  padding: 0 40px 40px 40px;
   max-width: 900px;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+
+   @include mobile-only{
+    padding: 20px;
+    max-width: 100%;
+    height: auto;
+    overflow-y: visible;
+  }
 }
 
 .settings-card {
@@ -62,11 +125,21 @@
   box-shadow: 0 4px 20px -10px rgba(0,0,0,0.05);
   border: 1px solid #dfe4e9;
 
+   @include mobile-only{
+    margin-bottom: 20px;
+    border-radius: 8px;
+  }
+
   .card-title {
     font-size: 20px;
     padding: 20px 25px;
     margin: 0;
     border-bottom: 1px solid #dfe4e9;
+
+     @include mobile-only{
+      font-size: 18px;
+      padding: 15px 20px;
+    }
   }
 }
 
@@ -78,10 +151,19 @@
   border-radius: 0 0 12px 12px;
   color: white;
 
+   @include mobile-only{
+    padding: 10px;
+  }
+
   .promo-icon {
     font-size: 32px;
     margin-right: 20px;
     color: #ffc107;
+
+     @include mobile-only{
+      font-size: 28px;
+      margin-right: 15px;
+    }
   }
   .promo-text {
     flex-grow: 1;
@@ -95,12 +177,37 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
+
+   @include mobile-only{
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+    gap: 15px;
+  }
+
   &:not(:last-child) {
     border-bottom: 1px solid #dfe4e9;
   }
+
   .item-info {
-    label { font-weight: 600; font-size: 16px; color: #343a40; }
-    .item-description { font-size: 14px; color: #6c757d; margin: 4px 0 0; }
+    label { 
+      font-weight: 600; 
+      font-size: 16px; 
+      color: #343a40;
+
+       @include mobile-only{
+        font-size: 15px;
+      }
+    }
+    .item-description { 
+      font-size: 14px; 
+      color: #6c757d; 
+      margin: 4px 0 0;
+
+       @include mobile-only{
+        font-size: 13px;
+      }
+    }
   }
 }
 
@@ -115,6 +222,11 @@
   gap: 12px;
   align-items: flex-end;
 
+   @include mobile-only{
+    width: 100%;
+    align-items: stretch;
+  }
+
   .password-input {
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -123,6 +235,11 @@
     font-size: 15px;
     width: 250px;
     transition: border-color 0.2s, box-shadow 0.2s;
+
+     @include mobile-only{
+      width: 100%;
+    }
+
     &:focus {
       outline: none;
       border-color: $primary-color;
@@ -135,6 +252,15 @@
     display: flex;
     justify-content: space-between !important;
     margin-top: 4px;
+
+     @include mobile-only{
+      flex-direction: column;
+      gap: 10px;
+
+      .btn {
+        width: 100%;
+      }
+    }
   }
 }
 
@@ -148,10 +274,26 @@
   font-size: 15px;
 
   &.btn-upgrade {
-    background: white;
+    background-color: white;
     color: $primary-color;
-    font-weight: 700;
-    &:hover { background: #f8f9fa; transform: scale(1.05); }
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+
+     @include mobile-only{
+      padding: 8px 16px;
+      font-size: 9px;
+      border-radius: 6px;
+    }
+
+    &:hover {
+      background-color: darken(white, 5%);
+    }
   }
 
   &.btn-danger {
@@ -207,27 +349,70 @@
 
 .language-select-wrapper {
   position: relative;
+  display: inline-block;
+
   .select-icon {
     position: absolute;
-    left: 15px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #adb5bd;
+    color: #6c757d;
     pointer-events: none;
   }
+
   .language-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 8px;
-    padding: 10px 15px 10px 40px;
-    font-size: 15px;
-    font-weight: 500;
+    padding: 8px 36px 8px 36px;
+    font-size: 14px;
     color: #495057;
     cursor: pointer;
-    width: 150px;
+    width: 140px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+     @include mobile-only{
+      width: 120px;
+      font-size: 13px;
+      padding: 6px 32px 6px 32px;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 2px color.adjust($primary-color, $alpha: -0.8);
+    }
+
+    option {
+      padding: 8px 12px;
+      background-color: white;
+      color: #495057;
+      font-size: 14px;
+
+      &:hover {
+        background-color: #f8f9fa;
+      }
+
+      &:checked {
+        background-color: color.adjust($primary-color, $alpha: -0.9);
+        color: $primary-color;
+      }
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #6c757d;
+    pointer-events: none;
   }
 }
 

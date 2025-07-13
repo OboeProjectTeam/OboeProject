@@ -3,10 +3,38 @@
     <div class="settings-sidebar">
       <h2 class="sidebar-title">Cài đặt</h2>
       <ul class="nav-menu">
-        <li><a href="#account" class="nav-link active"><i class="fas fa-rocket icon"></i>Nâng cấp</a></li>
-        <li><a href="#appearance" class="nav-link"><i class="fas fa-paint-brush icon"></i>Giao diện</a></li>
-        <li><a href="#privacy" class="nav-link"><i class="fas fa-shield-alt icon"></i>Bảo mật & Riêng tư</a></li>
-        <li><a href="#danger" class="nav-link"><i class="fas fa-exclamation-triangle icon"></i>Vùng nguy hiểm</a></li>
+        <li>
+          <a href="#account" 
+             class="nav-link" 
+             :class="{ active: currentSection === 'account' }"
+             @click="setCurrentSection('account', $event)">
+            <i class="fas fa-rocket icon"></i>Nâng cấp
+          </a>
+        </li>
+        <li>
+          <a href="#appearance" 
+             class="nav-link" 
+             :class="{ active: currentSection === 'appearance' }"
+             @click="setCurrentSection('appearance', $event)">
+            <i class="fas fa-paint-brush icon"></i>Giao diện
+          </a>
+        </li>
+        <li>
+          <a href="#privacy" 
+             class="nav-link" 
+             :class="{ active: currentSection === 'privacy' }"
+             @click="setCurrentSection('privacy', $event)">
+            <i class="fas fa-shield-alt icon"></i>Bảo mật & Riêng tư
+          </a>
+        </li>
+        <li>
+          <a href="#danger" 
+             class="nav-link" 
+             :class="{ active: currentSection === 'danger' }"
+             @click="setCurrentSection('danger', $event)">
+            <i class="fas fa-exclamation-triangle icon"></i>Vùng nguy hiểm
+          </a>
+        </li>
       </ul>
     </div>
 
@@ -20,7 +48,6 @@
           </div>
           <div class="promo-text">
             <h4>Mở khóa toàn bộ tính năng với Oboe Pro</h4>
-            <p>Truy cập không giới hạn, tạo học liệu nâng cao và trải nghiệm không quảng cáo.</p>
           </div>
           <button class="btn btn-upgrade" @click="goToUpgrade">Nâng cấp ngay</button>
         </div>
@@ -119,17 +146,69 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDarkMode } from '@/composables/useDarkMode';
 
 const router = useRouter();
 const { isDark } = useDarkMode();
 const isChangingPassword = ref(false);
+const currentSection = ref('account');
 
 const oldPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
+
+const setCurrentSection = (section, event) => {
+  if (event) {
+    event.preventDefault(); // Prevent default hash navigation
+  }
+  currentSection.value = section;
+  
+  // Find the target element and content container
+  const targetElement = document.getElementById(section);
+  const contentContainer = document.querySelector('.settings-content');
+  
+  if (targetElement && contentContainer) {
+    // Get the relative position of the target element within the content container
+    const containerRect = contentContainer.getBoundingClientRect();
+    const targetRect = targetElement.getBoundingClientRect();
+    const scrollOffset = targetRect.top - containerRect.top + contentContainer.scrollTop - 20; // 20px offset from top
+
+    // Smooth scroll the content container
+    contentContainer.scrollTo({
+      top: scrollOffset,
+      behavior: "smooth"
+    });
+  }
+
+  // Update URL hash without triggering scroll
+  window.history.pushState(null, '', `#${section}`);
+};
+
+// Handle hash changes in URL
+const handleHashChange = () => {
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    currentSection.value = hash;
+    setCurrentSection(hash);
+  }
+};
+
+onMounted(() => {
+  // Set initial section from URL hash if exists
+  if (window.location.hash) {
+    const hash = window.location.hash.slice(1);
+    currentSection.value = hash;
+    // Small delay to ensure elements are rendered
+    setTimeout(() => setCurrentSection(hash), 100);
+  }
+  window.addEventListener('hashchange', handleHashChange);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashChange);
+});
 
 const goToUpgrade = () => {
   router.push('/upgrade');

@@ -5,6 +5,11 @@
   max-width: 900px;
   margin: 0 auto;
   font-family: $font-family-regular;
+  padding: 0 15px; // Add padding for mobile
+
+   @include mobile-only {
+    padding: 0 10px;
+  }
 }
 
 .create-post-card {
@@ -13,31 +18,77 @@
   box-shadow: 0 4px 25px -10px rgba(0,0,0,0.08);
   border: 1px solid #e9ecef;
   overflow: hidden;
+
+   @include mobile-only {
+    border-radius: 8px;
+  }
 }
 
 .card-header {
   padding: 25px 30px;
   border-bottom: 1px solid #e9ecef;
   background-color: #f8f9fa;
-  h1 { font-size: 1.8rem; font-family: $font-family-bold; margin: 0 0 5px 0; }
-  p { margin: 0; color: #6c757d; }
+  
+   @include mobile-only {
+    padding: 15px 20px;
+  }
+
+  h1 { 
+    font-size: 1.8rem; 
+    font-family: $font-family-bold; 
+    margin: 0 0 5px 0; 
+
+     @include mobile-only {
+      font-size: 1.4rem;
+    }
+  }
+  p { 
+    margin: 0; 
+    color: #6c757d; 
+
+     @include mobile-only {
+      font-size: 0.9rem;
+    }
+  }
 }
 
-.card-body { padding: 30px; }
+.card-body { 
+  padding: 30px;
+
+   @include mobile-only {
+    padding: 20px 15px;
+  }
+}
 
 .form-row {
   display: flex;
   gap: 20px;
+  
+   @include mobile-only {
+    flex-direction: column;
+    gap: 15px;
+  }
+
   .form-group { flex: 1; }
 }
 
 .form-group {
   margin-bottom: 25px;
+
+   @include mobile-only {
+    margin-bottom: 20px;
+  }
+
   label {
     display: block;
     font-weight: 600;
     color: #343a40;
     margin-bottom: 8px;
+
+     @include mobile-only {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
   }
 }
 
@@ -52,6 +103,12 @@ input[type="text"], textarea, select, .tags-input-trigger {
   transition: all 0.2s ease;
   background-color: white;
 
+   @include mobile-only {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+  }
+
   &:focus, &.is-active {
     outline: none;
     border-color: $primary-color;
@@ -59,7 +116,14 @@ input[type="text"], textarea, select, .tags-input-trigger {
   }
 }
 
-textarea { resize: vertical; }
+textarea { 
+  resize: vertical;
+  min-height: 120px;
+
+   @include mobile-only {
+    min-height: 100px;
+  }
+}
 
 .custom-select-wrapper {
   position: relative;
@@ -80,6 +144,11 @@ textarea { resize: vertical; }
     pointer-events: none;
     color: #868e96;
     font-size: 0.9rem;
+
+     @include mobile-only {
+      right: 15px;
+      font-size: 0.8rem;
+    }
   }
 }
 
@@ -87,6 +156,7 @@ textarea { resize: vertical; }
 .tags-input-container {
   position: relative;
 }
+
 .tags-input-trigger {
   display: flex;
   align-items: center;
@@ -94,7 +164,17 @@ textarea { resize: vertical; }
   cursor: pointer;
   min-height: 48px;
 
-  .placeholder { color: #adb5bd; }
+   @include mobile-only {
+    min-height: 42px;
+  }
+
+  .placeholder { 
+    color: #adb5bd;
+    
+     @include mobile-only {
+      font-size: 0.9rem;
+    }
+  }
   .trigger-icon {
     color: #868e96;
     transition: transform 0.2s ease;
@@ -109,6 +189,11 @@ textarea { resize: vertical; }
   flex-wrap: wrap;
   gap: 6px;
   padding-right: 10px;
+
+   @include mobile-only {
+    gap: 4px;
+    padding-right: 8px;
+  }
 }
 
 .tag-pill.is-compact {
@@ -117,11 +202,22 @@ textarea { resize: vertical; }
   padding: 4px 8px;
   font-size: 0.85rem;
   border-radius: 4px;
+
+   @include mobile-only {
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
   i {
     font-size: 0.75rem;
     margin-left: 6px;
     opacity: 0.7;
     &:hover { opacity: 1; }
+
+     @include mobile-only {
+      font-size: 0.7rem;
+      margin-left: 4px;
+    }
   }
 }
 
@@ -135,11 +231,21 @@ textarea { resize: vertical; }
   border-radius: 8px;
   z-index: 10;
   box-shadow: 0 4px 15px -5px rgba(0,0,0,0.1);
+
+   @include mobile-only {
+    border-radius: 6px;
+    top: calc(100% + 4px);
+  }
 }
 
 .tags-input {
   padding: 10px 15px;
   border-bottom: 1px solid #e9ecef;
+
+   @include mobile-only {
+    padding: 8px 12px;
+  }
+
   input {
     width: 100%;
     border: none;
@@ -147,6 +253,10 @@ textarea { resize: vertical; }
     font-size: 1rem;
     padding: 2px 0;
     &::placeholder { color: #adb5bd; }
+
+     @include mobile-only {
+      font-size: 0.9rem;
+    }
   }
 }
 
@@ -156,10 +266,21 @@ textarea { resize: vertical; }
   padding: 5px 0;
   max-height: 180px;
   overflow-y: auto;
+
+   @include mobile-only {
+    max-height: 150px;
+  }
+
   li {
     padding: 10px 15px;
     cursor: pointer;
     &:hover { background-color: #f1f3f5; }
+
+     @include mobile-only {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+
     &.add-new-tag {
       color: $primary-color;
       font-weight: 500;
@@ -179,6 +300,12 @@ textarea { resize: vertical; }
   gap: 15px;
   margin-top: 10px;
   
+   @include mobile-only {
+    flex-direction: column-reverse;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
   .btn {
     padding: 10px 25px;
     font-size: 1rem;
@@ -187,6 +314,14 @@ textarea { resize: vertical; }
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+
+     @include mobile-only {
+      width: 100%;
+      padding: 12px;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      text-align: center;
+    }
   }
   .btn-primary {
     background-color: $primary-color;
@@ -196,6 +331,6 @@ textarea { resize: vertical; }
   .btn-secondary {
     background-color: #e9ecef;
     color: #495057;
-     &:hover { background-color: #dee2e6; }
+    &:hover { background-color: #dee2e6; }
   }
 }

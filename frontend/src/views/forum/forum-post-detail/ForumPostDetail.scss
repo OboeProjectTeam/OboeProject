@@ -4,6 +4,11 @@
 .post-detail-container {
   width: 100%;
   font-family: $font-family-regular;
+  padding: 0 15px;
+
+   @include mobile-only {
+    padding: 0 10px;
+  }
 }
 
 .breadcrumb {
@@ -11,6 +16,12 @@
   align-items: center;
   margin-bottom: 25px;
   font-size: 0.95rem;
+
+   @include mobile-only {
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+  }
 
   a {
     color: $primary-color;
@@ -25,6 +36,11 @@
     margin: 0 10px;
     font-size: 0.8rem;
     color: #adb5bd;
+
+     @include mobile-only {
+      margin: 0 6px;
+      font-size: 0.75rem;
+    }
   }
 
   span {
@@ -34,12 +50,23 @@
 
 .post-header {
   margin-bottom: 25px;
+
+   @include mobile-only {
+    margin-bottom: 20px;
+  }
+
   .post-title {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-family: $font-family-bold;
     color: #212529;
     line-height: 1.3;
     margin: 0 0 15px 0;
+
+     @include mobile-only {
+      font-size: 15px;
+      line-height: 1.25;
+      margin: 0 0 10px 0;
+    }
   }
   .post-meta {
     display: flex;
@@ -50,7 +77,12 @@
       border-radius: 50%;
       margin-right: 12px;
       cursor: pointer;
-    
+
+       @include mobile-only {
+        width: 35px;
+        height: 35px;
+        margin-right: 10px;
+      }
     }
     .meta-info {
       display: flex;
@@ -62,10 +94,18 @@
         &:hover {
           color: $primary-color;
         }
+
+         @include mobile-only {
+          font-size: 0.95rem;
+        }
       }
       .post-time {
         font-size: 0.9rem;
         color: #6c757d;
+
+         @include mobile-only {
+          font-size: 0.8rem;
+        }
       }
     }
   }
@@ -78,12 +118,24 @@
   box-shadow: 0 4px 25px -10px rgba(0,0,0,0.08);
   border: 1px solid #e9ecef;
   margin-bottom: 30px;
+
+   @include mobile-only {
+    padding: 20px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
 }
 
 .post-content-card {
   font-size: 1.1rem;
   line-height: 1.7;
   color: #343a40;
+
+   @include mobile-only {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
   p {
     margin: 0 0 1rem 0;
   }
@@ -103,34 +155,56 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid #dee2e6;
+
+     @include mobile-only {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+    }
   }
 }
 
 .reply-list {
   > .reply-thread:not(:first-child) {
     padding-top: 20px;
+
+     @include mobile-only {
+      padding-top: 15px;
+    }
   }
    > .reply-thread:not(:last-child) {
     border-bottom: 1px solid #e9ecef;
     padding-bottom: 20px;
+
+     @include mobile-only {
+      padding-bottom: 15px;
+    }
   }
   margin-bottom: 40px;
+
+   @include mobile-only {
+    margin-bottom: 30px;
+  }
 }
 
 .reply-thread {
   position: relative;
   
-  // Threading line for nested replies
   &.is-nested {
     padding-top: 20px;
     &::before {
       content: '';
       position: absolute;
-      left: -34px; // Adjust this value to align with avatar
+      left: -34px;
       top: -40px;
       bottom: 0;
       width: 2px;
       background-color: #e9ecef;
+
+       @include mobile-only {
+        left: -25px;
+        top: -30px;
+      }
     }
   }
 }
@@ -142,8 +216,9 @@
   padding: 8px;
   margin: 0 -8px;
 
-  &:hover {
-    background-color: #f8f9fa;
+   @include mobile-only {
+    padding: 6px;
+    margin: 0 -6px;
   }
 
   .author-avatar {
@@ -153,6 +228,12 @@
     margin-right: 15px;
     flex-shrink: 0;
     cursor: pointer;
+
+     @include mobile-only {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+    }
   }
   
   .reply-content-wrapper {
@@ -161,6 +242,11 @@
       display: flex;
       align-items: center;
       margin-bottom: 8px;
+
+       @include mobile-only {
+        margin-bottom: 6px;
+      }
+
       .author-name {
         font-weight: 700;
         color: #343a40;
@@ -169,23 +255,43 @@
         &:hover {
           color: $primary-color;
         }
+
+         @include mobile-only {
+          font-size: 0.9rem;
+          margin-right: 8px;
+        }
       }
       .post-time {
         font-size: 0.85rem;
         color: #868e96;
+
+         @include mobile-only {
+          font-size: 0.75rem;
+        }
       }
     }
     .reply-content {
       color: #495057;
       line-height: 1.6;
+
+       @include mobile-only {
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
       p { margin: 0; }
     }
   }
 }
 
 .nested-replies {
-  padding-left: 55px; /* 40px avatar + 15px margin */
+  padding-left: 55px;
   margin-top: 12px;
+
+   @include mobile-only {
+    padding-left: 35px;
+    margin-top: 10px;
+  }
 }
 
 .reply-actions {
@@ -193,6 +299,11 @@
   display: flex;
   gap: 15px;
   
+   @include mobile-only {
+    margin-top: 8px;
+    gap: 12px;
+  }
+
   .btn-link {
     background: none;
     border: none;
@@ -207,9 +318,18 @@
     border-radius: 6px;
     transition: all 0.2s ease;
 
+     @include mobile-only {
+      font-size: 0.8rem;
+      padding: 3px 5px;
+    }
+
     i {
       margin-right: 6px;
       font-size: 0.9em;
+
+       @include mobile-only {
+        margin-right: 4px;
+      }
     }
     
     &:hover {
@@ -232,9 +352,13 @@
 }
 
 .nested-reply-form {
-  padding-left: 55px; /* Match nested-replies padding */
+  padding-left: 55px;
   margin-top: 15px;
-  overflow: hidden;
+
+   @include mobile-only {
+    padding-left: 35px;
+    margin-top: 12px;
+  }
 }
 
 .reply-form-actions {
@@ -243,14 +367,9 @@
   gap: 10px;
   margin-top: 10px;
 
-  .cancel-reply-btn {
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    color: #495057;
-    &:hover {
-      background-color: #e9ecef;
-      border-color: #ced4da;
-    }
+   @include mobile-only {
+    gap: 8px;
+    margin-top: 8px;
   }
 }
 
@@ -263,7 +382,13 @@
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  
+   @include mobile-only {
+    min-height: 80px;
+    padding: 12px;
+    font-size: 0.95rem;
+    border-radius: 6px;
+  }
   
   &:focus {
     outline: none;
@@ -279,7 +404,12 @@
   border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+
+   @include mobile-only {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
 }
 
 .submit-reply-btn {
@@ -304,28 +434,45 @@
 
 .add-reply-card {
   margin-top: 40px;
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 25px -10px rgba(0,0,0,0.08);
-  border: 1px solid #e9ecef;
   margin-bottom: 30px;
+
+   @include mobile-only {
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
 
   .add-reply-header {
     font-size: 1.2rem;
     font-weight: 700;
     margin: 0 0 15px 0;
+
+     @include mobile-only {
+      font-size: 1.1rem;
+      margin: 0 0 12px 0;
+    }
   }
+
   .reply-form {
     .reply-textarea {
-       min-height: 120px;
-       margin-bottom: 15px;
+      min-height: 120px;
+      margin-bottom: 15px;
+
+       @include mobile-only {
+        min-height: 100px;
+        margin-bottom: 12px;
+      }
     }
     .submit-reply-btn {
       padding: 10px 20px;
       font-size: 1rem;
       margin-left: auto;
       display: block;
+
+       @include mobile-only {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+      }
     }
   }
 }
@@ -375,6 +522,11 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+
+   @include mobile-only {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 }
 
 .post-actions {
@@ -403,6 +555,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   min-width: 180px;
   z-index: 3000;
+
+   @include mobile-only {
+    min-width: 160px;
+    right: -5px;
+  }
 }
 
 .menu-item {
@@ -479,6 +636,12 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+   @include mobile-only {
+    width: 95%;
+    max-height: 95vh;
+    border-radius: 8px;
+  }
 }
 
 .dialog-header {
@@ -492,6 +655,10 @@
     margin: 0;
     font-size: 1.25rem;
     color: #2d3748;
+
+     @include mobile-only {
+      font-size: 1.1rem;
+    }
   }
   
   .close-btn {
@@ -512,14 +679,28 @@
 .report-form {
   padding: 20px;
   
+   @include mobile-only {
+    padding: 15px;
+  }
+  
   .form-group {
     margin-bottom: 20px;
+    
+     @include mobile-only {
+      margin-bottom: 15px;
+    }
     
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
       color: #2d3748;
+      margin-bottom: 8px;
+
+       @include mobile-only {
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+      }
     }
     
     select, textarea {
@@ -540,6 +721,10 @@
     textarea {
       resize: vertical;
       min-height: 100px;
+
+       @include mobile-only {
+        min-height: 80px;
+      }
     }
   }
 }
@@ -549,6 +734,12 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 20px;
+  
+   @include mobile-only {
+    gap: 8px;
+    margin-top: 15px;
+    flex-direction: column;
+  }
   
   button {
     padding: 10px 20px;

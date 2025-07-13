@@ -321,11 +321,35 @@
       }
     }
 
-    .study-set-preview {
+    // Preview section styles for desktop
+    .preview-section {
       width: 66.666%;
       height: 100%;
       display: flex;
       flex-direction: column;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+
+      &.empty-preview {
+        align-items: center;
+        justify-content: center;
+        
+        .empty-content {
+          text-align: center;
+          color: #666;
+
+          i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+          }
+
+          p {
+            font-size: 16px;
+          }
+        }
+      }
 
       .preview-header {
         margin-bottom: 16px;
@@ -367,105 +391,76 @@
           }
         }
       }
-    }
 
-    .terms-preview {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: white;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      padding: 4px;
-      margin: -4px;
-
-      .terms-header {
-        border-radius: 12px 12px 0 0;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        padding: 20px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #eee;
-        font-weight: 500;
-        color: #666;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-      }
-
-      .terms-list {
+      .terms-preview {
         flex: 1;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        padding: 4px;
 
-        &::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #ddd;
-          border-radius: 4px;
-
-          &:hover {
-            background: #ccc;
-          }
-        }
-
-        .term-row {
+        .terms-header {
+          border-radius: 12px 12px 0 0;
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 16px;
-          padding: 16px 20px;
+          padding: 20px;
+          background: #f8f9fa;
           border-bottom: 1px solid #eee;
-          transition: background-color 0.2s;
-
-          &:last-child {
-            border-bottom: none;
-          }
-
-          &:hover {
-            background: #f8f9fa;
-          }
-
-          .front, .back {
-            font-size: 15px;
-            color: #2d3748;
-          }
-        }
-      }
-    }
-
-    .empty-preview {
-      width: 66.666%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 4px;
-      margin: -4px;
-
-      .empty-content {
-        text-align: center;
-        color: #666;
-
-        i {
-          font-size: 48px;
-          margin-bottom: 16px;
-          opacity: 0.5;
+          font-weight: 500;
+          color: #666;
+          position: sticky;
+          top: 0;
+          z-index: 1;
         }
 
-        p {
-          font-size: 16px;
+        .terms-list {
+          flex: 1;
+          overflow-y: auto;
+
+          &::-webkit-scrollbar {
+            width: 8px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+
+            &:hover {
+              background: #ccc;
+            }
+          }
+
+          .term-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            &:hover {
+              background: #f8f9fa;
+            }
+
+            .front, .back {
+              font-size: 15px;
+              color: #2d3748;
+            }
+          }
         }
       }
     }
@@ -606,5 +601,256 @@
     font-weight: 600;
     color: #333;
     line-height: 1.4;
+  }
+}
+
+// Add responsive styles at the end of the file
+@include mobile-only {
+  .search-results-page {
+    .container {
+      h1{
+        font-size: 20px;
+      }
+    }
+    .single-row {
+      flex-direction: column;
+      gap: 12px;
+      
+      // Add grid layout for user cards in single row
+      &:has(.user-card) {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    // Quiz tab should show 1 item per row
+    .paged-grid-content {
+      .grid-container {
+        &:has(.question-card-grid) {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        
+        // Other grids maintain 2 columns
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+    }
+
+    .study-sets-content {
+      height: auto;
+
+      .study-sets-container {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .study-sets-list {
+        width: 100%;
+
+        .sets-grid {
+          > div {
+            margin-bottom: 16px;
+          }
+        }
+
+        .study-set-card {
+          margin-bottom: 0;
+
+          // Mobile preview styles
+          .mobile-preview {
+            display: none; // Always hide by default
+
+            // Only show on mobile screens
+            @include mobile-only {
+              display: block;
+              margin-top: 16px;
+              border-top: 1px solid #eee;
+              padding-top: 16px;
+
+              .preview-header {
+                padding: 0;
+                margin-bottom: 16px;
+
+                .header-top {
+                  flex-direction: column;
+                  gap: 12px;
+                  height: auto;
+
+                  h1 {
+                    font-size: 18px;
+                    margin: 0;
+                  }
+
+                  .learn-btn {
+                    width: 100%;
+                    justify-content: center;
+                    padding: 10px;
+                  }
+                }
+              }
+
+              .terms-preview {
+                border: 1px solid #eee;
+                border-radius: 12px;
+                overflow: hidden;
+
+                .terms-header {
+                  padding: 12px 16px;
+                  font-size: 14px;
+                  background: #f8f9fa;
+                  border-bottom: 1px solid #eee;
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 16px;
+                }
+
+                .terms-list {
+                  max-height: 300px;
+                  overflow-y: auto;
+
+                  .term-row {
+                    padding: 12px 16px;
+                    font-size: 14px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 16px;
+                    border-bottom: 1px solid #eee;
+
+                    &:last-child {
+                      border-bottom: none;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Hide desktop preview on mobile
+      .preview-section {
+        @include mobile-only {
+          display: none;
+        }
+      }
+    }
+
+    .tabs-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+
+      .tabs-list {
+        display: flex;
+        gap: 0px;
+        justify-content: space-between;
+        padding-bottom: 8px;
+        margin-bottom: -8px; // Offset padding to maintain border position
+        -webkit-overflow-scrolling: touch; // Smooth scroll on iOS
+        scrollbar-width: none; // Hide scrollbar on Firefox
+        
+        &::-webkit-scrollbar {
+          display: none; // Hide scrollbar on Chrome/Safari
+        }
+
+        .tab-item {
+          white-space: nowrap;
+          padding: 12px 0px;
+          flex-shrink: 0; // Prevent tabs from shrinking
+        }
+      }
+    }
+
+    .study-set-preview {
+      .preview-header {
+        .header-top {
+          flex-direction: column;
+          gap: 12px;
+          height: auto;
+          padding: 12px 0;
+          .learn-btn {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      }
+    }
+
+    .terms-preview {
+      .terms-header {
+        padding: 16px;
+      }
+
+      .terms-list {
+        .term-row {
+          padding: 12px 16px;
+        }
+      }
+    }
+
+    .pagination {
+      button {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      .page-number {
+        padding: 6px 12px;
+        min-width: 60px;
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+@include mobile-only {
+  .search-results-page {
+    .user-card {
+      padding: 12px;
+      
+      .avatar {
+        width: 30px;
+        height: 30px;
+      }
+
+      .user-info {
+        .user-name {
+          font-size: 12px;
+        }
+        .user-stats {
+          font-size: 10px;
+        }
+      }
+    }
+
+    .user-card-grid {
+      padding: 12px;
+      
+      .avatar {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 4px;
+      }
+
+      .user-info {
+        .user-name {
+          font-size: 14px;
+        }
+        .user-stats {
+          font-size: 12px;
+        }
+      }
+    }
+
+    .question-card-grid {
+      padding: 16px;
+      min-height: auto; // Allow height to adjust based on content
+      
+      .question-title {
+        font-size: 15px;
+        line-height: 1.5;
+      }
+    }
   }
 }

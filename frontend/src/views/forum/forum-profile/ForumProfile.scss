@@ -14,10 +14,13 @@
 .breadcrumb {
   display: flex;
   align-items: center;
-  margin-bottom: 25px;
-  font-size: 0.95rem;
-
-  .breadcrumb-link {
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  margin-left: 15px;
+  @include mobile-only {
+    margin-left: 0;
+  }
+  a {
     color: $primary-color;
     text-decoration: none;
     font-weight: 600;
@@ -26,14 +29,13 @@
     }
   }
 
-  .breadcrumb-separator {
-    margin: 0 10px;
-    font-size: 0.8rem;
-    color: #adb5bd;
+  .separator {
+    margin: 0 8px;
+    color: #868e96;
+    font-size: 0.75rem;
   }
 
-  .breadcrumb-current {
-    color: #6c757d;
-    font-weight: 400;
+  span:last-child {
+    color: #495057;
   }
 }

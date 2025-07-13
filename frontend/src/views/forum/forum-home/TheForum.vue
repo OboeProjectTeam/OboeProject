@@ -295,6 +295,4 @@ const handleSearch = () => {
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-home/TheForum.scss';
-
-
 </style>

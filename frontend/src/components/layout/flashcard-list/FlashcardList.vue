@@ -1,9 +1,11 @@
 <template>
-  <div class="flashcard-container">
+  <div class="flashcard-container" :style="containerStyle">
     <button 
       class="flashcard-btn" 
-      @click="toggleList"
+      @click="handleButtonClick"
       :class="{ 'active': isOpen }"
+      @mousedown="startDrag"
+      @touchstart="startDrag"
     >
       <i class="fas fa-book"></i>
       <span v-if="totalItems > 0" class="item-count">{{ totalItems }}</span>
@@ -61,12 +63,119 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 
 const store = useStore()
 const isOpen = ref(false)
 const activeTab = ref('word')
+const isDragging = ref(false)
+
+const containerStyle = computed(() => ({
+  transform: `translateY(${position.value.y}px)`
+}))
+
+// Drag functionality
+let startY = 0
+let startPosY = 0
+
+// Separate click handler
+const handleButtonClick = (event) => {
+  // Nếu không phải đang kéo thì toggle list
+  if (!isDragging.value) {
+    event.preventDefault() // Ngăn chặn các hành vi mặc định khác
+    event.stopPropagation() // Ngăn chặn sự kiện lan truyền
+    toggleList()
+  }
+}
+
+const startDrag = (event) => {
+  // Chỉ ngăn scroll khi thực sự đang kéo
+  if (event.target.closest('.flashcard-list')) {
+    return
+  }
+  
+  isDragging.value = false
+  
+  // Get initial positions
+  if (event.type === 'mousedown') {
+    startY = event.clientY
+  } else if (event.type === 'touchstart') {
+    startY = event.touches[0].clientY
+  }
+  startPosY = position.value.y
+
+  // Add event listeners
+  if (event.type === 'mousedown') {
+    document.addEventListener('mousemove', onDrag)
+    document.addEventListener('mouseup', stopDrag)
+  } else if (event.type === 'touchstart') {
+    document.addEventListener('touchmove', onDrag)
+    document.addEventListener('touchend', stopDrag)
+  }
+}
+
+const onDrag = (event) => {
+  let currentY
+  if (event.type === 'mousemove') {
+    currentY = event.clientY
+  } else if (event.type === 'touchmove') {
+    currentY = event.touches[0].clientY
+  }
+
+  const deltaY = Math.abs(currentY - startY)
+  if (deltaY > 10) { // Tăng ngưỡng phát hiện drag
+    isDragging.value = true
+    event.preventDefault() // Chỉ prevent default khi thực sự đang kéo
+  }
+
+  if (isDragging.value) {
+    const deltaY = currentY - startY
+    let newY = startPosY + deltaY
+
+    // Constrain to viewport bounds
+    const maxY = window.innerHeight - 100
+    const minY = 100
+    newY = Math.max(minY, Math.min(newY, maxY))
+
+    position.value.y = newY
+  }
+}
+
+const stopDrag = () => {
+  isDragging.value = false
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('touchmove', onDrag)
+  document.removeEventListener('touchend', stopDrag)
+}
+
+// Initialize position to a better starting point
+const position = ref({ y: 210 }) // Đặt vị trí ban đầu gần top
+
+// Add better position adjustment on resize
+const adjustPositionOnResize = () => {
+  const maxY = window.innerHeight - 100
+  const minY = 100
+  const currentY = position.value.y
+  
+  // If position is outside bounds, animate to nearest valid position
+  if (currentY < minY || currentY > maxY) {
+    position.value.y = Math.max(minY, Math.min(currentY, maxY))
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', adjustPositionOnResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', adjustPositionOnResize)
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', stopDrag)
+  document.removeEventListener('touchmove', onDrag)
+  document.removeEventListener('touchend', stopDrag)
+})
 
 const tabs = [
   { type: 'word', label: 'Từ vựng' },

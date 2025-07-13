@@ -1,13 +1,11 @@
 <template>
   <div class="forum-profile-container">
     <div class="breadcrumb">
-      <router-link to="/forum" class="breadcrumb-link">Diễn đàn</router-link>
-      <template v-if="fromPostId && fromPostTitle">
-        <span class="breadcrumb-separator">></span>
-        <router-link :to="`/forum/post/${fromPostId}`" class="breadcrumb-link">Chi tiết bài viết</router-link>
-      </template>
-      <span class="breadcrumb-separator">></span>
-      <span class="breadcrumb-current">Hồ sơ</span>
+      <router-link to="/forum">Diễn đàn</router-link>
+      <i class="fas fa-chevron-right separator"></i>
+      <router-link :to="`/forum/post/${route.query.fromPostId}`">Chi tiết bài viết</router-link>
+      <i class="fas fa-chevron-right separator"></i>
+      <span>Hồ sơ</span>
     </div>
     <ProfileDetail v-if="user" :user="user"/> 
     <div v-else class="loading">
@@ -25,12 +23,7 @@ const route = useRoute();
 const user = ref(null);
 const username = computed(() => route.params.username);
 
-// Lấy thông tin bài viết trước đó từ query params
-const fromPostId = computed(() => route.query.fromPostId);
-const fromPostTitle = computed(() => route.query.fromPostTitle);
-
 // This is the mock data. In a real application, you would fetch this from your API.
-// Note: I'm including the full user data here for demonstration purposes.
 const mockUsers = {
     'sarah-w': {
       username: 'sarah-w',
