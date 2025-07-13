@@ -1,18 +1,21 @@
 package com.example.Oboe.Entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name="Message")
+@Table(name = "Message")
 public class Message {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "MessageID", updatable = false, nullable = false)
-    private UUID MessageID;
+    @Column(name = "messageid", updatable = false, nullable = false, columnDefinition = "BINARY(16)")
+    private UUID messageID;
+
+
     private String sent_message;
+
     private LocalDateTime sent_at = LocalDateTime.now();
 
     @PreUpdate
@@ -20,29 +23,23 @@ public class Message {
         this.sent_at = LocalDateTime.now();
     }
 
-    // Message
+    // Message relationships
     @ManyToOne
-    @JoinColumn(name = "SenderID")
+    @JoinColumn(name = "senderid")
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "ReceiverID")
+    @JoinColumn(name = "receiverid")
     private User receiver;
 
-    public UUID getSenderId() {
-        return sender != null ? sender.getUser_id() : null;
-    }
-
-    public UUID getReceiverId() {
-        return receiver != null ? receiver.getUser_id() : null;
-    }
+    // Getters & Setters
 
     public UUID getMessageID() {
-        return MessageID;
+        return messageID;
     }
 
     public void setMessageID(UUID messageID) {
-        MessageID = messageID;
+        this.messageID = messageID;
     }
 
     public String getSent_message() {
@@ -76,12 +73,12 @@ public class Message {
     public void setReceiver(User receiver) {
         this.receiver = receiver;
     }
-    public LocalDateTime getSentAt() {
-        return sent_at;
+
+    public UUID getSenderId() {
+        return sender != null ? sender.getUser_id() : null;
     }
 
-
-
-
-
+    public UUID getReceiverId() {
+        return receiver != null ? receiver.getUser_id() : null;
+    }
 }

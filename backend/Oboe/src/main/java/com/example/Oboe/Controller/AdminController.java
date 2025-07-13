@@ -37,6 +37,7 @@ public class AdminController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/page/user/managerment")
     public ResponseEntity<List<User>> getAllUsers() {
