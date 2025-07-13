@@ -2,7 +2,7 @@
   <div class="flashcard-container" :style="containerStyle">
     <button 
       class="flashcard-btn" 
-      @click="toggleList"
+      @click="handleButtonClick"
       :class="{ 'active': isOpen }"
       @mousedown="startDrag"
       @touchstart="startDrag"
@@ -10,6 +10,8 @@
       <i class="fas fa-book"></i>
       <span v-if="totalItems > 0" class="item-count">{{ totalItems }}</span>
     </button>
+
+    <!-- Dropdown List -->
     <div v-if="isOpen" class="flashcard-list">
       <div class="list-header">
         <h3>Danh sách Flashcard</h3>
@@ -78,11 +80,23 @@ const containerStyle = computed(() => ({
 let startY = 0
 let startPosY = 0
 
+// Separate click handler
+const handleButtonClick = (event) => {
+  // Nếu không phải đang kéo thì toggle list
+  if (!isDragging.value) {
+    event.preventDefault() // Ngăn chặn các hành vi mặc định khác
+    event.stopPropagation() // Ngăn chặn sự kiện lan truyền
+    toggleList()
+  }
+}
+
 const startDrag = (event) => {
-  if (event.target.closest('.flashcard-list')) return
+  // Chỉ ngăn scroll khi thực sự đang kéo
+  if (event.target.closest('.flashcard-list')) {
+    return
+  }
   
-  event.preventDefault()
-  isDragging.value = true
+  isDragging.value = false
   
   // Get initial positions
   if (event.type === 'mousedown') {
@@ -97,16 +111,12 @@ const startDrag = (event) => {
     document.addEventListener('mousemove', onDrag)
     document.addEventListener('mouseup', stopDrag)
   } else if (event.type === 'touchstart') {
-    document.addEventListener('touchmove', onDrag, { passive: false })
+    document.addEventListener('touchmove', onDrag)
     document.addEventListener('touchend', stopDrag)
   }
 }
 
 const onDrag = (event) => {
-  if (!isDragging.value) return
-  event.preventDefault()
-
-  // Calculate new position
   let currentY
   if (event.type === 'mousemove') {
     currentY = event.clientY
@@ -114,15 +124,23 @@ const onDrag = (event) => {
     currentY = event.touches[0].clientY
   }
 
-  const deltaY = currentY - startY
-  let newY = startPosY + deltaY
+  const deltaY = Math.abs(currentY - startY)
+  if (deltaY > 10) { // Tăng ngưỡng phát hiện drag
+    isDragging.value = true
+    event.preventDefault() // Chỉ prevent default khi thực sự đang kéo
+  }
 
-  // Constrain to viewport bounds
-  const maxY = window.innerHeight - 100 // Leave some space at bottom
-  const minY = 160 // Keep below header (header height + some padding)
-  newY = Math.max(minY, Math.min(newY, maxY))
+  if (isDragging.value) {
+    const deltaY = currentY - startY
+    let newY = startPosY + deltaY
 
-  position.value.y = newY
+    // Constrain to viewport bounds
+    const maxY = window.innerHeight - 100
+    const minY = 100
+    newY = Math.max(minY, Math.min(newY, maxY))
+
+    position.value.y = newY
+  }
 }
 
 const stopDrag = () => {
@@ -133,14 +151,19 @@ const stopDrag = () => {
   document.removeEventListener('touchend', stopDrag)
 }
 
-// Initialize position to a safe starting point
-const position = ref({ y: 200 }) // Start below header
+// Initialize position to a better starting point
+const position = ref({ y: 210 }) // Đặt vị trí ban đầu gần top
 
-// Add window resize handler to ensure button stays in bounds
+// Add better position adjustment on resize
 const adjustPositionOnResize = () => {
   const maxY = window.innerHeight - 100
-  const minY = 160
-  position.value.y = Math.max(minY, Math.min(position.value.y, maxY))
+  const minY = 100
+  const currentY = position.value.y
+  
+  // If position is outside bounds, animate to nearest valid position
+  if (currentY < minY || currentY > maxY) {
+    position.value.y = Math.max(minY, Math.min(currentY, maxY))
+  }
 }
 
 onMounted(() => {
