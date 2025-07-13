@@ -30,7 +30,7 @@ public class GrammarService {
         this.readingRepository = readingRepository;
     }
 
-    // ✅ Get all grammar with pagination
+    // Get all grammar with pagination
     public Map<String, Object> getAllGrammar(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Grammar> grammarPage = grammarRepository.findAll(pageable);
@@ -51,7 +51,7 @@ public class GrammarService {
         return response;
     }
 
-    // ✅ Create new grammar (ROLE_ADMIN)
+    //  Create new grammar (ROLE_ADMIN)
     public GrammarDTO createGrammar(GrammarDTO dto) {
         checkAdminAccess();
 
@@ -75,14 +75,14 @@ public class GrammarService {
         return grammarToDTO(saved);
     }
 
-    // ✅ Get grammar by ID
+    //  Get grammar by ID
     public GrammarDTO getGrammarById(UUID id) {
         Grammar grammar = grammarRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Grammar với ID: " + id));
         return grammarToDTO(grammar);
     }
 
-    // ✅ Update grammar (ROLE_ADMIN)
+    //  Update grammar (ROLE_ADMIN)
     public GrammarDTO updateGrammar(UUID id, GrammarDTO dto) {
         checkAdminAccess();
 
@@ -113,7 +113,7 @@ public class GrammarService {
         return grammarToDTO(updated);
     }
 
-    // ✅ Delete grammar (ROLE_ADMIN)
+    //  Delete grammar (ROLE_ADMIN)
     public void deleteGrammar(UUID id) {
         checkAdminAccess();
 
@@ -127,7 +127,7 @@ public class GrammarService {
         grammarRepository.delete(grammar);
     }
 
-    // ✅ Search grammar
+    //  Search grammar
     public List<GrammarDTO> searchGrammar(String keyword) {
         List<Grammar> grammars = grammarRepository.searchGrammar(keyword); // cần @Query bên repo
         return grammars.stream()
@@ -135,7 +135,7 @@ public class GrammarService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Convert Grammar → DTO
+    //  Convert Grammar → DTO
     private GrammarDTO grammarToDTO(Grammar grammar) {
         GrammarDTO dto = new GrammarDTO();
         dto.setGrammarId(grammar.getGrammaID().toString());
@@ -155,7 +155,7 @@ public class GrammarService {
         return dto;
     }
 
-    // ✅ Convert Reading → DTO
+    //  Convert Reading → DTO
     private ReadingDTO readingToDTO(Reading reading) {
         return new ReadingDTO(
                 reading.getReadingID(),
@@ -166,7 +166,7 @@ public class GrammarService {
         );
     }
 
-    // ✅ Convert DTO → Reading entity
+    //  Convert DTO → Reading entity
     private Reading readingToEntity(ReadingDTO dto) {
         Reading reading = new Reading();
         reading.setReadingID(dto.getReadingID());
@@ -177,7 +177,7 @@ public class GrammarService {
         return reading;
     }
 
-    // ✅ Check role
+    //  Check role
     private void checkAdminAccess() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() ||
