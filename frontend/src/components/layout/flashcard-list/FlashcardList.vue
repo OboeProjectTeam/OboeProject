@@ -71,7 +71,6 @@ const isOpen = ref(false)
 const activeTab = ref('word')
 const isDragging = ref(false)
 
-// Style binding for container position
 const containerStyle = computed(() => ({
   transform: `translateY(${position.value.y}px)`
 }))
