@@ -310,6 +310,7 @@ import MsButton from '@/components/common/button/MsButton.vue'
 import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
 import TheLogo from '@/components/layout/logo/TheLogo.vue'
 
+import { auth } from '@/firebase'
 
 const store = useStore()
 const router = useRouter()
