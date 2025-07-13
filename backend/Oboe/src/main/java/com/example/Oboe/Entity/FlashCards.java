@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -12,50 +14,53 @@ import java.util.UUID;
 public class FlashCards {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "CardId", updatable = false, nullable = false)
-    private UUID CardId;
-    private String Term;
-    private String Description;
+    @Column(name = "set_id", updatable = false, nullable = false)
+    private UUID set_id;
+
+    private String term; // Tên bộ thẻ
+    private String description;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference("users-FlashCards")
+    @JsonBackReference("user-flashcards")
     private User user;
 
-
+    @CreationTimestamp
     @Column(updatable = false)
-    private LocalDateTime Created = LocalDateTime.now();
+    private LocalDateTime created;
+
+    @OneToMany(mappedBy = "flashCards", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CardItem> cardItems = new ArrayList<>();
 
     public FlashCards() {}
-    public FlashCards(String Term, String Description, User user) {
-        this.Term = Term;
-        this.Description = Description;
+    public FlashCards(String term, String description, User user) {
+        this.term = term;
+        this.description = description;
         this.user = user;
-
-
     }
 
-    public UUID getCardId() {
-        return CardId;
+    public UUID getSet_id() {
+        return set_id;
     }
 
-    public void setCardId(UUID cardId) {
-        CardId = cardId;
+    public void setSet_id(UUID set_id) {
+        this.set_id = set_id;
     }
 
     public String getTerm() {
-        return Term;
+        return term;
     }
 
     public void setTerm(String term) {
-        Term = term;
+        this.term = term;
     }
 
     public String getDescription() {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description) {
-        Description = description;
+        this.description = description;
     }
 
     public User getUser() {
@@ -66,12 +71,19 @@ public class FlashCards {
         this.user = user;
     }
 
-
     public LocalDateTime getCreated() {
-        return Created;
+        return created;
     }
 
     public void setCreated(LocalDateTime created) {
-        Created = created;
+        this.created = created;
+    }
+
+    public List<CardItem> getCardItems() {
+        return cardItems;
+    }
+
+    public void setCardItems(List<CardItem> cardItems) {
+        this.cardItems = cardItems;
     }
 }

@@ -1,14 +1,14 @@
 package com.example.Oboe.Controller;
 
-import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.FlashCardDto;
 import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Service.FlashCardService;
+import com.example.Oboe.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,24 +18,51 @@ public class FlashCardController {
     @Autowired
     private FlashCardService flashCardService;
 
-    // 1. Tạo flashcard
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    // Tạo flashcard
     @PostMapping
-    public FlashCards create(@RequestBody FlashCardDto dto,
-                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        return flashCardService.createFlashCard(dto, userDetails.getUserID());
+    public ResponseEntity<?> createFlashCard(@RequestBody FlashCardDto dto,
+                                             @AuthenticationPrincipal(expression = "userID") UUID userId) {
+        FlashCards created = flashCardService.createFlashCard(dto, userId);
+        return ResponseEntity.ok(created);
     }
 
-    // 2. Lấy tất cả flashcards của người dùng
+    // Lấy danh sách flashcard của user, có phân trang
     @GetMapping
-    public List<FlashCards> getMyFlashcards(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        return flashCardService.getFlashCardsByUser(userDetails.getUserID());
+    public ResponseEntity<?> getUserFlashCards(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String term,
+            @AuthenticationPrincipal(expression = "userID") UUID userId
+    ) {
+
+        if (term != null && !term.isBlank()) {
+            return ResponseEntity.ok(flashCardService.searchFlashCardsByTerm(userId, term, page, size));
+        }
+
+        return ResponseEntity.ok(flashCardService.getFlashCardsByUser(userId, page, size));
     }
 
-    // 3. Xoá flashcard (chỉ người tạo được xoá)
-    @DeleteMapping("/{cardId}")
-    public String delete(@PathVariable UUID cardId,
-                         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        boolean deleted = flashCardService.deleteFlashCard(cardId, userDetails.getUserID());
-        return deleted ? "Đã xoá" : "Không tìm thấy hoặc không có quyền xoá";
+    // Cập nhật flashcard
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateFlashCard(@PathVariable UUID id,
+                                             @RequestBody FlashCardDto dto,
+                                             @AuthenticationPrincipal(expression = "userID") UUID userId
+    ) {
+        FlashCards updated = flashCardService.updateFlashCard(id, dto, userId);
+        if (updated == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updated);
+    }
+
+    // Xoá flashcard
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFlashCard(@PathVariable UUID id,
+                                             @AuthenticationPrincipal(expression = "userID") UUID userId
+    ) {
+        boolean deleted = flashCardService.deleteFlashCard(id, userId);
+        if (!deleted) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok().build();
     }
 }

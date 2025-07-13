@@ -148,7 +148,7 @@ public class FavoritesService {
                 favorites.getUser() != null ? favorites.getUser().getUser_id() : null,
                 favorites.getGramma() != null ? favorites.getGramma().getGrammaID() : null,
                 favorites.getKanji() != null ? favorites.getKanji().getKanjiId() : null,
-                favorites.getFlashCards() != null ? favorites.getFlashCards().getCardId() : null,
+                favorites.getFlashCards() != null ? favorites.getFlashCards().getSet_id() : null,
                 favorites.getVocabulary() != null ? favorites.getVocabulary().getVocalbId() : null
         );
     }
