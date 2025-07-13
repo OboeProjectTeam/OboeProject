@@ -35,6 +35,23 @@ public class QuizzesService {
         quiz.setDescription(dto.getDescription());
         return toDTO(quizzesRepository.save(quiz));
     }
+    public QuizDTO update(UUID id, QuizDTO dto) {
+        Quizzes quiz = quizzesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        quiz.setTitle(dto.getTitle());
+        quiz.setDescription(dto.getDescription());
+
+        return toDTO(quizzesRepository.save(quiz));
+    }
+
+    public void delete(UUID id) {
+        if (!quizzesRepository.existsById(id)) {
+            throw new RuntimeException("Quiz not found");
+        }
+        quizzesRepository.deleteById(id);
+    }
+
 
     // Convert Entity -> DTO
     private QuizDTO toDTO(Quizzes entity) {
