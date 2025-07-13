@@ -37,6 +37,10 @@ public class Favorites {
     @ManyToOne
     @JoinColumn(name ="Vocalb_id")
     private Vocabulary vocabulary;
+    @ManyToOne
+    @JoinColumn(name = "sample_sentence_id")
+    private SampleSentence sentence;
+
     //Contructor
     public Favorites() {
 

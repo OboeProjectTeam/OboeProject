@@ -39,17 +39,30 @@ public class UserService implements UserDetailsService {
     }
 
     public void registerWithEmail(UserDTOs userDTOs) {
-        if (!isValidEmail(userDTOs.getUserName())) {
-            throw new IllegalArgumentException("Email không hợp lệ.");
+        String username = userDTOs.getUserName();
+
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Tên đăng nhập không được để trống.");
         }
 
-        String verificationToken = UUID.randomUUID().toString();
-        VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
+        if (isValidEmail(username)) {
+            // Gửi email xác minh
+            String verificationToken = UUID.randomUUID().toString();
+            VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-        String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
-        mailService.sendMail(userDTOs.getUserName(), "Please verify your email",
-                "Click the link to verify your account: " + verificationLink);
+            String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
+            mailService.sendMail(username, "Xác minh tài khoản",
+                    "Click vào liên kết để xác minh tài khoản của bạn: " + verificationLink);
+        } else if (isValidPhone(username)) {
+            // Không cần gửi email, xác minh luôn
+            userDTOs.setVerified(true);
+            addUser(userDTOs);
+        } else {
+            throw new IllegalArgumentException("Tên đăng nhập phải là email hoặc số điện thoại hợp lệ.");
+        }
     }
+
+
 
     public User verifyAccount(String token) {
         UserDTOs signupRequest = VerificationHolder.getInstance().getSignupRequest(token);
@@ -212,6 +225,11 @@ public class UserService implements UserDetailsService {
                 password.matches(".*\\d.*") &&
                 password.matches(".*[!@#$%^&*()].*");
     }
+
+    private boolean isValidPhone(String phone) {
+        return phone != null && phone.matches("^\\+?[0-9]{10,15}$");
+    }
+
 
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
