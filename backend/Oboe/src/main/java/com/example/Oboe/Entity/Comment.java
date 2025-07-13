@@ -36,8 +36,8 @@ public class Comment {
     @JsonBackReference("user-comments")
     private User user;
 
-    // 🔄 Gộp mục tiêu vào 1 trường referenceId
-    @Column(name = "reference_Id", nullable = false)
+    //  Gộp mục tiêu vào 1 trường referenceId
+        @Column(name = "reference_Id", nullable = false)
     private UUID referenceId;
 
     // Quan hệ tự tham chiếu - comment cha
