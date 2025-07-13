@@ -130,17 +130,27 @@ jobs:
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 14. Upload backend jar
+    # 14. Clean old backend jar on server
+    - name: Clean old backend jar on server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          rm -f /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+          echo "Old JAR deleted."
+    # 15. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "backend/Oboe/target/*.jar"
+        source: "backend/Oboe/target/Oboe-0.0.1-SNAPSHOT.jar"
         target: "/var/www/OboeProject/backend/"
-        strip_components: 3
-    # 15. Restart backend
+        overwrite: true
+    # 16. Restart backend
     - name: Restart backend via SSH using ecosystem.config.js
       uses: appleboy/ssh-action@v1.0.0
       with:
