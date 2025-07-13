@@ -104,16 +104,18 @@ jobs:
             pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
           fi
 
-    # 10. Grant execute permission to mvnw
+    # 10. Cấp quyền chạy cho mvnw
     - name: Make mvnw executable
       run: chmod +x backend/Oboe/mvnw
 
-    # 11. Prevent unsafe ddl-auto
-    - name: Validate ddl-auto safety
+    # 11. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
-          echo " ddl-auto đang ở chế độ nguy hiểm!"
+          echo "Không được deploy: ddl-auto có giá trị nguy hiểm!"
           exit 1
+        else
+          echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
 
     # 12. Setup Java
@@ -128,15 +130,8 @@ jobs:
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 14. Upload .jar to GitHub Artifact (debug backup)
-    - name: Upload backend JAR artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: oboe-backend-jar
-        path: backend/Oboe/target/Oboe-0.0.1-SNAPSHOT.jar
-
-    # 15. Upload backend jar to server
-    - name: Upload backend JAR to server
+    # 14. Upload backend jar
+    - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -145,10 +140,8 @@ jobs:
         source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
         strip_components: 3
-        overwrite: true
-
-    # 16. Restart backend (PM2)
-    - name: Restart backend via SSH (PM2)
+    # 15. Restart backend
+    - name: Restart backend via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -156,9 +149,9 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /var/www/OboeProject/backend
-          export $(cat .env | xargs)
+          JAR_FILE=$(ls *.jar | head -n 1)
           if pm2 list | grep -q oboe-backend; then
-            pm2 delete oboe-backend
+             pm2 delete oboe-backend
           fi
-          pm2 start java --name oboe-backend -- -jar Oboe-0.0.1-SNAPSHOT.jar
-          echo "Backend restarted"
+          pm2 start java --name oboe-backend -- -jar "$JAR_FILE"
+          echo "Backend restarted!"
