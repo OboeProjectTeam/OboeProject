@@ -150,6 +150,7 @@ jobs:
         source: "backend/Oboe/target/Oboe-0.0.1-SNAPSHOT.jar"
         target: "/var/www/OboeProject/backend/"
         overwrite: true
+        strip_components: 3
     # 16. Restart backend
     - name: Restart backend via SSH using ecosystem.config.js
       uses: appleboy/ssh-action@v1.0.0
