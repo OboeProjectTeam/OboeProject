@@ -87,6 +87,7 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
+        strip_components: 2
         overwrite: true
 
     # 9. Restart frontend (PM2)
@@ -141,8 +142,9 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "backend/Oboe/target/Oboe-0.0.1-SNAPSHOT.jar"
+        source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
+        strip_components: 3
         overwrite: true
 
     # 16. Restart backend (PM2)
