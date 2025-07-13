@@ -20,7 +20,7 @@ jobs:
       with:
         node-version: 18
 
-    # 3. Cache npm và node_modules
+    # 3. Cache node_modules
     - name: Cache node_modules
       uses: actions/cache@v3
       with:
@@ -31,7 +31,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    # 4. Inject biến môi trường Firebase
+    # 4. Inject Firebase ENV
     - name: Inject Firebase ENV (.env)
       run: |
         echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
@@ -42,13 +42,32 @@ jobs:
         echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
         echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
 
-    # 5. Build frontend
+    # 5. Inject Backend ENV (.env)
+    - name: Inject backend ENV (.env)
+      run: |
+        echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> backend/Oboe/.env
+        echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> backend/Oboe/.env
+        echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> backend/Oboe/.env
+
+        echo "SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }}" >> backend/Oboe/.env
+        echo "SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }}" >> backend/Oboe/.env
+
+        echo "FILE_UPLOAD_DIR=${{ secrets.FILE_UPLOAD_DIR }}" >> backend/Oboe/.env
+
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> backend/Oboe/.env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> backend/Oboe/.env
+
+        echo "FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }}" >> backend/Oboe/.env
+        echo "FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> backend/Oboe/.env
+
+    # 6. Build frontend
     - name: Build frontend
       working-directory: frontend
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
-    # 5.5. Dọn thư mục dist cũ trên server trước khi upload
+
+    # 7. Dọn thư mục dist cũ trên server
     - name: Clean dist folder before upload
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -59,7 +78,7 @@ jobs:
           rm -rf /var/www/OboeProject/frontend/dist/*
           echo "Old dist folder cleaned!"
 
-    # 6. Upload dist to server
+    # 8. Upload frontend dist to server
     - name: Upload frontend dist to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -69,9 +88,9 @@ jobs:
         source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
-        overwrite: true  
+        overwrite: true
 
-    # 7. Restart frontend PM2
+    # 9. Restart frontend via SSH (PM2)
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -86,11 +105,11 @@ jobs:
           fi
           echo "Frontend restarted!"
 
-    # 8. Cấp quyền chạy cho mvnw
+    # 10. Cấp quyền chạy cho mvnw
     - name: Grant execute permission to mvnw
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    # 11. Kiểm tra ddl-auto
     - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
@@ -99,19 +118,20 @@ jobs:
         else
           echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
-    # 10. Cài Java 21
+
+    # 12. Setup Java
     - name: Setup Java 21
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
         java-version: '21'
-    
-    # 11. Build backend bằng Maven
+
+    # 13. Build backend
     - name: Build backend (Maven)
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 12. Upload backend jar
+    # 14. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -121,7 +141,8 @@ jobs:
         source: "backend/Oboe/target/*.jar"
         target: "/var/www/OboeProject/backend/"
         strip_components: 3
-    # 13. Restart backend
+
+    # 15. Restart backend (load env)
     - name: Restart backend via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -130,9 +151,10 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /var/www/OboeProject/backend
+          export $(cat .env | xargs)
           JAR_FILE=$(ls *.jar | head -n 1)
           if pm2 list | grep -q oboe-backend; then
-             pm2 delete oboe-backend
+            pm2 delete oboe-backend
           fi
           pm2 start java --name oboe-backend -- -jar "$JAR_FILE"
           echo "Backend restarted!"
