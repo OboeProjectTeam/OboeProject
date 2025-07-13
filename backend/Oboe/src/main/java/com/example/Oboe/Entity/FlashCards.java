@@ -1,0 +1,77 @@
+package com.example.Oboe.Entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(name="FlashCards")
+public class FlashCards {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "CardId", updatable = false, nullable = false)
+    private UUID CardId;
+    private String Term;
+    private String Description;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference("users-FlashCards")
+    private User user;
+
+
+    @Column(updatable = false)
+    private LocalDateTime Created = LocalDateTime.now();
+
+    public FlashCards() {}
+    public FlashCards(String Term, String Description, User user) {
+        this.Term = Term;
+        this.Description = Description;
+        this.user = user;
+
+
+    }
+
+    public UUID getCardId() {
+        return CardId;
+    }
+
+    public void setCardId(UUID cardId) {
+        CardId = cardId;
+    }
+
+    public String getTerm() {
+        return Term;
+    }
+
+    public void setTerm(String term) {
+        Term = term;
+    }
+
+    public String getDescription() {
+        return Description;
+    }
+
+    public void setDescription(String description) {
+        Description = description;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
+    public LocalDateTime getCreated() {
+        return Created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        Created = created;
+    }
+}

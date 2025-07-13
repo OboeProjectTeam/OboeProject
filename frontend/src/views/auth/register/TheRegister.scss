@@ -1,0 +1,21 @@
+@use '@/assets/css/index.scss' as *;
+.the-register {
+    width: 100%;
+    min-height: calc(100vh - 140px);
+    display: flex;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    background-position: center;
+    background-size: cover;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Bóng đổ mạnh */
+  }
+  @media screen and (max-width: 768px) {
+    .the-register {
+        background-image: none !important;
+        box-shadow : none !important;
+    }
+  }
+  

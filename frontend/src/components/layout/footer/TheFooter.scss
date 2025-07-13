@@ -1,0 +1,355 @@
+@use '@/assets/css/index.scss' as *;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+.form__login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 400px;
+  height: 400px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  margin-left: 50%;
+  transform: scale(1.2);
+
+  @media (max-width: $breakpoint-md) {
+    width: 100%;
+    margin-left: 0;
+    transform: scale(1);
+  }
+}
+// Previous SCSS code remains above
+.footer-logo{
+  margin-bottom: 20px;
+}
+.footer {
+  color: #333;
+  margin-top: 20px;
+  box-shadow: 0 0 20px $header-footer-shadow;
+  border-radius: $header-footer-border-radius $header-footer-border-radius 0 0;
+
+  &-bot {
+    padding: 30px 80px;
+    display: flex;
+    gap: 40px;
+
+    @media (max-width: $breakpoint-lg) {
+      padding: 25px 40px;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      padding: 20px;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: 15px;
+      gap: 25px;
+    }
+  }
+
+  &-infor {
+    flex: 0 0 300px;
+
+    @media (max-width: $breakpoint-md) {
+      flex: none;
+      width: 100%;
+    }
+
+    ul {
+      margin-bottom: 20px;
+
+      @media (max-width: $breakpoint-sm) {
+        margin-bottom: 15px;
+      }
+    }
+
+    .footer-infortext {
+      font-size: 16px;
+      line-height: 1.4;
+
+      @media (max-width: $breakpoint-md) {
+        font-size: 15px;
+      }
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: 14px;
+      }
+    }
+
+    .footer-inforicon {
+      width: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      @media (max-width: $breakpoint-sm) {
+        width: 20px;
+      }
+    }
+  }
+
+  &-listservies-hr {
+    flex: 1;
+
+    > ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+
+      @media (max-width: $breakpoint-lg) {
+        gap: 20px;
+      }
+
+      @media (max-width: $breakpoint-md) {
+        gap: 15px;
+      }
+    }
+  }
+
+  .social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+
+    @media (max-width: $breakpoint-sm) {
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: inherit;
+        transition: color 0.2s ease;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .fas,
+  .far {
+    font-size: 20px;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 18px;
+    }
+  }
+
+  .fab {
+    font-size: 32px;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 28px;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 24px;
+    }
+  }
+}
+
+.listservies-box {
+  flex: 1;
+  min-width: 200px;
+
+  @media (max-width: $breakpoint-lg) {
+    flex: 0 0 calc(50% - 10px);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex: 0 0 100%;
+  }
+}
+
+.listservies-hr {
+  border-bottom: 1px solid black;
+  width: 30%;
+  margin: 10px 0 15px;
+
+  @media (max-width: $breakpoint-sm) {
+    width: 50%;
+    margin: 8px 0 12px;
+  }
+}
+
+.listservies-detail {
+  margin-bottom: 15px;
+  font-size: 15px;
+
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $primary-color;
+    }
+  }
+}
+
+.listservies-title {
+  font-size: 18px;
+  font-weight: 600;
+
+  @media (max-width: $breakpoint-md) {
+    font-size: 16px;
+  }
+}
+
+.footer-comment-btn {
+  width: 100%;
+  margin-top: 10px;
+
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 5px;
+  }
+}
+
+// Modal styles
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0 15px;
+
+    @media (max-width: $breakpoint-sm) {
+      padding: 16px;
+    }
+
+    h3 {
+      margin: 0 0 20px;
+      font-size: 20px;
+      color: #333;
+
+      @media (max-width: $breakpoint-sm) {
+        font-size: 18px;
+        margin: 0 0 16px;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+
+      @media (max-width: $breakpoint-sm) {
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+
+        @media (max-width: $breakpoint-sm) {
+          margin-bottom: 6px;
+          font-size: 14px;
+        }
+      }
+
+      input, select, textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+
+        @media (max-width: $breakpoint-sm) {
+          padding: 6px;
+          font-size: 13px;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+
+        @media (max-width: $breakpoint-sm) {
+          min-height: 80px;
+        }
+      }
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+
+      @media (max-width: $breakpoint-sm) {
+        margin-top: 16px;
+        gap: 8px;
+      }
+
+      button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        @media (max-width: $breakpoint-sm) {
+          padding: 6px 12px;
+          font-size: 13px;
+        }
+
+        &.btn-cancel {
+          background-color: #f5f5f5;
+          border: 1px solid #ddd;
+          color: #666;
+
+          &:hover {
+            background-color: #e8e8e8;
+          }
+        }
+
+        &.btn-save {
+          background-color: $primary-color;
+          border: none;
+          color: white;
+
+          &:hover {
+            background-color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}

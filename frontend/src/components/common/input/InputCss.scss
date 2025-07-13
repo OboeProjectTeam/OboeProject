@@ -1,0 +1,145 @@
+@use '@/assets/css/index.scss' as *;
+.form__login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 400px;
+  height: 400px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  margin-left: 50%;
+  transform: scale(1.2);
+}
+
+// Existing styles remain above
+
+.m-input-component {
+  width: 100%;
+
+  &.error .m-input {
+    border: 1px solid red;
+  }
+}
+
+.m-lable {
+  font-weight: 600;
+  font-family: inherit;
+
+  span {
+    color: red;
+  }
+}
+
+.m-input-main {
+  height: $height-default;
+  position: relative;
+}
+
+.m-input {
+  height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  padding-left: 16px;
+  border: 1px solid #bbb;
+  font-family: inherit;
+
+  &::placeholder {
+    font-size: 14px;
+  }
+
+  &:focus {
+    border: 1px solid $bgr-header;
+  }
+}
+
+.m-input__error-msg {
+  color: red;
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 2px;
+  display: block;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+
+  &:hover {
+    overflow: visible;
+    white-space: normal;
+    height: auto;
+    -webkit-box-orient: unset;
+  }
+}
+
+.m-input-icon {
+  position: absolute;
+  top: 0;
+  width: 32px;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  right: 0;
+  background-position: center;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+
+  &-rotate {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  &.active .m-input-icon-rotate {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease-in-out;
+  }
+}
+
+.m-input-list {
+  position: absolute;
+  background-color: white;
+  box-shadow: 0px -1px 3px 1px #bbb;
+  width: 100%;
+  border-radius: 4px;
+  z-index: 2;
+  height: 0;
+  top: calc(100% + 2px) !important;
+
+  &-item {
+    padding: 8px 16px;
+    transition: 0.1s;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      background-color: #ebedf0;
+      color: #2ff408;
+    }
+
+    &:nth-last-child(1):hover {
+      border-radius: 0 0 4px 4px;
+    }
+
+    &:nth-child(1):hover {
+      border-radius: 4px 4px 0 0;
+    }
+
+    &.active {
+      background-color: #50b83c;
+      color: white;
+
+      &:nth-last-child(1) {
+        border-radius: 0 0 4px 4px;
+      }
+
+      &:nth-child(1) {
+        border-radius: 4px 4px 0 0;
+      }
+    }
+  }
+}

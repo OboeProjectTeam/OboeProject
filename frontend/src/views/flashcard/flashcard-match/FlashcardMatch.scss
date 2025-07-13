@@ -1,0 +1,196 @@
+@use '@/assets/css/index.scss' as *;
+.flashcard-match {
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: 'Arial', sans-serif;
+}
+
+.match-header {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.header-top-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.match-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
+}
+
+p.cards-count {
+  margin: 4px 0 0 0;
+  color: #666;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.timer {
+  font-size: 20px;
+  color: $primary-color;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.match-grid {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.match-cell {
+  aspect-ratio: 3 / 2; // Maintain a card-like aspect ratio
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden; // Ensure content fits
+
+  .cell-content {
+    padding: 10px;
+    text-align: center;
+    font-size: 16px; // Adjust as needed
+    word-wrap: break-word;
+    // Potentially add more styles for text overflow etc.
+  }
+
+  &:hover:not(.matched):not(.error) {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  &.selected {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.5);
+  }
+
+  &.matched {
+    opacity: 0;
+    pointer-events: none;
+    cursor: default;
+    border-color: #28a745;
+  }
+  
+  &.error {
+    animation: shakeError 0.5s ease-in-out;
+    border-color: red;
+    background-color: #ffeeee;
+  }
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.game-won-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  .popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+  }
+
+  .popup-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1001;
+    min-width: 300px;
+
+    h2 {
+      color: $primary-color;
+      margin-bottom: 15px;
+    }
+    p {
+      margin-bottom: 25px;
+      font-size: 16px;
+    }
+    .popup-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      button {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+      }
+      .primary-button {
+        background-color: $primary-color;
+        color: white;
+        &:hover { background-color: $hover-btn-color; }
+      }
+      .secondary-button {
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+        &:hover { background-color: #e0e0e0; }
+      }
+    }
+  }
+}
+@media screen and (max-width: 768px){
+  .header-top-line{
+    h1{
+      font-size: 13px;
+    }
+    .header-actions{
+      :deep(.exit-button){
+          font-size: 0.5rem !important;
+      }
+      .timer{
+          font-size: 10px !important;
+      }
+  }
+  }
+  .cell-content{
+    font-size: 12px !important;
+  }
+}

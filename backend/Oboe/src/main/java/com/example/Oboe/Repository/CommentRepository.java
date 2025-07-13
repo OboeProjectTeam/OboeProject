@@ -1,0 +1,17 @@
+package com.example.Oboe.Repository;
+
+import com.example.Oboe.Entity.Blog;
+import com.example.Oboe.Entity.Comment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface CommentRepository extends JpaRepository<Comment, UUID> {
+    List<Comment> findByReferenceId(UUID referenceId);
+    Long countByReferenceId(UUID referenceId);
+    @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
+    List<Comment> findCommentByUserId(@Param("userId") UUID userId);
+}

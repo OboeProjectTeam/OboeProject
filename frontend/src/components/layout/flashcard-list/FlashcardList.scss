@@ -1,0 +1,275 @@
+@use '@/assets/css/index.scss' as *;
+
+.flashcard-container {
+  position: fixed;
+  right: 80px;
+  z-index: 1000;
+  transition: transform 0.1s ease;
+  will-change: transform;
+  touch-action: none; // Prevent default touch actions
+
+  @media screen and (max-width: 768px) {
+    right: 15px !important;
+  }
+}
+
+.flashcard-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: $primary-color;
+  border: none;
+  color: white;
+  font-size: 1.25rem;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+
+  &:active {
+    cursor: grabbing;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.flashcard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.flashcard-btn.active {
+  background: $hover-btn-color;
+}
+
+.item-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #333;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flashcard-list {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 350px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-height: 55vh;
+
+  @media screen and (max-width: 768px) {
+  }
+}
+
+.list-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+.list-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.1rem;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.list-tabs {
+  display: flex;
+  padding: 12px;
+  gap: 8px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+.tab-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tab-count {
+  position: absolute;
+  top: -8px;
+  right: -3px;
+  background: #333;
+  color: white;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+  z-index: 1;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 16px;
+  color: #666;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.tab-btn.active {
+  background: $primary-color;
+  color: white;
+}
+
+.items-list {
+  padding: 12px;
+  overflow-y: auto;
+  max-height: calc(50vh - 110px); /* Trừ đi chiều cao của header và tabs */
+}
+
+/* Custom scrollbar styles */
+.items-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.items-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.items-list::-webkit-scrollbar-thumb {
+  background: $primary-color;
+  border-radius: 4px;
+}
+
+.items-list::-webkit-scrollbar-thumb:hover {
+  background: $hover-btn-color;
+}
+
+.flashcard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8f8f8;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.item-content {
+  flex: 1;
+  min-width: 0;
+  margin-right: 12px;
+}
+
+.item-main {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.item-sub {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.remove-btn:hover {
+  background: #fee;
+  color: $primary-color;
+}
+
+.empty-message {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.list-footer {
+  padding: 16px;
+  border-top: 1px solid #eee;
+  background: white;
+}
+
+.view-all-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: $hover-btn-color;
+  transform: translateY(-1px);
+}
+
+.view-all-btn i {
+  font-size: 0.9em;
+}

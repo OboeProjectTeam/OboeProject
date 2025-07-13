@@ -1,0 +1,41 @@
+@use '@/assets/css/index.scss' as *;
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+.forum-profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  margin-left: 15px;
+  @include mobile-only {
+    margin-left: 0;
+  }
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 600;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .separator {
+    margin: 0 8px;
+    color: #868e96;
+    font-size: 0.75rem;
+  }
+
+  span:last-child {
+    color: #495057;
+  }
+}

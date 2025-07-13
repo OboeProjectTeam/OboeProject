@@ -1,0 +1,22 @@
+@use '@/assets/css/index.scss' as *;
+.ms-textarea-main {
+    width: 100%;
+  }
+  .lable-textarea {
+    font-weight: bold;
+  }
+  .required {
+    color: red;
+  }
+  .ms-textarea {
+    height: 28px;
+    width: 100% !important;
+    outline: none;
+    border: 1px solid #b1aeae;
+    margin-top: 10px;
+    padding-left: 8px;
+    overflow: auto;
+  }
+  .ms-textarea:focus {
+    border: 1px solid #525050;
+  }

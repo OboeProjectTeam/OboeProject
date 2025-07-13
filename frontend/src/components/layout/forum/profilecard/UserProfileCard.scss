@@ -1,0 +1,240 @@
+@use '@/assets/css/index.scss' as *;
+@use 'sass:color';
+
+.user-profile-card {
+  position: absolute;
+  width: 580px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  z-index: 100;
+  font-family: $font-family-regular;
+  color: #333;
+
+  @include mobile-only {
+    width: 280px;
+  }
+
+  .card-content {
+    padding: 20px;
+
+    @include mobile-only {
+      padding: 10px;
+    }
+  }
+
+  .card-header {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 20px;
+    margin-bottom: 15px;
+    position: relative;
+
+    @include mobile-only {
+      gap: 12px;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+
+      @include mobile-only {
+        width: 45px;
+        height: 45px;
+      }
+    }
+    .profile-info {
+      flex-grow: 1;
+      padding-top: 5px;
+      .username-link {
+        text-decoration: none;
+        color: inherit;
+        &:hover {
+          .username {
+            color: $primary-color;
+          }
+        }
+      }
+      .username {
+        font-size: 2.2rem;
+        font-family: $font-family-bold;
+        color: #111;
+        margin: 0 0 4px;
+        transition: color 0.2s ease;
+
+        @include mobile-only {
+          font-size: 1.2rem;
+          margin: 0 0 2px;
+        }
+      }
+      .full-name, .title {
+        margin: 0 0 4px;
+        font-size: 1.1rem;
+        color: #555;
+
+        @include mobile-only {
+          font-size: 0.8rem;
+          margin: 0 0 2px;
+        }
+      }
+       .title {
+         font-weight: 500;
+       }
+    }
+    .card-actions {
+      position: absolute;
+      right: 0;
+      top: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      @include mobile-only {
+        top: 8px;
+        gap: 4px;
+      }
+
+      .btn {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        i { font-size: 0.9em; }
+
+        @include mobile-only {
+          padding: 3px 6px;
+          font-size: 0.65rem;
+          gap: 3px;
+          i { font-size: 0.7em; }
+        }
+      }
+      .btn-primary {
+        background-color: $primary-color;
+        border-color: $primary-color;
+        color: white;
+        &:hover { background-color: color.adjust($primary-color, $lightness: -5%); }
+      }
+      .btn-secondary {
+        background-color: #f1f3f5;
+        color: #495057;
+         &:hover { background-color: #dee2e6; }
+      }
+    }
+  }
+
+  .card-body {
+    .bio {
+      margin: 0 0 18px;
+      font-size: 1.05rem;
+
+      @include mobile-only {
+        font-size: 0.75rem;
+        margin: 0 0 10px;
+      }
+    }
+    .location-website {
+      display: flex;
+      gap: 25px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+
+      @include mobile-only {
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 0.7rem;
+      }
+
+      span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        i { color: #868e96; font-size: 1.1em; }
+        a {
+          color: $primary-color;
+          text-decoration: none;
+          font-weight: 500;
+          &:hover { text-decoration: underline; }
+        }
+
+        @include mobile-only {
+          gap: 4px;
+        }
+      }
+    }
+    .user-stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+
+      @include mobile-only {
+        padding: 6px 4px;
+      }
+
+      .stat-item {
+        flex: 1;
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        @include mobile-only {
+          font-size: 0.6rem;
+        }
+
+        &:not(:last-child) {
+          border-right: 1px solid #e0e0e0;
+        }
+      }
+    }
+  }
+  
+  .card-footer {
+    border-top: 1px solid #f1f3f5;
+    padding-top: 20px;
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    @include mobile-only {
+      padding-top: 10px;
+      margin-top: 10px;
+      gap: 6px;
+    }
+
+    .badge {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid #dee2e6;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+
+      @include mobile-only {
+        padding: 3px 8px;
+        font-size: 0.65rem;
+        gap: 4px;
+      }
+
+      &.more-badge {
+        background-color: #f8f9fa;
+        color: #495057;
+      }
+    }
+  }
+}

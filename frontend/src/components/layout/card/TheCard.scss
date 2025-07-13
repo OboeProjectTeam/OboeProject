@@ -1,0 +1,390 @@
+@use '@/assets/css/index.scss' as *;
+.swiper {
+    width: 800px; 
+    height: 500px; 
+    margin: auto;
+	--swiper-pagination-fraction-color: #FF5B79;
+	--swiper-pagination-color: #FF5B79;
+    --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.3);
+    --swiper-pagination-bullet-size: 10px;
+    --swiper-pagination-bullet-opacity: 1;
+}
+.swiper-slide,
+.swiper-slide-shadow,
+.swiper-slide-duplicate {
+  background-color: transparent  !important;
+}
+.swiper-slide {
+    width: 100% !important;
+    height: 100% !important;
+	position: relative;
+    transform-style: preserve-3d;
+    border-radius: 50px;
+}
+.slider-button {
+	transition: 0.5s;
+	outline: none;
+	position: absolute;
+	width: 100px;
+	z-index: 10;
+	top: 50%;
+	transform: translateY(-50%);
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.2);
+
+	border-radius: 10px;
+	backdrop-filter: blur(5px);
+	padding: 15px;
+	/* border: 1px solid rgba(255, 255, 255, 0.2); */
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+	
+}
+.slider-button:hover {
+	background: #411a29;
+	background: linear-gradient(331deg, #FF5B79 0%, #411a29 100%);
+	box-shadow: 0 15px 50px rgba(65, 26, 41, 0.5), inset 0 0 100px rgba(255, 91, 121, 0.2);	
+}
+
+
+.slider-button-prev {
+	left: 24px;
+}
+
+.slider-button-next {
+	right: 24px;
+}
+
+.swiper-button-disabled {
+	display: none;
+}
+.card {
+	position: relative;
+	margin: auto;
+	height: 100%;
+	width: 100%;
+	border-radius: 50px;
+	overflow: hidden !important;
+	box-shadow: 0 15px 50px rgba(9, 9, 9, 0.5);
+	transition: all 0.5s ease-in-out;
+}
+
+.card:hover {
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+	transform: translateY(-5px);
+}
+
+.card.slide-item {
+	background: #411a29;
+	background: linear-gradient(331deg, #FF5B79 0%, #411a29 100%);
+	box-shadow: 0 15px 50px rgba(65, 26, 41, 0.5), inset 0 0 100px rgba(255, 91, 121, 0.2);
+}
+
+
+.card-content {
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+	transform: translateY(-50%);
+	padding: 40px;
+}
+
+
+.card-title {
+	font-weight: 800;
+	margin: 0 0 14px;
+	color: #fff;
+	text-transform: uppercase;
+	letter-spacing: 1.5px;
+	line-height: 1.2;
+	position: relative;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	transform-style: preserve-3d;
+	transform: translateZ(0);
+	will-change: transform, text-shadow;
+	width: 100%;
+	display: inline-block;
+	white-space: nowrap;
+}
+
+
+.card.slide-item .card-title {
+	background: linear-gradient(120deg, #ff8a00, #e52e71);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 0 2px 10px rgba(229, 46, 113, 0.3);
+	position: relative;
+}
+
+.card.slide-item:hover .card-title {
+	background: linear-gradient(120deg, #ff8a00, #ff3f77, #e52e71);
+	background-size: 200% auto;
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 0 0 15px rgba(229, 46, 113, 0.5);
+}
+
+.card.slide-item .card-title::after {
+	content: attr(data-text);
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: -1;
+	color: transparent;
+	-webkit-text-stroke: 1px rgba(255, 138, 0, 0.3);
+	transition: all 0.5s ease;
+}
+
+.card.slide-item:hover .card-title::after {
+	-webkit-text-stroke: 1.5px rgba(255, 138, 0, 0.6);
+	filter: drop-shadow(0 0 8px rgba(255, 138, 0, 0.8));
+	transform: translateZ(-5px);
+}
+
+
+.card-description {
+	width: 100%;
+	font-size: 0.95rem;
+	line-height: 1.6;
+	color: rgba(255, 255, 255, 0.85);
+	font-weight: 400;
+	letter-spacing: 0.5px;
+	position: relative;
+	padding: 0 5px;
+	
+}
+.webkit-box{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+}
+.webkit-line-2{
+	-webkit-line-clamp: 2;
+}
+.webkit-line-3{
+	-webkit-line-clamp: 3;
+}
+.see-more{
+	justify-content: end; 
+
+}
+.cta-button {
+	position: relative;
+	color: #fff;
+	padding: 10px 24px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	cursor: pointer;
+	overflow: hidden;
+	transition: all 0.3s ease;
+	z-index: 1;
+	text-decoration: none;
+	border: none;
+	border-radius: 10px;
+	background: transparent;
+}
+
+Loại bỏ mọi hiệu ứng thanh sáng
+.cta-button::before,
+.cta-button::after {
+	display: none;
+}
+
+.cta-button {
+	background: linear-gradient(45deg, #d58f3f, #d00952);
+	box-shadow: 0 4px 15px rgba(36, 28, 31, 0.3);
+}
+
+.cta-button:hover {
+	transform: translateY(-3px);
+	letter-spacing: 2.5px;
+}
+
+.card.slide-item .cta-button:hover {
+	box-shadow: 0 6px 20px rgba(229, 46, 113, 0.4);
+}
+
+
+/* Hiệu ứng bấm cho nút */
+.cta-button:active {
+	transform: translateY(1px);
+}
+
+
+
+/* Hiệu ứng cho nút CTA */
+
+
+.card.slide-item .cta-button::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+	transition: 0.5s;
+}
+
+.card.slide-item .cta-button:hover::before ,.cta-button:hover::before {
+	left: 100%;
+}
+
+
+
+
+
+
+@keyframes starsRotate {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.card-content .card-description {
+	transition: opacity 0.3s ease;
+}
+
+/* Thêm độ sâu 3D cho card khi hover */
+.card {
+	transition: all 0.5s ease;
+	transform-style: preserve-3d;
+	perspective: 1000px;
+}
+
+.card:hover {
+	transform: scale(1.02);
+}
+
+
+.card-content, .card-ghost-info {
+	transform: translateZ(10px);
+}
+
+
+@keyframes flipCard {
+	0% {
+	  transform: rotateX(0deg);
+	}
+	49.9% {
+	  transform: rotateX(90deg);
+	}
+	50% {
+	  transform: rotateX(90deg) ;
+	}
+	100% {
+	  transform: rotateX(0deg);
+	}
+  }
+  
+@keyframes unflipCard {
+	0% {
+		transform: rotateX(0deg);
+	  }
+	  49.9% {
+		transform: rotateX(90deg);
+	  }
+	  50% {
+		transform: rotateX(90deg) ;
+	  }
+	  100% {
+		transform: rotateX(0deg) ;
+	  }
+  }
+  .card.animation-started.is-flipped {
+	animation: flipCard 1.5s forwards;
+  }
+  
+  .card.animation-started:not(.is-flipped) {
+	animation: unflipCard 1.5s forwards;
+  }
+  
+
+.slide-content{
+	width: 100%;
+	flex-grow: 1;
+	align-items: center; /* căn giữa theo chiều dọc */
+ 	justify-content: center; /* nếu muốn căn giữa luôn cả chiều ngang */
+}
+.card-box{
+}
+.main-content-text {
+	font-size: 1.4rem; 
+	line-height: 1.8; 
+	font-weight: 500; 
+	text-align: center;
+  }
+  .slide-image {
+	max-width: 30%;
+	object-fit: contain;
+	border-radius: 10px;
+	display: block;
+	margin: 0 auto;
+	box-shadow:0px  4px 15px rgba(36, 28, 31, 0.3);
+  }
+  
+.swiper-pagination{
+	color: white;
+	bottom: 20px !important;
+  }
+  
+.swiper-pagination-fraction {
+	color: white;
+	font-size: 16px;
+	font-weight: 500;
+	background: rgba(0, 0, 0, 0.3);
+	width: auto;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 4px 12px;
+	border-radius: 20px;
+  }
+.card-content.front.hidden {
+  display: none;
+}
+
+.card-content.back {
+  display: none;
+}
+
+.card-content.back.visible {
+  display: flex;
+}
+
+@media screen and (max-width: 768px) {
+	.ip-feature-card{
+		width: 250px !important;
+		height: 400px !important;
+	}
+}
+
+@media (max-width: 768px) {
+  .slider-button {
+    display: none !important;
+  }
+
+  .card-title {
+    font-size: 12px !important;
+  }
+
+  .cta-button {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  .card-content {
+    padding: 20px;
+  }
+
+  .card-description {
+    font-size: 8px;
+  }
+
+  .main-content-text {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,50 @@
+@use '@/assets/css/index.scss' as *;
+@use 'sass:color';
+
+.pro-button-container {
+  position: fixed;
+  top: 143px; /* Position it just below the header (header is ~100px) */
+  right: -1px;
+  transform: translateX(-50%); /* Center the button horizontally */
+  z-index: 99; /* Highest z-index to ensure it's on top */
+}
+
+.pro-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 50px; /* Pill shape */
+  border: none;
+  cursor: pointer;
+  font-family: $font-family-bold;
+  color: white;
+  background: linear-gradient(45deg, $primary-color, $hover-btn-color);
+  box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(233, 69, 96, 0.45);
+  }
+
+  .pro-badge {
+    background-color: #ffc107;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .pro-text {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .pro-icon {
+    font-size: 16px;
+    color: #ffeb3b; /* A brighter, more golden yellow */
+  }
+} 

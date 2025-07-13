@@ -1,0 +1,138 @@
+name: Build and Deploy Vue + Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Lấy toàn bộ mã nguồn từ repo
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Cài đúng Node.js version
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    # 3. Cache npm và node_modules
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          frontend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    # 4. Inject biến môi trường Firebase
+    - name: Inject Firebase ENV (.env)
+      run: |
+        echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
+        echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
+        echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
+        echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
+
+    # 5. Build frontend
+    - name: Build frontend
+      working-directory: frontend
+      run: |
+        npm install --prefer-offline --frozen-lockfile
+        npm run build
+    # 5.5. Dọn thư mục dist cũ trên server trước khi upload
+    - name: Clean dist folder before upload
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          rm -rf /var/www/OboeProject/frontend/dist/*
+          echo "Old dist folder cleaned!"
+
+    # 6. Upload dist to server
+    - name: Upload frontend dist to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "frontend/dist/**"
+        target: "/var/www/OboeProject/frontend/dist/"
+        strip_components: 2
+        overwrite: true  
+
+    # 7. Restart frontend PM2
+    - name: Restart frontend via SSH (PM2)
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          if pm2 list | grep -q oboe-frontend; then
+            pm2 restart oboe-frontend
+          else
+            pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
+          fi
+          echo "Frontend restarted!"
+
+    # 8. Cấp quyền chạy cho mvnw
+    - name: Grant execute permission to mvnw
+      run: chmod +x backend/Oboe/mvnw
+
+    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    - name: Check ddl-auto safety
+      run: |
+        if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
+          echo "Không được deploy: ddl-auto có giá trị nguy hiểm!"
+          exit 1
+        else
+          echo "ddl-auto hợp lệ (none hoặc validate)"
+        fi
+    # 10. Cài Java 21
+    - name: Setup Java 21
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+    
+    # 11. Build backend bằng Maven
+    - name: Build backend (Maven)
+      working-directory: backend/Oboe
+      run: ./mvnw clean package -DskipTests
+
+    # 12. Upload backend jar
+    - name: Upload backend jar to server
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "backend/Oboe/target/*.jar"
+        target: "/var/www/OboeProject/backend/"
+        strip_components: 3
+    # 13. Restart backend
+    - name: Restart backend via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /var/www/OboeProject/backend
+          JAR_FILE=$(ls *.jar | head -n 1)
+          if pm2 list | grep -q oboe-backend; then
+             pm2 delete oboe-backend
+          fi
+          pm2 start java --name oboe-backend -- -jar "$JAR_FILE"
+          echo "Backend restarted!"
