@@ -31,19 +31,17 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getCommentsByTeamId(teamId, page, size));
     }
 
-
     //  Tạo comment mới cho 1 id
     @PostMapping("/{teamId}")
     public ResponseEntity<CommentDTOs> createComment(
-            @PathVariable("teamId") UUID blogId,
+            @PathVariable UUID teamId,
             @RequestBody CommentDTOs dto,
             Authentication authentication
     ) {
         UUID userId = ((CustomUserDetails) authentication.getPrincipal()).getUserID();
-        return ResponseEntity.ok(commentService.createComment(blogId, userId, dto));
+        CommentDTOs createdComment = commentService.createComment(teamId, userId, dto);
+        return ResponseEntity.ok(createdComment);
     }
-
-
     // Trả lời comment
     @PostMapping("/reply/{commentId}")
     public ResponseEntity<CommentDTOs> replyComment(
