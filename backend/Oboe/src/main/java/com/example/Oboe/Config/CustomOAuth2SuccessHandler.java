@@ -9,6 +9,7 @@ import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -24,10 +25,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final String domain;
 
-    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
+    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.domain = domain;
     }
 
     @Override
@@ -76,12 +79,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = "https://oboeru.me/oauth2/redirect?token=" + token + "&provider=" + provider.name();
+            String redirectUrl = domain+"/oauth2/redirect?token=" + token + "&provider=" + provider.name();
             response.sendRedirect(redirectUrl);
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect("https://oboeru.me/login?error=" + errorMsg);
+            response.sendRedirect(domain+"/login?error=" + errorMsg);
         }
     }
 }

@@ -11,6 +11,7 @@ import com.example.Oboe.Repository.UserRepository;
 import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +31,8 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    @Value("${DOMAIN}")
+    private String domain;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService) {
@@ -50,7 +53,7 @@ public class UserService implements UserDetailsService {
             String verificationToken = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-            String verificationLink = "https://oboeru.me/api/auth/verify?token=" + verificationToken;
+            String verificationLink = domain+"/api/auth/verify?token=" + verificationToken;
 
             mailService.sendMail(username, "Xác minh tài khoản",
                     "Click vào liên kết để xác minh tài khoản của bạn: " + verificationLink);
