@@ -8,6 +8,7 @@ import com.example.Oboe.Repository.QuizzesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,7 +29,10 @@ public class QuestionsService {
         Questions question = new Questions();
         question.setQuestionName(dto.getQuestionName());
         question.setCorrectAnswer(dto.getCorrectAnswer());
-        question.setOptions(dto.getOptions());
+
+        // Sửa tại đây: convert List<String> -> String (để lưu vào DB)
+        question.setOptions(String.join(";", dto.getOptions()));
+
         question.setQuiz(quiz);
 
         return toDTO(questionsRepository.save(question));
@@ -49,7 +53,10 @@ public class QuestionsService {
         dto.setQuestionID(q.getQuestionID());
         dto.setQuestionName(q.getQuestionName());
         dto.setCorrectAnswer(q.getCorrectAnswer());
-        dto.setOptions(q.getOptions());
+
+        // Convert String to List<String>
+        dto.setOptions(Arrays.asList(q.getOptions().split(";")));
+
         dto.setQuizId(q.getQuiz().getQuizzesID());
         return dto;
     }

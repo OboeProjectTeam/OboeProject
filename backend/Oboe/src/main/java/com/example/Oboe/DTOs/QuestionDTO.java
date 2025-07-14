@@ -1,10 +1,14 @@
 package com.example.Oboe.DTOs;
 
+import java.util.List;
 import java.util.UUID;
 
 public class QuestionDTO {
     private UUID questionID;
     private String questionName;
+    private String correctAnswer;
+    private List<String> options; // <-- đổi thành List<String>// có thể là JSON array dạng string
+    private UUID quizId;
 
     public String getCorrectAnswer() {
         return correctAnswer;
@@ -30,11 +34,11 @@ public class QuestionDTO {
         this.questionName = questionName;
     }
 
-    public String getOptions() {
+
+    public List<String> getOptions() {
         return options;
     }
-
-    public void setOptions(String options) {
+    public void setOptions(List<String> options) {
         this.options = options;
     }
 
@@ -46,9 +50,7 @@ public class QuestionDTO {
         this.quizId = quizId;
     }
 
-    private String correctAnswer;
-    private String options; // có thể là JSON array dạng string
-    private UUID quizId;
+
 
     // Getters and Setters
 
