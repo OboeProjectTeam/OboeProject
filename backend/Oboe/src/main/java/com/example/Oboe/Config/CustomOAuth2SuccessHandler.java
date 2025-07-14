@@ -76,12 +76,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token + "&provider=" + provider.name();
+            String redirectUrl = "https://oboeru.me/oauth2/redirect?token=" + token + "&provider=" + provider.name();
             response.sendRedirect(redirectUrl);
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect("http://localhost:3000/login?error=" + errorMsg);
+            response.sendRedirect("https://oboeru.me/login?error=" + errorMsg);
         }
     }
 }

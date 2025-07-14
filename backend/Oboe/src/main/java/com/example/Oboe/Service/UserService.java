@@ -50,7 +50,8 @@ public class UserService implements UserDetailsService {
             String verificationToken = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(verificationToken, userDTOs);
 
-            String verificationLink = "http://localhost:8080/api/auth/verify?token=" + verificationToken;
+            String verificationLink = "https://oboeru.me/api/auth/verify?token=" + verificationToken;
+
             mailService.sendMail(username, "Xác minh tài khoản",
                     "Click vào liên kết để xác minh tài khoản của bạn: " + verificationLink);
         } else if (isValidPhone(username)) {
