@@ -6,44 +6,49 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
-    // Bean để xử lý sau khi đăng nhập thành công thông qua OAuth2
     @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil , String domain) {
+    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
         return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
     }
 
-    // Cấu hình bảo mật cho các API của ứng dụng
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           CustomOAuth2SuccessHandler successHandler) throws Exception {
+                                           CustomOAuth2SuccessHandler successHandler,
+                                           CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-            // Cấu hình các quyền truy cập cho các endpoint
             .authorizeHttpRequests(auth -> auth
-                // Cho phép truy cập công khai vào các endpoint liên quan đến login và signup
-                .requestMatchers("/api/auth/login", "/api/auth/signup").permitAll()
-                
-                // Cho phép truy cập công khai vào các endpoint /actuator/** và /error
-                .requestMatchers("/actuator/**", "/error").permitAll()
-                
-                // Tất cả các endpoint còn lại yêu cầu phải xác thực
+                .requestMatchers("/api/auth/login", "/api/auth/signup", "/actuator/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
-            // Cấu hình OAuth2 login để xử lý đăng nhập qua các dịch vụ OAuth2 (Google, Facebook, v.v.)
             .oauth2Login(oauth -> oauth
-                .successHandler(successHandler)  // Định nghĩa cách xử lý khi người dùng đăng nhập thành công
+                .successHandler(successHandler)
             )
-            // Tắt CSRF protection vì đây là API
-            .csrf(csrf -> csrf
-                .disable()  // Tắt CSRF cho các API, nếu không cần thiết
-            )
-            // Cấu hình CORS để hỗ trợ các yêu cầu từ các domain khác (nếu cần thiết)
-            .cors();  // Cấu hình CORS nếu cần thiết
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource));  // ← Cập nhật ở đây
 
-        // Trả về đối tượng SecurityFilterChain
         return http.build();
+    }
+
+    // Cấu hình CORS cụ thể
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*")); // ⚠ Cần thay * bằng domain cụ thể trong môi trường production
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);  // Nếu cần gửi cookie
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
