@@ -78,18 +78,16 @@ public class UserService implements UserDetailsService {
         String username = userDTOs.getUserName();
 
         // Cho phép trùng username nếu khác provider
-        Optional<User> existingOpt = userRepository.findByUserNameAndAuthProvider(username, provider);
-        if (existingOpt.isPresent()) {
+        List<User> existingUsers = userRepository.findAllByUserNameAndAuthProvider(username, provider);
+        if (!existingUsers.isEmpty()) {
             if (provider == AuthProvider.EMAIL) {
-                // Nếu là đăng ký bằng email thì chặn lại
                 throw new IllegalStateException("Tài khoản email đã được sử dụng.");
             } else {
-                // Nếu là Google/Facebook → trả về user đã có (đăng nhập lại)
-                return existingOpt.get();
+                return existingUsers.get(0); // Google/Facebook → dùng lại
             }
         }
 
-        // Nếu chưa tồn tại → tạo mới
+        // Tạo mới nếu chưa tồn tại
         User user = new User();
         user.setUserName(username);
         user.setAuthProvider(provider);
@@ -104,56 +102,77 @@ public class UserService implements UserDetailsService {
         user.setCreate_at(LocalDateTime.now());
         user.setUpdate_at(LocalDateTime.now());
 
-        // Nếu là EMAIL thì mã hóa mật khẩu
         if (provider == AuthProvider.EMAIL) {
             if (userDTOs.getPassWord() == null || userDTOs.getPassWord().length() < 8) {
                 throw new IllegalArgumentException("Mật khẩu phải ít nhất 8 ký tự.");
             }
             user.setPassWord(passwordEncoder.encode(userDTOs.getPassWord()));
         } else {
-            user.setPassWord(null); // Google/Facebook không cần mật khẩu
+            user.setPassWord(null);
         }
 
         return userRepository.save(user);
     }
 
-    public Optional<User> findByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+
+    public List<User> findByUserName(String userName) {
+        return userRepository.findAllByUserName(userName);
     }
 
-    public Optional<User> findByUserNameAndAuthProvider(String userName, AuthProvider provider) {
-        return userRepository.findByUserNameAndAuthProvider(userName, provider);
+
+    public List<User> findByUserNameAndAuthProvider(String userName, AuthProvider provider) {
+        return userRepository.findAllByUserNameAndAuthProvider(userName, provider);
     }
+
+
 
     public List<User> findAllByUserName(String userName) {
         return userRepository.findAllByUserName(userName);
     }
 
     public UserDetails loadUserByUsername(String username) {
-        User user = userRepository
-                .findByUserNameAndAuthProvider(username, AuthProvider.EMAIL)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found (EMAIL)"));
+        List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
+
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found (EMAIL)");
+        }
+        if (users.size() > 1) {
+            throw new UsernameNotFoundException("Tồn tại nhiều người dùng trùng thông tin đăng nhập.");
+        }
+
+        User user = users.get(0);
 
         if (!user.isVerified()) {
             throw new UsernameNotFoundException("Tài khoản chưa xác minh email.");
         }
+
         if (user.getStatus() != null && user.getStatus().toString().equalsIgnoreCase("BANNED")) {
             throw new UsernameNotFoundException("Tài khoản đã bị khóa.");
         }
 
-
         return buildPrincipal(user);
     }
+
 
     public UserDetails loadUserByUsernameAndProvider(String username, AuthProvider provider) {
-        User user = userRepository
-                .findByUserNameAndAuthProvider(username, provider)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found (" + provider + ")"));
+        List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, provider);
+
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found (" + provider + ")");
+        }
+        if (users.size() > 1) {
+            throw new UsernameNotFoundException("Tồn tại nhiều người dùng trùng thông tin đăng nhập.");
+        }
+
+        User user = users.get(0);
+
         if (user.getStatus() != null && user.getStatus().toString().equalsIgnoreCase("BANNED")) {
             throw new UsernameNotFoundException("Tài khoản đã bị khóa.");
         }
+
         return buildPrincipal(user);
     }
+
 
     private UserDetails buildPrincipal(User user) {
         String password = user.getPassWord();
@@ -167,8 +186,16 @@ public class UserService implements UserDetailsService {
 
 
     public User updateMyOwnProfile(String username, AuthProvider authProvider, UserDTOs userDTOs) {
-        User user = userRepository.findByUserNameAndAuthProvider(username, authProvider)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, authProvider);
+
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        if (users.size() > 1) {
+            throw new UsernameNotFoundException("Trùng thông tin tài khoản.");
+        }
+
+        User user = users.get(0);
 
         user.setFirstName(userDTOs.getFirstName());
         user.setLastName(userDTOs.getLastName());
@@ -180,9 +207,23 @@ public class UserService implements UserDetailsService {
     }
 
 
+
     public void changePassword(String username, PassWordChangeDTOs passWordChange) {
-        User user = userRepository.findByUserName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<User> users = userRepository.findAllByUserName(username);
+
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        if (users.size() > 1) {
+            throw new IllegalStateException("Tồn tại nhiều người dùng với cùng username.");
+        }
+
+        User user = users.get(0);
+
+        if (user.getAuthProvider() != AuthProvider.EMAIL) {
+            throw new IllegalArgumentException("Không thể đổi mật khẩu với tài khoản Google/Facebook.");
+        }
 
         if (!passwordEncoder.matches(passWordChange.getOldPassword(), user.getPassWord())) {
             throw new IllegalArgumentException("Old password is incorrect");
@@ -193,6 +234,7 @@ public class UserService implements UserDetailsService {
         user.setPassWord(passwordEncoder.encode(passWordChange.getNewPassword()));
         userRepository.save(user);
     }
+
 
 //    public UserDTOs convertOAuthToDTO(String email, String firstName, String lastName, AuthProvider provider) {
 //        UserDTOs dto = new UserDTOs();

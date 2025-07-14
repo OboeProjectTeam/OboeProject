@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import java.util.List;
 
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
@@ -50,15 +50,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String name = oauth.getAttribute("name") != null ? oauth.getAttribute("name") : "Unknown";
 
         try {
-            Optional<User> userOpt = userService.findByUserNameAndAuthProvider(providerId, provider);
+            List<User> users = userService.findByUserNameAndAuthProvider(providerId, provider);
             User user;
 
-            if (userOpt.isEmpty()) {
+            if (users.isEmpty()) {
                 String firstName = name.split(" ")[0];
                 String lastName = name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "";
 
                 UserDTOs dto = new UserDTOs();
-                dto.setUserName(email != null ? email : providerId);
+                dto.setUserName(email != null ? email : providerId); // Lưu username là email nếu có
                 dto.setFirstName(firstName);
                 dto.setLastName(lastName);
                 dto.setVerified(true);
@@ -67,8 +67,10 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 dto.setRole(Role.ROLE_USER);
 
                 user = userService.addUser(dto);
+            } else if (users.size() == 1) {
+                user = users.get(0);
             } else {
-                user = userOpt.get();
+                throw new IllegalStateException("Tìm thấy nhiều tài khoản trùng providerId và provider.");
             }
 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);

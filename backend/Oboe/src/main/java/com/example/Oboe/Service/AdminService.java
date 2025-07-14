@@ -48,10 +48,11 @@ public class AdminService {
             throw new IllegalArgumentException("Tên đăng nhập phải là email hoặc số điện thoại hợp lệ.");
         }
 
-        Optional<User> existingUser = userRepository.findByUserNameAndAuthProvider(dto.getUserName(), dto.getAuthProvider());
-        if (existingUser.isPresent()) {
+        List<User> existingUsers = userRepository.findAllByUserNameAndAuthProvider(dto.getUserName(), dto.getAuthProvider());
+        if (!existingUsers.isEmpty()) {
             throw new IllegalStateException("Tài khoản đã tồn tại.");
         }
+
 
         // Nếu là ROLE_USER và là email thì gửi mail xác minh
         if (dto.getRole() == Role.ROLE_USER && isEmail) {
@@ -153,9 +154,10 @@ public class AdminService {
         return userRepository.findAllByUserName(keyword);
     }
 
-    public Optional<User> findByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+    public List<User> findByUserName(String userName) {
+        return userRepository.findAllByUserName(userName);
     }
+
 
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
