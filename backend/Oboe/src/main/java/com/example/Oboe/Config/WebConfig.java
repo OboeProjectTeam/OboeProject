@@ -1,5 +1,4 @@
-package com.example.Oboe.Config;
-
+import com.example.Oboe.Config.CustomOAuth2SuccessHandler;
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
@@ -31,6 +30,13 @@ public class WebConfig {
         this.jwtUtil = jwtUtil;
     }
 
+    @Value("${app.domain}")
+    private String domain;
+
+    @Bean
+    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService) {
+        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
+    }
 
     @Bean
     public HttpFirewall allowUrlEncodedDoubleSlashHttpFirewall() {
@@ -40,43 +46,32 @@ public class WebConfig {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
-    @Value("${app.domain}")
-    private String domain;
-
-    @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
-        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
-    }
-
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(HttpFirewall firewall) {
         return web -> web.httpFirewall(firewall);
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public JwtAuthencation jwtAuthenticationFilter(UserService userService) {
         return new JwtAuthencation(userService, jwtUtil);
     }
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
-                                                   UserService userService) throws Exception {
+                                                   UserService userService,
+                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -93,7 +88,7 @@ public class WebConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(new CustomOAuth2SuccessHandler(userService, jwtUtil, domain))
+                        .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             exception.printStackTrace(); // Debug
                             response.sendRedirect("/login?error=" + exception.getMessage());

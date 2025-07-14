@@ -9,7 +9,6 @@ import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,8 +24,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
-    @Value("${app.domain}")
-    private String domain;
+    private final String domain;
 
     public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
         this.userService = userService;
@@ -44,6 +42,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String regId = ((OAuth2AuthenticationToken) authentication)
                 .getAuthorizedClientRegistrationId()
                 .toUpperCase(); // GOOGLE / FACEBOOK
+
         AuthProvider provider = AuthProvider.valueOf(regId);
 
         String providerId = oauth.getAttribute("sub") != null
@@ -62,7 +61,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 String lastName = name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "";
 
                 UserDTOs dto = new UserDTOs();
-                dto.setUserName(email != null ? email : providerId); // Lưu username là email nếu có
+                dto.setUserName(email != null ? email : providerId); // username là email nếu có
                 dto.setFirstName(firstName);
                 dto.setLastName(lastName);
                 dto.setVerified(true);
@@ -80,12 +79,12 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = domain+"/oauth2/redirect?token=" + token + "&provider=" + provider.name();
+            String redirectUrl = domain + "/oauth2/redirect?token=" + token + "&provider=" + provider.name();
             response.sendRedirect(redirectUrl);
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect(domain+"/login?error=" + errorMsg);
+            response.sendRedirect(domain + "/login?error=" + errorMsg);
         }
     }
 }
