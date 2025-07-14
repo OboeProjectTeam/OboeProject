@@ -10,19 +10,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Lấy toàn bộ mã nguồn từ repo
+    # 1. Checkout source
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
-    # 2. Cài đúng Node.js version
+    # 2. Setup Node.js
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 18
 
-    # 3. Cache npm và node_modules
+    # 3. Cache node_modules
     - name: Cache node_modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.npm
@@ -31,7 +31,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    # 4. Inject biến môi trường Firebase
+    # 4. Inject Firebase ENV
     - name: Inject Firebase ENV (.env)
       run: |
         echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
@@ -42,14 +42,33 @@ jobs:
         echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
         echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
 
-    # 5. Build frontend
+    # 5. Inject backend ENV (.env)
+    - name: Inject backend ENV (.env)
+      run: |
+        echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> backend/Oboe/.env
+        echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> backend/Oboe/.env
+        echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> backend/Oboe/.env
+
+        echo "SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }}" >> backend/Oboe/.env
+        echo "SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }}" >> backend/Oboe/.env
+
+        echo "FILE_UPLOAD_DIR=${{ secrets.FILE_UPLOAD_DIR }}" >> backend/Oboe/.env
+
+        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> backend/Oboe/.env
+        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> backend/Oboe/.env
+
+        echo "FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }}" >> backend/Oboe/.env
+        echo "FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> backend/Oboe/.env
+
+    # 6. Build frontend
     - name: Build frontend
       working-directory: frontend
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
-    # 5.5. Dọn thư mục dist cũ trên server trước khi upload
-    - name: Clean dist folder before upload
+
+    # 7. Clean old frontend dist on server
+    - name: Clean dist folder on server
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -57,9 +76,9 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           rm -rf /var/www/OboeProject/frontend/dist/*
-          echo "Old dist folder cleaned!"
+          echo "Old dist cleaned."
 
-    # 6. Upload dist to server
+    # 8. Upload frontend to server
     - name: Upload frontend dist to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -69,9 +88,9 @@ jobs:
         source: "frontend/dist/**"
         target: "/var/www/OboeProject/frontend/dist/"
         strip_components: 2
-        overwrite: true  
+        overwrite: true
 
-    # 7. Restart frontend PM2
+    # 9. Restart frontend (PM2)
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -84,13 +103,12 @@ jobs:
           else
             pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
           fi
-          echo "Frontend restarted!"
 
-    # 8. Cấp quyền chạy cho mvnw
-    - name: Grant execute permission to mvnw
+    # 10. Cấp quyền chạy cho mvnw
+    - name: Make mvnw executable
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    # 11. Kiểm tra ddl-auto có cấu hình nguy hiểm không
     - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
@@ -99,30 +117,42 @@ jobs:
         else
           echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
-    # 10. Cài Java 21
+
+    # 12. Setup Java
     - name: Setup Java 21
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
-    
-    # 11. Build backend bằng Maven
-    - name: Build backend (Maven)
+
+    # 13. Build backend (Spring Boot)
+    - name: Build backend with Maven
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 12. Upload backend jar
+    # 14. Clean old backend jar on server
+    - name: Clean old backend jar on server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          rm -f /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+          echo "Old JAR deleted."
+    # 15. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "backend/Oboe/target/*.jar"
+        source: "backend/Oboe/target/Oboe-0.0.1-SNAPSHOT.jar"
         target: "/var/www/OboeProject/backend/"
+        overwrite: true
         strip_components: 3
-    # 13. Restart backend
-    - name: Restart backend via SSH
+    # 16. Restart backend
+    - name: Restart backend via SSH using ecosystem.config.js
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -130,9 +160,5 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           cd /var/www/OboeProject/backend
-          JAR_FILE=$(ls *.jar | head -n 1)
-          if pm2 list | grep -q oboe-backend; then
-             pm2 delete oboe-backend
-          fi
-          pm2 start java --name oboe-backend -- -jar "$JAR_FILE"
-          echo "Backend restarted!"
+          pm2 restart ecosystem.config.js
+          echo "Backend restarted using PM2 ecosystem.config.js"
