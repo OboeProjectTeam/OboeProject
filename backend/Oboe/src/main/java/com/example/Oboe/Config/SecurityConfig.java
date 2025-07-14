@@ -12,8 +12,8 @@ public class SecurityConfig {
 
     // Bean để xử lý sau khi đăng nhập thành công thông qua OAuth2
     @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
-        return new CustomOAuth2SuccessHandler(userService, jwtUtil);
+    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil , String domain) {
+        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
     }
 
     // Cấu hình bảo mật cho các API của ứng dụng
