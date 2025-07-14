@@ -16,11 +16,6 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
-        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomOAuth2SuccessHandler successHandler,
                                            CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -42,7 +37,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("*")); // ⚠ Cần thay * bằng domain cụ thể trong môi trường production
+        config.setAllowedOrigins(List.of(
+             "http://localhost:3000",  // Cho phép local dev
+             "https://oboeru.me"  // Cho phép production domain
+        )); 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);  // Nếu cần gửi cookie
