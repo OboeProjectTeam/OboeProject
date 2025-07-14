@@ -7,6 +7,7 @@ import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class AdminService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
-
+    @Value("${app.domain}")
+    private String domain;
     @Autowired
     public AdminService(UserRepository userRepository,
                         PasswordEncoder passwordEncoder,
@@ -59,7 +61,7 @@ public class AdminService {
             String token = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(token, dto);
 
-            String verifyLink = "http://localhost:8080/api/auth/verify?token=" + token;
+            String verifyLink = domain+"/api/auth/verify?token=" + token;
             mailService.sendMail(dto.getUserName(), "Xác minh tài khoản",
                     "Vui lòng xác minh tài khoản tại: " + verifyLink);
             return null;
