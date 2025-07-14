@@ -1,3 +1,5 @@
+package com.example.Oboe.Config;
+
 import com.example.Oboe.Config.CustomOAuth2SuccessHandler;
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
