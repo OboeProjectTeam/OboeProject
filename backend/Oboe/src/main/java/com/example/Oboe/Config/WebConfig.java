@@ -77,7 +77,8 @@ public class WebConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
                                                    UserService userService,
-                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler) throws Exception {
+                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
+                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
