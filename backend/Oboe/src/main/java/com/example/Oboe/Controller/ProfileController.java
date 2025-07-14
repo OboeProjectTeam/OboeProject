@@ -2,12 +2,15 @@ package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.Entity.AuthProvider;
+import com.example.Oboe.Entity.User;
 import com.example.Oboe.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/profile")
@@ -32,11 +35,18 @@ public class ProfileController {
         String username = customUserDetails.getUsername();
         AuthProvider authProvider = customUserDetails.getAuthProvider();
 
-        return userService.findByUserNameAndAuthProvider(username, authProvider)
-                .<ResponseEntity<?>>map(user -> {
-                    user.setPassWord(null);
-                    return ResponseEntity.ok(user);
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found."));
+        List<User> users = userService.findByUserNameAndAuthProvider(username, authProvider);
+
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        if (users.size() > 1) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Tìm thấy nhiều người dùng trùng username và provider.");
+        }
+
+        User user = users.get(0);
+        user.setPassWord(null); // Ẩn mật khẩu
+        return ResponseEntity.ok(user);
     }
 }

@@ -46,6 +46,8 @@ public class User {
 
     private String address;
 
+    private String avatarUrl;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role = Role.ROLE_USER;
@@ -105,6 +107,14 @@ public class User {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public UUID getUser_id() {

@@ -4,6 +4,7 @@ import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,14 @@ public class WebConfig {
 
     public WebConfig(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
+    }
+
+    @Value("${DOMAIN}")
+    private String domain;
+
+    @Bean
+    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
+        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
     }
 
 
@@ -67,7 +76,8 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
-                                                   UserService userService) throws Exception {
+                                                   UserService userService,
+                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -84,9 +94,9 @@ public class WebConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(new CustomOAuth2SuccessHandler(userService, jwtUtil))
+                        .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace(); // Debug
+                            exception.printStackTrace();
                             response.sendRedirect("/login?error=" + exception.getMessage());
                         })
                 )

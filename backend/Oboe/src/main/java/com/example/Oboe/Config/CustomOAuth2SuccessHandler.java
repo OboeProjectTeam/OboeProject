@@ -9,6 +9,7 @@ import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -19,17 +20,19 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import java.util.List;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final String domain;
 
-    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
+    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.domain = domain;
     }
 
     @Override
@@ -52,15 +55,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String name = oauth.getAttribute("name") != null ? oauth.getAttribute("name") : "Unknown";
 
         try {
-            Optional<User> userOpt = userService.findByUserNameAndAuthProvider(providerId, provider);
+            List<User> users = userService.findByUserNameAndAuthProvider(providerId, provider);
             User user;
 
-            if (userOpt.isEmpty()) {
+            if (users.isEmpty()) {
                 String firstName = name.split(" ")[0];
                 String lastName = name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "";
 
                 UserDTOs dto = new UserDTOs();
-                dto.setUserName(email != null ? email : providerId);
+                dto.setUserName(email != null ? email : providerId); // Lưu username là email nếu có
                 dto.setFirstName(firstName);
                 dto.setLastName(lastName);
                 dto.setVerified(true);
@@ -69,19 +72,21 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 dto.setRole(Role.ROLE_USER);
 
                 user = userService.addUser(dto);
+            } else if (users.size() == 1) {
+                user = users.get(0);
             } else {
-                user = userOpt.get();
+                throw new IllegalStateException("Tìm thấy nhiều tài khoản trùng providerId và provider.");
             }
 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = "http://localhost:3000/oauth2/redirect?token=" + token + "&provider=" + provider.name();
+            String redirectUrl = domain+"/oauth2/redirect?token=" + token + "&provider=" + provider.name();
             response.sendRedirect(redirectUrl);
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-            response.sendRedirect("http://localhost:3000/login?error=" + errorMsg);
+            response.sendRedirect(domain+"/login?error=" + errorMsg);
         }
     }
 }

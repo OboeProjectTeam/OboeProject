@@ -5,9 +5,7 @@ import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Entity.Notifications;
 import com.example.Oboe.Entity.User;
-import com.example.Oboe.Repository.BlogRepository;
-import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.Repository.NotificationsRepository;
+import com.example.Oboe.Repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -25,13 +23,20 @@ public class CommentService {
     private final UserService userService;
     private final NotificationsRepository notificationsRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final KanjiRepository kanjiRepository;
+    private final GrammarRepository grammarRepository;
 
-    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate) {
+    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate,
+                          KanjiRepository kanjiRepository,
+                          GrammarRepository grammarRepository) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.blogRepository = blogRepository;
         this.notificationsRepository = notificationsRepository;
         this.messagingTemplate = messagingTemplate;
+        this.kanjiRepository = kanjiRepository;
+        this.grammarRepository = grammarRepository;
+
     }
 
 
@@ -103,9 +108,25 @@ public class CommentService {
         User sender = userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
-        // Lấy blog theo ID
-        Blog blog = blogRepository.findById(teamId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Blog ID không tồn tại"));
+        User receiver = null;
+        // Biến Check Blog
+        boolean isBlog = false;
+
+        //  lấy blog check
+        Optional<Blog> blogOpt = blogRepository.findById(teamId);
+        if (blogOpt.isPresent()) {
+            //nếu là Blog thì true
+            isBlog = true;
+            receiver = blogOpt.get().getUser();
+        } else {
+            // Nếu không phải blog xem có phải kanji không
+            if (!kanjiRepository.existsById(teamId)) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Blog hoặc Kanji");
+            }
+            if(!grammarRepository.existsById(teamId)) {
+                throw  new ResponseStatusException(HttpStatus.NOT_FOUND , "Không tìm thấy Blog hoặc Grammar");
+            }
+        }
 
         // Tạo Comment
         Comment comment = new Comment();
@@ -116,36 +137,35 @@ public class CommentService {
         comment.setreferenceId(teamId);
 
         Comment saved = commentRepository.save(comment);
-
-        // Gửi WebSocket: Bình luận mới
         CommentDTOs commentDTO = toDTO(saved);
-        messagingTemplate.convertAndSend(
-                "/blog/" + blog.getBlogId() + "/comments",
-                commentDTO
-        );
 
+        // chỉ gửi thông báo cho Comment cho Blog
+        if (isBlog) {
+            // Gửi WebSocket bình luận cho blog
+            messagingTemplate.convertAndSend(
+                    "/blog/" + teamId + "/comments",
+                    commentDTO
+            );
+            if (receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
+                // Gửi notification cho chủ blog
+                Notifications notification = new Notifications();
+                notification.setUser(receiver);
+                notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
+                notification.setRead(false);
+                notification.setUpdate_at(LocalDateTime.now());
 
+                Notifications savedNoti = notificationsRepository.save(notification);
 
-        User receiver = blog.getUser();
-
-        Notifications notification = new Notifications();
-        notification.setUser(receiver);
-        notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
-        notification.setRead(false);
-        notification.setUpdate_at(LocalDateTime.now());
-
-        Notifications savedNoti = notificationsRepository.save(notification);
-
-        // Gửi WebSocket thông báo cho chủ blog
-        messagingTemplate.convertAndSend(
-                "/notification/" + receiver.getUser_id(),
-                savedNoti.getText_notification()
-
-        );
+                messagingTemplate.convertAndSend(
+                        "/notification/" + receiver.getUser_id(),
+                        savedNoti.getText_notification()
+                );
+            }
+        }
 
         return commentDTO;
-
     }
+
 
     // Tạo phản hồi (comment con) dựa trên comment cha
     public CommentDTOs Commentreply(UUID parentCommentId, UUID userId, CommentDTOs dto) {

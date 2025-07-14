@@ -21,6 +21,7 @@
     import org.springframework.web.bind.annotation.*;
 
     import java.util.HashMap;
+    import java.util.List;
     import java.util.Map;
     import java.util.Optional;
 
@@ -53,15 +54,13 @@
             }
 
             AuthProvider currentProvider = userDTOs.getAuthProvider() != null ? userDTOs.getAuthProvider() : AuthProvider.EMAIL;
-            Optional<User> existingUserOpt = userService.findByUserName(userDTOs.getUserName());
+            List<User> existingUsers = userService.findByUserName(userDTOs.getUserName());
 
-            if (existingUserOpt.isPresent()) {
-                AuthProvider existingProvider = existingUserOpt.get().getAuthProvider();
-                if (existingProvider == currentProvider) {
+            for (User existing : existingUsers) {
+                if (existing.getAuthProvider() == currentProvider) {
                     return ResponseEntity.status(HttpStatus.CONFLICT)
                             .body("Tài khoản đã tồn tại với nhà cung cấp " + currentProvider);
                 }
-
             }
 
             // gửi mail xác thực
@@ -88,13 +87,15 @@
             String password = loginRequest.getPassWord();
 
             // Kiểm tra người dùng có tồn tại
-            Optional<User> userOptional = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
-
-            if (userOptional.isEmpty()) {
+            List<User> userList = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
+            if (userList.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
             }
+            if (userList.size() > 1) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Nhiều tài khoản trùng username và provider.");
+            }
+            User user = userList.get(0);
 
-            User user = userOptional.get();
 
             // Không cho đăng nhập nếu chưa xác minh
             if (!user.isVerified()) {
