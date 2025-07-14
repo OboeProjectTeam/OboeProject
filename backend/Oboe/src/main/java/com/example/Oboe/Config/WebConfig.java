@@ -31,14 +31,6 @@ public class WebConfig {
         this.jwtUtil = jwtUtil;
     }
 
-    @Value("${DOMAIN}")
-    private String domain;
-
-    @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
-        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
-    }
-
 
     @Bean
     public HttpFirewall allowUrlEncodedDoubleSlashHttpFirewall() {
@@ -48,6 +40,14 @@ public class WebConfig {
         firewall.setAllowSemicolon(true);
         return firewall;
     }
+    @Value("${app.domain}")
+    private String domain;
+
+    @Bean
+    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil) {
+        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
+    }
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(HttpFirewall firewall) {
@@ -76,8 +76,7 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
-                                                   UserService userService,
-                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler) throws Exception {
+                                                   UserService userService) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -94,9 +93,9 @@ public class WebConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customOAuth2SuccessHandler)
+                        .successHandler(new CustomOAuth2SuccessHandler(userService, jwtUtil, domain))
                         .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace();
+                            exception.printStackTrace(); // Debug
                             response.sendRedirect("/login?error=" + exception.getMessage());
                         })
                 )

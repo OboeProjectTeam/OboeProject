@@ -27,7 +27,8 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
-    private final String domain;
+    @Value("${app.domain}")
+    private String domain;
 
     public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
         this.userService = userService;

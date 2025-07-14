@@ -31,7 +31,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
-    @Value("${DOMAIN}")
+    @Value("${app.domain}")
     private String domain;
 
     @Autowired
