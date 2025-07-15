@@ -146,15 +146,26 @@ jobs:
           echo "Backend restarted using PM2 ecosystem.config.js"
     # 16. Run Spring Boot with Environment Variables
     - name: Run Spring Boot with Environment Variables
-      run: |
-        java -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-             -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-             -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-             -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
-             -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
-             -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-             -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-             -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
-             -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
-             -DDOMAIN=${{ secrets.DOMAIN }} \
-             -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+       uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          # Start or restart backend Spring Boot app
+          if pgrep -f "java -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar"; then
+            echo "Backend is already running, restarting..."
+            pkill -f "java -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar"
+          fi
+          nohup java -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+                      -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+                      -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+                      -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
+                      -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
+                      -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                      -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                      -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
+                      -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
+                      -DDOMAIN=${{ secrets.DOMAIN }} \
+                      -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
+          echo "Backend started with environment variables"
