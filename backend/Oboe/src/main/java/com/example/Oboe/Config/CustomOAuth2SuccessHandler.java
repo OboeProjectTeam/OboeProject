@@ -21,7 +21,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Component
+//@Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserService userService;
@@ -81,7 +81,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = domain + "/oauth2/redirect?token=" + token + "&provider=" + provider.name();
+            String redirectUrl = domain + "/oauth2/success?token=" + token + "&provider=" + provider.name();
             response.sendRedirect(redirectUrl);
 
         } catch (IllegalStateException e) {

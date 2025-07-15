@@ -21,6 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -92,8 +95,9 @@ public class WebConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace(); // Debug
-                            response.sendRedirect("/login?error=" + exception.getMessage());
+                            exception.printStackTrace();
+                            String error = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+                            response.sendRedirect(domain + "/login?error=" + error); // dùng domain luôn
                         })
                 )
                 .logout(logout -> logout
