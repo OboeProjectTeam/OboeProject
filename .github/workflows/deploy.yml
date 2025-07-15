@@ -133,17 +133,6 @@ jobs:
         target: "/var/www/OboeProject/backend/"
         overwrite: true
         strip_components: 3
-    # 15. Restart backend
-    - name: Restart backend via SSH using ecosystem.config.js
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: |
-          cd /var/www/OboeProject/backend
-          pm2 restart ecosystem.config.js
-          echo "Backend restarted using PM2 ecosystem.config.js"
     # 16. Run Spring Boot with Environment Variables
     - name: Run Spring Boot with Environment Variables
       uses: appleboy/ssh-action@v1.0.0
@@ -157,17 +146,16 @@ jobs:
           pkill -9 -f "java -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar" || echo "No running process to kill"
 
           # Start backend with environment variables
-          echo "Starting backend with Spring Boot..."
-          nohup java -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-                    -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-                    -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-                    -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
-                    -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
-                    -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-                    -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-                    -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
-                    -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
-                    -DDOMAIN=${{ secrets.DOMAIN }} \
-                    -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar > /dev/null 2>&1 &
-
-          echo "Backend started with environment variables"
+          echo "Starting backend using PM2..."
+          pm2 start java --name oboe-backend -- -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+                                                            -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+                                                            -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+                                                            -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
+                                                            -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
+                                                            -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                                                            -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                                                            -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
+                                                            -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
+                                                            -DDOMAIN=${{ secrets.DOMAIN }} \
+                                                            -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+          echo "Backend started using PM2 with environment variables"
