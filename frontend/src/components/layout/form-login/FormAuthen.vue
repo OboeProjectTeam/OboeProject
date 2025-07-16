@@ -1,7 +1,7 @@
 <template>
   <form class="form__login" :style="{ width: formWidth }">
     <div class="form__cover"></div>
-    <div class="form__loader" v-if="isLoading">
+    <div class="form__loader">
       <div class="spinner active">
         <svg class="spinner__circular" viewBox="25 25 50 50">
           <circle class="spinner__path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10" />
@@ -16,7 +16,7 @@
       </div>
 
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '10px' : '0px' }">
-        <input v-model="username" type="text" class="styled-input__input" :disabled="isLoading" />
+        <input v-model="username" type="text" class="styled-input__input" />
         <div class="styled-input__placeholder">
           <span class="styled-input__placeholder-text">Email / Số Điện Thoại</span>
         </div>
@@ -85,27 +85,28 @@
         <span class="divider-text">Hoặc</span>
       </div>
 
-      <div v-if="!isRegister">
-        <div id="firebaseui-auth-container"></div>
-        <div id="loader">Loading...</div>
+      <div v-if="!isRegister" class="social-login">
+        <button type="button" class="social-button google" @click="handleGoogleLogin">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          <span>Đăng nhập với Google</span>
+        </button>
+        <button type="button" class="social-button facebook" @click="handleFacebookLogin">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" />
+          <span>Đăng nhập với Facebook</span>
+        </button>
       </div>
-
     </div>
   </form>
 </template>
-
-
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
-import * as firebaseui from 'firebaseui'
-import 'firebaseui/dist/firebaseui.css'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import { firebase, auth } from '@/firebase.js'
 import authApi from '@/api/modules/authApi';
+import oauthApi from '@/api/modules/oauthApi';
 
 const props = defineProps({
   isRegister: {
@@ -129,33 +130,13 @@ const firstname = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
 
-const uiConfig = {
-  signInFlow: 'popup',
-  signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-  ],
-  callbacks: {
-    signInSuccessWithAuthResult: function (authResult) {
-      const userData = {
-        displayName: authResult.user.displayName,
-        email: authResult.user.email,
-        photoURL: authResult.user.photoURL,
-        uid: authResult.user.uid
-      };
-      store.dispatch('auth/setUser', userData);
-      router.push('/');
-      return false;
-    },
-    uiShown: function () {
-      document.getElementById('loader').style.display = 'none';
-      loginTranslate();
-    }
-  }
+const handleGoogleLogin = () => {
+  window.location.href = oauthApi.getGoogleAuthUrl();
 }
 
-// Initialize the FirebaseUI Widget using Firebase.
-const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
+const handleFacebookLogin = () => {
+  window.location.href = oauthApi.getFacebookAuthUrl();
+}
 
 const submitForm = async () => {
   try {
@@ -203,7 +184,6 @@ const submitForm = async () => {
     isLoading.value = false;
   }
 }
-
 function placeholderAnimationIn(parent, action) {
   const act = action ? 'add' : 'remove'
   let letters = Array.from(parent.querySelectorAll('.letter'))
@@ -216,19 +196,6 @@ function placeholderAnimationIn(parent, action) {
       el.classList[act]('active')
     }, 50 * i)
   })
-}
-// Delay nhỏ để chắc chắn DOM render xong
-
-function loginTranslate() {
-  const googleBtn = document.querySelector('.firebaseui-idp-google .firebaseui-idp-text');
-  if (googleBtn) {
-    googleBtn.textContent = 'Đăng nhập với Google';
-  }
-
-  const facebookBtn = document.querySelector('.firebaseui-idp-facebook .firebaseui-idp-text');
-  if (facebookBtn) {
-    facebookBtn.textContent = 'Đăng nhập với Facebook';
-  }
 }
 //Khởi tạo placeholder chữ động
 function initAnimatedPlaceholders() {
@@ -271,11 +238,6 @@ function runStartupTransitions() {
 onMounted(async () => {
   try {
     await nextTick()
-
-    if (!props.isRegister) {
-      ui.start('#firebaseui-auth-container', uiConfig)
-    }
-
     initAnimatedPlaceholders()
     setupInputFocusAnimations()
     runStartupTransitions()
