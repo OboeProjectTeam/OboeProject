@@ -8,7 +8,7 @@ import store from '@/store/store';
  * - headers: Header mặc định cho mọi request
  */
 const axiosInstance = axios.create({
-  baseURL: 'https://oboeru.me/api',
+  baseURL: 'https://oboeru.me/',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
