@@ -58,6 +58,8 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           rm -rf /var/www/OboeProject/frontend/dist/*
+          sudo chown -R ubuntu:ubuntu /var/www/OboeProject/frontend/dist/
+          sudo chmod -R 755 /var/www/OboeProject/frontend/dist/
           echo "Old dist cleaned."
 
     # 7. Upload frontend to server
