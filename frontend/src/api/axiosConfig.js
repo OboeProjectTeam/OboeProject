@@ -53,7 +53,7 @@ axiosInstance.interceptors.response.use(
         // Thử refresh token
         const refreshToken = store.state.auth.refreshToken;
         if (refreshToken) {
-          const response = await axios.post('https://oboeru.me/api/auth/refresh-token', {
+          const response = await axios.post(`${axiosInstance.defaults.baseURL}/api/auth/refresh-token`, {
             refreshToken
           });
           const { token } = response.data;

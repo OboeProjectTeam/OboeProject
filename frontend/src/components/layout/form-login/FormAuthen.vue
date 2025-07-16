@@ -1,7 +1,7 @@
 <template>
   <form class="form__login" :style="{ width: formWidth }">
     <div class="form__cover"></div>
-    <div class="form__loader">
+    <div class="form__loader" v-if="isLoading">
       <div class="spinner active">
         <svg class="spinner__circular" viewBox="25 25 50 50">
           <circle class="spinner__path" cx="50" cy="50" r="20" fill="none" stroke-width="4" stroke-miterlimit="10" />
@@ -11,8 +11,12 @@
     <div class="form__content">
       <h1>{{ isRegister ? 'Đăng Ký' : 'Đăng Nhập' }}</h1>
 
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '10px' : '0px' }">
-        <input v-model="username" type="text" class="styled-input__input" />
+        <input v-model="username" type="text" class="styled-input__input" :disabled="isLoading" />
         <div class="styled-input__placeholder">
           <span class="styled-input__placeholder-text">Email / Số Điện Thoại</span>
         </div>
@@ -20,7 +24,7 @@
       </div>
 
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '20px' : '0px' }">
-        <input v-model="password" type="password" class="styled-input__input" />
+        <input v-model="password" type="password" class="styled-input__input" :disabled="isLoading" />
         <div class="styled-input__placeholder">
           <span class="styled-input__placeholder-text">Mật Khẩu</span>
         </div>
@@ -29,7 +33,7 @@
 
       <div class="flex-jsb grap-20">
         <div v-if="isRegister" class="styled-input" :style="{ 'margin-top': '20px', 'margin-bottom': '20px' }">
-          <input v-model="lastname" type="text" class="styled-input__input" />
+          <input v-model="lastname" type="text" class="styled-input__input" :disabled="isLoading" />
           <div class="styled-input__placeholder">
             <span class="styled-input__placeholder-text">Họ</span>
           </div>
@@ -37,7 +41,7 @@
         </div>
 
         <div v-if="isRegister" class="styled-input" :style="{ 'margin-top': '20px', 'margin-bottom': '20px' }">
-          <input v-model="firstname" type="text" class="styled-input__input" />
+          <input v-model="firstname" type="text" class="styled-input__input" :disabled="isLoading" />
           <div class="styled-input__placeholder">
             <span class="styled-input__placeholder-text">Tên</span>
           </div>
@@ -46,26 +50,26 @@
       </div>
 
       <div v-if="!isRegister">
-        <MCheckbox v-model="remember">
+        <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px;">Ghi nhớ tài khoản</span>
         </MCheckbox>
       </div>
       <div v-if="isRegister">
-        <MCheckbox v-model="remember">
+        <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu"  target="_blank">
+            <router-link to="/dieu-khoan-dich-vu" target="_blank">
               Điều khoản dịch vụ
             </router-link>
             và
-            <router-link to="/quyen-rieng-tu"  target="_blank">
+            <router-link to="/quyen-rieng-tu" target="_blank">
               Chính sách quyền riêng tư
             </router-link>
             của Oboe
           </span>
         </MCheckbox>
       </div>
-      <button type="button" class="styled-button" @click="submitForm">
+      <button type="button" class="styled-button" @click="submitForm" :disabled="isLoading">
         <span class="styled-button__real-text-holder">
           <span class="styled-button__real-text">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
           <span class="styled-button__moving-block face">
@@ -101,6 +105,7 @@ import 'firebaseui/dist/firebaseui.css'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { firebase, auth } from '@/firebase.js'
+import authApi from '@/api/modules/authApi';
 
 const props = defineProps({
   isRegister: {
@@ -121,9 +126,8 @@ const password = ref('')
 const remember = ref(false);
 const lastname = ref('');
 const firstname = ref('');
-const dob = ref('');
-const address = ref('');
-const user = ref(null);
+const errorMessage = ref('');
+const isLoading = ref(false);
 
 const uiConfig = {
   signInFlow: 'popup',
@@ -153,10 +157,51 @@ const uiConfig = {
 // Initialize the FirebaseUI Widget using Firebase.
 const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
 
-const submitForm = () => {
-  console.log('Username:', username.value)
-  console.log('Password:', password.value)
-  router.push('/');
+const submitForm = async () => {
+  try {
+    errorMessage.value = '';
+    isLoading.value = true;
+
+    if (props.isRegister) {
+      // Validate form
+      if (!username.value || !password.value || !lastname.value || !firstname.value) {
+        errorMessage.value = 'Vui lòng điền đầy đủ thông tin';
+        return;
+      }
+
+      if (!remember.value) {
+        errorMessage.value = 'Vui lòng chấp nhận điều khoản dịch vụ';
+        return;
+      }
+
+      // Call signup API
+      const userData = {
+        userName: username.value,
+        passWord: password.value,
+        firstName: firstname.value,
+        lastName: lastname.value
+      };
+
+      const response = await authApi.signup(userData);
+      // Show success message
+      alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
+      // Redirect to login page
+      router.push('/login');
+    } else {
+      // Handle login
+      const response = await authApi.login(username.value, password.value);
+      // Store token
+      store.dispatch('auth/setToken', response.token);
+      // Store user info
+      store.dispatch('auth/setUser', response.user);
+      // Redirect to home page
+      router.push('/');
+    }
+  } catch (error) {
+    errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 function placeholderAnimationIn(parent, action) {

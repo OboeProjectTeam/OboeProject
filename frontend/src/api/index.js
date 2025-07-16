@@ -1,18 +1,37 @@
-import axios from './axiosConfig';
-import { authApi } from './modules/authApi';
-import { userApi } from './modules/userApi';
-import * as apiUtils from './apiUtils';
+// Import các module API
+import adminApi from './modules/adminApi';
+import authApi from './modules/authApi';
+import blogApi from './modules/blogApi';
+import commentApi from './modules/commentApi';
+import favoriteApi from './modules/favoriteApi';
+import flashcardApi from './modules/flashcardApi';
+import grammarApi from './modules/grammarApi';
+import kanjiApi from './modules/kanjiApi';
+import messageApi from './modules/messageApi';
+import notificationApi from './modules/notificationApi';
+import oauthApi from './modules/oauthApi';
+import profileApi from './modules/profileApi';
+import questionApi from './modules/questionApi';
+import quizApi from './modules/quizApi';
+import reportApi from './modules/reportApi';
+import vocabularyApi from './modules/vocabularyApi';
 
-/**
- * Export các module API và utilities
- * - axiosInstance: Instance axios đã được cấu hình
- * - authApi: API xác thực người dùng
- * - userApi: API quản lý người dùng
- * - apiUtils: Các hàm tiện ích cho API
- */
+// Export tất cả các module API
 export {
-  axios as axiosInstance,
+  adminApi,
   authApi,
-  userApi,
-  apiUtils
+  blogApi,
+  commentApi,
+  favoriteApi,
+  flashcardApi,
+  grammarApi,
+  kanjiApi,
+  messageApi,
+  notificationApi,
+  oauthApi,
+  profileApi,
+  questionApi,
+  quizApi,
+  reportApi,
+  vocabularyApi
 }; 
