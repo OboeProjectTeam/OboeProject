@@ -37,51 +37,18 @@ jobs:
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
+    # 5. Copy frontend to Spring Boot static folder
+    - name: Copy frontend to backend static folder
+      run: |
+        rm -rf backend/Oboe/src/main/resources/static/*
+        mkdir -p backend/Oboe/src/main/resources/static
+        cp -r frontend/dist/* backend/Oboe/src/main/resources/static/
 
-    # 5. Clean old frontend dist on server
-    - name: Clean dist folder on server
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: |
-          rm -rf /var/www/OboeProject/frontend/dist/*
-          sudo chown -R ubuntu:ubuntu /var/www/OboeProject/frontend/dist/
-          sudo chmod -R 755 /var/www/OboeProject/frontend/dist/
-          echo "Old dist cleaned."
-
-    # 6. Upload frontend to server
-    - name: Upload frontend dist to server
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "frontend/dist/**"
-        target: "/var/www/OboeProject/frontend/dist/"
-        strip_components: 2
-        overwrite: true
-
-    # 7. Restart frontend (PM2)
-    - name: Restart frontend via SSH (PM2)
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: |
-          if pm2 list | grep -q oboe-frontend; then
-            pm2 restart oboe-frontend
-          else
-            pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
-          fi
-
-    # 8. Cấp quyền chạy cho mvnw
+    # 6. Cấp quyền chạy cho mvnw
     - name: Make mvnw executable
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    # 7. Kiểm tra ddl-auto có cấu hình nguy hiểm không
     - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
@@ -91,19 +58,19 @@ jobs:
           echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
 
-    # 10. Setup Java
+    # 8. Setup Java
     - name: Setup Java 21
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
 
-    # 11. Build backend (Spring Boot)
+    # 9. Build backend (Spring Boot)
     - name: Build backend with Maven
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 12. Clean old backend jar on server
+    # 10. Clean old backend jar on server
     - name: Clean old backend jar on server
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -113,7 +80,7 @@ jobs:
         script: |
           rm -f /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Old JAR deleted."
-    # 13. Upload backend jar
+    # 11. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -124,7 +91,7 @@ jobs:
         target: "/var/www/OboeProject/backend/"
         overwrite: true
         strip_components: 3
-    # 14. Run Spring Boot with Environment Variables
+    # 12. Run Spring Boot with Environment Variables
     - name: Run Spring Boot with Environment Variables
       uses: appleboy/ssh-action@v1.0.0
       with:
