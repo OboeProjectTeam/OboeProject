@@ -40,8 +40,6 @@ import JapanNews from '@/views/footer-services/japan-news/JapanNews.vue';
 import TheContact from '@/views/footer-services/contact/TheContact.vue';
 import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
 import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
-import oauthApi from '@/api/modules/oauthApi';
-
 const routes = [
   {
     path: "/",
@@ -313,25 +311,6 @@ const routes = [
       },
     ]
   },
-  {
-    path: '/oauth2/authorization/google',
-    name: 'GoogleAuth',
-    beforeEnter: (to, from, next) => {
-      window.location.href = oauthApi.getGoogleAuthUrl();
-    }
-  },
-  {
-    path: '/oauth2/authorization/facebook',
-    name: 'FacebookAuth',
-    beforeEnter: (to, from, next) => {
-      window.location.href = oauthApi.getFacebookAuthUrl();
-    }
-  },
-  {
-    path: '/oauth2/callback',
-    name: 'OAuthCallback',
-    component: () => import('@/views/auth/oauth/OAuthCallback.vue')
-  }
 ]
 
 export default routes;

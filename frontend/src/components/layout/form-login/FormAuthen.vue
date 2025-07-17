@@ -142,12 +142,35 @@ const closeErrorPopup = () => {
 }
 
 const handleGoogleLogin = () => {
-  window.location.href = oauthApi.getGoogleAuthUrl();
-}
+  const width = 500;
+  const height = 600;
+  const left = (window.innerWidth - width) / 2;
+  const top = (window.innerHeight - height) / 2;
 
+  const googleAuthUrl = oauthApi.getGoogleAuthUrl();
+
+  const popup = window.open(
+    googleAuthUrl,
+    'GoogleLogin',
+    `width=${width},height=${height},top=${top},left=${left}`
+  );
+
+  // Tuỳ thuộc vào backend: bạn có thể cần theo dõi khi popup hoàn tất để lấy token
+};
 const handleFacebookLogin = () => {
-  window.location.href = oauthApi.getFacebookAuthUrl();
-}
+  const width = 500;
+  const height = 600;
+  const left = (window.innerWidth - width) / 2;
+  const top = (window.innerHeight - height) / 2;
+
+  const facebookAuthUrl = oauthApi.getFacebookAuthUrl();
+
+  const popup = window.open(
+    facebookAuthUrl,
+    'FacebookLogin',
+    `width=${width},height=${height},top=${top},left=${left}`
+  );
+};
 
 const submitForm = async () => {
   try {

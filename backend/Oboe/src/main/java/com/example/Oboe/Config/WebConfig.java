@@ -100,7 +100,10 @@ public class WebConfig {
                             exception.printStackTrace();
                             response.sendRedirect("/login?error=" + exception.getMessage());
                         })
-                )
+                        .authorizationEndpoint(authEndpoint -> 
+                            authEndpoint.baseUri("/oauth2/authorization")
+                         )
+                )   
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

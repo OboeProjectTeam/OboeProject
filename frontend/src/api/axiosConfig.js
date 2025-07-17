@@ -1,5 +1,6 @@
 import axios from 'axios';
 import store from '@/store/store';
+import { API_CONFIG } from './config';
 
 /**
  * Khởi tạo instance axios với các cấu hình mặc định
@@ -7,13 +8,7 @@ import store from '@/store/store';
  * - timeout: Thời gian chờ tối đa cho mỗi request
  * - headers: Header mặc định cho mọi request
  */
-const axiosInstance = axios.create({
-  baseURL: 'https://oboeru.me/',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
+const axiosInstance = axios.create(API_CONFIG.AXIOS_CONFIG);
 
 /**
  * Interceptor xử lý trước khi gửi request
@@ -53,7 +48,7 @@ axiosInstance.interceptors.response.use(
         // Thử refresh token
         const refreshToken = store.state.auth.refreshToken;
         if (refreshToken) {
-          const response = await axios.post(`${axiosInstance.defaults.baseURL}/api/auth/refresh-token`, {
+          const response = await axios.post(API_CONFIG.ENDPOINTS.AUTH.REFRESH_TOKEN, {
             refreshToken
           });
           const { token } = response.data;

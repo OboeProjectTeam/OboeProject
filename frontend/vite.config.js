@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src') // Đảm bảo alias cho thư mục src
+      '@': path.resolve(__dirname, 'src')
     }
   },
   server: {
@@ -19,11 +19,21 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'unsafe-none',
       'Cross-Origin-Embedder-Policy': 'unsafe-none'
     },
+    proxy: {
+      '/oauth2': {
+        target: 'https://oboeru.me',
+        changeOrigin: true,
+      },
+      '/login/oauth2': {
+        target: 'https://oboeru.me',
+        changeOrigin: true,
+      }
+    }
   },
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use '@/assets/css/index.scss' as *;`, // Sử dụng alias @ cho đường dẫn
+        additionalData: `@use '@/assets/css/index.scss' as *;`,
       },
     },
   },
