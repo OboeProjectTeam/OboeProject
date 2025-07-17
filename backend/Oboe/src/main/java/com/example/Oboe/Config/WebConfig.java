@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -91,8 +92,12 @@ public class WebConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
-                                "/ws/**"
+                                "/ws/**"    
                         ).permitAll()
+                        // Chỉ GET không có quyền xóa thêm sửa khi không đăng nhập
+                        .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

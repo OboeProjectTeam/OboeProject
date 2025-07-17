@@ -4,7 +4,9 @@ import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.Service.BlogService;
 import com.example.Oboe.response.BaseResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -78,14 +80,12 @@ public class BlogController {
     public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("title") String title) {
         return ResponseEntity.ok(blogService.searchBlogDTOsByTitle(title));
     }
-
     @GetMapping("/user/blogs")
-    public ResponseEntity<List<BlogDTO>> getUserBlogs(Authentication authentication) {
+    public ResponseEntity<?> getUserBlogs(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userId = userDetails.getUserID();
-        List<BlogDTO> blogs = blogService.getAllBlogbyUserId(userId);
-        return ResponseEntity.ok(blogs);
-    }
-
+            List<BlogDTO> blogs = blogService.getAllBlogbyUserId(userId);
+            return ResponseEntity.ok(blogs);
+        }
 
 }
