@@ -27,14 +27,20 @@ const actions = {
   setToken({ commit }, token) {
     commit('SET_TOKEN', token)
   },
-  logout({ commit }) {
-    commit('CLEAR_AUTH')
-  },
   initAuth({ commit }) {
+    // Get token from localStorage
     const token = localStorage.getItem('token')
     if (token) {
       commit('SET_TOKEN', token)
+      // You might want to validate the token here or fetch user data
+      // For now, we'll just set a basic user object
+      commit('SET_USER', { isAuthenticated: true })
+    } else {
+      commit('CLEAR_AUTH')
     }
+  },
+  logout({ commit }) {
+    commit('CLEAR_AUTH')
   }
 }
 
