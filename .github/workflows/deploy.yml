@@ -101,7 +101,7 @@ jobs:
         script: |
           # Start backend with environment variables
           echo "Starting backend using PM2..."
-          pm2 start "java" --name oboe-backend -- \
+          pm2 restart oboe-backend --interpreter none -- \
             -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
             -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
             -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
