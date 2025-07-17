@@ -101,15 +101,16 @@ jobs:
         script: |
           # Start backend with environment variables
           echo "Starting backend using PM2..."
-          pm2 restart oboe-backend -- -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-                                      -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-                                      -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-                                      -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
-                                      -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
-                                      -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-                                      -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-                                      -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
-                                      -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
-                                      -DDOMAIN=${{ secrets.DOMAIN }} \
-                                      -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+          pm2 start "java" --name oboe-backend -- \
+            -DSPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL} \
+            -DSPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME} \
+            -DSPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD} \
+            -DSPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME} \
+            -DSPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD} \
+            -DGOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID} \
+            -DGOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET} \
+            -DFACEBOOK_CLIENT_ID=${FACEBOOK_CLIENT_ID} \
+            -DFACEBOOK_CLIENT_SECRET=${FACEBOOK_CLIENT_SECRET} \
+            -DDOMAIN=${DOMAIN} \
+            -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Backend started using PM2 with environment variables"
