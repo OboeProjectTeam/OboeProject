@@ -2,16 +2,17 @@
  * API module for handling OAuth2 authentication
  */
 import axiosInstance from '../axios';
+import { API_CONFIG } from '../config';
 
 const oauthApi = {
   // Lấy URL đăng nhập Google
   getGoogleAuthUrl: () => {
-    return '/oauth2/authorization/google';
+    return `${API_CONFIG.BASE_URL}/oauth2/authorization/google`;
   },
 
   // Lấy URL đăng nhập Facebook
   getFacebookAuthUrl: () => {
-    return '/oauth2/authorization/facebook';
+    return `${API_CONFIG.BASE_URL}/oauth2/authorization/facebook`;
   },
 
   // Xử lý callback sau khi đăng nhập thành công

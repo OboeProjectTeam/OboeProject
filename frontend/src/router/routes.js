@@ -327,6 +327,11 @@ const routes = [
       window.location.href = oauthApi.getFacebookAuthUrl();
     }
   },
+  {
+    path: '/oauth2/callback',
+    name: 'OAuthCallback',
+    component: () => import('@/views/auth/oauth/OAuthCallback.vue')
+  }
 ]
 
 export default routes;
