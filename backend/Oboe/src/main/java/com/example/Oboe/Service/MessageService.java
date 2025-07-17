@@ -24,7 +24,8 @@
     import java.util.stream.Collectors;
 
     @Service
-    public class MessageService {
+    public class
+    MessageService {
 
 
         private final MessageRepository messageRepository;

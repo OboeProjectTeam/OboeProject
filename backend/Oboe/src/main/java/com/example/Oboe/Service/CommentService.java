@@ -119,7 +119,7 @@ public class CommentService {
             isBlog = true;
             receiver = blogOpt.get().getUser();
         } else {
-            // Nếu không phải blog xem có phải kanji không
+            // Nếu không phải blog xem có phải kanji và Grammar không
             if (!kanjiRepository.existsById(teamId)) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Blog hoặc Kanji");
             }

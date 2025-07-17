@@ -5,7 +5,6 @@ import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -90,11 +89,28 @@ public class WebConfig {
                                 "/api/auth/login",
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+
+                                "/v3/api-docs/**",
+                                "/oauth2/**",
+                                "/ws/**"
                         ).permitAll()
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        // Chỉ cho phép GET cho các API sau mà không cần đăng nhập
+                        .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()
+
+                        // Public cho Swagger
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+
+                        // OAuth2 login
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                        // WebSocket
                         .requestMatchers("/ws/**").permitAll()
+
+                        // Tất cả các request còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
