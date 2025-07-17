@@ -17,21 +17,21 @@
   
     if (token) {
       if (window.opener) {
-        //  Nếu được mở bằng popup: gửi dữ liệu về cửa sổ cha
-        window.opener.postMessage({
-          token,
-          provider
-        }, window.location.origin)
+        // Nếu được mở bằng popup: gửi dữ liệu về cửa sổ cha
+        window.opener.postMessage({ token, provider }, window.location.origin)
   
-        //  Đóng popup
-        window.close()
+        // Đợi 200ms rồi mới đóng popup (đảm bảo message được gửi)
+        setTimeout(() => {
+          window.close()
+        }, 200)
       } else {
-        //  Nếu mở trong tab thường → xử lý như cũ
+        // Nếu mở trong tab thường → xử lý như cũ
         localStorage.setItem('token', token)
         localStorage.setItem('provider', provider)
         router.push('/')
       }
     } else {
+      // Nếu không có token → quay lại login
       router.push('/login')
     }
   })
