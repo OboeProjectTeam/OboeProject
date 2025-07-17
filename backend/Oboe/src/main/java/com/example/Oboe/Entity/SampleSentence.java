@@ -52,4 +52,5 @@ public class SampleSentence {
     public void setVietnameseMeaning(String vietnameseMeaning) {
         this.vietnameseMeaning = vietnameseMeaning;
     }
+
 }
