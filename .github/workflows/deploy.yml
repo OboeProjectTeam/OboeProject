@@ -31,43 +31,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
 
-    # 4. Inject Firebase ENV
-    - name: Inject Firebase ENV (.env)
-      run: |
-        echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
-        echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
-        echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
-        echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
-        echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
-        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
-        echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
-
-    # 5. Inject backend ENV (.env)
-    - name: Inject backend ENV (.env)
-      run: |
-        echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> backend/Oboe/.env
-        echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> backend/Oboe/.env
-        echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> backend/Oboe/.env
-
-        echo "SPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }}" >> backend/Oboe/.env
-        echo "SPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }}" >> backend/Oboe/.env
-
-        echo "FILE_UPLOAD_DIR=${{ secrets.FILE_UPLOAD_DIR }}" >> backend/Oboe/.env
-
-        echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> backend/Oboe/.env
-        echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> backend/Oboe/.env
-
-        echo "FACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }}" >> backend/Oboe/.env
-        echo "FACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }}" >> backend/Oboe/.env
-
-    # 6. Build frontend
+    # 4. Build frontend
     - name: Build frontend
       working-directory: frontend
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
 
-    # 7. Clean old frontend dist on server
+    # 5. Clean old frontend dist on server
     - name: Clean dist folder on server
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -76,9 +47,11 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
           rm -rf /var/www/OboeProject/frontend/dist/*
+          sudo chown -R ubuntu:ubuntu /var/www/OboeProject/frontend/dist/
+          sudo chmod -R 755 /var/www/OboeProject/frontend/dist/
           echo "Old dist cleaned."
 
-    # 8. Upload frontend to server
+    # 6. Upload frontend to server
     - name: Upload frontend dist to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -90,7 +63,7 @@ jobs:
         strip_components: 2
         overwrite: true
 
-    # 9. Restart frontend (PM2)
+    # 7. Restart frontend (PM2)
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -104,11 +77,11 @@ jobs:
             pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
           fi
 
-    # 10. Cấp quyền chạy cho mvnw
+    # 8. Cấp quyền chạy cho mvnw
     - name: Make mvnw executable
       run: chmod +x backend/Oboe/mvnw
 
-    # 11. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
     - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
@@ -118,19 +91,19 @@ jobs:
           echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
 
-    # 12. Setup Java
+    # 10. Setup Java
     - name: Setup Java 21
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
 
-    # 13. Build backend (Spring Boot)
+    # 11. Build backend (Spring Boot)
     - name: Build backend with Maven
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 14. Clean old backend jar on server
+    # 12. Clean old backend jar on server
     - name: Clean old backend jar on server
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -140,7 +113,7 @@ jobs:
         script: |
           rm -f /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Old JAR deleted."
-    # 15. Upload backend jar
+    # 13. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -151,14 +124,25 @@ jobs:
         target: "/var/www/OboeProject/backend/"
         overwrite: true
         strip_components: 3
-    # 16. Restart backend
-    - name: Restart backend via SSH using ecosystem.config.js
+    # 14. Run Spring Boot with Environment Variables
+    - name: Run Spring Boot with Environment Variables
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ubuntu
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          cd /var/www/OboeProject/backend
-          pm2 restart ecosystem.config.js
-          echo "Backend restarted using PM2 ecosystem.config.js"
+          # Start backend with environment variables
+          echo "Starting backend using PM2..."
+          pm2 restart oboe-backend -- -DSPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+                                      -DSPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+                                      -DSPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+                                      -DSPRING_MAIL_USERNAME=${{ secrets.SPRING_MAIL_USERNAME }} \
+                                      -DSPRING_MAIL_PASSWORD=${{ secrets.SPRING_MAIL_PASSWORD }} \
+                                      -DGOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
+                                      -DGOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+                                      -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
+                                      -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
+                                      -DDOMAIN=${{ secrets.DOMAIN }} \
+                                      -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
+          echo "Backend started using PM2 with environment variables"

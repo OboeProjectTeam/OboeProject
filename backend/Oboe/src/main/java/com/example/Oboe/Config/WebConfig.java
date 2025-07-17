@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -88,32 +87,18 @@ public class WebConfig {
                                 "/api/auth/signup",
                                 "/api/auth/login",
                                 "/api/auth/verify",
-                                "/api/auth/**",
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/oauth2/**",
-                                "/ws/**"    
+                                "/v3/api-docs/**"
                         ).permitAll()
-                        // Chỉ GET không có quyền xóa thêm sửa khi không đăng nhập
-                        .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace(); // Debug
+                            exception.printStackTrace();
                             response.sendRedirect("/login?error=" + exception.getMessage());
-                        })
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write("Logout successful");
-                            response.sendRedirect("/login");
                         })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -125,6 +110,7 @@ public class WebConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000", // local dev
+                "http://localhost:5173", // vite dev server
                 "https://oboeru.me"      // production domain
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

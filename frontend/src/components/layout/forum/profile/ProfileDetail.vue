@@ -1,7 +1,22 @@
 <template>
     <div class="profile-page" v-if="user">
       <div class="profile-header bd-form">
-          <img :src="editableUser.avatar" :alt="editableUser.username" class="profile-avatar-large">
+          <div class="avatar-container">
+            <img :src="avatarPreview || editableUser.avatar" :alt="editableUser.username" class="profile-avatar-large">
+            <div v-if="isEditing" class="avatar-upload-overlay">
+              <label for="avatar-upload" class="avatar-upload-label">
+                <i class="fas fa-camera"></i>
+                <span>Thay đổi ảnh</span>
+              </label>
+              <input 
+                type="file" 
+                id="avatar-upload" 
+                @change="handleAvatarChange" 
+                accept="image/*"
+                class="avatar-upload-input"
+              >
+            </div>
+          </div>
           <div class="profile-main-info">
             <h1 class="username-large">{{ editableUser.username }}</h1>
             
@@ -156,13 +171,13 @@
     });
 
   const router = useRouter();
-
   const emit = defineEmits(['save-profile', 'send-message']);
-
   const store = useStore();
 
   const isEditing = ref(false);
   const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
+  const avatarPreview = ref(null);
+  const avatarFile = ref(null);
 
   const personalFields = [
     { key: 'dob', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
@@ -182,14 +197,40 @@
     isEditing.value = true;
   }
 
-  function cancelEditing() {
-    isEditing.value = false;
-    editableUser.value = JSON.parse(JSON.stringify(props.user));
+  function handleAvatarChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+      avatarFile.value = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        avatarPreview.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   function saveProfile() {
-    emit('save-profile', editableUser.value);
+    const formData = new FormData();
+    
+    // Append avatar file if changed
+    if (avatarFile.value) {
+      formData.append('avatar', avatarFile.value);
+    }
+    // Append other user data
+    const userData = { ...editableUser.value };
+    if (avatarPreview.value) {
+      userData.avatar = avatarPreview.value;
+    }
+    
+    emit('save-profile', { formData, userData });
     isEditing.value = false;
+  }
+
+  function cancelEditing() {
+    isEditing.value = false;
+    editableUser.value = JSON.parse(JSON.stringify(props.user));
+    avatarPreview.value = null;
+    avatarFile.value = null;
   }
 
   const currentTab = ref('all');

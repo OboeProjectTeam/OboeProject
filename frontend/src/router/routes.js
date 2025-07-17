@@ -256,94 +256,68 @@ const routes = [
   },
   {
     path: '/footer-services',
-    name: 'footer-services',
     component: FooterServicesLayout,
     children: [
       {
-        path: '',
+        path: 'terms',
         name: 'terms',
-        component: TheTerms,
-        meta: {
-          title: 'Điều khoản dịch vụ - Oboe'
-        }
+        component: TheTerms
       },
       {
-        path: 'security',
+        path: 'privacy',
         name: 'privacy',
-        component: ThePrivacy,
-        meta: {
-          title: 'Chính sách quyền riêng tư - Oboe'
-        }
+        component: ThePrivacy
       },
       {
         path: 'study-guide',
         name: 'study-guide',
-        component: StudyGuide,
-        meta: {
-          title: 'Hướng dẫn tự học - Oboe'
-        }
+        component: StudyGuide
       },
       {
         path: 'payment-guide',
         name: 'payment-guide',
-        component: PaymentGuide,
-        meta: {
-          title: 'Hướng dẫn thanh toán - Oboe'
-        }
+        component: PaymentGuide
       },
       {
-        path: 'flashcard',
-        name: 'footer-flashcard',
-        component: WhyFlashcard,
-        meta: {
-          title: 'Tại sao nên học với Flashcard - Oboe'
-        }
+        path: 'why-flashcard',
+        name: 'why-flashcard',
+        component: WhyFlashcard
       },
       {
-        path: 'hiragana-katakana',
-        name: 'hiragana-katakana',
-        component: WritingGuide,
-        meta: {
-          title: 'Phân biệt Hiragana và Katakana - Oboe'
-        }
+        path: 'writing-guide',
+        name: 'writing-guide',
+        component: WritingGuide
       },
       {
         path: 'benefits-japanese',
         name: 'benefits-japanese',
-        component: TheBenefits,
-        meta: {
-          title: 'Lợi ích của việc học tiếng Nhật - Oboe'
-        }
+        component: TheBenefits
       },
       {
-        path: 'kanji-recognition',
-        name: 'kanji-recognition',
-        component: KanjiGuide,
-        meta: {
-          title: 'Cách Nhận Diện Chữ Hán | Oboe',
-          requiresAuth: false
-        }
+        path: 'kanji-guide',
+        name: 'kanji-guide',
+        component: KanjiGuide
       },
       {
         path: 'news',
         name: 'japan-news',
-        component: JapanNews,
-        meta: {
-          title: 'Tin Tức Thị Trường Nhật Bản | Oboe',
-          requiresAuth: false
-        }
+        component: JapanNews
       },
       {
         path: 'contact',
         name: 'contact',
-        component: TheContact,
-        meta: {
-          title: 'Liên Hệ | Oboe',
-          requiresAuth: false
-        }
-      },
+        component: TheContact
+      }
     ]
   },
+  {
+    path: '/dieu-khoan-dich-vu',
+    redirect: '/footer-services/terms'
+  },
+  {
+    path: '/quyen-rieng-tu',
+    redirect: '/footer-services/privacy'
+  }
 ]
 
 export default routes;

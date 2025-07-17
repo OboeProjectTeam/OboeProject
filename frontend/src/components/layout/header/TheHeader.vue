@@ -310,8 +310,6 @@ import MsButton from '@/components/common/button/MsButton.vue'
 import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
 import TheLogo from '@/components/layout/logo/TheLogo.vue'
 
-import { auth } from '@/firebase'
-
 const store = useStore()
 const router = useRouter()
 
@@ -521,7 +519,7 @@ const markAllAsRead = () => {
 
 const handleLogout = async () => {
   try {
-    await auth.signOut()
+    // await auth.signOut() // Removed Firebase auth usage
     store.dispatch('auth/setUser', null)
     router.push('/login')
     state.showUserMenu = false
