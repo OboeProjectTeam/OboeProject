@@ -76,10 +76,10 @@ public class WebConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   @Qualifier("jwtAuthenticationFilter") JwtAuthencation jwtAuthenticationFilter,
+                                                   JwtAuthencation jwtAuthenticationFilter,
                                                    UserService userService,
                                                    CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
-                                                   @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource) throws Exception {
+                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
