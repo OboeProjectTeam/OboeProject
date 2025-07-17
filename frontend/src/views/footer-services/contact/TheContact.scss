@@ -1,4 +1,5 @@
 @use '@/assets/css/index.scss' as *;
+@use "sass:color";
 
 .contact-page {
   width: 100%;
@@ -146,7 +147,7 @@
     transition: all 0.3s ease;
 
     &:hover:not(:disabled) {
-      background: darken($primary-color, 5%);
+      background: color.adjust($primary-color, $lightness: -5%);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba($primary-color, 0.2);
     }
