@@ -141,35 +141,78 @@ const closeErrorPopup = () => {
   errorMessage.value = '';
 }
 
-const handleGoogleLogin = () => {
-  const width = 500;
-  const height = 600;
-  const left = (window.innerWidth - width) / 2;
-  const top = (window.innerHeight - height) / 2;
+const handleGoogleLogin = async () => {
+  try {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
 
-  const googleAuthUrl = oauthApi.getGoogleAuthUrl();
+    const googleAuthUrl = await oauthApi.getGoogleAuthUrl();
+    console.log('Opening Google auth popup with URL:', googleAuthUrl);
 
-  const popup = window.open(
-    googleAuthUrl,
-    'GoogleLogin',
-    `width=${width},height=${height},top=${top},left=${left}`
-  );
+    const popup = window.open(
+      googleAuthUrl,
+      'GoogleLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
-  // Tuỳ thuộc vào backend: bạn có thể cần theo dõi khi popup hoàn tất để lấy token
+    if (!popup) {
+      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
+      showErrorPopup.value = true;
+      return;
+    }
+
+    // Check popup status periodically
+    const checkPopup = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+        console.log('Popup closed');
+      }
+    }, 1000);
+
+  } catch (error) {
+    console.error('Google login error:', error);
+    errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+    showErrorPopup.value = true;
+  }
 };
-const handleFacebookLogin = () => {
-  const width = 500;
-  const height = 600;
-  const left = (window.innerWidth - width) / 2;
-  const top = (window.innerHeight - height) / 2;
 
-  const facebookAuthUrl = oauthApi.getFacebookAuthUrl();
+const handleFacebookLogin = async () => {
+  try {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
 
-  const popup = window.open(
-    facebookAuthUrl,
-    'FacebookLogin',
-    `width=${width},height=${height},top=${top},left=${left}`
-  );
+    const facebookAuthUrl = await oauthApi.getFacebookAuthUrl();
+    console.log('Opening Facebook auth popup with URL:', facebookAuthUrl);
+
+    const popup = window.open(
+      facebookAuthUrl,
+      'FacebookLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
+
+    if (!popup) {
+      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
+      showErrorPopup.value = true;
+      return;
+    }
+
+    // Check popup status periodically
+    const checkPopup = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+        console.log('Popup closed');
+      }
+    }, 1000);
+
+  } catch (error) {
+    console.error('Facebook login error:', error);
+    errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+    showErrorPopup.value = true;
+  }
 };
 
 const submitForm = async () => {
