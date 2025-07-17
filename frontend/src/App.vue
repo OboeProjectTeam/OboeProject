@@ -62,25 +62,36 @@ onMounted(() => {
     if (isHandled) return;
     isHandled = true;
 
-    const { token, user, provider } = event.data;
-    console.log("Received auth data from popup:", { token, user, provider });
+    const { token, user, provider, error } = event.data;
+    console.log("Received auth data from popup:", { token, user, provider, error });
     
+    if (error) {
+      console.error('OAuth error:', error);
+      router.push('/login?error=' + encodeURIComponent(error));
+      return;
+    }
+
     if (token) {
-      // Store token in localStorage
-      localStorage.setItem("token", token);
-      
-      // Update Vuex store
-      await store.dispatch('auth/setToken', token);
-      await store.dispatch('auth/setUser', user);
-      
-      // Close any open popups
-      const popup = window.open('', 'GoogleLogin');
-      if (popup) popup.close();
-      const fbPopup = window.open('', 'FacebookLogin');
-      if (fbPopup) fbPopup.close();
-      
-      // Redirect to home page
-      router.push('/');
+      try {
+        // Store token in localStorage
+        localStorage.setItem("token", token);
+        
+        // Update Vuex store
+        await store.dispatch('auth/setToken', token);
+        await store.dispatch('auth/setUser', user);
+        
+        // Close any open popups
+        const popup = window.open('', 'GoogleLogin');
+        if (popup) popup.close();
+        const fbPopup = window.open('', 'FacebookLogin');
+        if (fbPopup) fbPopup.close();
+        
+        // Redirect to home page
+        await router.push('/');
+      } catch (err) {
+        console.error('Error handling auth data:', err);
+        router.push('/login?error=auth_failed');
+      }
     }
   });
 
