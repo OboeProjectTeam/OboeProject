@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface SampleSentenceRepository extends JpaRepository<SampleSentence, UUID> {
+
 }
