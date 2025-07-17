@@ -98,6 +98,7 @@ public class WebConfig {
                         .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
