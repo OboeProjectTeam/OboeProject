@@ -5,6 +5,7 @@ import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -75,10 +76,10 @@ public class WebConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthencation jwtAuthenticationFilter,
+                                                   @Qualifier("jwtAuthenticationFilter") JwtAuthencation jwtAuthenticationFilter,
                                                    UserService userService,
                                                    CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
-                                                   CorsConfigurationSource corsConfigurationSource) throws Exception {
+                                                   @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
