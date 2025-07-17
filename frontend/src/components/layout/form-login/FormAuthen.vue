@@ -11,10 +11,6 @@
     <div class="form__content">
       <h1>{{ isRegister ? 'Đăng Ký' : 'Đăng Nhập' }}</h1>
 
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '10px' : '0px' }">
         <input v-model="username" type="text" class="styled-input__input" />
         <div class="styled-input__placeholder">
@@ -97,12 +93,21 @@
       </div>
     </div>
   </form>
+  <ThePopup
+    v-if="showErrorPopup"
+    title="Lỗi"
+    :message="errorMessage"
+    confirmText="Đóng"
+    @confirm="closeErrorPopup"
+    @cancel="closeErrorPopup"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
+import ThePopup from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import authApi from '@/api/modules/authApi';
@@ -128,7 +133,13 @@ const remember = ref(false);
 const lastname = ref('');
 const firstname = ref('');
 const errorMessage = ref('');
+const showErrorPopup = ref(false);
 const isLoading = ref(false);
+
+const closeErrorPopup = () => {
+  showErrorPopup.value = false;
+  errorMessage.value = '';
+}
 
 const handleGoogleLogin = () => {
   window.location.href = oauthApi.getGoogleAuthUrl();
@@ -141,17 +152,20 @@ const handleFacebookLogin = () => {
 const submitForm = async () => {
   try {
     errorMessage.value = '';
+    showErrorPopup.value = false;
     isLoading.value = true;
 
     if (props.isRegister) {
       // Validate form
       if (!username.value || !password.value || !lastname.value || !firstname.value) {
         errorMessage.value = 'Vui lòng điền đầy đủ thông tin';
+        showErrorPopup.value = true;
         return;
       }
 
       if (!remember.value) {
         errorMessage.value = 'Vui lòng chấp nhận điều khoản dịch vụ';
+        showErrorPopup.value = true;
         return;
       }
 
@@ -170,16 +184,46 @@ const submitForm = async () => {
       router.push('/login');
     } else {
       // Handle login
-      const response = await authApi.login(username.value, password.value);
-      // Store token
-      store.dispatch('auth/setToken', response.token);
-      // Store user info
-      store.dispatch('auth/setUser', response.user);
-      // Redirect to home page
-      router.push('/');
+      if (!username.value || !password.value) {
+        errorMessage.value = 'Vui lòng nhập đầy đủ email/số điện thoại và mật khẩu';
+        showErrorPopup.value = true;
+        return;
+      }
+
+      try {
+        const response = await authApi.login(username.value, password.value);
+        if (response.token && response.user) {
+          // Store token in localStorage
+          localStorage.setItem('token', response.token);
+          // Store token in Vuex
+          store.dispatch('auth/setToken', response.token);
+          // Store user info in Vuex
+          store.dispatch('auth/setUser', response.user);
+          // Show success message
+          errorMessage.value = response.message || 'Đăng nhập thành công!';
+          showErrorPopup.value = true;
+          // After showing success message, wait a bit then redirect
+          setTimeout(() => {
+            router.push('/');
+          }, 1000);
+        } else {
+          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại';
+          showErrorPopup.value = true;
+        }
+      } catch (error) {
+        if (error.message.includes('401')) {
+          errorMessage.value = 'Tài khoản hoặc mật khẩu không chính xác';
+        } else if (error.message.includes('403')) {
+          errorMessage.value = 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản';
+        } else {
+          errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+        }
+        showErrorPopup.value = true;
+      }
     }
   } catch (error) {
     errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+    showErrorPopup.value = true;
   } finally {
     isLoading.value = false;
   }

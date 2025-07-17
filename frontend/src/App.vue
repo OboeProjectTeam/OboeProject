@@ -50,6 +50,9 @@ const goToUpgrade = () => {
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
 onMounted(() => {
+  // Initialize auth state from localStorage
+  store.dispatch('auth/initAuth');
+
   // Listen for auth state changes
   // auth.onAuthStateChanged((user) => { // This line is removed as per the edit hint
   //   if (user) {
