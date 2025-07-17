@@ -8,21 +8,30 @@
   import { onMounted } from 'vue'
   import { useRouter, useRoute } from 'vue-router'
   
+  const route = useRoute()
+  const router = useRouter()
+  
   onMounted(() => {
-    const route = useRoute()
-    const router = useRouter()
     const token = route.query.token
     const provider = route.query.provider
   
     if (token) {
-      // Lưu token vào localStorage (hoặc sessionStorage tùy bạn)
-      localStorage.setItem('token', token)
-      localStorage.setItem('provider', provider)
+      if (window.opener) {
+        //  Nếu được mở bằng popup: gửi dữ liệu về cửa sổ cha
+        window.opener.postMessage({
+          token,
+          provider
+        }, window.location.origin)
   
-      // Chuyển về trang chính sau khi xác thực thành công
-      router.push('/')
+        //  Đóng popup
+        window.close()
+      } else {
+        //  Nếu mở trong tab thường → xử lý như cũ
+        localStorage.setItem('token', token)
+        localStorage.setItem('provider', provider)
+        router.push('/')
+      }
     } else {
-      // Nếu không có token => quay về login
       router.push('/login')
     }
   })

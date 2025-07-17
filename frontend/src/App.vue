@@ -52,22 +52,20 @@ const chatBoxVisible = ref(false)
 onMounted(() => {
   // Initialize auth state from localStorage
   store.dispatch('auth/initAuth');
+ // Lắng nghe sự kiện OAuth2 trả về từ popup
+ window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) return;
 
-  // Listen for auth state changes
-  // auth.onAuthStateChanged((user) => { // This line is removed as per the edit hint
-  //   if (user) {
-  //     const userData = {
-  //       displayName: user.displayName,
-  //       email: user.email,
-  //       photoURL: user.photoURL,
-  //       uid: user.uid
-  //     }
-  //     store.dispatch('auth/setUser', userData)
-  //   } else {
-  //     store.dispatch('auth/setUser', null)
-  //   }
-  // })
+    const { token, provider } = event.data;
+    console.log("Received token from popup:", { token, provider });
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("provider", provider);
 
+      store.dispatch('auth/initAuth');
+      router.push('/');
+    }
+  });
   // Add event listener for send-message events
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
@@ -77,6 +75,7 @@ onMounted(() => {
     };
   });
 })
+
 
 function openChatBox(user) {
   chatBoxUser.value = user
