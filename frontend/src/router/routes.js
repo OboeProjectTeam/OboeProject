@@ -317,7 +317,6 @@ const routes = [
     path: "/oauth2/redirect",
     name: "OAuth2Redirect",
     component: OAuth2Redirect,
-    meta: { requiresGuest: true }
   }
 ]
 
