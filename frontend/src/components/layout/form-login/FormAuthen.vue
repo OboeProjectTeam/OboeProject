@@ -143,9 +143,56 @@ const closeErrorPopup = () => {
 
 const handleGoogleLogin = async () => {
   try {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+
     const googleAuthUrl = await oauthApi.getGoogleAuthUrl();
-    console.log('Redirecting to Google auth URL:', googleAuthUrl);
-    window.location.href = googleAuthUrl;
+    console.log('Opening Google auth popup with URL:', googleAuthUrl);
+
+    const popup = window.open(
+      googleAuthUrl,
+      'GoogleLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
+
+    if (!popup) {
+      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
+      showErrorPopup.value = true;
+      return;
+    }
+
+    // Listen for message from popup
+    const messageHandler = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      const { token, provider } = event.data;
+      if (token && provider === 'google') {
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        // Store token in Vuex
+        store.dispatch('auth/setToken', token);
+        // Get user info and store in Vuex
+        store.dispatch('auth/fetchUserInfo');
+        // Redirect to home page
+        router.push('/');
+        // Remove event listener
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
+    // Check popup status periodically
+    const checkPopup = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+        window.removeEventListener('message', messageHandler);
+        console.log('Popup closed');
+      }
+    }, 1000);
+
   } catch (error) {
     console.error('Google login error:', error);
     errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
@@ -155,9 +202,56 @@ const handleGoogleLogin = async () => {
 
 const handleFacebookLogin = async () => {
   try {
+    const width = 500;
+    const height = 600;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+
     const facebookAuthUrl = await oauthApi.getFacebookAuthUrl();
-    console.log('Redirecting to Facebook auth URL:', facebookAuthUrl);
-    window.location.href = facebookAuthUrl;
+    console.log('Opening Facebook auth popup with URL:', facebookAuthUrl);
+
+    const popup = window.open(
+      facebookAuthUrl,
+      'FacebookLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
+
+    if (!popup) {
+      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
+      showErrorPopup.value = true;
+      return;
+    }
+
+    // Listen for message from popup
+    const messageHandler = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      const { token, provider } = event.data;
+      if (token && provider === 'facebook') {
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        // Store token in Vuex
+        store.dispatch('auth/setToken', token);
+        // Get user info and store in Vuex
+        store.dispatch('auth/fetchUserInfo');
+        // Redirect to home page
+        router.push('/');
+        // Remove event listener
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
+    // Check popup status periodically
+    const checkPopup = setInterval(() => {
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+        window.removeEventListener('message', messageHandler);
+        console.log('Popup closed');
+      }
+    }, 1000);
+
   } catch (error) {
     console.error('Facebook login error:', error);
     errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
