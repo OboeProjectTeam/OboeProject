@@ -163,10 +163,32 @@ const handleGoogleLogin = async () => {
       return;
     }
 
+    // Listen for message from popup
+    const messageHandler = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      const { token, provider } = event.data;
+      if (token && provider === 'google') {
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        // Store token in Vuex
+        store.dispatch('auth/setToken', token);
+        // Get user info and store in Vuex
+        store.dispatch('auth/fetchUserInfo');
+        // Redirect to home page
+        router.push('/');
+        // Remove event listener
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
     // Check popup status periodically
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
         clearInterval(checkPopup);
+        window.removeEventListener('message', messageHandler);
         console.log('Popup closed');
       }
     }, 1000);
@@ -200,10 +222,32 @@ const handleFacebookLogin = async () => {
       return;
     }
 
+    // Listen for message from popup
+    const messageHandler = (event) => {
+      if (event.origin !== window.location.origin) return;
+      
+      const { token, provider } = event.data;
+      if (token && provider === 'facebook') {
+        // Store token in localStorage
+        localStorage.setItem('token', token);
+        // Store token in Vuex
+        store.dispatch('auth/setToken', token);
+        // Get user info and store in Vuex
+        store.dispatch('auth/fetchUserInfo');
+        // Redirect to home page
+        router.push('/');
+        // Remove event listener
+        window.removeEventListener('message', messageHandler);
+      }
+    };
+
+    window.addEventListener('message', messageHandler);
+
     // Check popup status periodically
     const checkPopup = setInterval(() => {
       if (!popup || popup.closed) {
         clearInterval(checkPopup);
+        window.removeEventListener('message', messageHandler);
         console.log('Popup closed');
       }
     }, 1000);
