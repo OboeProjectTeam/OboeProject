@@ -25,10 +25,13 @@ public class CommentService {
     private final SimpMessagingTemplate messagingTemplate;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
+    private final SampleSentenceRepository sampleSentenceRepository;
 
-    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate,
+    public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository,
+                          SimpMessagingTemplate messagingTemplate,
                           KanjiRepository kanjiRepository,
-                          GrammarRepository grammarRepository) {
+                          GrammarRepository grammarRepository,
+                          SampleSentenceRepository sampleSentenceRepository) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.blogRepository = blogRepository;
@@ -36,6 +39,7 @@ public class CommentService {
         this.messagingTemplate = messagingTemplate;
         this.kanjiRepository = kanjiRepository;
         this.grammarRepository = grammarRepository;
+        this.sampleSentenceRepository = sampleSentenceRepository;
 
     }
 
@@ -118,16 +122,14 @@ public class CommentService {
             //nếu là Blog thì true
             isBlog = true;
             receiver = blogOpt.get().getUser();
-        } else {
-            // Nếu không phải blog xem có phải kanji không
-            if (!kanjiRepository.existsById(teamId)) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy Blog hoặc Kanji");
-            }
-            if(!grammarRepository.existsById(teamId)) {
-                throw  new ResponseStatusException(HttpStatus.NOT_FOUND , "Không tìm thấy Blog hoặc Grammar");
-            }
+        } else if (
+                !kanjiRepository.existsById(teamId) &&
+                        !grammarRepository.existsById(teamId) &&
+                        !sampleSentenceRepository.existsById(teamId)
+        ) {
+            // Nếu không phải bất kỳ loại nào
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nội dung phù hợp để bình luận");
         }
-
         // Tạo Comment
         Comment comment = new Comment();
         comment.setTitle(dto.getTitle());

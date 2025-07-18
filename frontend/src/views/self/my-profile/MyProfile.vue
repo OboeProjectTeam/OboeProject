@@ -70,7 +70,7 @@ const profileDetailsMock = {
     address: '123 Phố Huế, Q. Hai Bà Trưng, Hà Nội',
     stats: {
       learning_materials: '12',
-      joined: '12 tháng 1, 2023', // Sẽ được ghi đè nếu có thể
+      joined: '12 tháng 1, 2023', 
       read: '152 giờ',
       solutions: 89,
       topics: 34,

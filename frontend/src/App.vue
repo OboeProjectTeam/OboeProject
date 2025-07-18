@@ -29,7 +29,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css'
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { auth } from '@/firebase'
 import ChatBox from '@/components/layout/chat-box/ChatBox.vue'
 
 const route = useRoute()
@@ -50,30 +49,30 @@ const goToUpgrade = () => {
 
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
-onMounted(() => {
-  // Listen for auth state changes
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      const userData = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        uid: user.uid
-      }
-      store.dispatch('auth/setUser', userData)
-    } else {
-      store.dispatch('auth/setUser', null)
+
+onMounted(async () => {
+  try {
+    // Initialize auth state from localStorage
+    await store.dispatch('auth/initAuth')
+    
+    // Check if we're on the home page and not authenticated
+    if (route.path === '/' && !store.getters['auth/isAuthenticated']) {
+      router.push('/login')
     }
-  })
+  } catch (error) {
+    console.error('Error initializing auth:', error)
+    // If there's an error initializing auth, redirect to login
+    router.push('/login')
+  }
 
   // Add event listener for send-message events
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
       if (event === 'send-message') {
-        openChatBox(...args);
+        openChatBox(...args)
       }
-    };
-  });
+    }
+  })
 })
 
 function openChatBox(user) {

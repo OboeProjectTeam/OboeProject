@@ -1,35 +1,44 @@
-// Breakpoints
+@use "sass:map";
+
 $breakpoints: (
-  'mobile': 375px,
+  'mobile': 320px,
   'tablet': 768px,
   'desktop': 1024px,
-  'large': 1440px
+  'large-desktop': 1440px
 );
 
-@mixin respond-to($breakpoint) {
-  @if map-has-key($breakpoints, $breakpoint) {
-    @media (min-width: map-get($breakpoints, $breakpoint)) {
-      @content;
-    }
-  } @else {
-    @warn "Invalid breakpoint: #{$breakpoint}";
-  }
-}
-
 @mixin mobile-only {
-  @media (max-width: (map-get($breakpoints, 'tablet') - 1px)) {
+  @media (max-width: (map.get($breakpoints, 'tablet') - 1px)) {
     @content;
   }
 }
 
 @mixin tablet-only {
-  @media (min-width: map-get($breakpoints, 'tablet')) and (max-width: (map-get($breakpoints, 'desktop') - 1px)) {
+  @media (min-width: map.get($breakpoints, 'tablet')) and (max-width: (map.get($breakpoints, 'desktop') - 1px)) {
     @content;
   }
 }
 
 @mixin desktop-only {
-  @media (min-width: map-get($breakpoints, 'desktop')) {
+  @media (min-width: map.get($breakpoints, 'desktop')) {
+    @content;
+  }
+}
+
+@mixin large-desktop-only {
+  @media (min-width: map.get($breakpoints, 'large-desktop')) {
+    @content;
+  }
+}
+
+@mixin tablet-and-up {
+  @media (min-width: map.get($breakpoints, 'tablet')) {
+    @content;
+  }
+}
+
+@mixin desktop-and-up {
+  @media (min-width: map.get($breakpoints, 'desktop')) {
     @content;
   }
 }

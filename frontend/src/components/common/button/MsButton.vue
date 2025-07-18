@@ -32,8 +32,8 @@ import { ref, } from 'vue'
 // Define props
 const props = defineProps({
   text: String,
-  height: Number,
-  width: Number,
+  height: [String, Number],
+  width: [String, Number],
   backgroundColor: String,
   color: String,
   padding: String,

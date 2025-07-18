@@ -29,17 +29,19 @@ import UserManagement from '@/components/layout/admin-content/users/UserManageme
 import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
 import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
 import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
+import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
 import TheTerms from '@/views/footer-services/terms/TheTerms.vue';
 import ThePrivacy from '@/views/footer-services/privacy/ThePrivacy.vue';
-import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
 import StudyGuide from '@/views/footer-services/study-guide/StudyGuide.vue';
 import PaymentGuide from '@/views/footer-services/payment-guide/PaymentGuide.vue';
 import WhyFlashcard from '@/views/footer-services/why-flashcard/WhyFlashcard.vue';
 import WritingGuide from '@/views/footer-services/writing-guide/WritingGuide.vue';
-import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
-import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
 import JapanNews from '@/views/footer-services/japan-news/JapanNews.vue';
 import TheContact from '@/views/footer-services/contact/TheContact.vue';
+import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
+import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
+import OAuth2Redirect from '@/views/auth/oauth2/OAuth2Redirect.vue';
+
 const routes = [
   {
     path: "/",
@@ -256,94 +258,66 @@ const routes = [
   },
   {
     path: '/footer-services',
-    name: 'footer-services',
+    name: 'FooterServices',
     component: FooterServicesLayout,
     children: [
       {
         path: '',
         name: 'terms',
-        component: TheTerms,
-        meta: {
-          title: 'Điều khoản dịch vụ - Oboe'
-        }
+        component: TheTerms
       },
       {
-        path: 'security',
-        name: 'privacy',
-        component: ThePrivacy,
-        meta: {
-          title: 'Chính sách quyền riêng tư - Oboe'
-        }
+        path: 'privacy',
+        name: 'Privacy',
+        component: ThePrivacy
       },
       {
         path: 'study-guide',
-        name: 'study-guide',
-        component: StudyGuide,
-        meta: {
-          title: 'Hướng dẫn tự học - Oboe'
-        }
+        name: 'StudyGuide',
+        component: StudyGuide
       },
       {
         path: 'payment-guide',
-        name: 'payment-guide',
-        component: PaymentGuide,
-        meta: {
-          title: 'Hướng dẫn thanh toán - Oboe'
-        }
+        name: 'PaymentGuide',
+        component: PaymentGuide
       },
       {
-        path: 'flashcard',
-        name: 'footer-flashcard',
-        component: WhyFlashcard,
-        meta: {
-          title: 'Tại sao nên học với Flashcard - Oboe'
-        }
+        path: 'why-flashcard',
+        name: 'WhyFlashcard',
+        component: WhyFlashcard
       },
       {
-        path: 'hiragana-katakana',
-        name: 'hiragana-katakana',
-        component: WritingGuide,
-        meta: {
-          title: 'Phân biệt Hiragana và Katakana - Oboe'
-        }
+        path: 'writing-guide',
+        name: 'WritingGuide',
+        component: WritingGuide
       },
       {
         path: 'benefits-japanese',
-        name: 'benefits-japanese',
-        component: TheBenefits,
-        meta: {
-          title: 'Lợi ích của việc học tiếng Nhật - Oboe'
-        }
+        name: 'BenefitsJapanese',
+        component: TheBenefits
       },
       {
-        path: 'kanji-recognition',
-        name: 'kanji-recognition',
-        component: KanjiGuide,
-        meta: {
-          title: 'Cách Nhận Diện Chữ Hán | Oboe',
-          requiresAuth: false
-        }
+        path: 'kanji-guide',
+        name: 'KanjiGuide',
+        component: KanjiGuide
       },
       {
-        path: 'news',
-        name: 'japan-news',
-        component: JapanNews,
-        meta: {
-          title: 'Tin Tức Thị Trường Nhật Bản | Oboe',
-          requiresAuth: false
-        }
+        path: 'japan-news',
+        name: 'JapanNews',
+        component: JapanNews
       },
       {
         path: 'contact',
-        name: 'contact',
-        component: TheContact,
-        meta: {
-          title: 'Liên Hệ | Oboe',
-          requiresAuth: false
-        }
+        name: 'Contact',
+        component: TheContact
       },
     ]
   },
+  {
+    path: "/oauth2/redirect",
+    name: "OAuth2Redirect",
+    component: OAuth2Redirect,
+  }
 ]
 
 export default routes;

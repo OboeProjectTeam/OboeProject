@@ -20,7 +20,7 @@
       </div>
 
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '20px' : '0px' }">
-        <input v-model="password" type="password" class="styled-input__input" />
+        <input v-model="password" type="password" class="styled-input__input" :disabled="isLoading" />
         <div class="styled-input__placeholder">
           <span class="styled-input__placeholder-text">Mật Khẩu</span>
         </div>
@@ -29,7 +29,7 @@
 
       <div class="flex-jsb grap-20">
         <div v-if="isRegister" class="styled-input" :style="{ 'margin-top': '20px', 'margin-bottom': '20px' }">
-          <input v-model="lastname" type="text" class="styled-input__input" />
+          <input v-model="lastname" type="text" class="styled-input__input" :disabled="isLoading" />
           <div class="styled-input__placeholder">
             <span class="styled-input__placeholder-text">Họ</span>
           </div>
@@ -37,7 +37,7 @@
         </div>
 
         <div v-if="isRegister" class="styled-input" :style="{ 'margin-top': '20px', 'margin-bottom': '20px' }">
-          <input v-model="firstname" type="text" class="styled-input__input" />
+          <input v-model="firstname" type="text" class="styled-input__input" :disabled="isLoading" />
           <div class="styled-input__placeholder">
             <span class="styled-input__placeholder-text">Tên</span>
           </div>
@@ -46,26 +46,26 @@
       </div>
 
       <div v-if="!isRegister">
-        <MCheckbox v-model="remember">
+        <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px;">Ghi nhớ tài khoản</span>
         </MCheckbox>
       </div>
       <div v-if="isRegister">
-        <MCheckbox v-model="remember">
+        <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu"  target="_blank">
+            <router-link to="/dieu-khoan-dich-vu" target="_blank">
               Điều khoản dịch vụ
             </router-link>
             và
-            <router-link to="/quyen-rieng-tu"  target="_blank">
+            <router-link to="/quyen-rieng-tu" target="_blank">
               Chính sách quyền riêng tư
             </router-link>
             của Oboe
           </span>
         </MCheckbox>
       </div>
-      <button type="button" class="styled-button" @click="submitForm">
+      <button type="button" class="styled-button" @click="submitForm" :disabled="isLoading">
         <span class="styled-button__real-text-holder">
           <span class="styled-button__real-text">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
           <span class="styled-button__moving-block face">
@@ -81,26 +81,37 @@
         <span class="divider-text">Hoặc</span>
       </div>
 
-      <div v-if="!isRegister">
-        <div id="firebaseui-auth-container"></div>
-        <div id="loader">Loading...</div>
+      <div v-if="!isRegister" class="social-login">
+        <button type="button" class="social-button google" @click="handleGoogleLogin">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+          <span>Đăng nhập với Google</span>
+        </button>
+        <button type="button" class="social-button facebook" @click="handleFacebookLogin">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" />
+          <span>Đăng nhập với Facebook</span>
+        </button>
       </div>
-
     </div>
   </form>
+  <ThePopup
+    v-if="showErrorPopup"
+    title="Lỗi"
+    :message="errorMessage"
+    confirmText="Đóng"
+    @confirm="closeErrorPopup"
+    @cancel="closeErrorPopup"
+  />
 </template>
-
-
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
-import * as firebaseui from 'firebaseui'
-import 'firebaseui/dist/firebaseui.css'
+import ThePopup from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import { firebase, auth } from '@/firebase.js'
+import authApi from '@/api/modules/authApi';
+import oauthApi from '@/api/modules/oauthApi';
 
 const props = defineProps({
   isRegister: {
@@ -121,44 +132,118 @@ const password = ref('')
 const remember = ref(false);
 const lastname = ref('');
 const firstname = ref('');
-const dob = ref('');
-const address = ref('');
-const user = ref(null);
+const errorMessage = ref('');
+const showErrorPopup = ref(false);
+const isLoading = ref(false);
 
-const uiConfig = {
-  signInFlow: 'popup',
-  signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-  ],
-  callbacks: {
-    signInSuccessWithAuthResult: function (authResult) {
+const closeErrorPopup = () => {
+  showErrorPopup.value = false;
+  errorMessage.value = '';
+}
+
+const handleGoogleLogin = async () => {
+  try {
+    const googleAuthUrl = await oauthApi.getGoogleAuthUrl();
+    console.log('Redirecting to Google auth URL:', googleAuthUrl);
+    window.location.href = googleAuthUrl;
+  } catch (error) {
+    console.error('Google login error:', error);
+    errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+    showErrorPopup.value = true;
+  }
+};
+
+const handleFacebookLogin = async () => {
+  try {
+    const facebookAuthUrl = await oauthApi.getFacebookAuthUrl();
+    console.log('Redirecting to Facebook auth URL:', facebookAuthUrl);
+    window.location.href = facebookAuthUrl;
+  } catch (error) {
+    console.error('Facebook login error:', error);
+    errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+    showErrorPopup.value = true;
+  }
+};
+
+const submitForm = async () => {
+  try {
+    errorMessage.value = '';
+    showErrorPopup.value = false;
+    isLoading.value = true;
+
+    if (props.isRegister) {
+      // Validate form
+      if (!username.value || !password.value || !lastname.value || !firstname.value) {
+        errorMessage.value = 'Vui lòng điền đầy đủ thông tin';
+        showErrorPopup.value = true;
+        return;
+      }
+
+      if (!remember.value) {
+        errorMessage.value = 'Vui lòng chấp nhận điều khoản dịch vụ';
+        showErrorPopup.value = true;
+        return;
+      }
+
+      // Call signup API
       const userData = {
-        displayName: authResult.user.displayName,
-        email: authResult.user.email,
-        photoURL: authResult.user.photoURL,
-        uid: authResult.user.uid
+        userName: username.value,
+        passWord: password.value,
+        firstName: firstname.value,
+        lastName: lastname.value
       };
-      store.dispatch('auth/setUser', userData);
-      router.push('/');
-      return false;
-    },
-    uiShown: function () {
-      document.getElementById('loader').style.display = 'none';
-      loginTranslate();
+
+      const response = await authApi.signup(userData);
+      // Show success message
+      alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
+      // Redirect to login page
+      router.push('/login');
+    } else {
+      // Handle login
+      if (!username.value || !password.value) {
+        errorMessage.value = 'Vui lòng nhập đầy đủ email/số điện thoại và mật khẩu';
+        showErrorPopup.value = true;
+        return;
+      }
+
+      try {
+        const response = await authApi.login(username.value, password.value);
+        if (response.token && response.user) {
+          // Store token in localStorage
+          localStorage.setItem('token', response.token);
+          // Store token in Vuex
+          store.dispatch('auth/setToken', response.token);
+          // Store user info in Vuex
+          store.dispatch('auth/setUser', response.user);
+          // Show success message
+          errorMessage.value = response.message || 'Đăng nhập thành công!';
+          showErrorPopup.value = true;
+          // After showing success message, wait a bit then redirect
+          setTimeout(() => {
+            router.push('/');
+          }, 1000);
+        } else {
+          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại';
+          showErrorPopup.value = true;
+        }
+      } catch (error) {
+        if (error.message.includes('401')) {
+          errorMessage.value = 'Tài khoản hoặc mật khẩu không chính xác';
+        } else if (error.message.includes('403')) {
+          errorMessage.value = 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra email để xác thực tài khoản';
+        } else {
+          errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+        }
+        showErrorPopup.value = true;
+      }
     }
+  } catch (error) {
+    errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+    showErrorPopup.value = true;
+  } finally {
+    isLoading.value = false;
   }
 }
-
-// Initialize the FirebaseUI Widget using Firebase.
-const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
-
-const submitForm = () => {
-  console.log('Username:', username.value)
-  console.log('Password:', password.value)
-  router.push('/');
-}
-
 function placeholderAnimationIn(parent, action) {
   const act = action ? 'add' : 'remove'
   let letters = Array.from(parent.querySelectorAll('.letter'))
@@ -171,19 +256,6 @@ function placeholderAnimationIn(parent, action) {
       el.classList[act]('active')
     }, 50 * i)
   })
-}
-// Delay nhỏ để chắc chắn DOM render xong
-
-function loginTranslate() {
-  const googleBtn = document.querySelector('.firebaseui-idp-google .firebaseui-idp-text');
-  if (googleBtn) {
-    googleBtn.textContent = 'Đăng nhập với Google';
-  }
-
-  const facebookBtn = document.querySelector('.firebaseui-idp-facebook .firebaseui-idp-text');
-  if (facebookBtn) {
-    facebookBtn.textContent = 'Đăng nhập với Facebook';
-  }
 }
 //Khởi tạo placeholder chữ động
 function initAnimatedPlaceholders() {
@@ -226,11 +298,6 @@ function runStartupTransitions() {
 onMounted(async () => {
   try {
     await nextTick()
-
-    if (!props.isRegister) {
-      ui.start('#firebaseui-auth-container', uiConfig)
-    }
-
     initAnimatedPlaceholders()
     setupInputFocusAnimations()
     runStartupTransitions()
