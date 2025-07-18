@@ -13,24 +13,38 @@ const mutations = {
   },
   SET_TOKEN(state, token) {
     state.token = token
+    state.isAuthenticated = !!token
   },
   CLEAR_AUTH(state) {
-    state.user = null;
-    state.token = null;
-    state.isAuthenticated = false;
-    localStorage.removeItem('token');
+    state.user = null
+    state.token = null
+    state.isAuthenticated = false
+    localStorage.removeItem('token')
   }
 }
 
 const actions = {
-  setUser({ commit }, user) {
+  async setUser({ commit }, user) {
     commit('SET_USER', user)
   },
-  setToken({ commit, dispatch }, token) {
-    commit('SET_TOKEN', token)
+  async setToken({ commit, dispatch }, token) {
+    // Save token to localStorage
     localStorage.setItem('token', token)
-    // After setting token, fetch user info
-    return dispatch('fetchUserInfo')
+    
+    // Update store
+    commit('SET_TOKEN', token)
+    
+    try {
+      // Fetch user info
+      const response = await authApi.getUserInfo()
+      if (response.user) {
+        commit('SET_USER', response.user)
+        return response.user
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error)
+      throw error
+    }
   },
   async fetchUserInfo({ commit }) {
     try {
@@ -45,14 +59,22 @@ const actions = {
       throw error
     }
   },
-  initAuth({ commit, dispatch }) {
-    // Get token from localStorage
-    const token = localStorage.getItem('token')
-    if (token) {
+  async initAuth({ commit, dispatch }) {
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token')
+      if (!token) {
+        commit('CLEAR_AUTH')
+        return
+      }
+
+      // Set token in store
       commit('SET_TOKEN', token)
-      // Fetch real user data
-      return dispatch('fetchUserInfo')
-    } else {
+      
+      // Fetch user info
+      await dispatch('fetchUserInfo')
+    } catch (error) {
+      console.error('Error initializing auth:', error)
       commit('CLEAR_AUTH')
     }
   },

@@ -143,50 +143,9 @@ const closeErrorPopup = () => {
 
 const handleGoogleLogin = async () => {
   try {
-    const width = 500;
-    const height = 600;
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-
     const googleAuthUrl = await oauthApi.getGoogleAuthUrl();
-    console.log('Opening Google auth popup with URL:', googleAuthUrl);
-
-    // Listen for message before opening popup
-    const messageHandler = async (event) => {
-      // Verify origin
-      if (event.origin !== window.location.origin) return;
-      
-      const { token, provider } = event.data;
-      if (token && provider === 'google') {
-        console.log('Received token from Google OAuth');
-        try {
-          // Store token in Vuex and localStorage
-          await store.dispatch('auth/setToken', token);
-          console.log('Token stored, fetching user info...');
-          
-          // Remove event listener
-          window.removeEventListener('message', messageHandler);
-          
-          // Redirect to home page
-          console.log('Redirecting to home page...');
-          await router.push('/');
-        } catch (error) {
-          console.error('Error handling OAuth login:', error);
-          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
-          showErrorPopup.value = true;
-        }
-      }
-    };
-
-    window.addEventListener('message', messageHandler);
-
-    // Open popup after setting up listener
-    window.open(
-      googleAuthUrl,
-      'GoogleLogin',
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-
+    console.log('Redirecting to Google auth URL:', googleAuthUrl);
+    window.location.href = googleAuthUrl;
   } catch (error) {
     console.error('Google login error:', error);
     errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
@@ -196,50 +155,9 @@ const handleGoogleLogin = async () => {
 
 const handleFacebookLogin = async () => {
   try {
-    const width = 500;
-    const height = 600;
-    const left = (window.innerWidth - width) / 2;
-    const top = (window.innerHeight - height) / 2;
-
     const facebookAuthUrl = await oauthApi.getFacebookAuthUrl();
-    console.log('Opening Facebook auth popup with URL:', facebookAuthUrl);
-
-    // Listen for message before opening popup
-    const messageHandler = async (event) => {
-      // Verify origin
-      if (event.origin !== window.location.origin) return;
-      
-      const { token, provider } = event.data;
-      if (token && provider === 'facebook') {
-        console.log('Received token from Facebook OAuth');
-        try {
-          // Store token in Vuex and localStorage
-          await store.dispatch('auth/setToken', token);
-          console.log('Token stored, fetching user info...');
-          
-          // Remove event listener
-          window.removeEventListener('message', messageHandler);
-          
-          // Redirect to home page
-          console.log('Redirecting to home page...');
-          await router.push('/');
-        } catch (error) {
-          console.error('Error handling OAuth login:', error);
-          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
-          showErrorPopup.value = true;
-        }
-      }
-    };
-
-    window.addEventListener('message', messageHandler);
-
-    // Open popup after setting up listener
-    window.open(
-      facebookAuthUrl,
-      'FacebookLogin',
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-
+    console.log('Redirecting to Facebook auth URL:', facebookAuthUrl);
+    window.location.href = facebookAuthUrl;
   } catch (error) {
     console.error('Facebook login error:', error);
     errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
