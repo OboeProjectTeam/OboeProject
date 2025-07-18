@@ -160,12 +160,16 @@ const handleGoogleLogin = async () => {
       if (token && provider === 'google') {
         console.log('Received token from Google OAuth');
         try {
-          // Store token and fetch user info
+          // Store token in Vuex and localStorage
           await store.dispatch('auth/setToken', token);
+          console.log('Token stored, fetching user info...');
+          
           // Remove event listener
           window.removeEventListener('message', messageHandler);
+          
           // Redirect to home page
-          router.push('/');
+          console.log('Redirecting to home page...');
+          await router.push('/');
         } catch (error) {
           console.error('Error handling OAuth login:', error);
           errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
@@ -209,12 +213,16 @@ const handleFacebookLogin = async () => {
       if (token && provider === 'facebook') {
         console.log('Received token from Facebook OAuth');
         try {
-          // Store token and fetch user info
+          // Store token in Vuex and localStorage
           await store.dispatch('auth/setToken', token);
+          console.log('Token stored, fetching user info...');
+          
           // Remove event listener
           window.removeEventListener('message', messageHandler);
+          
           // Redirect to home page
-          router.push('/');
+          console.log('Redirecting to home page...');
+          await router.push('/');
         } catch (error) {
           console.error('Error handling OAuth login:', error);
           errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';

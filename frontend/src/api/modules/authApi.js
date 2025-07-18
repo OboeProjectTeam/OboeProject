@@ -6,6 +6,19 @@ import { handleApiError } from '../apiUtils';
  */
 const authApi = {
   /**
+   * Lấy thông tin người dùng hiện tại
+   * @returns {Promise} Thông tin người dùng
+   */
+  async getUserInfo() {
+    try {
+      const response = await axios.get('/api/auth/me');
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
    * Đăng ký tài khoản mới
    * @param {Object} userData - Thông tin đăng ký (username, password, etc.)
    * @returns {Promise} Thông báo đã gửi email xác thực
