@@ -152,25 +152,25 @@ const handleGoogleLogin = async () => {
     console.log('Opening Google auth popup with URL:', googleAuthUrl);
 
     // Listen for message before opening popup
-    const messageHandler = (event) => {
+    const messageHandler = async (event) => {
       // Verify origin
       if (event.origin !== window.location.origin) return;
       
       const { token, provider } = event.data;
       if (token && provider === 'google') {
         console.log('Received token from Google OAuth');
-        // Store token in localStorage
-        localStorage.setItem('token', token);
-        // Store token in Vuex
-        store.dispatch('auth/setToken', token);
-        // Get user info and store in Vuex
-        store.dispatch('auth/fetchUserInfo');
-        // Remove event listener
-        window.removeEventListener('message', messageHandler);
-        // Redirect to home page after a short delay
-        setTimeout(() => {
+        try {
+          // Store token and fetch user info
+          await store.dispatch('auth/setToken', token);
+          // Remove event listener
+          window.removeEventListener('message', messageHandler);
+          // Redirect to home page
           router.push('/');
-        }, 500);
+        } catch (error) {
+          console.error('Error handling OAuth login:', error);
+          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+          showErrorPopup.value = true;
+        }
       }
     };
 
@@ -201,25 +201,25 @@ const handleFacebookLogin = async () => {
     console.log('Opening Facebook auth popup with URL:', facebookAuthUrl);
 
     // Listen for message before opening popup
-    const messageHandler = (event) => {
+    const messageHandler = async (event) => {
       // Verify origin
       if (event.origin !== window.location.origin) return;
       
       const { token, provider } = event.data;
       if (token && provider === 'facebook') {
         console.log('Received token from Facebook OAuth');
-        // Store token in localStorage
-        localStorage.setItem('token', token);
-        // Store token in Vuex
-        store.dispatch('auth/setToken', token);
-        // Get user info and store in Vuex
-        store.dispatch('auth/fetchUserInfo');
-        // Remove event listener
-        window.removeEventListener('message', messageHandler);
-        // Redirect to home page after a short delay
-        setTimeout(() => {
+        try {
+          // Store token and fetch user info
+          await store.dispatch('auth/setToken', token);
+          // Remove event listener
+          window.removeEventListener('message', messageHandler);
+          // Redirect to home page
           router.push('/');
-        }, 500);
+        } catch (error) {
+          console.error('Error handling OAuth login:', error);
+          errorMessage.value = 'Đăng nhập thất bại. Vui lòng thử lại.';
+          showErrorPopup.value = true;
+        }
       }
     };
 

@@ -1,3 +1,5 @@
+import authApi from '@/api/modules/authApi'
+
 const state = {
   user: null,
   token: null,
@@ -24,17 +26,32 @@ const actions = {
   setUser({ commit }, user) {
     commit('SET_USER', user)
   },
-  setToken({ commit }, token) {
+  setToken({ commit, dispatch }, token) {
     commit('SET_TOKEN', token)
+    localStorage.setItem('token', token)
+    // After setting token, fetch user info
+    return dispatch('fetchUserInfo')
   },
-  initAuth({ commit }) {
+  async fetchUserInfo({ commit }) {
+    try {
+      const response = await authApi.getUserInfo()
+      if (response.user) {
+        commit('SET_USER', response.user)
+        return response.user
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error)
+      commit('CLEAR_AUTH')
+      throw error
+    }
+  },
+  initAuth({ commit, dispatch }) {
     // Get token from localStorage
     const token = localStorage.getItem('token')
     if (token) {
       commit('SET_TOKEN', token)
-      // You might want to validate the token here or fetch user data
-      // For now, we'll just set a basic user object
-      commit('SET_USER', { isAuthenticated: true })
+      // Fetch real user data
+      return dispatch('fetchUserInfo')
     } else {
       commit('CLEAR_AUTH')
     }
