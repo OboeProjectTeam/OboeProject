@@ -151,47 +151,37 @@ const handleGoogleLogin = async () => {
     const googleAuthUrl = await oauthApi.getGoogleAuthUrl();
     console.log('Opening Google auth popup with URL:', googleAuthUrl);
 
-    const popup = window.open(
-      googleAuthUrl,
-      'GoogleLogin',
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-
-    if (!popup) {
-      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
-      showErrorPopup.value = true;
-      return;
-    }
-
-    // Listen for message from popup
+    // Listen for message before opening popup
     const messageHandler = (event) => {
+      // Verify origin
       if (event.origin !== window.location.origin) return;
       
       const { token, provider } = event.data;
       if (token && provider === 'google') {
+        console.log('Received token from Google OAuth');
         // Store token in localStorage
         localStorage.setItem('token', token);
         // Store token in Vuex
         store.dispatch('auth/setToken', token);
         // Get user info and store in Vuex
         store.dispatch('auth/fetchUserInfo');
-        // Redirect to home page
-        router.push('/');
         // Remove event listener
         window.removeEventListener('message', messageHandler);
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+          router.push('/');
+        }, 500);
       }
     };
 
     window.addEventListener('message', messageHandler);
 
-    // Check popup status periodically
-    const checkPopup = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkPopup);
-        window.removeEventListener('message', messageHandler);
-        console.log('Popup closed');
-      }
-    }, 1000);
+    // Open popup after setting up listener
+    window.open(
+      googleAuthUrl,
+      'GoogleLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
   } catch (error) {
     console.error('Google login error:', error);
@@ -210,47 +200,37 @@ const handleFacebookLogin = async () => {
     const facebookAuthUrl = await oauthApi.getFacebookAuthUrl();
     console.log('Opening Facebook auth popup with URL:', facebookAuthUrl);
 
-    const popup = window.open(
-      facebookAuthUrl,
-      'FacebookLogin',
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
-
-    if (!popup) {
-      errorMessage.value = 'Popup bị chặn. Vui lòng cho phép popup và thử lại.';
-      showErrorPopup.value = true;
-      return;
-    }
-
-    // Listen for message from popup
+    // Listen for message before opening popup
     const messageHandler = (event) => {
+      // Verify origin
       if (event.origin !== window.location.origin) return;
       
       const { token, provider } = event.data;
       if (token && provider === 'facebook') {
+        console.log('Received token from Facebook OAuth');
         // Store token in localStorage
         localStorage.setItem('token', token);
         // Store token in Vuex
         store.dispatch('auth/setToken', token);
         // Get user info and store in Vuex
         store.dispatch('auth/fetchUserInfo');
-        // Redirect to home page
-        router.push('/');
         // Remove event listener
         window.removeEventListener('message', messageHandler);
+        // Redirect to home page after a short delay
+        setTimeout(() => {
+          router.push('/');
+        }, 500);
       }
     };
 
     window.addEventListener('message', messageHandler);
 
-    // Check popup status periodically
-    const checkPopup = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearInterval(checkPopup);
-        window.removeEventListener('message', messageHandler);
-        console.log('Popup closed');
-      }
-    }, 1000);
+    // Open popup after setting up listener
+    window.open(
+      facebookAuthUrl,
+      'FacebookLogin',
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
 
   } catch (error) {
     console.error('Facebook login error:', error);

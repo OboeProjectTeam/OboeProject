@@ -17,13 +17,14 @@
   
     if (token) {
       if (window.opener) {
-        // Nếu được mở bằng popup: gửi dữ liệu về cửa sổ cha
+        // Gửi message với token và provider
         window.opener.postMessage({ token, provider }, window.location.origin)
-  
-        // Đợi 200ms rồi mới đóng popup (đảm bảo message được gửi)
+        console.log('Sent token to parent window')
+        
+        // Đóng popup sau 1 giây
         setTimeout(() => {
           window.close()
-        }, 200)
+        }, 1000)
       } else {
         // Nếu mở trong tab thường → xử lý như cũ
         localStorage.setItem('token', token)
