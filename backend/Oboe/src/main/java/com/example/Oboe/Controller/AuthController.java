@@ -19,6 +19,7 @@
     import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.multipart.MultipartFile;
 
     import java.util.HashMap;
     import java.util.List;
@@ -165,6 +166,18 @@
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
+            }
+        }
+        @PostMapping("/uploadAvatar")
+        public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                              Authentication authentication) {
+            String username = authentication.getName();
+
+            try {
+                User user = userService.uploadAvatarForUser(username, AuthProvider.EMAIL, file);
+                return ResponseEntity.ok(Map.of("avatarUrl", user.getAvatarUrl()));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed: " + e.getMessage());
             }
         }
 

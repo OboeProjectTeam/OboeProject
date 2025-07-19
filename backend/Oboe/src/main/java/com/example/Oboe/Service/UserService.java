@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,6 +41,8 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
     }
+    @Autowired
+    private S3Service s3Service;
 
     public void registerWithEmail(UserDTOs userDTOs) {
         String username = userDTOs.getUserName();
@@ -285,6 +288,25 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
     }
+
+
+    public User uploadAvatarForUser(String username, AuthProvider provider, MultipartFile file) throws Exception {
+        List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, provider);
+
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        if (users.size() > 1) {
+            throw new IllegalStateException("Tồn tại nhiều người dùng trùng username + provider.");
+        }
+
+        User user = users.get(0);
+        String avatarUrl = s3Service.uploadFile(file, "avatars/");
+        user.setAvatarUrl(avatarUrl);
+        user.setUpdate_at(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
