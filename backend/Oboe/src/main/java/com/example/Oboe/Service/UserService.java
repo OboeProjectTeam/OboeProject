@@ -28,7 +28,8 @@ import java.util.UUID;
 @Transactional
 @Service
 public class UserService implements UserDetailsService {
-
+    @Value("${app.default-avatar}")
+    private String defaultAvatar;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
@@ -108,7 +109,7 @@ public class UserService implements UserDetailsService {
         user.setProviderId(userDTOs.getProviderId());
         user.setCreate_at(LocalDateTime.now());
         user.setUpdate_at(LocalDateTime.now());
-
+        user.setAvatarUrl(defaultAvatar);
         if (provider == AuthProvider.EMAIL) {
             if (userDTOs.getPassWord() == null || userDTOs.getPassWord().length() < 8) {
                 throw new IllegalArgumentException("Mật khẩu phải ít nhất 8 ký tự.");
