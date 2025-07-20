@@ -16,6 +16,7 @@ public class UserDTOs {
     private String firstName;
     private LocalDate day_of_birth;
     private String address;
+    private String avatar;
     private String providerId;
 
     private Role role = Role.ROLE_USER;   // Mặc định là USER
@@ -30,6 +31,14 @@ public class UserDTOs {
     // ======== GETTER - SETTER ========
     public String getUserName() {
         return userName;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public void setUserName(String userName) {
