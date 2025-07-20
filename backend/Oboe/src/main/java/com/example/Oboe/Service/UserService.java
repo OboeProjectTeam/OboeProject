@@ -301,7 +301,7 @@ public class UserService implements UserDetailsService {
         }
 
         User user = users.get(0);
-        String avatarUrl = s3Service.uploadFile(file, "avatars/");
+        String avatarUrl = s3Service.uploadFile(file, "upload-avatar/");
         user.setAvatarUrl(avatarUrl);
         user.setUpdate_at(LocalDateTime.now());
         return userRepository.save(user);

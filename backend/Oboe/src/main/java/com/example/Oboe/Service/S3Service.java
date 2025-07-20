@@ -22,17 +22,17 @@ public class S3Service {
     }
 
     public String uploadFile(MultipartFile file, String folder) throws IOException {
-        String key = folder + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String key = folder.endsWith("/") ? folder : folder + "/";
+        key += UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
-        metadata.setContentType(file.getContentType()); // thêm dòng này nếu cần đúng content-type
-
+        metadata.setContentType(file.getContentType());
 
         PutObjectRequest request = new PutObjectRequest(bucketName, key, file.getInputStream(), metadata);
-
         amazonS3.putObject(request);
 
         return amazonS3.getUrl(bucketName, key).toString();
     }
+
 }
