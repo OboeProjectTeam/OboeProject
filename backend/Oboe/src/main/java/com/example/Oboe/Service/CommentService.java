@@ -63,8 +63,6 @@ public class CommentService {
         response.put("currentPage", page);
         response.put("pageSize", size);
         response.put("totalElements", totalParent);
-
-
         return response;
     }
 
@@ -192,22 +190,22 @@ public class CommentService {
 
         //  Gửi thông báo nếu người nhận khác người gửi
         User receiver = parent.getUser();
+            if(receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
+                Notifications notification = new Notifications();
+                notification.setUser(receiver);
+                notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
+                notification.setRead(false);
+                notification.setUpdate_at(LocalDateTime.now());
 
-            Notifications notification = new Notifications();
-            notification.setUser(receiver);
-            notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
-            notification.setRead(false);
-            notification.setUpdate_at(LocalDateTime.now());
+                Notifications savedNoti = notificationsRepository.save(notification);
 
-            Notifications savedNoti = notificationsRepository.save(notification);
+                // Gửi WebSocket thông báo riêng cho Comment cha
+                messagingTemplate.convertAndSend(
+                        "/notification/" + receiver.getUser_id(),
+                        savedNoti.getText_notification()
+                );
 
-            // Gửi WebSocket thông báo riêng cho Comment cha
-            messagingTemplate.convertAndSend(
-                    "/notification/" + receiver.getUser_id(),
-                    savedNoti.getText_notification()
-            );
-
-
+            }
         return toDTO(savedReply);
     }
 
