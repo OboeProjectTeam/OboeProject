@@ -1,20 +1,23 @@
 <script setup>
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import { onMounted } from 'vue'
 
 const router = useRouter()
-const route = useRoute()
 const store = useStore()
 
 onMounted(async () => {
-  const token = route.query.token
+  const hash = window.location.hash.substring(1) // Bỏ dấu #
+  const params = new URLSearchParams(hash)
+
+  const token = params.get('token')
+  const provider = params.get('provider')
 
   if (token) {
     try {
       localStorage.setItem('token', token)
 
-      await store.dispatch('auth/fetchCurrentUser', { token })
+      await store.dispatch('auth/fetchCurrentUser', { token, provider })
 
       router.replace('/')
     } catch (e) {
