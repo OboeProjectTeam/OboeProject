@@ -144,5 +144,7 @@ jobs:
                                                 -DFACEBOOK_CLIENT_ID=${{ secrets.FACEBOOK_CLIENT_ID }} \
                                                 -DFACEBOOK_CLIENT_SECRET=${{ secrets.FACEBOOK_CLIENT_SECRET }} \
                                                 -DDOMAIN=${{ secrets.DOMAIN }} \
+                                                -DACCESS_KEY=${{ secrets.ACCESS_KEY }} \
+                                                -DCREDENTIALS_SECRET_KEY=${{ secrets.CREDENTIALS_SECRET_KEY }} \
                                                 -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Backend started using PM2 with environment variables"

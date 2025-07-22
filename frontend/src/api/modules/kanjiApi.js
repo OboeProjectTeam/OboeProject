@@ -1,114 +1,82 @@
-import axios from '../axiosConfig';
-import { handleApiError, buildQueryString, getPaginationParams } from '../apiUtils';
+import axios from '@/api/axios';
+import { handleApiError } from '@/api/apiUtils';
 
-/**
- * Module chứa các API liên quan đến kanji
- */
-export const kanjiApi = {
-  /**
-   * Lấy danh sách kanji có phân trang
-   * @param {number} page - Số trang
-   * @param {number} limit - Số lượng item trên mỗi trang
-   * @param {Object} filters - Các điều kiện lọc (level, radical, etc.)
-   * @returns {Promise} Danh sách kanji
-   */
-  async getKanjis(page = 1, limit = 10, filters = {}) {
+const PREFIX = '/api/kanji';
+
+const kanjiApi = {
+  // Lấy danh sách có phân trang
+  async getAll({ page = 0, size = 10 } = {}) {
     try {
-      const params = {
-        ...getPaginationParams(page, limit),
-        ...filters
-      };
-      const query = buildQueryString(params);
-      const response = await axios.get(`/kanjis?${query}`);
-      return response.data;
+      const res = await axios.get(PREFIX, {
+        params: { page, size }
+      });
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy chi tiết kanji theo ID
-   * @param {string} id - ID của kanji
-   * @returns {Promise} Chi tiết kanji
-   */
-  async getKanjiById(id) {
+  // Lấy chi tiết theo ID
+  async getById(id) {
     try {
-      const response = await axios.get(`/kanjis/${id}`);
-      return response.data;
+      const res = await axios.get(`${PREFIX}/${id}`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Tìm kiếm kanji
-   * @param {string} keyword - Từ khóa tìm kiếm
-   * @returns {Promise} Danh sách kanji phù hợp
-   */
-  async searchKanji(keyword) {
+  // Tạo Kanji (admin)
+  async create(dto) {
     try {
-      const params = { keyword };
-      const query = buildQueryString(params);
-      const response = await axios.get(`/kanjis/search?${query}`);
-      return response.data;
+      const res = await axios.post(PREFIX, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách kanji theo cấp độ JLPT
-   * @param {number} level - Cấp độ JLPT (1-5)
-   * @returns {Promise} Danh sách kanji theo cấp độ
-   */
-  async getKanjisByJLPTLevel(level) {
+  // Cập nhật Kanji (admin)
+  async update(id, dto) {
     try {
-      const response = await axios.get(`/kanjis/jlpt/${level}`);
-      return response.data;
+      const res = await axios.put(`${PREFIX}/${id}`, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách kanji theo bộ thủ
-   * @param {string} radical - Bộ thủ
-   * @returns {Promise} Danh sách kanji có cùng bộ thủ
-   */
-  async getKanjisByRadical(radical) {
+  // Xoá Kanji (admin)
+  async delete(id) {
     try {
-      const response = await axios.get(`/kanjis/radical/${radical}`);
-      return response.data;
+      const res = await axios.delete(`${PREFIX}/${id}`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách kanji liên quan
-   * @param {string} kanjiId - ID của kanji
-   * @returns {Promise} Danh sách kanji liên quan
-   */
-  async getRelatedKanjis(kanjiId) {
+  // Tìm kiếm theo từ khoá
+  async search(keyword) {
     try {
-      const response = await axios.get(`/kanjis/${kanjiId}/related`);
-      return response.data;
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { keyword }
+      });
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy thông tin về cách viết của kanji
-   * @param {string} kanjiId - ID của kanji
-   * @returns {Promise} Thông tin stroke order
-   */
-  async getKanjiStrokes(kanjiId) {
+  // Lấy từ liên quan
+  async getRelated(kanjiId) {
     try {
-      const response = await axios.get(`/kanjis/${kanjiId}/strokes`);
-      return response.data;
+      const res = await axios.get(`${PREFIX}/${kanjiId}/related`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   }
-}; 
+};
+
+export default kanjiApi;
