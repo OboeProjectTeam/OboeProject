@@ -50,41 +50,6 @@ const goToUpgrade = () => {
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
 onMounted(() => {
-  let isHandled = false;
-
-  // Initialize auth state from localStorage
-  store.dispatch('auth/initAuth');
-  
-  // Lắng nghe sự kiện OAuth2 trả về từ popup
-  window.addEventListener("message", async (event) => {
-    console.log('Received message:', event);
-    if (event.origin !== window.location.origin) return;
-    if (isHandled) return;
-    isHandled = true;
-
-    const { token, user, provider } = event.data;
-    console.log("Received auth data from popup:", { token, user, provider });
-    
-    if (token) {
-      // Store token in localStorage
-      localStorage.setItem("token", token);
-      
-      // Update Vuex store
-      await store.dispatch('auth/setToken', token);
-      await store.dispatch('auth/setUser', user);
-      
-      // Close any open popups
-      const popup = window.open('', 'GoogleLogin');
-      if (popup) popup.close();
-      const fbPopup = window.open('', 'FacebookLogin');
-      if (fbPopup) fbPopup.close();
-      
-      // Redirect to home page
-      router.push('/');
-    }
-  });
-
-  // Add event listener for send-message events
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
       if (event === 'send-message') {
@@ -93,7 +58,6 @@ onMounted(() => {
     };
   });
 })
-
 
 function openChatBox(user) {
   chatBoxUser.value = user

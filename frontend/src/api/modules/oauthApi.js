@@ -1,26 +1,15 @@
-/**
- * API module for handling OAuth2 authentication
- */
-import axiosInstance from '../axios';
-import { API_CONFIG } from '../config';
+// src/api/modules/oauthApi.js
+
+const BASE_URL = 'https://oboeru.me/oauth2/authorization';
 
 const oauthApi = {
-  // Lấy URL đăng nhập Google
-  getGoogleAuthUrl: () => {
-    return API_CONFIG.getFullUrl(API_CONFIG.ENDPOINTS.OAUTH2.GOOGLE);
+  getGoogleAuthUrl() {
+    return `${BASE_URL}/google`;
   },
 
-  // Lấy URL đăng nhập Facebook
-  getFacebookAuthUrl: () => {
-    return API_CONFIG.getFullUrl(API_CONFIG.ENDPOINTS.OAUTH2.FACEBOOK);
+  getFacebookAuthUrl() {
+    return `${BASE_URL}/facebook`;
   },
-
-  // Xử lý callback sau khi đăng nhập thành công
-  handleOAuthSuccess: async (token) => {
-    return axiosInstance.get(API_CONFIG.ENDPOINTS.OAUTH2.SUCCESS, {
-      params: { token }
-    });
-  }
 };
 
-export default oauthApi; 
+export default oauthApi;

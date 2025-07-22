@@ -1,38 +1,33 @@
-<template>
-  <div class="redirecting">
-    Đang xác thực tài khoản...
-  </div>
-</template>
-
+<!-- src/views/OAuth2Redirect.vue -->
 <script setup>
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 import { onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
 
-const route = useRoute()
 const router = useRouter()
+const store = useStore()
 
 onMounted(() => {
-  const token = route.query.token
-  const provider = route.query.provider
+  const urlParams = new URLSearchParams(window.location.search)
+  const token = urlParams.get('token')
+  const user = urlParams.get('user')
 
-  if (token) {
-    if (window.opener) {
-      // Nếu được mở bằng popup: gửi dữ liệu về cửa sổ cha
-      window.opener.postMessage({ token, provider }, window.location.origin)
-
-      // Đợi 200ms rồi mới đóng popup (đảm bảo message được gửi)
-      setTimeout(() => {
-        window.close()
-      }, 200)
-    } else {
-      // Nếu mở trong tab thường → xử lý như cũ
-      localStorage.setItem('token', token)
-      localStorage.setItem('provider', provider)
+  if (token && user) {
+    try {
+      const parsedUser = JSON.parse(decodeURIComponent(user))
+      store.commit('auth/SET_TOKEN', token)
+      store.commit('auth/SET_USER', parsedUser)
       router.push('/')
+    } catch (e) {
+      alert('Xử lý OAuth2 thất bại!')
     }
   } else {
-    // Nếu không có token → quay lại login
+    alert('Không có token hoặc user được trả về!')
     router.push('/login')
   }
 })
 </script>
+
+<template>
+  <div>Đang xử lý đăng nhập OAuth2...</div>
+</template>
