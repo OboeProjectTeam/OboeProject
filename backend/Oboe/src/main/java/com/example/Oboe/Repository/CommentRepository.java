@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
@@ -14,4 +15,6 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     Long countByReferenceId(UUID referenceId);
     @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
     List<Comment> findCommentByUserId(@Param("userId") UUID userId);
+    //Để thêm người comment gần nhất cho một bài blog
+    Optional<Comment> findTopByReferenceIdOrderByCreatedAtDesc(UUID referenceId);
 }
