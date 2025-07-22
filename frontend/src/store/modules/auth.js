@@ -51,7 +51,13 @@ const actions = {
 
   // Đăng ký tài khoản
   async signup(_, userData) {
-    await api.auth.signup(userData);
+    try {
+      const result = await api.auth.signup(userData);
+      console.log('Đăng ký thành công:', result);
+    } catch (error) {
+      console.error('Lỗi khi đăng ký:', error);
+      throw error;
+    }
   },
 
   // Xác minh tài khoản qua token (email)
