@@ -49,30 +49,14 @@ const goToUpgrade = () => {
 
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
-
-onMounted(async () => {
-  try {
-    // Initialize auth state from localStorage
-    await store.dispatch('auth/initAuth')
-    
-    // Check if we're on the home page and not authenticated
-    if (route.path === '/' && !store.getters['auth/isAuthenticated']) {
-      router.push('/login')
-    }
-  } catch (error) {
-    console.error('Error initializing auth:', error)
-    // If there's an error initializing auth, redirect to login
-    router.push('/login')
-  }
-
-  // Add event listener for send-message events
+onMounted(() => {
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
       if (event === 'send-message') {
-        openChatBox(...args)
+        openChatBox(...args);
       }
-    }
-  })
+    };
+  });
 })
 
 function openChatBox(user) {

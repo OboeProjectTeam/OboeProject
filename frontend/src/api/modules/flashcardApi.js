@@ -1,95 +1,52 @@
-import axios from '../axiosConfig';
-import { handleApiError, buildQueryString, getPaginationParams } from '../apiUtils';
+import axios from '@/api/axios';
+import { handleApiError } from '@/api/apiUtils';
 
-/**
- * Module chứa các API liên quan đến flashcard
- */
-export const flashcardApi = {
-  /**
-   * Lấy danh sách flashcard có phân trang
-   * @param {number} page - Số trang
-   * @param {number} limit - Số lượng item trên mỗi trang
-   * @returns {Promise} Danh sách flashcard
-   */
-  async getFlashcards(page = 1, limit = 10) {
+const PREFIX = '/api/flashcards';
+
+const flashcardApi = {
+  // Tạo flashcard
+  async create(dto) {
     try {
-      const params = getPaginationParams(page, limit);
-      const query = buildQueryString(params);
-      const response = await axios.get(`/flashcards?${query}`);
-      return response.data;
+      const res = await axios.post(PREFIX, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Tạo flashcard mới
-   * @param {Object} flashcardData - Dữ liệu flashcard
-   * @returns {Promise} Flashcard đã tạo
-   */
-  async createFlashcard(flashcardData) {
+  // Lấy flashcards của user (có phân trang & tìm kiếm)
+  async getUserFlashcards({ page = 0, size = 10, term = '' } = {}) {
     try {
-      const response = await axios.post('/flashcards', flashcardData);
-      return response.data;
+      const params = { page, size };
+      if (term && term.trim()) {
+        params.term = term;
+      }
+      const res = await axios.get(PREFIX, { params });
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Cập nhật flashcard
-   * @param {string} id - ID của flashcard
-   * @param {Object} flashcardData - Dữ liệu cần cập nhật
-   * @returns {Promise} Flashcard đã cập nhật
-   */
-  async updateFlashcard(id, flashcardData) {
+  // Cập nhật flashcard
+  async update(id, dto) {
     try {
-      const response = await axios.put(`/flashcards/${id}`, flashcardData);
-      return response.data;
+      const res = await axios.put(`${PREFIX}/${id}`, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Xóa flashcard
-   * @param {string} id - ID của flashcard
-   * @returns {Promise} Thông báo xóa thành công
-   */
-  async deleteFlashcard(id) {
+  // Xoá flashcard
+  async delete(id) {
     try {
-      const response = await axios.delete(`/flashcards/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  },
-
-  /**
-   * Lấy chi tiết flashcard theo ID
-   * @param {string} id - ID của flashcard
-   * @returns {Promise} Chi tiết flashcard
-   */
-  async getFlashcardById(id) {
-    try {
-      const response = await axios.get(`/flashcards/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  },
-
-  /**
-   * Lấy danh sách flashcard theo người dùng
-   * @param {string} userId - ID của người dùng
-   * @returns {Promise} Danh sách flashcard của người dùng
-   */
-  async getFlashcardsByUser(userId) {
-    try {
-      const response = await axios.get(`/flashcards/user/${userId}`);
-      return response.data;
+      const res = await axios.delete(`${PREFIX}/${id}`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   }
-}; 
+};
+
+export default flashcardApi;

@@ -1,57 +1,42 @@
-<template>
-  <div class="redirecting">
-    Đang xác thực tài khoản...
-  </div>
-</template>
-
 <script setup>
-import { onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { onMounted } from 'vue'
 
-const route = useRoute()
 const router = useRouter()
 const store = useStore()
 
-onMounted(async () => {
-  try {
-    const token = route.query.token
-    const provider = route.query.provider
+console.log(" Vào OAuth2Redirect.vue");
 
-    if (!token) {
-      console.error('No token received')
-      router.push('/login?error=no_token')
-      return
+onMounted(() => {
+  setTimeout(async () => {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+
+    const token = params.get('token');
+    const provider = params.get('provider');
+
+    console.log('Redirect hash:', hash);
+    console.log('Token:', token);
+
+    if (token) {
+      try {
+        localStorage.setItem('token', token);
+        await store.dispatch('auth/fetchCurrentUser', { token, provider });
+        router.replace('/');
+      } catch (e) {
+        console.error('OAuth2 Redirect Error:', e);
+        router.replace('/login');
+      }
+    } else {
+      router.replace('/login');
     }
-
-    console.log('Received token from OAuth2:', { provider })
-
-    // Store token in localStorage first
-    localStorage.setItem('token', token)
-    
-    // Then update Vuex store and fetch user info
-    await store.dispatch('auth/setToken', token)
-    
-    // Wait a bit to ensure all state updates are complete
-    setTimeout(() => {
-      console.log('Redirecting to home page...')
-      window.location.href = '/'
-    }, 1000)
-  } catch (error) {
-    console.error('Error in OAuth redirect:', error)
-    router.push('/login?error=auth_failed')
-  }
-})
+  }, 100); // thử delay 100ms
+});
 </script>
 
-<style scoped>
-.redirecting {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.2rem;
-  color: #666;
-}
-</style>
-  
+<template>
+  <div style="text-align: center; margin-top: 50px;">
+    <p>Đang đăng nhập bằng OAuth2...</p>
+  </div>
+</template>

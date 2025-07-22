@@ -1,100 +1,38 @@
-import axios from './axiosConfig';
-
 /**
- * Xử lý các lỗi từ API và trả về thông báo lỗi phù hợp
- * @param {Error} error - Đối tượng lỗi từ axios
- * @returns {string} Thông báo lỗi đã được format
+ * Trích xuất thông điệp lỗi dễ đọc từ axios error
+ * @param {Error} error - Axios error object
+ * @returns {string} - Thông báo lỗi phù hợp để hiển thị
  */
-export const handleApiError = (error) => {
-  let errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại sau.';
+export function handleApiError(error) {
+    if (error.response) {
+      const { status, data } = error.response;
   
-  if (error.response) {
-    // Lỗi từ phía server
-    const { status, data } = error.response;
-    
-    switch (status) {
-      case 400:
-        errorMessage = data.message || 'Yêu cầu không hợp lệ';
-        break;
-      case 401:
-        errorMessage = 'Phiên đăng nhập đã hết hạn';
-        break;
-      case 403:
-        errorMessage = 'Bạn không có quyền thực hiện thao tác này';
-        break;
-      case 404:
-        errorMessage = 'Không tìm thấy dữ liệu yêu cầu';
-        break;
-      case 422:
-        errorMessage = data.message || 'Dữ liệu không hợp lệ';
-        break;
-      case 500:
-        errorMessage = 'Lỗi hệ thống. Vui lòng thử lại sau';
-        break;
-      default:
-        errorMessage = data.message || errorMessage;
-    }
-  } else if (error.request) {
-    // Lỗi không nhận được response
-    errorMessage = 'Không thể kết nối đến máy chủ';
-  }
-
-  return errorMessage;
-};
-
-/**
- * Upload file lên server
- * @param {File} file - File cần upload
- * @param {string} type - Loại file (mặc định là 'image')
- * @returns {Promise} Kết quả upload từ server
- */
-export const uploadFile = async (file, type = 'image') => {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('type', type);
-
-    const response = await axios.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    throw new Error(handleApiError(error));
-  }
-};
-
-/**
- * Tạo chuỗi query từ object params
- * Ví dụ: { page: 1, limit: 10 } => "page=1&limit=10"
- * @param {Object} params - Object chứa các tham số
- * @returns {string} Chuỗi query đã được format
- */
-export const buildQueryString = (params) => {
-  const query = new URLSearchParams();
+      if (typeof data === 'string') {
+        return data; // Trường hợp backend trả chuỗi thông báo lỗi
+      }
   
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && value !== '') {
-      if (Array.isArray(value)) {
-        value.forEach(item => query.append(key, item));
-      } else {
-        query.append(key, value);
+      if (data?.message) {
+        return data.message;
+      }
+  
+      // Trường hợp không có message cụ thể
+      switch (status) {
+        case 401:
+          return 'Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn.';
+        case 403:
+          return 'Bạn không có quyền thực hiện hành động này.';
+        case 404:
+          return 'Không tìm thấy tài nguyên.';
+        default:
+          if (status >= 500) return 'Lỗi máy chủ. Vui lòng thử lại sau.';
+          return 'Đã xảy ra lỗi. Vui lòng thử lại.';
       }
     }
-  });
   
-  return query.toString();
-};
-
-/**
- * Tạo object params cho phân trang
- * @param {number} page - Số trang hiện tại
- * @param {number} limit - Số lượng item trên mỗi trang
- * @returns {Object} Object chứa thông tin phân trang
- */
-export const getPaginationParams = (page = 1, limit = 10) => ({
-  page,
-  limit,
-}); 
+    if (error.request) {
+      return 'Không thể kết nối đến máy chủ. Kiểm tra mạng hoặc thử lại sau.';
+    }
+  
+    return error.message || 'Lỗi không xác định';
+  }
+  
