@@ -18,6 +18,36 @@ public class BlogDTO {
     private UUID userId;
     private String author;
 
+    // Các trường mới:
+    private int commentCount;
+
+    public LocalDateTime getLatestCommentTime() {
+        return latestCommentTime;
+    }
+
+    public void setLatestCommentTime(LocalDateTime latestCommentTime) {
+        this.latestCommentTime = latestCommentTime;
+    }
+
+    public String getLatestCommenterName() {
+        return latestCommenterName;
+    }
+
+    public void setLatestCommenterName(String latestCommenterName) {
+        this.latestCommenterName = latestCommenterName;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    private String latestCommenterName;
+    private LocalDateTime latestCommentTime;
+
     public BlogDTO() {}
 
     public BlogDTO(UUID id, String title, String content, String tags, String topics,

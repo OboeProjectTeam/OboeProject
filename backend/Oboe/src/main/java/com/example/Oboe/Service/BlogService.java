@@ -5,6 +5,7 @@ import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.CommentRepository;
 import com.example.Oboe.response.BaseResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +22,12 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
     private final UserService userService;
+    private final CommentRepository commentRepository;
 
-    public BlogService(BlogRepository blogRepository, UserService userService) {
+    public BlogService(BlogRepository blogRepository, UserService userService,CommentRepository commentRepository) {
         this.blogRepository = blogRepository;
         this.userService = userService;
+        this.commentRepository = commentRepository;
     }
 
     //  Lấy danh sách tất cả Blog
@@ -133,13 +136,28 @@ public class BlogService {
     }
 
     //  Tìm kiếm Blog theo từ khóa tiêu đề
-    public List<BlogDTO> searchBlogDTOsByTitle(String keyword) {
-        return blogRepository.findByTitleContainingIgnoreCase(keyword)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-        //map từ Blog  về BlogDto qua hàm toDto()
+
+    public List<BlogDTO> searchBlogs(String keyword, String field) {
+        List<Blog> blogs;
+
+        switch (field.toLowerCase()) {
+            case "title":
+                blogs = blogRepository.findByTitleContainingIgnoreCase(keyword);
+                break;
+            case "tags":
+                blogs = blogRepository.findByTagsContainingIgnoreCase(keyword);
+                break;
+            case "topics":
+                blogs = blogRepository.findByTopicsContainingIgnoreCase(keyword);
+                break;
+            default: // "all"
+                blogs = blogRepository.searchByKeyword(keyword);
+                break;
+        }
+
+        return blogs.stream().map(this::toDTO).collect(Collectors.toList());
     }
+
 
     //  Lấy tất cả Blog của một User cụ thể
     public List<BlogDTO> getAllBlogbyUserId(UUID userId) {
@@ -162,7 +180,6 @@ public class BlogService {
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
 
-        //  Lấy tags và topics
         dto.setTags(blog.getTags());
         dto.setTopics(blog.getTopics());
 
@@ -171,7 +188,19 @@ public class BlogService {
             dto.setAuthor(blog.getUser().getUserName());
         }
 
+        // Đếm số comment
+        long count = commentRepository.countByReferenceId(blog.getBlogId());
+        dto.setCommentCount((int) count);
+
+        //  Lấy comment gần nhất
+        commentRepository.findTopByReferenceIdOrderByCreatedAtDesc(blog.getBlogId())
+                .ifPresent(latestComment -> {
+                    dto.setLatestCommentTime(latestComment.getCreatedAt());
+                    dto.setLatestCommenterName(latestComment.getUser().getUserName());
+                });
+
         return dto;
     }
+
 
 }

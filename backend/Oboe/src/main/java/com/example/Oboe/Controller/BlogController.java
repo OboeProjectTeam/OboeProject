@@ -77,9 +77,12 @@ public class BlogController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("title") String title) {
-        return ResponseEntity.ok(blogService.searchBlogDTOsByTitle(title));
+    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("keyword") String keyword) {
+        List<BlogDTO> results = blogService.searchBlogs(keyword, "all");
+        return ResponseEntity.ok(results);
     }
+
+
     @GetMapping("/user/blogs")
     public ResponseEntity<?> getUserBlogs(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();

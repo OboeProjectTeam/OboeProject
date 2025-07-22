@@ -14,6 +14,15 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
 
     // Method tìm kiếm theo title
     List<Blog> findByTitleContainingIgnoreCase(String keyword);
+    List<Blog> findByTagsContainingIgnoreCase(String keyword);
+    List<Blog> findByTopicsContainingIgnoreCase(String keyword);
+
+    @Query("SELECT b FROM Blog b WHERE " +
+            "LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(b.tags) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(b.topics) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Blog> searchByKeyword(@Param("keyword") String keyword);
+
 
     // Method lấy tất cả blog của user
     @Query("SELECT b FROM Blog b WHERE b.user.user_id = :userId")
