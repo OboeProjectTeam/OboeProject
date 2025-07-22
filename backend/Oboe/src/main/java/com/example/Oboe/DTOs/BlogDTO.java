@@ -1,39 +1,37 @@
 package com.example.Oboe.DTOs;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 public class BlogDTO {
     private UUID id;
+    @NotBlank
     private String title;
+    @NotBlank
     private String content;
-
+    private String tags;
+    private String topics;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private UUID userId;
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
     private String author;
 
     public BlogDTO() {}
 
-    public BlogDTO(UUID id, String title, String content,  LocalDateTime createdAt, LocalDateTime updatedAt, UUID userId) {
+    public BlogDTO(UUID id, String title, String content, String tags, String topics,
+                   LocalDateTime createdAt, LocalDateTime updatedAt, UUID userId, String author) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.tags = tags;
+        this.topics = topics;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.userId = userId;
+        this.author = author;
     }
-
 
     public UUID getId() {
         return id;
@@ -57,6 +55,22 @@ public class BlogDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getTopics() {
+        return topics;
+    }
+
+    public void setTopics(String topics) {
+        this.topics = topics;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -83,5 +97,11 @@ public class BlogDTO {
         this.userId = userId;
     }
 
+    public String getAuthor() {
+        return author;
+    }
 
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 }

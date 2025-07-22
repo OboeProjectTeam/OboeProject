@@ -77,6 +77,9 @@ public class BlogService {
         blog.setUser(userOpt.get());
         blog.setCreatedAt(LocalDateTime.now());
         blog.setUpdatedAt(LocalDateTime.now());
+        //  Thêm tags và topics
+        blog.setTags(blogDTO.getTags());
+        blog.setTopics(blogDTO.getTopics());
 
         Blog saved = blogRepository.save(blog);
         return toDTO(saved);
@@ -93,15 +96,17 @@ public class BlogService {
         Blog blog = blogOpt.get();
         User currentUser = userOpt.get();
 
-        // Kiểm tra quyền sở hữu
         if (blog.getUser() == null || !blog.getUser().getUser_id().equals(currentUser.getUser_id())) {
-            return null; // Không phải chủ sở hữu -> không cho sửa
+            return null;
         }
 
-        // Cập nhật thông tin
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
         blog.setUpdatedAt(LocalDateTime.now());
+
+        // Cập nhật tags và topics
+        blog.setTags(blogDTO.getTags());
+        blog.setTopics(blogDTO.getTopics());
 
         Blog updated = blogRepository.save(blog);
         return toDTO(updated);
@@ -156,6 +161,10 @@ public class BlogService {
         dto.setContent(blog.getContent());
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
+
+        //  Lấy tags và topics
+        dto.setTags(blog.getTags());
+        dto.setTopics(blog.getTopics());
 
         if (blog.getUser() != null) {
             dto.setUserId(blog.getUser().getUser_id());
