@@ -180,31 +180,47 @@
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed: " + e.getMessage());
             }
         }
-        @GetMapping("/me")
-        public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+       @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Thiếu Authorization header");
             }
 
-            String username = authentication.getName();
+            String token = authHeader.substring(7); // Bỏ "Bearer "
 
-            // cần biết provider (ở đây mặc định EMAIL, hoặc xử lý tốt hơn với token)
-            User user = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL)
-                    .stream().findFirst()
-                    .orElse(null);
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            }
+
+            // Lấy username (sub) và provider từ JWT
+            String username = jwtUtil.getUsernameFromToken(token);
+            String providerStr = jwtUtil.getProviderFromToken(token);
+
+            AuthProvider provider;
+            try {
+                provider = AuthProvider.valueOf(providerStr);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider không hợp lệ: " + providerStr);
+            }
+
+            User user = userService.findByUserNameAndAuthProvider(username, provider)
+                    .stream().findFirst().orElse(null);
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Không tìm thấy user với username = " + username + " và provider = " + provider);
             }
 
-            Map<String, Object> response = new HashMap<>();
-                response.put("user", Map.of(
-                        "username", user.getUserName(),
-                        "firstName", user.getFirstName(),
-                        "lastName", user.getLastName(),
-                        "role", user.getRole().name()
-                ));
+            Map<String, Object> response = Map.of(
+                    "user", Map.of(
+                            "username", user.getUserName(),
+                            "firstName", user.getFirstName(),
+                            "lastName", user.getLastName(),
+                            "role", user.getRole().name()
+                    )
+            );
 
             return ResponseEntity.ok(response);
         }
+
     }
