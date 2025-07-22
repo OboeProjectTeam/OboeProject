@@ -6,28 +6,33 @@ import { onMounted } from 'vue'
 const router = useRouter()
 const store = useStore()
 
-onMounted(async () => {
-  const hash = window.location.hash.substring(1) // Bỏ dấu #
-  const params = new URLSearchParams(hash)
+console.log(" Vào OAuth2Redirect.vue");
 
-  const token = params.get('token')
-  const provider = params.get('provider')
+onMounted(() => {
+  setTimeout(async () => {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
 
-  if (token) {
-    try {
-      localStorage.setItem('token', token)
+    const token = params.get('token');
+    const provider = params.get('provider');
 
-      await store.dispatch('auth/fetchCurrentUser', { token, provider })
+    console.log('Redirect hash:', hash);
+    console.log('Token:', token);
 
-      router.replace('/')
-    } catch (e) {
-      console.error('OAuth2 Redirect Error:', e)
-      router.replace('/login')
+    if (token) {
+      try {
+        localStorage.setItem('token', token);
+        await store.dispatch('auth/fetchCurrentUser', { token, provider });
+        router.replace('/');
+      } catch (e) {
+        console.error('OAuth2 Redirect Error:', e);
+        router.replace('/login');
+      }
+    } else {
+      router.replace('/login');
     }
-  } else {
-    router.replace('/login')
-  }
-})
+  }, 100); // thử delay 100ms
+});
 </script>
 
 <template>
