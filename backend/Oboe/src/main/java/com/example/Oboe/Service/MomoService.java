@@ -54,7 +54,7 @@ public class MomoService {
 
         String orderId = UUID.randomUUID().toString();
         String requestId = UUID.randomUUID().toString();
-        String amount = "10000";
+        String amount = "2000";
         String orderInfo = "Nâng cấp Premium cho người dùng: " + user.getUserName();
 
         String rawData = "accessKey=" + accessKey +
