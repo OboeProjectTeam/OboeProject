@@ -198,12 +198,12 @@
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("username", user.getUserName());
-            response.put("firstName", user.getFirstName());
-            response.put("lastName", user.getLastName());
-            response.put("role", user.getRole());
-            response.put("avatar", user.getAvatarUrl());
-            response.put("email", user.getEmail());
+                response.put("user", Map.of(
+                        "username", user.getUserName(),
+                        "firstName", user.getFirstName(),
+                        "lastName", user.getLastName(),
+                        "role", user.getRole().name()
+                ));
 
             return ResponseEntity.ok(response);
         }
