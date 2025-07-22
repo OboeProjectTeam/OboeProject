@@ -85,17 +85,16 @@
         </button>
       </div>
     </div>
-
-    <!-- Popup thông báo -->
-    <ConfirmDialog
+  </form>
+  <!-- Popup thông báo -->
+  <ConfirmDialog
       v-if="showPopup"
       :title="popupTitle"
       :message="popupMessage"
       confirmText="OK"
-      @confirm="showPopup = false"
+      @confirm="handlePopupConfirm"
       :showCancel="false" 
     />
-  </form>
 </template>
 
 <script setup>
@@ -126,6 +125,7 @@ const isLoading = ref(false)
 const showPopup = ref(false)
 const popupMessage = ref('')
 const popupTitle = ref('Thông báo')
+const success = ref (false)
 
 const showDialog = (message, type = 'success') => {
   popupTitle.value = type === 'success' ? '🎉 Thành công' : '❗ Thất bại'
@@ -139,6 +139,12 @@ const handleGoogleLogin = () => {
 
 const handleFacebookLogin = () => {
   window.location.href = api.oauth.getFacebookAuthUrl()
+}
+const handlePopupConfirm = () => {
+  showPopup.value = false
+  if (success.value && props.isRegister) {
+    router.push('/login')
+  }
 }
 
 const submitForm = async () => {
@@ -156,6 +162,9 @@ const submitForm = async () => {
       })
 
       showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
+      resetForm()
+      success.value = true 
+
     } else {
       await store.dispatch('auth/login', {
         userName: username.value,
@@ -169,6 +178,12 @@ const submitForm = async () => {
   } finally {
     isLoading.value = false
   }
+}
+const resetForm = () => {
+  username.value = ''
+  password.value = ''
+  firstname.value = ''
+  lastname.value = ''
 }
 
 function placeholderAnimationIn(parent, action) {

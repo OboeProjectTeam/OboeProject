@@ -129,7 +129,11 @@
                         "username", user.getUserName(),
                         "firstName", user.getFirstName(),
                         "lastName", user.getLastName(),
-                        "role", user.getRole().name()
+                        "role", user.getRole().name(),
+                        "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                            ? user.getAvatarUrl()
+                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName(),
                 ));
 
                 return ResponseEntity.ok(response);
@@ -216,8 +220,12 @@
                             "username", user.getUserName(),
                             "firstName", user.getFirstName(),
                             "lastName", user.getLastName(),
-                            "role", user.getRole().name()
-                    )
+                            "role", user.getRole().name(),
+                            "displayName", user.getFirstName() + " " + user.getLastName(),
+                            "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                                ? user.getAvatarUrl()
+                                : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName(),
+                                        )
             );
 
             return ResponseEntity.ok(response);
