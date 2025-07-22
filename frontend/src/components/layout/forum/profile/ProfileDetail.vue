@@ -155,48 +155,68 @@
   </template>
   
   <script setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { useStore } from 'vuex';
   import { useRouter } from 'vue-router';
-
-    const props = defineProps({
-    user: {
-        type: Object,
-        required: true,
-    },
-    isMyProfile: {
-        type: Boolean,
-        default: false,
-    },
-    });
-
+  import api from '@/api';
+  
+  const user = ref(null);
+  const isLoading = ref(true);
+  const error = ref('');
+  
+  const isMyProfile = ref(true); // tuỳ theo logic xác thực người dùng
+  
+  const isEditing = ref(false);
+  const editableUser = ref({});
+  const avatarPreview = ref(null);
+  const avatarFile = ref(null);
+  
+  const personalFields = [
+    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
+    { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
+    { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
+  ];
+  
+  onMounted(async () => {
+    try {
+      const profile = await api.profile.getProfile();
+      user.value = {
+        ...profile,
+        username: profile.userName,
+        fullName: profile.lastName + ' ' + profile.firstName,
+        avatar: profile.avatarUrl,
+        title: profile.accountType,
+        stats: {
+          joined: profile.create_at?.split('T')[0] || '',
+          topics: 0,
+          likes: 0,
+          solutions: 0,
+          learning_materials: 0,
+        },
+        activities: [],
+      };
+      editableUser.value = JSON.parse(JSON.stringify(user.value));
+    } catch (err) {
+      error.value = err.message;
+    } finally {
+      isLoading.value = false;
+    }
+  });
+  
   const router = useRouter();
   const emit = defineEmits(['save-profile', 'send-message']);
   const store = useStore();
-
-  const isEditing = ref(false);
-  const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
-  const avatarPreview = ref(null);
-  const avatarFile = ref(null);
-
-  const personalFields = [
-    { key: 'dob', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
-    { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
-    { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
-    { key: 'hometown', icon: 'fas fa-home', placeholder: 'Quê quán', type: 'text', maxlength: 50 },
-    { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
-  ];
-
-  watch(() => props.user, (newUser) => {
-    if (!isEditing.value) {
+  
+  watch(() => user.value, (newUser) => {
+    if (!isEditing.value && newUser) {
       editableUser.value = JSON.parse(JSON.stringify(newUser));
     }
   }, { deep: true });
-
+  
   function startEditing() {
     isEditing.value = true;
   }
-
+  
   function handleAvatarChange(event) {
     const file = event.target.files[0];
     if (file) {
@@ -208,79 +228,64 @@
       reader.readAsDataURL(file);
     }
   }
-
+  
   function saveProfile() {
     const formData = new FormData();
-    
-    // Append avatar file if changed
     if (avatarFile.value) {
       formData.append('avatar', avatarFile.value);
     }
-    // Append other user data
     const userData = { ...editableUser.value };
     if (avatarPreview.value) {
       userData.avatar = avatarPreview.value;
     }
-    
     emit('save-profile', { formData, userData });
     isEditing.value = false;
   }
-
+  
   function cancelEditing() {
     isEditing.value = false;
-    editableUser.value = JSON.parse(JSON.stringify(props.user));
+    editableUser.value = JSON.parse(JSON.stringify(user.value));
     avatarPreview.value = null;
     avatarFile.value = null;
   }
-
+  
   const currentTab = ref('all');
   const currentPage = ref(1);
   const itemsPerPage = ref(10);
-
+  
   const filteredActivities = computed(() => {
-    if (!props.user || !props.user.activities) {
-      return [];
-    }
-    if (currentTab.value === 'all') {
-      return props.user.activities;
-    }
-    return props.user.activities.filter(activity => activity.type === currentTab.value);
+    if (!user.value || !user.value.activities) return [];
+    if (currentTab.value === 'all') return user.value.activities;
+    return user.value.activities.filter(activity => activity.type === currentTab.value);
   });
-
-  const totalPages = computed(() => {
-    return Math.ceil(filteredActivities.value.length / itemsPerPage.value);
-  });
-
+  
+  const totalPages = computed(() => Math.ceil(filteredActivities.value.length / itemsPerPage.value));
   const paginatedActivities = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage.value;
     const end = start + itemsPerPage.value;
     return filteredActivities.value.slice(start, end);
   });
-
+  
   function nextPage() {
-    if (currentPage.value < totalPages.value) {
-      currentPage.value++;
-    }
+    if (currentPage.value < totalPages.value) currentPage.value++;
   }
-
+  
   function prevPage() {
-    if (currentPage.value > 1) {
-      currentPage.value--;
-    }
+    if (currentPage.value > 1) currentPage.value--;
   }
-
+  
   watch(currentTab, () => {
     currentPage.value = 1;
   });
-
+  
   function handleSendMessage() {
     if (router.currentRoute.value.meta.emit) {
-      router.currentRoute.value.meta.emit('send-message', props.user);
+      router.currentRoute.value.meta.emit('send-message', user.value);
     }
   }
-  
   </script>
   
   <style lang="scss" scoped>
   @use '@/components/layout/forum/profile/ProfileDetail.scss';
-  </style> 
+  </style>
+  
