@@ -2,6 +2,7 @@ package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Service.BlogService;
 import com.example.Oboe.response.BaseResponse;
 import org.springframework.http.HttpStatus;
@@ -77,9 +78,12 @@ public class BlogController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("title") String title) {
-        return ResponseEntity.ok(blogService.searchBlogDTOsByTitle(title));
+    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("keyword") String keyword) {
+        List<BlogDTO> results = blogService.searchBlogs(keyword, "all");
+        return ResponseEntity.ok(results);
     }
+
+
     @GetMapping("/user/blogs")
     public ResponseEntity<?> getUserBlogs(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -87,5 +91,11 @@ public class BlogController {
             List<BlogDTO> blogs = blogService.getAllBlogbyUserId(userId);
             return ResponseEntity.ok(blogs);
         }
+    @GetMapping("/featured-topics")
+    public ResponseEntity<List<?>> getTopTopics() {
+        List<?> topTopics = blogService.getTop5TopicsWithMostPosts();
+        return ResponseEntity.ok(topTopics);
+    }
+
 
 }

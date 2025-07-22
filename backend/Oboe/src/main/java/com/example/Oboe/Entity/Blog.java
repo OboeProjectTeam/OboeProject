@@ -33,6 +33,13 @@ public class Blog {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(name = "tags")
+    private String tags; // Ví dụ: "java,spring,backend"
+
+
+
+    @Column(name = "topics")
+    private String topics; // Ví dụ: "Spring Boot,Cơ sở dữ liệu"
 
     // Mối quan hệ nhiều-một với User
     @ManyToOne(fetch = FetchType.EAGER)
@@ -48,9 +55,16 @@ public class Blog {
     public Blog(String title, String content, User user) {
         this.title = title;
         this.content = content;
-
         this.user = user;
     }
+    public Blog(String title, String content, User user, String tags, String topics) {
+        this.title = title;
+        this.content = content;
+        this.user = user;
+        this.tags = tags;
+        this.topics = topics;
+    }
+
 
 
     @PreUpdate
@@ -108,5 +122,21 @@ public class Blog {
     public void setUser(User user) {
         this.user = user;
     }
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getTopics() {
+        return topics;
+    }
+
+    public void setTopics(String topics) {
+        this.topics = topics;
+    }
+
 
 }

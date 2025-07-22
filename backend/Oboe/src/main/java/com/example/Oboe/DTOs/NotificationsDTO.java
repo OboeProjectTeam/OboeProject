@@ -11,6 +11,10 @@ public class NotificationsDTO {
     private boolean isRead;
     private LocalDateTime updateAt;
 
+
+
+    private UUID contentId;
+
     public NotificationsDTO() {}
 
     public NotificationsDTO(UUID notifiId, UUID userID, String textNotification, boolean isRead, LocalDateTime updateAt) {
@@ -60,4 +64,5 @@ public class NotificationsDTO {
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
     }
+
 }

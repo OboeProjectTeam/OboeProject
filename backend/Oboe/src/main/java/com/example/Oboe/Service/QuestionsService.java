@@ -54,10 +54,20 @@ public class QuestionsService {
         dto.setQuestionName(q.getQuestionName());
         dto.setCorrectAnswer(q.getCorrectAnswer());
 
-        // Convert String to List<String>
-        dto.setOptions(Arrays.asList(q.getOptions().split(";")));
+        String optionsStr = q.getOptions().trim();
+
+        if (optionsStr.startsWith("[") && optionsStr.endsWith("]")) {
+            // Trường hợp bị lưu kiểu JSON string
+            optionsStr = optionsStr.replaceAll("^\\[|\\]$", "")  // Bỏ [ và ]
+                    .replaceAll("\"", "");        // Bỏ dấu "
+            dto.setOptions(Arrays.asList(optionsStr.split(",")));
+        } else {
+            // Trường hợp bình thường: cách nhau bằng dấu ;
+            dto.setOptions(Arrays.asList(optionsStr.split(";")));
+        }
 
         dto.setQuizId(q.getQuiz().getQuizzesID());
         return dto;
     }
+
 }
