@@ -314,8 +314,8 @@ const routes = [
     ]
   },
   {
-    path: "/oauth2/redirect",
-    name: "OAuth2Redirect",
+    path: "/oauth2/success",
+    name: "OAuth2Success",
     component: OAuth2Redirect,
   }
 ]
