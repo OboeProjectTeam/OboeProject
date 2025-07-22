@@ -89,6 +89,15 @@ const authApi = {
       throw new Error(handleApiError(error));
     }
   },
+  async getCurrentUser() {
+    try {
+      const response = await axios.get('/api/auth/me');
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
 };
 
 export default authApi;

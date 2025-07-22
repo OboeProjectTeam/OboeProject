@@ -1,33 +1,34 @@
-<!-- src/views/OAuth2Redirect.vue -->
 <script setup>
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { onMounted } from 'vue'
 
 const router = useRouter()
+const route = useRoute()
 const store = useStore()
 
-onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const token = urlParams.get('token')
-  const user = urlParams.get('user')
+onMounted(async () => {
+  const token = route.query.token
 
-  if (token && user) {
+  if (token) {
     try {
-      const parsedUser = JSON.parse(decodeURIComponent(user))
-      store.commit('auth/SET_TOKEN', token)
-      store.commit('auth/SET_USER', parsedUser)
-      router.push('/')
+      localStorage.setItem('token', token)
+
+      await store.dispatch('auth/fetchCurrentUser', { token })
+
+      router.replace('/')
     } catch (e) {
-      alert('Xử lý OAuth2 thất bại!')
+      console.error('OAuth2 Redirect Error:', e)
+      router.replace('/login')
     }
   } else {
-    alert('Không có token hoặc user được trả về!')
-    router.push('/login')
+    router.replace('/login')
   }
 })
 </script>
 
 <template>
-  <div>Đang xử lý đăng nhập OAuth2...</div>
+  <div style="text-align: center; margin-top: 50px;">
+    <p>Đang đăng nhập bằng OAuth2...</p>
+  </div>
 </template>

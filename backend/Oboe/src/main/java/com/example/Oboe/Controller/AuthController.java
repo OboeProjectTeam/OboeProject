@@ -180,5 +180,31 @@
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed: " + e.getMessage());
             }
         }
+        @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            }
 
+            String username = authentication.getName();
+
+            // cần biết provider (ở đây mặc định EMAIL, hoặc xử lý tốt hơn với token)
+            User user = userService.findByUserNameAndAuthProvider(username, AuthProvider.EMAIL)
+                    .stream().findFirst()
+                    .orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("username", user.getUserName());
+            response.put("firstName", user.getFirstName());
+            response.put("lastName", user.getLastName());
+            response.put("role", user.getRole());
+            response.put("avatar", user.getAvatarUrl());
+            response.put("email", user.getEmail());
+
+            return ResponseEntity.ok(response);
+        }
     }

@@ -29,6 +29,19 @@ const mutations = {
 };
 
 const actions = {
+    // Xử lý login OAuth2: nhận token và fetch user
+    async fetchCurrentUser({ commit }, { token }) {
+      commit('SET_TOKEN', token);
+  
+      try {
+        const user = await api.auth.getCurrentUser();
+        commit('SET_USER', user);
+      } catch (error) {
+        console.error('Lỗi lấy user từ token:', error);
+        commit('CLEAR_AUTH');
+      }
+    },
+  
   // Đăng nhập: gọi API và lưu token + user
   async login({ commit }, { userName, passWord }) {
     const data = await api.auth.login(userName, passWord);
