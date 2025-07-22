@@ -2,6 +2,7 @@ package com.example.Oboe.Service;
 
 import com.example.Oboe.Constant.Constant;
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
@@ -170,6 +171,11 @@ public class BlogService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+    // lấy 5 chủ đề nổi bật nhất
+    public List<TopicPostProjection> getTop5TopicsWithMostPosts() {
+        return blogRepository.findTop5TopicsWithMostPosts();
+    }
+
 
     //  Chuyển đổi từ Entity sang DTO
     private BlogDTO toDTO(Blog blog) {

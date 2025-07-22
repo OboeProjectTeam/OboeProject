@@ -12,8 +12,11 @@ import java.util.UUID;
 public interface QuestionsRepository extends JpaRepository<Questions, UUID> {
     List<Questions> findByQuiz(Quizzes quiz);
 
-    @Query("SELECT COUNT(q) FROM Questions q WHERE q.quiz.quizzesID = :quizId")
-    int countByQuizId(@Param("quizId") UUID quizId);
+
+
+    int countByQuiz_QuizzesID(UUID quizzesId);
+
+
 
 
 

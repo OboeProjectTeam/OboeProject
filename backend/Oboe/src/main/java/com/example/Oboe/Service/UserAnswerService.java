@@ -44,15 +44,20 @@ public class UserAnswerService {
         }
 
         // Đếm tổng số câu hỏi
-        int totalQuestions = questionsRepository.countByQuizId(quizzesId);
+        int totalQuestions = questionsRepository.countByQuiz_QuizzesID(quizzesId);
+
 
         if (totalQuestions == 0) {
             return new QuizResultDTO("Quiz không có câu hỏi nào!", 0, totalQuestions, answers.size(), LocalDateTime.now());
         }
-
         if (answers.size() < totalQuestions) {
             return new QuizResultDTO("Bạn chưa trả lời hết tất cả các câu hỏi trong quiz này!", 0, totalQuestions, answers.size(), LocalDateTime.now());
         }
+
+        if (answers.size() > totalQuestions) {
+            return new QuizResultDTO("Bạn đã trả lời nhiều hơn số câu hỏi trong quiz này!", 0, totalQuestions, answers.size(), LocalDateTime.now());
+        }
+
 
         //  Tìm attemptNumber lớn nhất đã có
         Integer latestAttempt = userAnswerRepository.findMaxAttemptNumber(userId, quizzesId);

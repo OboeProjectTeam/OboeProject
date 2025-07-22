@@ -2,6 +2,7 @@ package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Service.BlogService;
 import com.example.Oboe.response.BaseResponse;
 import org.springframework.http.HttpStatus;
@@ -90,5 +91,11 @@ public class BlogController {
             List<BlogDTO> blogs = blogService.getAllBlogbyUserId(userId);
             return ResponseEntity.ok(blogs);
         }
+    @GetMapping("/featured-topics")
+    public ResponseEntity<List<?>> getTopTopics() {
+        List<?> topTopics = blogService.getTop5TopicsWithMostPosts();
+        return ResponseEntity.ok(topTopics);
+    }
+
 
 }
