@@ -133,7 +133,7 @@
                         "displayName", user.getFirstName() + " " + user.getLastName(),
                         "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                             ? user.getAvatarUrl()
-                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName(),
+                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
                 ));
 
                 return ResponseEntity.ok(response);
@@ -224,8 +224,8 @@
                             "displayName", user.getFirstName() + " " + user.getLastName(),
                             "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                                 ? user.getAvatarUrl()
-                                : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName(),
-                                        )
+                                : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
+                                )
             );
 
             return ResponseEntity.ok(response);
