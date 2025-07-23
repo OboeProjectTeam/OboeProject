@@ -91,7 +91,7 @@ public class BlogController {
         return ResponseEntity.ok(results);
     }
 
-    @GetMapping("/user")
+    @GetMapping("/user/blogs")
     public ResponseEntity<?> getUserBlogs(
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
