@@ -1,17 +1,22 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.QuizDTO;
 import com.example.Oboe.DTOs.QuizResultDTO;
 import com.example.Oboe.DTOs.QuizSubmissionDTO;
 import com.example.Oboe.Service.QuizzesService;
 import com.example.Oboe.Service.UserAnswerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -32,19 +37,48 @@ public class QuizController {
         return quizzesService.getById(id);
     }
     @PostMapping
-    public QuizDTO create(@RequestBody QuizDTO quizDTO) {
-        return quizzesService.create(quizDTO);
+    public QuizDTO create(@RequestBody QuizDTO quizDTO, Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+
+        return quizzesService.create(quizDTO, userId); //  chỉ gọi 1 lần, truyền đúng userId
     }
     @PutMapping("/{id}")
-    public QuizDTO update(@PathVariable UUID id, @RequestBody QuizDTO quizDTO) {
-        return quizzesService.update(id, quizDTO);
+    public QuizDTO update(@PathVariable UUID id,
+                          @RequestBody QuizDTO quizDTO,
+                          Authentication authentication) {
+        UUID userId = ((CustomUserDetails) authentication.getPrincipal()).getUserID();
+        return quizzesService.update(id, quizDTO, userId); // truyền userId
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable UUID id,
+                                         Authentication authentication) {
+        UUID userId = ((CustomUserDetails) authentication.getPrincipal()).getUserID();
+        quizzesService.delete(id, userId); // truyền userId
+        return ResponseEntity.ok("Xóa Quizzes thành công");
+    }
+    @GetMapping("/user")
+    public ResponseEntity<?> getQuizzesByUser(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+
+        Page<QuizDTO> quizzesPage = quizzesService.getQuizzesByUser(userId, page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", quizzesPage.getContent());
+        response.put("page", quizzesPage.getNumber());
+        response.put("size", quizzesPage.getSize());
+        response.put("totalElements", quizzesPage.getTotalElements());
+        response.put("totalPages", quizzesPage.getTotalPages());
+        response.put("last", quizzesPage.isLast());
+
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable UUID id) {
-        quizzesService.delete(id);
-        return ResponseEntity.ok(" Xóa Quizzes  thành công");
-    }
     @PostMapping("/{quizId}/submit-answers")
     public ResponseEntity<?> submitAnswers(
             @PathVariable UUID quizId,
@@ -57,8 +91,6 @@ public class QuizController {
         QuizResultDTO resultDTO = userAnswerService.saveUserAnswer(submission.getAnswers(), userId, quizId);
         return ResponseEntity.ok(resultDTO);
     }
-
-
 
 
 

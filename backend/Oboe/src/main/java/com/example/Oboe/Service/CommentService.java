@@ -1,11 +1,16 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Entity.Notifications;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -242,15 +247,26 @@ public class CommentService {
         return true;
     }
 
-    //  Lấy tất cả comment của một user
+    // Lấy tất cả comment của một user
     public List<CommentDTOs> getCommentByUserId(UUID userId) {
         Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) return null;
-
+        if (userOpt.isEmpty()) return List.of(); // trả về List rỗng nếu không có user
         List<Comment> comments = commentRepository.findCommentByUserId(userId);
         return comments.stream()
+                .map(this::toDTO).toList();
+    }
+    public Page<CommentDTOs> getCommentByUserIds(UUID userId, int page, int size) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) {
+            return Page.empty(); // Trả về Page rỗng thay vì List.of()
+        }
+        Pageable pageable = PageRequest.of(page, size); //  Tạo pageable
+        Page<Comment> commentPage = commentRepository.findCommentByUserIds(userId, pageable); //
+
+        List<CommentDTOs> dtoList = commentPage.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+        return new PageImpl<>(dtoList, pageable, commentPage.getTotalElements()); // Tạo Page<CommentDTOs>
     }
 
 

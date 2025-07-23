@@ -16,12 +16,17 @@ public class Quizzes {
     private String title;
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id") // Liên kết với User
+    private User user;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Questions> questions;
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuizResults> quizResults;
+
+    // Getters & Setters
 
     public UUID getQuizzesID() {
         return quizzesID;
@@ -47,6 +52,13 @@ public class Quizzes {
         this.description = description;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public List<Questions> getQuestions() {
         return questions;

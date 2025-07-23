@@ -89,7 +89,6 @@ public class WebConfig {
                                 "/api/auth/login",
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
-
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
                                 "/ws/**"
