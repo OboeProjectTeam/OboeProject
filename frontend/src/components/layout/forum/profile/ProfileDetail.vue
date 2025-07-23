@@ -64,15 +64,16 @@
               <p class="bio-large">Chưa có thông tin giới thiệu</p>
             
             <ul>
-              <li><i class="fas fa-calendar-alt"></i> Tham gia {{ editableUser.stats.joined }}</li>
+              <li><i class="fas fa-calendar-alt"></i> Tham gia {{ editableUser.stats?.joined || 'Không rõ' }}</li>
             </ul>
           </div>
           <div class="sidebar-widget bd-form">
             <h3>Thống kê</h3>
             <ul class="stats-list">
-              <li><span>Chủ đề</span> <strong>{{ editableUser.stats.topics }}</strong></li>
-              <li><span>Bình luận</span> <strong>{{ editableUser.stats.solutions }}</strong></li>
-              <li><span>Học liệu</span> <strong>{{ editableUser.stats.learning_materials }}</strong></li>
+              <li><span>Chủ đề</span> <strong>{{ editableUser.stats?.topics || 0 }}</strong></li>
+              <li><span>Lượt thích</span> <strong>{{ editableUser.stats?.likes || 0 }}</strong></li>
+              <li><span>Bình luận</span> <strong>{{ editableUser.stats?.solutions || 0 }}</strong></li>
+              <li><span>Học liệu</span> <strong>{{ editableUser.stats?.learning_materials || 0 }}</strong></li>
             </ul>
           </div>
         </div>
@@ -168,7 +169,7 @@
   const userComments = ref([]);
 
   const personalFields = [
-    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'date', maxlength: 20 },
+    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
     { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100, readonly: true },
     { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
   ];
@@ -219,7 +220,7 @@
         firstName: editableUser.value.firstName,
         lastName: editableUser.value.lastName,
         address: editableUser.value.address,
-        day_of_birth: editableUser.value.day_of_birth ? new Date(editableUser.value.day_of_birth).toISOString().split('T')[0] : null
+        day_of_birth: editableUser.value.day_of_birth || null
       };
       
       // Call API to update profile using authApi

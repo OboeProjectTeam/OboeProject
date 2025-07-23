@@ -1,18 +1,26 @@
 import quizApi from '@/api/modules/quizApi'
 
-const state = {
+const state = () => ({
   quizzes: [],
   currentQuiz: null,
   loading: false,
   error: null
-}
+})
 
 const mutations = {
   setQuizzes(state, quizzes) {
-    state.quizzes = quizzes
+    state.quizzes = Array.isArray(quizzes) ? quizzes : []
   },
   addQuiz(state, quiz) {
+    // Ensure quizzes is always an array
+    console.log('Before addQuiz - state.quizzes:', state.quizzes, 'Type:', typeof state.quizzes, 'Is Array:', Array.isArray(state.quizzes));
+    if (!Array.isArray(state.quizzes)) {
+      console.log('state.quizzes is not an array, initializing...');
+      state.quizzes = []
+    }
+    console.log('Adding quiz:', quiz);
     state.quizzes.push(quiz)
+    console.log('After addQuiz - state.quizzes:', state.quizzes);
   },
   setCurrentQuiz(state, quiz) {
     state.currentQuiz = quiz
@@ -48,10 +56,15 @@ const actions = {
   async createQuiz({ commit }, quizData) {
     try {
       commit('setLoading', true)
+      console.log('CreateQuiz action - quizData:', quizData);
       const response = await quizApi.create(quizData)
+      console.log('CreateQuiz action - API response:', response);
+      console.log('CreateQuiz action - calling addQuiz mutation...');
       commit('addQuiz', response)
+      console.log('CreateQuiz action - mutation completed');
       return response
     } catch (error) {
+      console.error('CreateQuiz action - error:', error);
       commit('setError', error.message)
       throw error
     } finally {

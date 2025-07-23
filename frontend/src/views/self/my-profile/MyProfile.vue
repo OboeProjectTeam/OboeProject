@@ -98,20 +98,37 @@ onMounted(async () => {
       }));
 
       user.value = {
-        ...profile,
-        username: profile.userName || profile.username,
+        // Basic user info
+        user_id: profile.user_id,
+        username: profile.userName,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
         fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
-        avatar: profile.avatarUrl || profile.photoURL,
-        // Map backend fields to frontend expected fields
-        day_of_birth: profile.day_of_birth ? new Date(profile.day_of_birth).toLocaleDateString('vi-VN') : '',
-        email: profile.userName || '', // Use userName as email
+        avatar: profile.avatarUrl,
+        role: profile.role,
+        verified: profile.verified,
+        accountType: profile.accountType,
+        authProvider: profile.authProvider,
+        status: profile.status,
+        
+        // Personal info fields for form
+        day_of_birth: profile.day_of_birth || '', // Keep original format from API
+        email: profile.userName, // userName is email
         address: profile.address || '',
+        
+        // Computed fields
+        title: profile.accountType === 'PREMIUM' ? 'Thành viên Premium' : 'Thành viên',
+        
+        // Stats
         stats: {
           topics: blogActivities.length,
           solutions: commentActivities.length,
           learning_materials: 0,
+          likes: 0,
           joined: profile.create_at ? new Date(profile.create_at).toLocaleDateString('vi-VN') : 'Không rõ'
         },
+        
+        // Activities
         activities: [...blogActivities, ...commentActivities].sort((a, b) => 
           new Date(b.timestamp) - new Date(a.timestamp)
         )
@@ -120,8 +137,11 @@ onMounted(async () => {
       // Fallback user data if profile fails to load
       user.value = {
         username: 'User',
+        firstName: 'Người',
+        lastName: 'dùng',
         fullName: 'Người dùng',
         avatar: 'https://ui-avatars.com/api/?name=User',
+        title: 'Thành viên',
         email: '',
         address: '',
         day_of_birth: '',
@@ -129,6 +149,7 @@ onMounted(async () => {
           topics: 0,
           solutions: 0,
           learning_materials: 0,
+          likes: 0,
           joined: 'Không rõ'
         },
         activities: []
