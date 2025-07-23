@@ -4,10 +4,12 @@ import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Service.CommentService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -87,11 +89,26 @@ public class CommentController {
     public ResponseEntity<Long> countComments(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(commentService.getCommentCountByTeamId(id));
     }
-    @GetMapping("/user/comment")
-    public ResponseEntity<List<CommentDTOs>> getUserBlogs(Authentication authentication) {
+    @GetMapping("/user")
+    public ResponseEntity<?> getUserComments(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userId = userDetails.getUserID();
-        List<CommentDTOs> blogs = commentService.getCommentByUserId(userId);
-        return ResponseEntity.ok(blogs);
+
+        Page<CommentDTOs> commentsPage = commentService.getCommentByUserIds(userId, page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", commentsPage.getContent());
+        response.put("page", commentsPage.getNumber());
+        response.put("size", commentsPage.getSize());
+        response.put("totalElements", commentsPage.getTotalElements());
+        response.put("totalPages", commentsPage.getTotalPages());
+        response.put("last", commentsPage.isLast());
+
+        return ResponseEntity.ok(response);
     }
+
 }

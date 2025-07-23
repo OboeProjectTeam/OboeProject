@@ -2,6 +2,8 @@ package com.example.Oboe.Repository;
 
 import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Entity.Blog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,6 +31,9 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     @Query("SELECT b FROM Blog b WHERE b.user.user_id = :userId")
     List<Blog> findBlogsByUserId(@Param("userId") UUID userId);
 
+    @Query("SELECT b FROM Blog b WHERE b.user.user_id = :userId")
+    Page<Blog> findBlogsByUserIds(@Param("userId") UUID userId,Pageable pageabl);
+
     // lấy chủ đề nổi bật sử dụng interface TopicPostProjection
     @Query(value = """
         SELECT b.topics AS topic, COUNT(*) AS totalPosts
@@ -39,6 +44,9 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     """, nativeQuery = true)
     List<TopicPostProjection> findTop5TopicsWithMostPosts();
 
+
+    @Query("SELECT COUNT(b) FROM Blog b WHERE b.user.user_id = :userId")
+    long countBlogsByUserId(@Param("userId") UUID userId);
 
 
 

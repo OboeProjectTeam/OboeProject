@@ -2,6 +2,8 @@ package com.example.Oboe.Repository;
 
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +16,15 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     List<Comment> findByReferenceId(UUID referenceId);
     Long countByReferenceId(UUID referenceId);
     @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
-    List<Comment> findCommentByUserId(@Param("userId") UUID userId);
+    List<Comment> findCommentByUserId(UUID userId);
+
+    @Query("SELECT b FROM Comment b WHERE b.user.user_id = :userId")
+    Page<Comment> findCommentByUserIds(UUID userId,Pageable pageabl);
     //Để thêm người comment gần nhất cho một bài blog
     Optional<Comment> findTopByReferenceIdOrderByCreatedAtDesc(UUID referenceId);
+
+
+    @Query("SELECT COUNT(c) FROM Comment c WHERE c.user.user_id = :userId")
+    long countCommentsByUserId(@Param("userId") UUID userId);
+
 }

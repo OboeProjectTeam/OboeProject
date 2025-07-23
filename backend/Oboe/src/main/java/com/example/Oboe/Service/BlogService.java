@@ -8,10 +8,7 @@ import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
 import com.example.Oboe.response.BaseResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -160,17 +157,28 @@ public class BlogService {
     }
 
 
-    //  Lấy tất cả Blog của một User cụ thể
-    public List<BlogDTO> getAllBlogbyUserId(UUID userId) {
+    //  Lấy tất cả Blog của một User cụ thể phân trang
+    public Page<BlogDTO> getAllBlogByUserIds(UUID userId, int page, int size) {
         Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) return null;
-
-        List<Blog> blogs = blogRepository.findBlogsByUserId(userId);
-        //map từ Blog  về BlogDto qua hàm toDto()
-        return blogs.stream()
+        if (userOpt.isEmpty()) return Page.empty();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Blog> blogPage = blogRepository.findBlogsByUserIds(userId, pageable);
+        // Chuyển đổi Page<Blog> thành Page<BlogDTO>
+        List<BlogDTO> blogDTOs = blogPage.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+        return new PageImpl<>(blogDTOs, pageable, blogPage.getTotalElements());
     }
+    public List<BlogDTO> getAllBlogByUserId(UUID userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return List.of();
+
+        List<Blog> blogs = blogRepository.findBlogsByUserId(userId);
+        return blogs.stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
     // lấy 5 chủ đề nổi bật nhất
     public List<TopicPostProjection> getTop5TopicsWithMostPosts() {
         return blogRepository.findTop5TopicsWithMostPosts();

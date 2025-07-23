@@ -6,6 +6,17 @@ public class QuizDTO {
     private UUID quizzesID;
     private String title;
     private String description;
+    private UUID UserID;
+
+    public UUID getUserID() {
+        return UserID;
+    }
+
+    public void setUserID(UUID userID) {
+        UserID = userID;
+    }
+
+
 
     // Getters & Setters
     public UUID getQuizzesID() {
