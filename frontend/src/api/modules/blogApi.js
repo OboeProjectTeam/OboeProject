@@ -62,9 +62,11 @@ const blogApi = {
     }
   },
 
-  async getUserBlogs() {
+  async getUserBlogs(page = 0, size = 10) {
     try {
-      const res = await axios.get(`${PREFIX}/user/blogs`);
+      const res = await axios.get(`${PREFIX}/user/blogs`, {
+        params: { page, size }
+      });
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));

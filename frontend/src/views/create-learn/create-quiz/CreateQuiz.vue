@@ -166,10 +166,8 @@ const saveQuiz = async () => {
 
   try {
     console.log('Calling quiz/createQuiz action...');
-    console.log('Current quiz store state:', store.getters['quiz/getAllQuizzes']);
     const response = await store.dispatch('quiz/createQuiz', quizData);
     console.log('Quiz created successfully:', response);
-    console.log('Updated quiz store state:', store.getters['quiz/getAllQuizzes']);
     
     store.dispatch('message/showMessage', {
       type: 'success',

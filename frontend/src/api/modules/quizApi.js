@@ -16,10 +16,12 @@ const quizApi = {
     }
   },
 
-  async getUserQuizzes() {
+  async getUserQuizzes(page = 0, size = 10) {
     try {
       console.log('QuizAPI: Fetching user quizzes');
-      const res = await axios.get(`${PREFIX}/user`);
+      const res = await axios.get(`${PREFIX}/user`, {
+        params: { page, size }
+      });
       console.log('QuizAPI: User quizzes received:', res.data);
       return res.data;
     } catch (error) {
@@ -67,6 +69,21 @@ const quizApi = {
       const res = await axios.delete(`${PREFIX}/${id}`);
       return res.data;
     } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  // Nộp bài làm quiz
+  async submitAnswers(quizId, answers) {
+    try {
+      console.log('QuizAPI: Submitting answers for quiz', quizId);
+      const res = await axios.post(`${PREFIX}/${quizId}/submit-answers`, {
+        answers: answers
+      });
+      console.log('QuizAPI: Submit response:', res.data);
+      return res.data;
+    } catch (error) {
+      console.error('QuizAPI: Error submitting answers:', error);
       throw new Error(handleApiError(error));
     }
   }
