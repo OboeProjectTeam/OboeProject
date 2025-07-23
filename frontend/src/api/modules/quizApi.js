@@ -16,6 +16,18 @@ const quizApi = {
     }
   },
 
+  async getUserQuizzes() {
+    try {
+      console.log('QuizAPI: Fetching user quizzes');
+      const res = await axios.get(`${PREFIX}/user`);
+      console.log('QuizAPI: User quizzes received:', res.data);
+      return res.data;
+    } catch (error) {
+      console.error('QuizAPI: Error fetching user quizzes:', error);
+      throw new Error(handleApiError(error));
+    }
+  },
+
   // Lấy quiz theo ID
   async getById(id) {
     try {

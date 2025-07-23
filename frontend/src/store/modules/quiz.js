@@ -29,15 +29,17 @@ const actions = {
   async fetchQuizzes({ commit }) {
     try {
       commit('setLoading', true)
-      console.log('Fetching quizzes...')
-      const response = await quizApi.getAll()
-      console.log('Quizzes fetched:', response)
+      console.log('Fetching user quizzes...')
+      const response = await quizApi.getUserQuizzes()
+      console.log('User quizzes fetched:', response)
       commit('setQuizzes', response)
       return response
     } catch (error) {
-      console.error('Error fetching quizzes:', error)
+      console.error('Error fetching user quizzes:', error)
       commit('setError', error.message)
-      throw error
+      // Don't throw error to prevent breaking the UI
+      commit('setQuizzes', [])
+      return []
     } finally {
       commit('setLoading', false)
     }

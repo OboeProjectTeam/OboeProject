@@ -49,51 +49,108 @@ watch(() => route.query.newPost, async (newPost) => {
 
 onMounted(async () => {
   try {
-    const profile = await api.profile.getProfile();
-    const blogs = await api.blog.getUserBlogs();
-    const comments = await api.comment.getUserComments();
+    console.log('Loading profile data...');
+    
+    // Load profile data with error handling
+    let profile, blogs, comments;
+    
+    try {
+      profile = await api.profile.getProfile();
+      console.log('Profile loaded:', profile);
+    } catch (error) {
+      console.error('Failed to load profile:', error);
+      profile = null;
+    }
+    
+    try {
+      blogs = await api.blog.getUserBlogs();
+      console.log('Blogs loaded:', blogs);
+    } catch (error) {
+      console.error('Failed to load blogs:', error);
+      blogs = [];
+    }
+    
+    try {
+      comments = await api.comment.getUserComments();
+      console.log('Comments loaded:', comments);
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+      comments = [];
+    }
 
-    const blogActivities = blogs.map(blog => ({
-      type: 'post',
-      id: `blog-${blog.id}`,
-      title: blog.title,
-      timestamp: blog.updatedAt || blog.createdAt,
-      topic: blog.category || 'Bài viết',
-      url: `/blog/${blog.id}`
-    }));
+    if (profile) {
+      const blogActivities = (blogs || []).map(blog => ({
+        type: 'post',
+        id: `blog-${blog.id}`,
+        title: blog.title,
+        timestamp: blog.updatedAt || blog.createdAt,
+        topic: blog.category || 'Bài viết',
+        url: `/blog/${blog.id}`
+      }));
 
-    const commentActivities = comments.map(comment => ({
-      type: 'reply',
-      id: `comment-${comment.id}`,
-      postTitle: comment.postTitle || 'Bài viết',
-      content_snippet: comment.content.slice(0, 100),
-      timestamp: comment.updatedAt || comment.createdAt,
-      url: `/forum/post/${comment.postId}#comment-${comment.id}`
-    }));
+      const commentActivities = (comments || []).map(comment => ({
+        type: 'reply',
+        id: `comment-${comment.id}`,
+        postTitle: comment.postTitle || 'Bài viết',
+        content_snippet: comment.content ? comment.content.substring(0, 150) + '...' : '',
+        timestamp: comment.createdAt,
+        url: `/forum/post/${comment.postId || comment.referenceId}`
+      }));
 
+      user.value = {
+        ...profile,
+        username: profile.userName || profile.username,
+        fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
+        avatar: profile.avatarUrl || profile.photoURL,
+        bio: profile.bio || '',
+        website: profile.website || '',
+        stats: {
+          topics: blogActivities.length,
+          solutions: commentActivities.length,
+          learning_materials: 0,
+          joined: profile.create_at ? new Date(profile.create_at).toLocaleDateString('vi-VN') : 'Không rõ'
+        },
+        activities: [...blogActivities, ...commentActivities].sort((a, b) => 
+          new Date(b.timestamp) - new Date(a.timestamp)
+        )
+      };
+    } else {
+      // Fallback user data if profile fails to load
+      user.value = {
+        username: 'User',
+        fullName: 'Người dùng',
+        avatar: 'https://ui-avatars.com/api/?name=User',
+        bio: '',
+        website: '',
+        stats: {
+          topics: 0,
+          solutions: 0,
+          learning_materials: 0,
+          joined: 'Không rõ'
+        },
+        activities: []
+      };
+    }
+    
+    console.log('Final user data:', user.value);
+  } catch (error) {
+    console.error('Error loading profile data:', error);
+    
+    // Set minimal fallback data
     user.value = {
-      username: profile.userName,
-      fullName: (profile.lastName || '') + ' ' + (profile.firstName || ''),
-      avatar: profile.avatarUrl,
-      title: profile.accountType,
-      email: profile.userName,
-      day_of_birth: profile.day_of_birth,
-      address: profile.address,
-      bio: profile.bio || '',
-      website: profile.website || '',
-      websiteUrl: profile.website || '',
-      location: profile.location || '',
+      username: 'User',
+      fullName: 'Người dùng',
+      avatar: 'https://ui-avatars.com/api/?name=User',
+      bio: '',
+      website: '',
       stats: {
-        joined: profile.create_at?.split('T')[0] || '',
-        topics: blogs.length,
-        likes: 0,
-        solutions: comments.length,
-        learning_materials: 0
+        topics: 0,
+        solutions: 0,
+        learning_materials: 0,
+        joined: 'Không rõ'
       },
-      activities: [...blogActivities, ...commentActivities]
+      activities: []
     };
-  } catch (err) {
-    console.error('Lỗi tải hồ sơ:', err);
   }
 });
 </script>
