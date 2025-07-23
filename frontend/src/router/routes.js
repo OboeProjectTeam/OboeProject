@@ -29,17 +29,19 @@ import UserManagement from '@/components/layout/admin-content/users/UserManageme
 import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
 import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
 import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
+import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
 import TheTerms from '@/views/footer-services/terms/TheTerms.vue';
 import ThePrivacy from '@/views/footer-services/privacy/ThePrivacy.vue';
-import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
 import StudyGuide from '@/views/footer-services/study-guide/StudyGuide.vue';
 import PaymentGuide from '@/views/footer-services/payment-guide/PaymentGuide.vue';
 import WhyFlashcard from '@/views/footer-services/why-flashcard/WhyFlashcard.vue';
 import WritingGuide from '@/views/footer-services/writing-guide/WritingGuide.vue';
-import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
-import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
 import JapanNews from '@/views/footer-services/japan-news/JapanNews.vue';
 import TheContact from '@/views/footer-services/contact/TheContact.vue';
+import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
+import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
+import OAuth2Redirect from '@/views/auth/oauth2/OAuth2Redirect.vue';
+
 const routes = [
   {
     path: "/",
@@ -256,67 +258,65 @@ const routes = [
   },
   {
     path: '/footer-services',
+    name: 'FooterServices',
     component: FooterServicesLayout,
     children: [
       {
-        path: 'terms',
+        path: '',
         name: 'terms',
         component: TheTerms
       },
       {
         path: 'privacy',
-        name: 'privacy',
+        name: 'Privacy',
         component: ThePrivacy
       },
       {
         path: 'study-guide',
-        name: 'study-guide',
+        name: 'StudyGuide',
         component: StudyGuide
       },
       {
         path: 'payment-guide',
-        name: 'payment-guide',
+        name: 'PaymentGuide',
         component: PaymentGuide
       },
       {
         path: 'why-flashcard',
-        name: 'why-flashcard',
+        name: 'WhyFlashcard',
         component: WhyFlashcard
       },
       {
         path: 'writing-guide',
-        name: 'writing-guide',
+        name: 'WritingGuide',
         component: WritingGuide
       },
       {
         path: 'benefits-japanese',
-        name: 'benefits-japanese',
+        name: 'BenefitsJapanese',
         component: TheBenefits
       },
       {
         path: 'kanji-guide',
-        name: 'kanji-guide',
+        name: 'KanjiGuide',
         component: KanjiGuide
       },
       {
-        path: 'news',
-        name: 'japan-news',
+        path: 'japan-news',
+        name: 'JapanNews',
         component: JapanNews
       },
       {
         path: 'contact',
-        name: 'contact',
+        name: 'Contact',
         component: TheContact
-      }
+      },
     ]
   },
   {
-    path: '/dieu-khoan-dich-vu',
-    redirect: '/footer-services/terms'
-  },
-  {
-    path: '/quyen-rieng-tu',
-    redirect: '/footer-services/privacy'
+    path: "/oauth2/redirect",
+    name: "OAuth2redirect",
+    component: OAuth2Redirect,
   }
 ]
 

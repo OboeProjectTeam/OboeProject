@@ -61,7 +61,7 @@ public class AdminService {
             String token = UUID.randomUUID().toString();
             VerificationHolder.getInstance().addToken(token, dto);
 
-            String verifyLink = domain + "/api/auth/verify?token=" + token;
+            String verifyLink = domain+"/api/auth/verify?token=" + token;
             mailService.sendMail(dto.getUserName(), "Xác minh tài khoản",
                     "Vui lòng xác minh tài khoản tại: " + verifyLink);
             return null;
