@@ -4,12 +4,14 @@ import { handleApiError } from '@/api/apiUtils';
 const PREFIX = '/api/quizzes';
 
 const quizApi = {
-  // Lấy tất cả quizzes
   async getAll() {
     try {
+      console.log('QuizAPI: Fetching all quizzes');
       const res = await axios.get(PREFIX);
+      console.log('QuizAPI: Response received:', res.data);
       return res.data;
     } catch (error) {
+      console.error('QuizAPI: Error occurred:', error);
       throw new Error(handleApiError(error));
     }
   },
@@ -24,12 +26,15 @@ const quizApi = {
     }
   },
 
-  // Tạo quiz mới
   async create(dto) {
     try {
+      console.log('QuizAPI: Sending POST request to', PREFIX);
+      console.log('QuizAPI: Request data:', dto);
       const res = await axios.post(PREFIX, dto);
+      console.log('QuizAPI: Response received:', res.data);
       return res.data;
     } catch (error) {
+      console.error('QuizAPI: Error occurred:', error);
       throw new Error(handleApiError(error));
     }
   },

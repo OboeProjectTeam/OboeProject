@@ -117,6 +117,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import flashcardApi from '@/api/modules/flashcardApi'
 
 const router = useRouter()
 const route = useRoute()
@@ -276,40 +277,77 @@ const goBackToLearning = () => {
 
 const saveFlashcard = async () => {
   if (!validateForm()) {
-    return
+    return;
+  }
+
+  // Validate cards
+  const validCards = cards.value.filter(card => card.front.trim() && card.back.trim());
+  if (validCards.length === 0) {
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Vui lòng thêm ít nhất một thẻ ghi nhớ với đầy đủ nội dung.'
+    });
+    return;
   }
 
   try {
     const flashcardData = {
       title: title.value.trim(),
       description: description.value.trim(),
-      cards: cards.value.filter(card => card.front.trim() && card.back.trim()),
-      cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
-    }
+      cards: validCards.map(card => ({
+        front: card.front.trim(),
+        back: card.back.trim()
+      })),
+      cardCount: validCards.length
+    };
 
+    console.log('Flashcard Data being sent:', flashcardData);
+
+    let response;
     if (isEditing.value && originalDeckId.value) {
       // Update existing flashcard set
-      await store.dispatch('flashcard/updateFlashcardSet', {
-        id: originalDeckId.value,
-        set: flashcardData
-      })
+      console.log('Updating existing flashcard set:', originalDeckId.value);
+      response = await flashcardApi.update(originalDeckId.value, flashcardData);
     } else {
       // Create new flashcard set
-      await store.dispatch('flashcard/createFlashcardSet', flashcardData)
+      console.log('Creating new flashcard set');
+      response = await flashcardApi.create(flashcardData);
+    }
+
+    console.log('Flashcard API response:', response);
+
+    // Show success message
+    store.dispatch('message/showMessage', {
+      type: 'success',
+      text: isEditing.value ? 'Cập nhật bộ thẻ thành công!' : 'Tạo bộ thẻ thành công!'
+    });
+
+    // Update store
+    if (isEditing.value) {
+      await store.dispatch('flashcard/updateFlashcardSet', {
+        id: originalDeckId.value,
+        set: response
+      });
+    } else {
+      await store.dispatch('flashcard/addFlashcardSet', response);
     }
 
     // Clean up storage
-    localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem('flashcardLearnState')
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('flashcardLearnState');
 
     // Navigate based on source
     if (fromLearningPage.value) {
-      goBackToLearning()
+      goBackToLearning();
     } else {
-      router.push('/library')
+      router.push('/library');
     }
   } catch (error) {
-    console.error('Error saving flashcard:', error)
+    console.error('Error saving flashcard:', error);
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Đã có lỗi xảy ra khi lưu bộ thẻ: ' + error.message
+    });
   }
 }
 </script>
