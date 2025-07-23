@@ -48,19 +48,6 @@ const flashcardApi = {
     }
   },
 
-  // Lấy flashcards của user với phân trang và tìm kiếm
-  async getUserFlashcards(page = 0, size = 10, term = '') {
-    try {
-      const params = { page, size };
-      if (term) params.term = term;
-      
-      const res = await axios.get(PREFIX, { params });
-      return res.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  },
-
   // Search flashcards by term
   async searchByTerm(term, page = 0, size = 10) {
     try {

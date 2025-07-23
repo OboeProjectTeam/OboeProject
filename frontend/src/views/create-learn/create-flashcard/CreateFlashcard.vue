@@ -292,13 +292,12 @@ const saveFlashcard = async () => {
 
   try {
     const flashcardData = {
-      title: title.value.trim(),
+      term: title.value.trim(), // Backend expects 'term' not 'title'
       description: description.value.trim(),
-      cards: validCards.map(card => ({
-        front: card.front.trim(),
-        back: card.back.trim()
-      })),
-      cardCount: validCards.length
+      cardItems: validCards.map(card => ({
+        word: card.front.trim(), // Backend expects 'word' not 'front'
+        meaning: card.back.trim() // Backend expects 'meaning' not 'back'
+      }))
     };
 
     console.log('Flashcard Data being sent:', flashcardData);
