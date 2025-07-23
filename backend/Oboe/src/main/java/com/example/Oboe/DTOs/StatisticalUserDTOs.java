@@ -3,14 +3,14 @@ package com.example.Oboe.DTOs;
 public class StatisticalUserDTOs {
     private long blogCount;
     private long commentCount;
-    private long quizCount;
+    private long flashCard;
 
     public StatisticalUserDTOs() {}
 
-    public StatisticalUserDTOs(long blogCount, long commentCount, long quizCount) {
+    public StatisticalUserDTOs(long blogCount, long commentCount, long flashCard) {
         this.blogCount = blogCount;
         this.commentCount = commentCount;
-        this.quizCount = quizCount;
+        this.flashCard = flashCard;
     }
 
     public long getBlogCount() {
@@ -28,12 +28,13 @@ public class StatisticalUserDTOs {
     public void setCommentCount(long commentCount) {
         this.commentCount = commentCount;
     }
-
-    public long getQuizCount() {
-        return quizCount;
+    public long getFlashCard() {
+        return flashCard;
     }
 
-    public void setQuizCount(long quizCount) {
-        this.quizCount = quizCount;
+    public void setFlashCard(long flashCard) {
+        this.flashCard = flashCard;
     }
+
+
 }

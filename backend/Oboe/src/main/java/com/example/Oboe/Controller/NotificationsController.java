@@ -5,6 +5,7 @@ import com.example.Oboe.DTOs.NotificationsDTO;
 import com.example.Oboe.Service.MessageService;
 import com.example.Oboe.Service.NotificationsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -40,4 +41,14 @@ public class NotificationsController {
         int updatedCount = notificationsService.markAllNotificationsAsRead(userId);
         return ResponseEntity.ok("Đã đánh dấu " + updatedCount + " thông báo là đã đọc.");
     }
+    @PutMapping("/read/{id}")
+    public ResponseEntity<?> markNotificationAsRead(@PathVariable UUID id) {
+        boolean updated = notificationsService.markNotificationAsRead(id);
+        if (updated) {
+            return ResponseEntity.ok("Notification marked as read");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Notification not found or already read");
+        }
+    }
+
 }

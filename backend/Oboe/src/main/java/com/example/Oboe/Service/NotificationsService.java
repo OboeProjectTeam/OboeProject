@@ -41,8 +41,16 @@ public class NotificationsService {
     public int markAllNotificationsAsRead(UUID userId) {
         return notificationsRepository.markAllAsRead(userId);
     }
-
-
+    @Transactional
+    public boolean markNotificationAsRead(UUID notificationId) {
+        Notifications read = notificationsRepository.findById(notificationId).orElse(null);
+        if (read != null && !read.isRead()) {
+            read.setRead(true); // Đánh dấu đã đọc
+            notificationsRepository.save(read); // Lưu lại
+            return true;
+        }
+        return false;
+    }
     public NotificationsDTO convertToDTO(Notifications notifications) {
 
         return new NotificationsDTO(

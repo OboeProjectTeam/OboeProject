@@ -20,6 +20,7 @@
 
     import javax.management.Notification;
     import java.time.LocalDateTime;
+    import java.time.ZoneId;
     import java.util.*;
     import java.util.stream.Collectors;
 
@@ -53,7 +54,9 @@
             message.setSender(sender);
             message.setReceiver(receiver);
             message.setSent_message(messageDto.getSentMessage());
-            message.setSent_at(LocalDateTime.now());
+            ZoneId zoneVN = ZoneId.of("Asia/Ho_Chi_Minh");
+            LocalDateTime localDateTimeVN = LocalDateTime.now(zoneVN);
+            message.setSent_at(localDateTimeVN);
 
             Message savedMessage = messageRepository.save(message);
 

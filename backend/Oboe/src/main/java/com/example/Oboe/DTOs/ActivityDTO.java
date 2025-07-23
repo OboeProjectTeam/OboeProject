@@ -3,8 +3,8 @@ package com.example.Oboe.DTOs;
 
 //gom tất cả blog,comment, quizzes
 public class ActivityDTO {
-    private String type; // "blog", "comment", "quiz"
-    private Object data; // Có thể là BlogDTO, CommentDTOs, QuizDTO
+    private String type; // "blog", "comment", "Flashcard"
+    private Object data; // Có thể là BlogDTO, CommentDTOs, Flashcard
 
     public ActivityDTO(String type, Object data) {
         this.type = type;
