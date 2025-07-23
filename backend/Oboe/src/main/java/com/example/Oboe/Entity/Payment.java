@@ -30,4 +30,44 @@ public class Payment {
         this.status = status;
         this.user = user;
     }
+
+    public UUID getPaymentID() {
+        return PaymentID;
+    }
+
+    public void setPaymentID(UUID paymentID) {
+        PaymentID = paymentID;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDate getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(LocalDate paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

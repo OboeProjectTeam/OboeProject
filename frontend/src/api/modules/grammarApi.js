@@ -1,100 +1,72 @@
-import axios from '../axiosConfig';
-import { handleApiError, buildQueryString, getPaginationParams } from '../apiUtils';
+import axios from '@/api/axios';
+import { handleApiError } from '@/api/apiUtils';
 
-/**
- * Module chứa các API liên quan đến ngữ pháp tiếng Nhật
- */
-export const grammarApi = {
-  /**
-   * Lấy danh sách ngữ pháp có phân trang
-   * @param {number} page - Số trang
-   * @param {number} limit - Số lượng item trên mỗi trang
-   * @param {Object} filters - Các điều kiện lọc (level, category, etc.)
-   * @returns {Promise} Danh sách ngữ pháp
-   */
-  async getGrammars(page = 1, limit = 10, filters = {}) {
+const PREFIX = '/api/grammar';
+
+const grammarApi = {
+  // Lấy danh sách có phân trang
+  async getAll({ page = 0, size = 10 } = {}) {
     try {
-      const params = {
-        ...getPaginationParams(page, limit),
-        ...filters
-      };
-      const query = buildQueryString(params);
-      const response = await axios.get(`/grammars?${query}`);
-      return response.data;
+      const res = await axios.get(PREFIX, {
+        params: { page, size }
+      });
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy chi tiết ngữ pháp theo ID
-   * @param {string} id - ID của ngữ pháp
-   * @returns {Promise} Chi tiết ngữ pháp
-   */
-  async getGrammarById(id) {
+  // Lấy chi tiết grammar theo ID
+  async getById(id) {
     try {
-      const response = await axios.get(`/grammars/${id}`);
-      return response.data;
+      const res = await axios.get(`${PREFIX}/${id}`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Tìm kiếm ngữ pháp
-   * @param {string} keyword - Từ khóa tìm kiếm
-   * @returns {Promise} Danh sách ngữ pháp phù hợp
-   */
-  async searchGrammar(keyword) {
+  // Tạo mới grammar (yêu cầu quyền admin)
+  async create(dto) {
     try {
-      const params = { keyword };
-      const query = buildQueryString(params);
-      const response = await axios.get(`/grammars/search?${query}`);
-      return response.data;
+      const res = await axios.post(PREFIX, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách ngữ pháp theo cấp độ JLPT
-   * @param {number} level - Cấp độ JLPT (1-5)
-   * @returns {Promise} Danh sách ngữ pháp theo cấp độ
-   */
-  async getGrammarsByJLPTLevel(level) {
+  // Cập nhật grammar theo ID
+  async update(id, dto) {
     try {
-      const response = await axios.get(`/grammars/jlpt/${level}`);
-      return response.data;
+      const res = await axios.put(`${PREFIX}/${id}`, dto);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách ví dụ của ngữ pháp
-   * @param {string} grammarId - ID của ngữ pháp
-   * @returns {Promise} Danh sách ví dụ
-   */
-  async getGrammarExamples(grammarId) {
+  // Xoá grammar theo ID
+  async delete(id) {
     try {
-      const response = await axios.get(`/grammars/${grammarId}/examples`);
-      return response.data;
+      const res = await axios.delete(`${PREFIX}/${id}`);
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
-  /**
-   * Lấy danh sách ngữ pháp liên quan
-   * @param {string} grammarId - ID của ngữ pháp
-   * @returns {Promise} Danh sách ngữ pháp liên quan
-   */
-  async getRelatedGrammars(grammarId) {
+  // Tìm kiếm grammar theo keyword
+  async search(keyword) {
     try {
-      const response = await axios.get(`/grammars/${grammarId}/related`);
-      return response.data;
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { keyword }
+      });
+      return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   }
-}; 
+};
+
+export default grammarApi;

@@ -519,14 +519,13 @@ const markAllAsRead = () => {
 
 const handleLogout = async () => {
   try {
-    // await auth.signOut() // Removed Firebase auth usage
-    store.dispatch('auth/setUser', null)
-    router.push('/login')
-    state.showUserMenu = false
+    await store.dispatch('auth/logout');
+    router.push('/login');
   } catch (error) {
-    console.error('Logout error:', error)
+    console.error('Lỗi khi đăng xuất:', error);
   }
-}
+};
+
 
 const setActive = (index) => {
   state.activeIndex = index
