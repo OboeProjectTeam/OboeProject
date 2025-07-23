@@ -52,7 +52,7 @@
            <li v-for="field in personalFields" :key="field.key">
             <i :class="field.icon"></i>
             <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
-            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
+            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength" :readonly="field.readonly">
           </li>
         </ul>
       </div>
@@ -61,17 +61,9 @@
         <div class="profile-sidebar">
           <div class="sidebar-widget bd-form">
             <h3>Giới thiệu</h3>
-              <p v-if="!isEditing" class="bio-large">{{ editableUser.bio }}</p>
-              <textarea v-else v-model="editableUser.bio" class="form-control" rows="5" maxlength="500"></textarea>
+              <p class="bio-large">Chưa có thông tin giới thiệu</p>
             
             <ul>
-               <li>
-                  <i class="fas fa-globe"></i>
-                  <template v-if="!isEditing">
-                    <a :href="editableUser.websiteUrl" target="_blank">{{ editableUser.website }}</a>
-                  </template>
-                  <input v-else type="text" v-model="editableUser.website" placeholder="Website" class="form-control" maxlength="100">
-              </li>
               <li><i class="fas fa-calendar-alt"></i> Tham gia {{ editableUser.stats.joined }}</li>
             </ul>
           </div>
@@ -176,9 +168,8 @@
   const userComments = ref([]);
 
   const personalFields = [
-    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
-    { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
-    { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
+    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'date', maxlength: 20 },
+    { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100, readonly: true },
     { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
   ];
 
@@ -206,12 +197,12 @@
         editableUser.value.avatar = response.avatarUrl;
         
         // Show success message
-        store.dispatch('showMessage', {
+        store.dispatch('message/showMessage', {
           type: 'success',
           text: 'Avatar đã được cập nhật thành công!'
         });
       } catch (error) {
-        store.dispatch('showMessage', {
+        store.dispatch('message/showMessage', {
           type: 'error',
           text: 'Không thể tải lên avatar: ' + error.message
         });
@@ -224,20 +215,29 @@
   async function saveProfile() {
     try {
       // Since avatar is uploaded separately, we only need to save other profile data
-      const userData = { ...editableUser.value };
+      const userData = {
+        firstName: editableUser.value.firstName,
+        lastName: editableUser.value.lastName,
+        address: editableUser.value.address,
+        day_of_birth: editableUser.value.day_of_birth ? new Date(editableUser.value.day_of_birth).toISOString().split('T')[0] : null
+      };
       
-      // Call API to update profile
-      await store.dispatch('updateProfile', userData);
+      // Call API to update profile using authApi
+      const response = await authApi.updateProfile(userData);
+      
+      // Update local user data
+      Object.assign(editableUser.value, response);
       
       // Show success message
-      store.dispatch('showMessage', {
+      store.dispatch('message/showMessage', {
         type: 'success',
         text: 'Hồ sơ đã được cập nhật thành công!'
       });
       
       isEditing.value = false;
     } catch (error) {
-      store.dispatch('showMessage', {
+      console.error('Save profile error:', error);
+      store.dispatch('message/showMessage', {
         type: 'error',
         text: 'Không thể cập nhật hồ sơ: ' + error.message
       });
@@ -270,7 +270,7 @@
           url: `/forum/post/${blog.id}`
         }));
       } catch (error) {
-        store.dispatch('showMessage', {
+        store.dispatch('message/showMessage', {
           type: 'error',
           text: 'Không thể tải bài viết: ' + error.message
         });
@@ -287,7 +287,7 @@
           url: `/forum/post/${comment.postId}`
         }));
       } catch (error) {
-        store.dispatch('showMessage', {
+        store.dispatch('message/showMessage', {
           type: 'error',
           text: 'Không thể tải bình luận: ' + error.message
         });

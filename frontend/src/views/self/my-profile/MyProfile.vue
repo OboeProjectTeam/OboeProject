@@ -102,8 +102,10 @@ onMounted(async () => {
         username: profile.userName || profile.username,
         fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim(),
         avatar: profile.avatarUrl || profile.photoURL,
-        bio: profile.bio || '',
-        website: profile.website || '',
+        // Map backend fields to frontend expected fields
+        day_of_birth: profile.day_of_birth ? new Date(profile.day_of_birth).toLocaleDateString('vi-VN') : '',
+        email: profile.userName || '', // Use userName as email
+        address: profile.address || '',
         stats: {
           topics: blogActivities.length,
           solutions: commentActivities.length,
@@ -120,8 +122,9 @@ onMounted(async () => {
         username: 'User',
         fullName: 'Người dùng',
         avatar: 'https://ui-avatars.com/api/?name=User',
-        bio: '',
-        website: '',
+        email: '',
+        address: '',
+        day_of_birth: '',
         stats: {
           topics: 0,
           solutions: 0,
