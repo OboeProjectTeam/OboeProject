@@ -1,5 +1,6 @@
 const state = {
-  message: null
+  message: null,
+  chatPartners: []
 }
 
 const mutations = {
@@ -8,6 +9,12 @@ const mutations = {
   },
   clearMessage(state) {
     state.message = null
+  },
+  setChatPartners(state, partners) {
+    state.chatPartners = partners || []
+  },
+  clearChatPartners(state) {
+    state.chatPartners = []
   }
 }
 
@@ -22,7 +29,8 @@ const actions = {
 }
 
 const getters = {
-  getMessage: state => state.message
+  getMessage: state => state.message,
+  getChatPartners: state => state.chatPartners
 }
 
 export default {

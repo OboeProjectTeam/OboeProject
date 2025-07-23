@@ -464,3 +464,86 @@
     }
   }
 }
+
+// Loading and empty states
+.loading-conversations,
+.empty-conversations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #666;
+  text-align: center;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: #ddd;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.loading-conversations i {
+  color: $primary-color;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Loading messages state
+.loading-messages,
+.empty-messages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #666;
+  text-align: center;
+  flex: 1;
+
+  i {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    color: #ddd;
+  }
+
+  p {
+    margin: 0 0 8px;
+    font-size: 1rem;
+  }
+
+  small {
+    font-size: 0.85rem;
+    color: #999;
+  }
+}
+
+.loading-messages i {
+  color: $primary-color;
+  animation: spin 1s linear infinite;
+}
+
+// Send button disabled state
+.send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  
+  &:hover {
+    background: $primary-color;
+  }
+}
+
+// Input disabled state  
+.chat-input input:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
