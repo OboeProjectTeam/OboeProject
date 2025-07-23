@@ -79,7 +79,6 @@
             <h3>Thống kê</h3>
             <ul class="stats-list">
               <li><span>Chủ đề</span> <strong>{{ editableUser.stats.topics }}</strong></li>
-              <li><span>Lượt thích</span> <strong>{{ editableUser.stats.likes }}</strong></li>
               <li><span>Bình luận</span> <strong>{{ editableUser.stats.solutions }}</strong></li>
               <li><span>Học liệu</span> <strong>{{ editableUser.stats.learning_materials }}</strong></li>
             </ul>
@@ -87,10 +86,10 @@
         </div>
         <div class="profile-main-content bd-form">
           <div class="activity-tabs">
-            <button class="tab-button" :class="{ active: currentTab === 'all' }" @click="currentTab = 'all'">Tất cả</button>
-            <button class="tab-button" :class="{ active: currentTab === 'post' }" @click="currentTab = 'post'">Chủ đề</button>
-            <button class="tab-button" :class="{ active: currentTab === 'reply' }" @click="currentTab = 'reply'">Bình luận</button>
-            <button class="tab-button" :class="{ active: currentTab === 'material' }" @click="currentTab = 'material'">Học Liệu</button>
+            <button class="tab-button" :class="{ active: currentTab === 'all' }" @click="handleTabClick('all')">Tất cả</button>
+            <button class="tab-button" :class="{ active: currentTab === 'post' }" @click="handleTabClick('post')">Chủ đề</button>
+            <button class="tab-button" :class="{ active: currentTab === 'reply' }" @click="handleTabClick('reply')">Bình luận</button>
+            <button class="tab-button" :class="{ active: currentTab === 'material' }" @click="handleTabClick('material')">Học Liệu</button>
           </div>
   
           <ul class="activity-list">
@@ -151,7 +150,9 @@
   import { ref, computed, watch } from 'vue';
   import { useStore } from 'vuex';
   import { useRouter } from 'vue-router';
-  import authApi from '@/api/modules/authApi'; // Add this import
+  import authApi from '@/api/modules/authApi';
+  import blogApi from '@/api/modules/blogApi';
+  import commentApi from '@/api/modules/commentApi';
 
     const props = defineProps({
     user: {
@@ -171,7 +172,8 @@
   const isEditing = ref(false);
   const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
   const avatarPreview = ref(null);
-  const avatarFile = ref(null);
+  const userBlogs = ref([]);
+  const userComments = ref([]);
 
   const personalFields = [
     { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
@@ -252,13 +254,64 @@
   const currentPage = ref(1);
   const itemsPerPage = ref(10);
 
+  async function handleTabClick(tab) {
+    currentTab.value = tab;
+    if (tab === 'post') {
+      try {
+        const response = await blogApi.getUserBlogs();
+        userBlogs.value = response.map(blog => ({
+          type: 'post',
+          id: blog.id,
+          title: blog.title,
+          postTitle: blog.title,
+          content_snippet: blog.content.substring(0, 150) + '...',
+          topic: blog.topics || 'Chung',
+          timestamp: new Date(blog.createdAt).toLocaleString('vi-VN'),
+          url: `/forum/post/${blog.id}`
+        }));
+      } catch (error) {
+        store.dispatch('showMessage', {
+          type: 'error',
+          text: 'Không thể tải bài viết: ' + error.message
+        });
+      }
+    } else if (tab === 'reply') {
+      try {
+        const response = await commentApi.getUserComments();
+        userComments.value = response.map(comment => ({
+          type: 'reply',
+          id: comment.id,
+          postTitle: comment.postTitle || 'Bài viết',
+          content_snippet: comment.content.substring(0, 150) + '...',
+          timestamp: new Date(comment.createdAt).toLocaleString('vi-VN'),
+          url: `/forum/post/${comment.postId}`
+        }));
+      } catch (error) {
+        store.dispatch('showMessage', {
+          type: 'error',
+          text: 'Không thể tải bình luận: ' + error.message
+        });
+      }
+    }
+  }
+
   const filteredActivities = computed(() => {
     if (!props.user || !props.user.activities) {
       return [];
     }
+
+    if (currentTab.value === 'post') {
+      return userBlogs.value;
+    }
+
+    if (currentTab.value === 'reply') {
+      return userComments.value;
+    }
+
     if (currentTab.value === 'all') {
       return props.user.activities;
     }
+
     return props.user.activities.filter(activity => activity.type === currentTab.value);
   });
 
