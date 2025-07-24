@@ -104,16 +104,16 @@
               </div>
             </div>
             <div class="user-profile" @click="toggleUserMenu">
-              <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+              <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                 alt="User Avatar" 
                 class="user-avatar" />
               <div v-if="showUserMenu" class="user-menu">
                 <div class="user-info">
-                  <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                  <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                     alt="User Avatar" 
                     class="menu-avatar" />
                   <div class="user-details">
-                    <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                    <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                     <span class="user-email">{{ currentUser?.email }}</span>
                   </div>
                 </div>
@@ -206,16 +206,16 @@
                 </div>
               </div>
               <div class="user-profile" @click="toggleUserMenu">
-                <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                   alt="User Avatar" 
                   class="user-avatar" />
                 <div v-if="showUserMenu" class="user-menu">
                   <div class="user-info">
-                    <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                    <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                       alt="User Avatar" 
                       class="menu-avatar" />
                     <div class="user-details">
-                      <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                      <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                       <span class="user-email">{{ currentUser?.email }}</span>
                     </div>
                   </div>

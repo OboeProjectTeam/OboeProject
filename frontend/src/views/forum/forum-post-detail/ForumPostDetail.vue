@@ -76,7 +76,7 @@
 
       <!-- Post Content -->
       <div class="post-content-card">
-        <div v-html="postContent"></div>
+        <div class="post-content-text" v-html="postContent"></div>
         
         <!-- Tags -->
         <div v-if="postTags.length > 0" class="post-tags">
@@ -88,7 +88,18 @@
       <div class="replies-section">
         <h2 class="replies-header">{{ postStats.replies }} Trả lời</h2>
         
-        <div class="reply-list">
+        <!-- Comments Loading State -->
+        <div v-if="commentsLoading" class="comments-loading">
+          <div class="spinner"></div>
+          <p>Đang tải bình luận...</p>
+        </div>
+        
+        <!-- No Comments State -->
+        <div v-else-if="comments.length === 0" class="no-comments">
+          <p>Chưa có bình luận nào. Hãy là người đầu tiên bình luận!</p>
+        </div>
+        
+        <div v-else class="reply-list">
           <!-- Reply Thread -->
           <div v-for="reply in replies" :key="reply.id" class="reply-thread">
             
@@ -124,18 +135,34 @@
               </div>
             </div>
 
-            <!-- Reply Form (for main reply) -->
-            <transition name="slide-fade">
-              <div v-if="replyingTo === reply.id" class="nested-reply-form">
-                <div class="reply-form">
-                  <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${reply.author.username}...`"></textarea>
-                  <div class="reply-form-actions">
-                    <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
-                    <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
-                  </div>
-                </div>
-              </div>
-            </transition>
+                         <!-- Reply Form (for main reply) -->
+             <transition name="slide-fade">
+               <div v-if="replyingTo === reply.id" class="nested-reply-form">
+                 <div class="reply-form">
+                   <textarea 
+                     v-model="replyContent[reply.id]"
+                     class="reply-textarea" 
+                     :placeholder="`Viết trả lời cho ${reply.author.username}...`"
+                     :disabled="isSubmittingReply[reply.id]"
+                   ></textarea>
+                   <div class="reply-form-actions">
+                     <button @click="replyingTo = null; replyContent[reply.id] = ''" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                     <button 
+                       @click="submitReply(reply.id)"
+                       class="btn btn-primary submit-reply-btn"
+                       :disabled="isSubmittingReply[reply.id] || !replyContent[reply.id]?.trim()"
+                     >
+                       <span v-if="isSubmittingReply[reply.id]">
+                         <i class="fas fa-spinner fa-spin"></i> Đang gửi...
+                       </span>
+                       <span v-else>
+                         Gửi trả lời
+                       </span>
+                     </button>
+                   </div>
+                 </div>
+               </div>
+             </transition>
 
             <!-- Nested Replies -->
             <transition name="slide-fade">
@@ -153,29 +180,14 @@
                         <span class="author-name" @click.stop="toggleUserCard($event, nestedReply.author)">{{ nestedReply.author.username }}</span>
                         <span class="post-time">{{ nestedReply.time }}</span>
                       </div>
-                      <div class="reply-content">
-                        <p>{{ nestedReply.text }}</p>
-                      </div>
-                      <div class="reply-actions">
-                        <button @click="toggleReplyForm(nestedReply.id)" class="btn-link">
-                          <i class="fas fa-reply"></i> Trả lời
-                        </button>
-                      </div>
+                                             <div class="reply-content">
+                         <p>{{ nestedReply.text }}</p>
+                       </div>
+                       <!-- Không hiển thị nút trả lời cho comment cấp 2 -->
                     </div>
-                  </div>
+                                     </div>
 
-                  <!-- Reply Form (for nested reply) -->
-                  <transition name="slide-fade">
-                    <div v-if="replyingTo === nestedReply.id" class="nested-reply-form">
-                      <div class="reply-form">
-                        <textarea class="reply-textarea" :placeholder="`Viết trả lời cho ${nestedReply.author.username}...`"></textarea>
-                        <div class="reply-form-actions">
-                          <button @click="replyingTo = null" class="btn btn-secondary cancel-reply-btn">Hủy</button>
-                          <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
-                        </div>
-                      </div>
-                    </div>
-                  </transition>
+                   <!-- Không có form trả lời cho comment cấp 2 -->
                 </div>
               </div>
             </transition>
@@ -184,12 +196,37 @@
       </div>
 
       <!-- Add Reply Form -->
-      <div class="add-reply-card">
+      <div class="add-reply-card" v-if="currentUser">
         <h3 class="add-reply-header">Tham gia thảo luận</h3>
         <div class="reply-form">
-          <textarea class="reply-textarea" placeholder="Viết bình luận của bạn..."></textarea>
-          <button class="btn btn-primary submit-reply-btn">Gửi trả lời</button>
+          <textarea 
+            v-model="newCommentContent"
+            class="reply-textarea" 
+            placeholder="Viết bình luận của bạn..."
+            :disabled="isSubmittingComment"
+            rows="4"
+          ></textarea>
+          <button 
+            @click="submitNewComment"
+            class="btn btn-primary submit-reply-btn"
+            :disabled="isSubmittingComment || !newCommentContent.trim()"
+          >
+            <span v-if="isSubmittingComment">
+              <i class="fas fa-spinner fa-spin"></i> Đang gửi...
+            </span>
+            <span v-else>
+              <i class="fas fa-paper-plane"></i> Gửi trả lời
+            </span>
+          </button>
         </div>
+      </div>
+      
+      <!-- Login prompt for non-authenticated users -->
+      <div class="login-prompt" v-else>
+        <p>Bạn cần đăng nhập để có thể bình luận</p>
+        <button @click="router.push('/login')" class="btn btn-primary">
+          Đăng nhập
+        </button>
       </div>
     </template>
 
@@ -309,6 +346,8 @@ import { useStore } from 'vuex';
 import UserProfileCard from '@/components/layout/forum/profilecard/UserProfileCard.vue';
 import { useFloating, autoUpdate, offset } from '@floating-ui/vue';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
+import blogApi from '@/api/modules/blogApi';
+import commentApi from '@/api/modules/commentApi';
 
 const router = useRouter();
 const route = useRoute();
@@ -319,96 +358,281 @@ const isCommentsLocked = ref(false);
 const isLoading = ref(true);
 const replyingTo = ref(null);
 
-// Mock replies data for demonstration
-const replies = ref([
-  {
-    id: 1,
-    author: {
-      username: 'Hùng Trần',
-      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
-      fullName: 'Trần Mạnh Hùng',
-      title: 'Thành viên tích cực',
-      bio: 'Người học tiếng Nhật đam mê',
-      website: 'hungtran.blog',
-      websiteUrl: 'https://hungtran.blog',
-      location: 'Hà Nội',
-      stats: {
-        posted: 45,
-        joined: '6 tháng trước',
-        read: 120,
-        solutions: 15
-      }
-    },
-    time: '1 giờ 45 phút trước',
-    text: 'Mình thấy học theo sách "Look & Learn" khá hiệu quả, hình ảnh minh họa dễ nhớ lắm . Kết hợp với app Anki để ôn tập mỗi ngày nữa là ổn.',
-    replies: [],
-  },
-  {
-    id: 2,
-    author: {
-      username: 'Lan Anh',
-      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
-      fullName: 'Nguyễn Lan Anh',
-      title: 'Người mới bắt đầu',
-      bio: 'Yêu thích văn hóa Nhật Bản',
-      website: 'lananh.blog',
-      websiteUrl: 'https://lananh.blog',
-      location: 'Hồ Chí Minh',
-      stats: {
-        posted: 12,
-        joined: '2 tháng trước',
-        read: 45,
-        solutions: 3
-      }
-    },
-    time: '1 giờ 20 phút trước',
-    text: 'Đúng rồi, học theo bộ thủ là cách nhớ lâu nhất đó. Thử tìm hiểu về 214 bộ thủ cơ bản trước, sau đó ghép Kanji sẽ thấy logic hơn nhiều.',
-    replies: [
-      {
-        id: 4,
-        author: {
-          username: 'Mai An',
-          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-          fullName: 'Phạm Mai An',
-          title: 'Người mới bắt đầu',
-          bio: 'Đang học N3',
-          website: 'maian.blog',
-          websiteUrl: 'https://maian.blog',
-          location: 'Đà Nẵng',
-          stats: {
-            posted: 8,
-            joined: '1 tháng trước',
-            read: 30,
-            solutions: 2
-          }
-        },
-        time: '1 giờ 10 phút trước',
-        text: 'Cảm ơn Lan Anh, mình sẽ thử tìm hiểu xem sao. Mình cũng nghe nhiều người khen phương pháp này.',
+// API state
+const blogPost = ref(null);
+const comments = ref([]);
+const error = ref(null);
+const commentsLoading = ref(false);
+
+// Comment form state
+const newCommentTitle = ref('');
+const newCommentContent = ref('');
+const isSubmittingComment = ref(false);
+
+// Reply form state
+const replyContent = ref({});
+const isSubmittingReply = ref({});
+
+// API Functions
+const fetchBlogPost = async (postId) => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+    
+    console.log('Fetching blog post:', postId);
+    const response = await blogApi.getById(postId);
+    console.log('Blog post response:', response);
+    
+    blogPost.value = {
+      id: response.id,
+      title: response.title,
+      content: response.content,
+      author: {
+        id: response.userId,
+        username: response.author,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(response.author)}`
       },
-      {
-        id: 5,
-        author: {
-          username: 'Hùng Trần',
-          avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
-          fullName: 'Trần Mạnh Hùng',
-          title: 'Thành viên tích cực',
-          bio: 'Người học tiếng Nhật đam mê',
-          website: 'hungtran.blog',
-          websiteUrl: 'https://hungtran.blog',
-          location: 'Hà Nội',
-          stats: {
-            posted: 45,
-            joined: '6 tháng trước',
-            read: 120,
-            solutions: 15
-          }
-        },
-        time: '1 giờ trước',
-        text: 'Đồng ý với Lan Anh. Mình cũng học theo cách này và thấy rất hiệu quả.',
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+      tags: response.tags ? response.tags.split(',').map(tag => tag.trim()) : [],
+      topics: response.topics,
+      stats: {
+        replies: response.commentCount || 0
       }
-    ],
+    };
+    
+  } catch (err) {
+    console.error('Error fetching blog post:', err);
+    error.value = err.message || 'Không thể tải bài viết';
+    blogPost.value = null;
+  } finally {
+    isLoading.value = false;
   }
-]);
+};
+
+const fetchComments = async (postId) => {
+  try {
+    commentsLoading.value = true;
+    console.log('Fetching comments for post:', postId);
+    
+    // Use commentApi to get comments for the blog post
+    const response = await commentApi.getComments(postId);
+    console.log('Comments response:', response);
+    
+    // Helper function to map a single comment with its nested replies
+    const mapComment = (comment) => ({
+      id: comment.commentId,
+      author: {
+        id: comment.userId,
+        username: comment.userName || 'Anonymous',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName || 'Anonymous')}`
+      },
+      time: formatTimeAgo(new Date(comment.createdAt)),
+      text: comment.content,
+      title: comment.title,
+      // Map nested replies recursively
+      replies: comment.replies ? comment.replies.map(reply => mapComment(reply)) : []
+    });
+    
+    // Map comments to component format
+    const commentsArray = response.comments || [];
+    const mappedComments = commentsArray.map(comment => mapComment(comment));
+    
+    comments.value = mappedComments;
+    
+    // Update post stats with total comment count
+    if (blogPost.value && response.totalElements !== undefined) {
+      blogPost.value.stats.replies = response.totalElements;
+    }
+    
+  } catch (err) {
+    console.error('Error fetching comments:', err);
+    comments.value = [];
+  } finally {
+    commentsLoading.value = false;
+  }
+};
+
+// Submit new comment
+const submitNewComment = async () => {
+  if (!newCommentContent.value.trim()) {
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Vui lòng nhập nội dung bình luận'
+    });
+    return;
+  }
+
+  if (!blogPost.value) {
+    store.dispatch('showMessage', {
+      type: 'error', 
+      text: 'Không thể gửi bình luận lúc này'
+    });
+    return;
+  }
+
+  try {
+    isSubmittingComment.value = true;
+    
+    // Prepare comment data
+    const commentData = {
+      title: newCommentTitle.value || 'Bình luận',
+      content: newCommentContent.value.trim()
+    };
+
+    console.log('Submitting comment:', commentData);
+    
+    // Call API to create comment
+    const newComment = await commentApi.createComment(blogPost.value.id, commentData);
+    console.log('Comment created:', newComment);
+    
+    // Map new comment to component format
+    const mappedNewComment = {
+      id: newComment.commentId,
+      author: {
+        id: newComment.userId,
+        username: newComment.userName || 'Anonymous',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newComment.userName || 'Anonymous')}`
+      },
+      time: formatTimeAgo(new Date(newComment.createdAt)),
+      text: newComment.content,
+      title: newComment.title,
+      replies: []
+    };
+    
+    // Add new comment to the beginning of the list
+    comments.value.unshift(mappedNewComment);
+    
+    // Update comment count
+    if (blogPost.value.stats) {
+      blogPost.value.stats.replies = (blogPost.value.stats.replies || 0) + 1;
+    }
+    
+    // Reset form
+    newCommentTitle.value = '';
+    newCommentContent.value = '';
+    
+    // Show success message
+    store.dispatch('showMessage', {
+      type: 'success',
+      text: 'Bình luận đã được gửi thành công!'
+    });
+    
+  } catch (err) {
+    console.error('Error submitting comment:', err);
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Có lỗi xảy ra khi gửi bình luận: ' + err.message
+    });
+  } finally {
+    isSubmittingComment.value = false;
+  }
+};
+
+// Submit reply to comment
+const submitReply = async (parentCommentId) => {
+  const replyText = replyContent.value[parentCommentId];
+  
+  if (!replyText || !replyText.trim()) {
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Vui lòng nhập nội dung trả lời'
+    });
+    return;
+  }
+
+  try {
+    isSubmittingReply.value[parentCommentId] = true;
+    
+    // Prepare reply data
+    const replyData = {
+      title: 'Trả lời',
+      content: replyText.trim()
+    };
+
+    console.log('Submitting reply to comment:', parentCommentId, replyData);
+    
+    // Call API to create reply
+    const newReply = await commentApi.replyComment(parentCommentId, replyData);
+    console.log('Reply created:', newReply);
+    
+    // Map new reply to component format
+    const mappedReply = {
+      id: newReply.commentId,
+      author: {
+        id: newReply.userId,
+        username: newReply.userName || 'Anonymous',
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newReply.userName || 'Anonymous')}`
+      },
+      time: formatTimeAgo(new Date(newReply.createdAt)),
+      text: newReply.content,
+      title: newReply.title,
+      replies: []
+    };
+    
+    // Find parent comment and add reply to its replies
+    const findAndAddReply = (commentsList, targetId, newReply) => {
+      for (let comment of commentsList) {
+        if (comment.id === targetId) {
+          comment.replies.push(newReply);
+          return true;
+        }
+        // Search in nested replies
+        if (comment.replies && comment.replies.length > 0) {
+          if (findAndAddReply(comment.replies, targetId, newReply)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    findAndAddReply(comments.value, parentCommentId, mappedReply);
+    
+    // Clear reply form
+    replyContent.value[parentCommentId] = '';
+    replyingTo.value = null;
+    
+    // Update total comment count
+    if (blogPost.value.stats) {
+      blogPost.value.stats.replies = (blogPost.value.stats.replies || 0) + 1;
+    }
+    
+    // Show success message
+    store.dispatch('showMessage', {
+      type: 'success',
+      text: 'Trả lời đã được gửi thành công!'
+    });
+    
+  } catch (err) {
+    console.error('Error submitting reply:', err);
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Có lỗi xảy ra khi gửi trả lời: ' + err.message
+    });
+  } finally {
+    isSubmittingReply.value[parentCommentId] = false;
+  }
+};
+
+// Time formatting function
+const formatTimeAgo = (date) => {
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " năm trước";
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " tháng trước";
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + " ngày trước";
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " giờ trước";
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " phút trước";
+  return "Vài giây trước";
+};
+
+
 
 // Floating UI setup
 const referenceEl = ref(null);
@@ -419,41 +643,47 @@ const { floatingStyles } = useFloating(referenceEl, floatingEl, {
   middleware: [offset({ mainAxis: -10, crossAxis: 25 })]
 });
 
-// Get post data from store with default values
-const currentPost = computed(() => store.getters['forum/getCurrentPost']);
-
-// Demo current user for testing post ownership
-const currentUser = ref({
-  uid: 'current-user-123' // This should match the ID in CreateForumPost.vue
-});
+// Get current user from store
+const currentUser = computed(() => store.getters['auth/currentUser']);
 
 // Computed properties for post data
-const postAuthor = computed(() => currentPost.value.author);
-const postTitle = computed(() => currentPost.value.title);
-const postContent = computed(() => currentPost.value.content);
-const postCategory = computed(() => currentPost.value.category || 'Chi tiết bài viết');
-const postTags = computed(() => currentPost.value.tags);
-const postStats = computed(() => currentPost.value.stats);
+const postAuthor = computed(() => {
+  if (!blogPost.value) return null;
+  
+  return {
+    ...blogPost.value.author,
+    stats: {
+      posted: formatTimeAgo(new Date(blogPost.value.createdAt))
+    }
+  };
+});
+
+const postTitle = computed(() => blogPost.value?.title || '');
+const postContent = computed(() => blogPost.value?.content || '');
+const postCategory = computed(() => blogPost.value?.topics || 'Chi tiết bài viết');
+const postTags = computed(() => blogPost.value?.tags || []);
+const postStats = computed(() => blogPost.value?.stats || { replies: 0 });
 
 // Check if post is loaded and has real data
-const isPostLoaded = computed(() => currentPost.value.id !== null);
+const isPostLoaded = computed(() => blogPost.value !== null && !error.value);
 
 // Check if current user is post owner
 const isPostOwner = computed(() => {
-  return currentUser.value?.uid === postAuthor.value?.id;
+  if (!currentUser.value || !blogPost.value) return false;
+  return currentUser.value.userId === blogPost.value.author.id;
 });
+
+// Use comments from API instead of mock data
+const replies = computed(() => comments.value);
 
 // Load post data
 onMounted(async () => {
-  isLoading.value = true;
-  try {
-    if (route.params.id) {
-      await store.dispatch('forum/getPost', route.params.id);
+  if (route.params.id) {
+    await fetchBlogPost(route.params.id);
+    // Load comments after blog post is loaded
+    if (blogPost.value) {
+      await fetchComments(route.params.id);
     }
-  } catch (error) {
-    console.error('Error loading post:', error);
-  } finally {
-    isLoading.value = false;
   }
 });
 
@@ -534,25 +764,25 @@ const validateAndConfirm = () => {
 
 const handleSubmitReport = async () => {
   try {
-    // Here you would send the report to your backend
-    await store.dispatch('forum/submitReport', {
-      postId: currentPost.value.id,
-      ...reportData.value
-    });
-    
-    // Show success message
-    store.dispatch('notification/show', {
-      type: 'success',
-      message: 'Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét và xử lý sớm nhất.'
-    });
-    
-    // Close all report related dialogs
-    closeReportDialog();
+    if (blogPost.value) {
+      // Here you would send the report to your backend
+      // For now, just show success message since we don't have report API
+      console.log('Report submitted for post:', blogPost.value.id, reportData.value);
+      
+      // Show success message
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: 'Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét và xử lý sớm nhất.'
+      });
+      
+      // Close all report related dialogs
+      closeReportDialog();
+    }
   } catch (error) {
     console.error('Error submitting report:', error);
-    store.dispatch('notification/show', {
+    store.dispatch('showMessage', {
       type: 'error',
-      message: 'Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.'
+      text: 'Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.'
     });
   }
 };
@@ -560,21 +790,40 @@ const handleSubmitReport = async () => {
 // Update action handlers to work with popups
 const handleDeletePost = async () => {
   try {
-    await store.dispatch('forum/deletePost', currentPost.value.id);
-    router.push('/forum');
+    if (blogPost.value) {
+      await blogApi.delete(blogPost.value.id);
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: 'Bài viết đã được xóa thành công!'
+      });
+      router.push('/forum');
+    }
   } catch (error) {
     console.error('Error deleting post:', error);
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Không thể xóa bài viết: ' + error.message
+    });
   }
   showDeleteConfirm.value = false;
 };
 
 const handleToggleComments = async () => {
   try {
-    await store.dispatch('forum/toggleLockComments', currentPost.value.id);
-    isCommentsLocked.value = !isCommentsLocked.value;
+    if (blogPost.value) {
+      // For now, just toggle the local state since we don't have toggle API
+      isCommentsLocked.value = !isCommentsLocked.value;
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: `Đã ${isCommentsLocked.value ? 'khóa' : 'mở khóa'} bình luận cho bài viết này.`
+      });
+    }
   } catch (error) {
     console.error('Error toggling comments:', error);
-    alert('Có lỗi xảy ra khi cập nhật trạng thái bình luận');
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Có lỗi xảy ra khi cập nhật trạng thái bình luận'
+    });
   }
   showLockConfirm.value = false;
 };
@@ -607,6 +856,8 @@ function handleSendMessage(user) {
 const toggleReplyForm = (replyId) => {
   if (replyingTo.value === replyId) {
     replyingTo.value = null; // Close if already open for this reply
+    // Clear reply content when closing
+    replyContent.value[replyId] = '';
   } else {
     replyingTo.value = replyId; // Open for this reply
   }
@@ -629,4 +880,132 @@ const isRepliesShown = (replyId) => {
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-post-detail/ForumPostDetail.scss';
+
+// Additional styles for comments loading and empty states
+.comments-loading, .no-comments {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #6c757d;
+  
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 12px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+.no-comments {
+  flex-direction: column;
+  
+  p {
+    font-style: italic;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Post content styling
+.post-content-text {
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  
+  p {
+    margin-bottom: 16px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Reply form styling
+.reply-title-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+  
+  &:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  &::placeholder {
+    color: #6c757d;
+  }
+}
+
+.submit-reply-btn {
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .fa-spinner {
+    margin-right: 8px;
+  }
+  
+  .fa-paper-plane {
+    margin-right: 8px;
+  }
+}
+
+// Reply textarea styling
+.reply-textarea {
+  &:disabled {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    cursor: not-allowed;
+    resize: vertical;
+  }
+}
+
+// Login prompt styling
+.login-prompt {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  margin-top: 20px;
+  
+  p {
+    margin-bottom: 16px;
+    color: #6c757d;
+    font-size: 16px;
+  }
+  
+  .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
 </style> 
