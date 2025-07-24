@@ -65,4 +65,11 @@ public class FlashCardController {
         if (!deleted) return ResponseEntity.notFound().build();
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/latest")
+    public ResponseEntity<?> getTop5LatestFlashCards(
+            @AuthenticationPrincipal(expression = "userID") UUID userId) {
+        return ResponseEntity.ok(flashCardService.getTop5LatestFlashCards(userId));
+    }
+
 }
