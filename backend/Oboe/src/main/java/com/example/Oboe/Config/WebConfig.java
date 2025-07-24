@@ -98,6 +98,7 @@ public class WebConfig {
                                 "/oauth2/redirect",
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
+                                "/api/search/**",
                                 "/api/search",
                                 "/ws/**"
                         ).permitAll()
