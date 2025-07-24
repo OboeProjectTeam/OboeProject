@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/favorites")
+@RequestMapping("api/favorites")
 public class FavoritesController {
 
     private final FavoritesService favoritesService;
@@ -30,6 +30,7 @@ public class FavoritesController {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userid = userDetails.getUserID();
         FavoritesDTO created = favoritesService.createFavorite(favoritesDTO, userid);
+        System.out.println(">>> Kanji ID: " + favoritesDTO.getKanjiId());
         return ResponseEntity.ok(created);
     }
     @GetMapping("/user")

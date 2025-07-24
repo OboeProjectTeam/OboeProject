@@ -1,12 +1,8 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.FavoritesDTO;
-import com.example.Oboe.Entity.Favorites;
-import com.example.Oboe.Entity.Grammar;
-import com.example.Oboe.Entity.Kanji;
-import com.example.Oboe.Entity.User;
+import com.example.Oboe.Entity.*;
 import com.example.Oboe.Repository.*;
-import com.example.Oboe.Entity.Vocabulary;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -23,19 +19,20 @@ public class FavoritesService {
     private final FavoritesRepository favoritesRepository;
     private final GrammarRepository grammarRepository;
     private final VocabularyRepository vocabularyRepository;
+    private final SampleSentenceRepository sampleSentenceRepository;
 
     public FavoritesService(KanjiRepository kanjiRepository,
                             UserRepository userRepository,
                             FavoritesRepository favoritesRepository,
                             GrammarRepository grammarRepository,
-                            VocabularyRepository vocabularyRepository
+                            VocabularyRepository vocabularyRepository, SampleSentenceRepository sampleSentenceRepository
                            ) {
         this.kanjiRepository = kanjiRepository;
         this.userRepository = userRepository;
         this.favoritesRepository = favoritesRepository;
         this.grammarRepository = grammarRepository;
         this.vocabularyRepository = vocabularyRepository;
-
+        this.sampleSentenceRepository = sampleSentenceRepository;
     }
 
 
@@ -54,7 +51,6 @@ public class FavoritesService {
             favorites.setKanji(kanji);
             favorites.setTitle(kanji.getCharacter_name());
             favorites.setContent(kanji.getMeaning());
-
         } else if (dto.getGrammaId() != null) {
             Grammar grammar = grammarRepository.findById(dto.getGrammaId())
                     .orElseThrow(() -> new RuntimeException("Grammar not found"));
@@ -64,10 +60,18 @@ public class FavoritesService {
         }  else if (dto.getVocabularyId() != null) {
         Vocabulary vocabulary = vocabularyRepository.findById(dto.getVocabularyId())
                 .orElseThrow(() -> new RuntimeException("Vocabulary not found"));
-        favorites.setVocabulary(vocabulary);
-        favorites.setTitle(vocabulary.getWords());
-        favorites.setContent(vocabulary.getMeanning());
-    }
+            favorites.setVocabulary(vocabulary);
+            favorites.setTitle(vocabulary.getWords());
+            favorites.setContent(vocabulary.getMeanning());
+        }
+        else if (dto.getSampleSentenceId() != null)  {
+                SampleSentence sampleSentence = sampleSentenceRepository.findById(dto.getSampleSentenceId())
+                        .orElseThrow(() -> new RuntimeException("SampleSentence not found"));
+            favorites.setSentence(sampleSentence);
+            favorites.setTitle(sampleSentence.getJapaneseText());
+            favorites.setContent(sampleSentence.getVietnameseMeaning());
+        }
+
         else {
             throw new RuntimeException("Phải cung cấp ít nhất 1 loại nội dung yêu thích (Kanji, Grammar, ...).");
         }
@@ -86,7 +90,7 @@ public class FavoritesService {
                         case "kanji" -> fav.getKanji() != null;
                         case "grammar" -> fav.getGramma() != null;
                         case "vocabulary" -> fav.getVocabulary() != null;
-                        case "flashcard" -> fav.getFlashCards() != null;
+                        case "samplesentence" -> fav.getSentence() != null;
                         default -> false;
                     };
                 })
@@ -111,8 +115,8 @@ public class FavoritesService {
                         dto.setType("grammar");
                     } else if (fav.getVocabulary() != null) {
                         dto.setType("vocabulary");
-                    } else if (fav.getFlashCards() != null) {
-                        dto.setType("flashcard");
+                    } else if (fav.getSentence() != null) {
+                        dto.setType("samplesentence");
                     } else {
                         dto.setType("unknown");
                     }

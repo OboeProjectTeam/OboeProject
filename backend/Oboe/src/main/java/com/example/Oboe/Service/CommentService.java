@@ -253,8 +253,10 @@ public class CommentService {
         if (userOpt.isEmpty()) return List.of(); // trả về List rỗng nếu không có user
         List<Comment> comments = commentRepository.findCommentByUserId(userId);
         return comments.stream()
-                .map(this::toDTO).toList();
+                .map(this::toShortDTO).toList();
     }
+
+    //lấy  Lấy tất cả comment của một user
     public Page<CommentDTOs> getCommentByUserIds(UUID userId, int page, int size) {
         Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) {
@@ -287,20 +289,34 @@ public class CommentService {
         dto.setTitle(comment.getTitle());
         dto.setContent(comment.getContent());
         dto.setCreatedAt(comment.getCreatedAt());
-
         // Gán thông tin người dùng
         if (comment.getUser() != null) {
             dto.setUserId(comment.getUser().getUser_id());
             dto.setUserName(comment.getUser().getUserName());
         }
-
         // Nếu là phản hồi thì set comment cha
         if (comment.getParentComment() != null) {
             dto.setCommentIdParent(comment.getParentComment().getCommentId());
         }
-
         dto.setReferenceId(comment.getreferenceId());
         dto.setReplies(new ArrayList<>()); // Khởi tạo danh sách phản hồi
         return dto;
     }
+    private CommentDTOs toShortDTO(Comment comment) {
+        CommentDTOs dto = new CommentDTOs();
+        dto.setCommentId(comment.getCommentId());
+        dto.setTitle(comment.getTitle());
+        dto.setContent(comment.getContent());
+        dto.setCreatedAt(comment.getCreatedAt());
+        if (comment.getUser() != null) {
+            dto.setUserId(comment.getUser().getUser_id());
+            dto.setUserName(comment.getUser().getUserName());
+        }
+        if (comment.getParentComment() != null) {
+            dto.setCommentIdParent(comment.getParentComment().getCommentId());
+        }
+        dto.setReferenceId(comment.getreferenceId());
+        return dto;
+    }
+
 }
