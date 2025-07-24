@@ -81,7 +81,4 @@ public class ProfileController {
 
         return ResponseEntity.ok(response);
     }
-
-
-
 }

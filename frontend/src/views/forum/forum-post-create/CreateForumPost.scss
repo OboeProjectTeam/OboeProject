@@ -327,10 +327,38 @@ textarea {
     background-color: $primary-color;
     color: white;
     &:hover { background-color: color.adjust($primary-color, $lightness: -5%); }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: $primary-color;
+      
+      &:hover {
+        background-color: $primary-color;
+      }
+    }
+    
+    .fa-spinner {
+      margin-right: 8px;
+    }
+    
+    .fa-paper-plane {
+      margin-right: 8px;
+    }
   }
   .btn-secondary {
     background-color: #e9ecef;
     color: #495057;
     &:hover { background-color: #dee2e6; }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      background-color: #e9ecef;
+      
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
   }
 }

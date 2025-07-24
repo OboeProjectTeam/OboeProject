@@ -6,13 +6,22 @@
                 <h1>Diễn đàn Oboe</h1>
                 <div class="header-actions flex-jsb">
                     <div class="search-container">
-                        <input 
-                            type="text" 
-                            v-model="searchQuery" 
-                            placeholder="Tìm kiếm bài viết..." 
-                            class="search-input"
-                            @input="handleSearch"
-                        >
+                        <div class="search-input-wrapper">
+                            <input 
+                                type="text" 
+                                v-model="searchQuery" 
+                                placeholder="Tìm kiếm bài viết..." 
+                                class="search-input"
+                                @input="debouncedSearch"
+                                @keyup.enter="handleSearch"
+                            >
+                            <div v-if="isSearching" class="search-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div v-else-if="searchQuery" class="search-clear" @click="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
                         <i class="fas fa-edit"></i> Tạo bài viết mới
@@ -61,17 +70,54 @@
                         <i v-if="sortKey === 'views'" :class="sortIconClass"></i>
                     </button>
                 </div>
-                <div class="header-activity">
-                    <button class="sort-btn" @click="sortBy('activity')">
-                        Hoạt động
-                        <i v-if="sortKey === 'activity'" :class="sortIconClass"></i>
-                    </button>
+            </div>
+
+            <!-- Search Results Header -->
+            <div v-if="searchQuery && !loading" class="search-results-header">
+                <div class="search-info">
+                    <i class="fas fa-search"></i>
+                    <span>Kết quả tìm kiếm cho: "<strong>{{ searchQuery }}</strong>"</span>
+                    <span class="result-count">({{ totalElements }} kết quả)</span>
                 </div>
+                <button @click="clearSearch" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> Xóa tìm kiếm
+                </button>
             </div>
 
             <!-- Post List -->
             <div class="post-list">
-                <div v-for="post in paginatedPosts" :key="post.id" class="post-item" @click="goToPostDetail(post.id)">
+                <!-- Loading State -->
+                <div v-if="loading" class="loading-container">
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        <p>{{ searchQuery ? 'Đang tìm kiếm...' : 'Đang tải bài viết...' }}</p>
+                    </div>
+                </div>
+                
+                <!-- Error State -->
+                <div v-else-if="error" class="error-container">
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <p>{{ error }}</p>
+                        <button class="btn btn-primary" @click="fetchBlogs(currentPage - 1, postsPerPage, searchQuery)">
+                            Thử lại
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div v-else-if="posts.length === 0" class="empty-container">
+                    <div class="empty-message">
+                        <i class="fas fa-2x" :class="searchQuery ? 'fa-search' : 'fa-comments'"></i>
+                        <p>{{ searchQuery ? `Không tìm thấy bài viết nào cho "${searchQuery}"` : 'Chưa có bài viết nào' }}</p>
+                        <button v-if="searchQuery" @click="clearSearch" class="btn btn-secondary">
+                            Xóa tìm kiếm
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Posts -->
+                <div v-else v-for="post in paginatedPosts" :key="post.id" class="post-item" @click="goToPostDetail(post.id)">
                     <div class="post-avatar">
                         <img :src="post.author.avatar" :alt="post.author.name">
                     </div>
@@ -95,49 +141,93 @@
                            {{ post.stats.views.toLocaleString('vi-VN') }}
                         </div>
                     </div>
-                    <div class="post-last-reply">
-                        <img :src="post.lastReply.author.avatar" :alt="post.lastReply.author.name" class="last-reply-avatar">
-                        <div class="last-reply-info">
-                            <a href="#" class="author-name">{{ post.lastReply.author.name }}</a>
-                            <span class="post-time">{{ formatTimeAgo(post.lastReply.time) }}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <!-- Pagination Controls -->
-            <div class="pagination-container" v-if="totalPages > 1">
+            <div class="pagination-container" v-if="totalPages > 1 && !loading">
                 <button class="pagination-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button v-for="page in totalPages" :key="page" 
-                        class="pagination-btn" 
-                        :class="{ active: page === currentPage }"
-                        @click="changePage(page)">
-                    {{ page }}
-                </button>
+                
+                <!-- Show page numbers (limited to prevent too many buttons) -->
+                <template v-if="totalPages <= 7">
+                    <button v-for="page in totalPages" :key="page" 
+                            class="pagination-btn" 
+                            :class="{ active: page === currentPage }"
+                            @click="changePage(page)">
+                        {{ page }}
+                    </button>
+                </template>
+                <template v-else>
+                    <!-- Show first page -->
+                    <button class="pagination-btn" 
+                            :class="{ active: 1 === currentPage }"
+                            @click="changePage(1)">
+                        1
+                    </button>
+                    
+                    <!-- Show ellipsis if needed -->
+                    <span v-if="currentPage > 4" class="pagination-ellipsis">...</span>
+                    
+                    <!-- Show pages around current page -->
+                    <button v-for="page in getVisiblePages()" :key="page" 
+                            class="pagination-btn" 
+                            :class="{ active: page === currentPage }"
+                            @click="changePage(page)">
+                        {{ page }}
+                    </button>
+                    
+                    <!-- Show ellipsis if needed -->
+                    <span v-if="currentPage < totalPages - 3" class="pagination-ellipsis">...</span>
+                    
+                    <!-- Show last page -->
+                    <button v-if="totalPages > 1" class="pagination-btn" 
+                            :class="{ active: totalPages === currentPage }"
+                            @click="changePage(totalPages)">
+                        {{ totalPages }}
+                    </button>
+                </template>
+                
                 <button class="pagination-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
                     <i class="fas fa-chevron-right"></i>
                 </button>
+                
+                <!-- Show page info -->
+                <div class="page-info">
+                    Trang {{ currentPage }} / {{ totalPages }} ({{ totalElements }} bài viết)
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import blogApi from '@/api/modules/blogApi';
 
 const router = useRouter();
 
 // --- STATE MANAGEMENT ---
 const currentPage = ref(1);
-const postsPerPage = ref(5);
-const sortKey = ref('activity'); // 'activity', 'replies', 'views'
+const postsPerPage = ref(10); // Sync with API pageSize
+const sortKey = ref('replies'); // 'replies', 'views'
 const sortOrder = ref('desc'); // 'asc', 'desc'
 const selectedCategory = ref('all');
 const selectedTag = ref('all');
 const searchQuery = ref('');
+
+// API state
+const posts = ref([]);
+const loading = ref(false);
+const error = ref(null);
+const totalPages = ref(0);
+const totalElements = ref(0);
+
+// Search debounce
+const searchTimeout = ref(null);
+const isSearching = ref(false);
 
 // --- DATA ---
 const categories = ref([
@@ -151,17 +241,101 @@ const categories = ref([
     { id: 'other', name: 'Chủ đề khác', color: '#6c757d' }
 ]);
 
-const now = new Date();
-const posts = ref([
-    { id: 1, title: 'Thảo luận về cách học Kanji hiệu quả cho người mới bắt đầu', author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 2 * 3600 * 1000), stats: { replies: 15, views: 2100 }, lastReply: { author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 5 * 60 * 1000) }, category: 'kanji', tags: ['kanji', 'tự học', 'người mới bắt đầu'] },
-    { id: 2, title: 'Kinh nghiệm thi JLPT N2 và tài liệu ôn tập', author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 8 * 3600 * 1000), stats: { replies: 32, views: 5800 }, lastReply: { author: { name: 'Lan Anh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d' }, time: new Date(now.getTime() - 30 * 60 * 1000) }, category: 'jlpt', tags: ['jlpt', 'N2', 'tài liệu'] },
-    { id: 3, title: 'Chia sẻ những bộ phim Anime hay để luyện nghe', author: { name: 'Ngọc Linh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026708d' }, time: new Date(now.getTime() - 1 * 86400 * 1000), stats: { replies: 56, views: 12300 }, lastReply: { author: { name: 'Duy Mạnh', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026709d' }, time: new Date(now.getTime() - 1 * 3600 * 1000) }, category: 'communication', tags: ['giao tiếp', 'luyện nghe', 'anime'] },
-    { id: 4, title: 'Tổng hợp ngữ pháp N3 thường gặp trong đề thi', author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 25, views: 8200 }, lastReply: { author: { name: 'Quốc Bảo', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026711d' }, time: new Date(now.getTime() - 3 * 3600 * 1000) }, category: 'grammar', tags: ['ngữ pháp', 'N3', 'jlpt'] },
-    { id: 5, title: 'Cách phân biệt các trợ từ は, が, も?', author: { name: 'Bảo Châu', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026712d' }, time: new Date(now.getTime() - 2 * 86400 * 1000), stats: { replies: 18, views: 4500 }, lastReply: { author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 5 * 3600 * 1000) }, category: 'grammar', tags: ['ngữ pháp', 'trợ từ'] },
-    { id: 6, title: 'Học giao tiếp qua Shadowing có thực sự hiệu quả?', author: { name: 'Khánh Vy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026714d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 41, views: 9100 }, lastReply: { author: { name: 'Mai An', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }, time: new Date(now.getTime() - 8 * 3600 * 1000) }, category: 'communication', tags: ['giao tiếp', 'shadowing'] },
-    { id: 7, title: 'Những sai lầm người Việt thường mắc phải khi phát âm tiếng Nhật', author: { name: 'Gia Huy', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026713d' }, time: new Date(now.getTime() - 3 * 86400 * 1000), stats: { replies: 29, views: 7700 }, lastReply: { author: { name: 'Minh Tuấn', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026706d' }, time: new Date(now.getTime() - 1 * 86400 * 1000) }, category: 'communication', tags: ['phát âm', 'lỗi sai'] },
-    { id: 8, title: 'Review sách "Minna no Nihongo" cho người mới bắt đầu', author: { name: 'Hùng Trần', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d' }, time: new Date(now.getTime() - 4 * 86400 * 1000), stats: { replies: 12, views: 3200 }, lastReply: { author: { name: 'Thanh Hằng', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026710d' }, time: new Date(now.getTime() - 2 * 86400 * 1000) }, category: 'other', tags: ['sách', 'review', 'người mới bắt đầu'] }
-]);
+// --- API FUNCTIONS ---
+const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
+    try {
+        loading.value = true;
+        error.value = null;
+        
+        console.log('Fetching blogs...', { page, size, searchKeyword });
+        
+        let response;
+        let blogs;
+        
+        if (searchKeyword && searchKeyword.trim()) {
+            // Use search API - returns array directly
+            const searchResults = await blogApi.search(searchKeyword.trim());
+            console.log('Search API response:', searchResults);
+            
+            // Ensure searchResults is an array
+            const resultsArray = Array.isArray(searchResults) ? searchResults : [];
+            
+            // Handle client-side pagination for search results
+            const startIndex = page * size;
+            const endIndex = startIndex + size;
+            blogs = resultsArray.slice(startIndex, endIndex);
+            
+            // Create pagination info for search results
+            response = {
+                blogs: blogs,
+                totalPages: Math.ceil(resultsArray.length / size),
+                totalElements: resultsArray.length,
+                currentPage: page
+            };
+        } else {
+            // Use getAll API - returns paginated response
+            response = await blogApi.getAll({ page, size });
+            console.log('GetAll API response:', response);
+            blogs = response.blogs || response.content || response || [];
+            
+            // Handle pagination info from getAll API
+            if (!response.totalPages) {
+                response = {
+                    blogs: blogs,
+                    totalPages: response.totalPages || 1,
+                    totalElements: response.totalElements || blogs.length,
+                    currentPage: page
+                };
+            }
+        }
+        
+        console.log('Final blogs to display:', blogs);
+        const mappedPosts = (Array.isArray(blogs) ? blogs : []).map(blog => ({
+            id: blog.id,
+            title: blog.title,
+            content: blog.content,
+            author: {
+                name: blog.author,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(blog.author)}`
+            },
+            time: new Date(blog.createdAt),
+            stats: {
+                replies: blog.commentCount || 0,
+                views: Math.floor(Math.random() * 10000) + 100 // Random views since API doesn't provide
+            },
+            category: mapTopicToCategory(blog.topics),
+            tags: blog.tags ? blog.tags.split(',').map(tag => tag.trim()) : []
+        }));
+        
+        posts.value = mappedPosts;
+        totalPages.value = response.totalPages || 1;
+        totalElements.value = response.totalElements || mappedPosts.length;
+        
+    } catch (err) {
+        console.error('Error fetching blogs:', err);
+        error.value = err.message || 'Không thể tải danh sách bài viết';
+        posts.value = [];
+        totalPages.value = 0;
+        totalElements.value = 0;
+    } finally {
+        loading.value = false;
+    }
+};
+
+// Map topics to category IDs
+const mapTopicToCategory = (topics) => {
+    if (!topics) return 'other';
+    
+    const topicsLower = topics.toLowerCase();
+    if (topicsLower.includes('kanji')) return 'kanji';
+    if (topicsLower.includes('jlpt') || topicsLower.includes('n1') || topicsLower.includes('n2') || topicsLower.includes('n3') || topicsLower.includes('n4') || topicsLower.includes('n5')) return 'jlpt';
+    if (topicsLower.includes('ngữ pháp') || topicsLower.includes('grammar')) return 'grammar';
+    if (topicsLower.includes('từ vựng') || topicsLower.includes('vocabulary')) return 'word';
+    if (topicsLower.includes('giao tiếp') || topicsLower.includes('communication')) return 'communication';
+    if (topicsLower.includes('nhật bản') || topicsLower.includes('tokyo') || topicsLower.includes('sống')) return 'life-in-japan';
+    
+    return 'other';
+};
 
 // --- COMPUTED PROPERTIES ---
 const allTags = computed(() => {
@@ -177,20 +351,17 @@ const allTags = computed(() => {
 const filteredPosts = computed(() => {
     let result = posts.value;
     
-    // Apply search filter
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        result = result.filter(post => 
-            post.title.toLowerCase().includes(query)
-        );
+    // If searching, use server results directly (no client-side filtering)
+    if (searchQuery.value && searchQuery.value.trim()) {
+        return result;
     }
     
-    // Apply category filter
+    // Apply category filter only when not searching
     if (selectedCategory.value !== 'all') {
         result = result.filter(post => post.category === selectedCategory.value);
     }
     
-    // Apply tag filter
+    // Apply tag filter only when not searching
     if (selectedTag.value !== 'all') {
         result = result.filter(post => post.tags && post.tags.includes(selectedTag.value));
     }
@@ -207,13 +378,9 @@ const sortedPosts = computed(() => {
                 valB = b.stats.replies;
                 break;
             case 'views':
+            default:
                 valA = a.stats.views;
                 valB = b.stats.views;
-                break;
-            case 'activity':
-            default:
-                valA = a.lastReply.time;
-                valB = b.lastReply.time;
                 break;
         }
 
@@ -223,14 +390,9 @@ const sortedPosts = computed(() => {
     });
 });
 
-const totalPages = computed(() => {
-    return Math.ceil(sortedPosts.value.length / postsPerPage.value);
-});
-
+// Use server-side pagination, so display all posts from current page
 const paginatedPosts = computed(() => {
-    const startIndex = (currentPage.value - 1) * postsPerPage.value;
-    const endIndex = startIndex + postsPerPage.value;
-    return sortedPosts.value.slice(startIndex, endIndex);
+    return sortedPosts.value;
 });
 
 const sortIconClass = computed(() => {
@@ -246,9 +408,11 @@ const goToPostDetail = (postId) => {
     router.push(`/forum/post/${postId}`);
 };
 
-const changePage = (page) => {
+const changePage = async (page) => {
     if (page >= 1 && page <= totalPages.value) {
         currentPage.value = page;
+        // API uses 0-based page index
+        await fetchBlogs(page - 1, postsPerPage.value, searchQuery.value);
     }
 };
 
@@ -288,11 +452,233 @@ function formatTimeAgo(date) {
     return "Vài giây trước";
 }
 
-const handleSearch = () => {
-    currentPage.value = 1; // Reset to first page when searching
+// Debounced search function
+const debouncedSearch = () => {
+    // Clear previous timeout
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
+    
+    // Set loading state for visual feedback
+    isSearching.value = true;
+    
+    // Set new timeout
+    searchTimeout.value = setTimeout(async () => {
+        await handleSearch();
+        isSearching.value = false;
+    }, 500); // 500ms delay
 };
+
+const handleSearch = async () => {
+    try {
+        currentPage.value = 1; // Reset to first page when searching
+        
+        // Reset filters when searching to avoid confusion
+        if (searchQuery.value && searchQuery.value.trim()) {
+            selectedCategory.value = 'all';
+            selectedTag.value = 'all';
+        }
+        
+        await fetchBlogs(0, postsPerPage.value, searchQuery.value); // Reload data with search
+    } catch (err) {
+        console.error('Search error:', err);
+    } finally {
+        isSearching.value = false;
+    }
+};
+
+// Clear search function
+const clearSearch = async () => {
+    searchQuery.value = '';
+    currentPage.value = 1;
+    // Clear search and reload normal data
+    await fetchBlogs(0, postsPerPage.value, '');
+};
+
+// Get visible page numbers for pagination
+const getVisiblePages = () => {
+    const pages = [];
+    const start = Math.max(2, currentPage.value - 2);
+    const end = Math.min(totalPages.value - 1, currentPage.value + 2);
+    
+    for (let i = start; i <= end; i++) {
+        pages.push(i);
+    }
+    return pages;
+};
+
+// Initialize data when component mounts
+onMounted(() => {
+    fetchBlogs(0, postsPerPage.value, searchQuery.value);
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
+});
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-home/TheForum.scss';
+
+// Additional styles for loading, error, and empty states
+.loading-container, .error-container, .empty-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    
+    .loading-spinner, .error-message, .empty-message {
+        text-align: center;
+        
+        i {
+            color: #6c757d;
+            margin-bottom: 16px;
+        }
+        
+        p {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 16px;
+        }
+    }
+    
+    .error-message i {
+        color: #dc3545;
+    }
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    
+    .page-info {
+        margin-left: 16px;
+        font-size: 14px;
+        color: #6c757d;
+    }
+    
+    .pagination-ellipsis {
+        padding: 8px 4px;
+        color: #6c757d;
+    }
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    background: white;
+    color: #495057;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover:not(:disabled) {
+        background: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    &.active {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+    
+    &:disabled {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+}
+
+// Search results header styles
+.search-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    
+    .search-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #495057;
+        
+        i {
+            color: #6c757d;
+        }
+        
+        .result-count {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        strong {
+            color: #007bff;
+        }
+    }
+    
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        i {
+            font-size: 12px;
+        }
+    }
+}
+
+// Search input wrapper styles
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    
+    .search-input {
+        width: 100%;
+        padding-right: 40px; // Make space for loading/clear icon
+    }
+    
+    .search-loading, .search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        
+        i {
+            font-size: 14px;
+        }
+    }
+    
+    .search-clear:hover {
+        color: #dc3545;
+    }
+    
+    .search-loading {
+        cursor: default;
+        
+        i {
+            color: #007bff;
+        }
+    }
+}
 </style>

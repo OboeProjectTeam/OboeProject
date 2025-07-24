@@ -11,7 +11,15 @@
       </div>
 
       <div class="conversations-list">
-        <div v-for="chat in conversations" 
+        <div v-if="conversationsLoading" class="loading-conversations">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Đang tải cuộc trò chuyện...</p>
+        </div>
+        <div v-else-if="conversations.length === 0" class="empty-conversations">
+          <i class="fas fa-comments"></i>
+          <p>Chưa có cuộc trò chuyện nào</p>
+        </div>
+        <div v-else v-for="chat in conversations" 
              :key="chat.id" 
              class="conversation-item"
              :class="{ active: selectedChat?.id === chat.id }"
@@ -55,7 +63,16 @@
         </div>
 
         <div class="chat-messages" ref="messagesContainer">
-          <div v-for="message in selectedChat.messages" 
+          <div v-if="conversationMessagesLoading" class="loading-messages">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Đang tải tin nhắn...</p>
+          </div>
+          <div v-else-if="selectedChat.messages?.length === 0" class="empty-messages">
+            <i class="fas fa-comment-dots"></i>
+            <p>Chưa có tin nhắn nào</p>
+            <small>Hãy bắt đầu cuộc trò chuyện!</small>
+          </div>
+          <div v-else v-for="message in selectedChat.messages" 
                :key="message.id" 
                class="message"
                :class="{ 'message-sent': message.isSent }">
@@ -73,9 +90,11 @@
           <input type="text" 
                  v-model="newMessage" 
                  placeholder="Nhập tin nhắn..."
+                 :disabled="sendingMessage"
                  @keyup.enter="sendMessage">
-          <button class="send-btn" @click="sendMessage">
-            <i class="fas fa-paper-plane"></i>
+          <button class="send-btn" @click="sendMessage" :disabled="sendingMessage || !newMessage.trim()">
+            <i v-if="sendingMessage" class="fas fa-spinner fa-spin"></i>
+            <i v-else class="fas fa-paper-plane"></i>
           </button>
         </div>
       </template>
@@ -113,9 +132,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
+import api from '@/api'
 
 const selectedChat = ref(null)
 const newMessage = ref('')
@@ -136,56 +157,245 @@ const confirmDialog = ref({
 })
 
 const router = useRouter()
+const store = useStore()
 
-// Demo data
-const conversations = ref([
-  {
-    id: 1,
-    name: 'Mai An',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-    lastMessage: 'Cảm ơn bạn đã chia sẻ tài liệu!',
-    lastMessageTime: '10:30',
-    unreadCount: 2,
-    messages: [
-      { id: 1, content: 'Chào bạn!', time: '10:00', isSent: false },
-      { id: 2, content: 'Mình vừa tìm thấy tài liệu hay về ngữ pháp N3', time: '10:05', isSent: true },
-      { id: 3, content: 'Cảm ơn bạn đã chia sẻ tài liệu!', time: '10:30', isSent: false }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Hùng Trần',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026705d',
-    lastMessage: 'Bạn có thể giải thích thêm về cách dùng ～ておく không?',
-    lastMessageTime: '09:15',
-    unreadCount: 0,
-    messages: [
-      { id: 1, content: 'Chào bạn!', time: '09:00', isSent: false },
-      { id: 2, content: 'Bạn có thể giải thích thêm về cách dùng ～ておく không?', time: '09:15', isSent: false }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Lan Anh',
-    avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026707d',
-    lastMessage: 'Mình sẽ gửi cho bạn tài liệu ôn thi JLPT N2',
-    lastMessageTime: 'Hôm qua',
-    unreadCount: 0,
-    messages: [
-      { id: 1, content: 'Chào bạn!', time: 'Hôm qua', isSent: false },
-      { id: 2, content: 'Mình sẽ gửi cho bạn tài liệu ôn thi JLPT N2', time: 'Hôm qua', isSent: false }
-    ]
+// Loading state
+const conversationsLoading = ref(false)
+const conversationMessagesLoading = ref(false)
+const sendingMessage = ref(false)
+
+// Get current user info
+const currentUser = computed(() => store.getters['auth/currentUser'])
+
+// Get current user ID from different sources
+const getCurrentUserId = async () => {
+  try {
+    // First try to get from profile API which might have more complete user info
+    const profileResponse = await api.profile.getProfile()
+    console.log('Profile API response:', profileResponse)
+    
+    if (profileResponse?.user_id) {
+      localStorage.setItem('currentUserId', profileResponse.user_id)
+      return profileResponse.user_id
+    }
+    
+    // Fallback: try to decode JWT token to get user ID
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        console.log('JWT payload:', payload)
+        // JWT might contain user ID or username that we can use
+      } catch (e) {
+        console.error('Error decoding JWT:', e)
+      }
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Error getting current user ID:', error)
+    return null
   }
-])
+}
 
-const selectChat = (chat) => {
-  selectedChat.value = chat
-  chat.unreadCount = 0
-  scrollToBottom()
-  
-  // Add mobile view handling
-  if (window.innerWidth <= 768) {
-    isMobileAndChatOpen.value = true
+// Conversations data from API
+const conversations = ref([])
+
+// Load chat partners from API
+const loadChatPartners = async () => {
+  try {
+    conversationsLoading.value = true
+    console.log('Loading chat partners...')
+    
+    const response = await api.message.getChatPartners()
+    console.log('Chat partners API response:', response)
+    
+    // Handle different response formats
+    const partnersData = Array.isArray(response) ? response : (response.content || response.data || response)
+    console.log('Partners data:', partnersData)
+    
+    // Map API data to conversation format based on actual UserSummaryDTO
+    const mappedConversations = (Array.isArray(partnersData) ? partnersData : []).map(partner => {
+      console.log('Mapping partner:', partner)
+      
+      // Build full name from firstName and lastName
+      const firstName = partner.firstName || ''
+      const lastName = partner.lastName || ''
+      const fullName = `${firstName} ${lastName}`.trim() || partner.userName || 'Người dùng'
+      
+      return {
+        id: partner.userId,
+        name: fullName,
+        avatar: partner.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
+        lastMessage: partner.lastMessageContent || 'Chưa có tin nhắn',
+        lastMessageTime: partner.lastMessageTime ? formatMessageTime(partner.lastMessageTime) : '',
+        unreadCount: 0, // Not provided in UserSummaryDTO
+        messages: [] // Will be loaded when chat is selected
+      }
+    })
+    
+    console.log('Mapped conversations:', mappedConversations)
+    conversations.value = mappedConversations
+    
+    // Store in Vuex
+    store.commit('message/setChatPartners', partnersData)
+    
+    // Show success message
+    store.dispatch('message/showMessage', {
+      type: 'success',
+      text: `Đã tải ${mappedConversations.length} cuộc trò chuyện`
+    })
+  } catch (error) {
+    console.error('Failed to load chat partners:', error)
+    
+    // Show error message
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Không thể tải danh sách tin nhắn: ' + error.message
+    })
+    
+    // Set empty array on error
+    conversations.value = []
+  } finally {
+    conversationsLoading.value = false
+  }
+}
+
+// Format message time
+const formatMessageTime = (dateString) => {
+  try {
+    if (!dateString) return ''
+    
+    // Handle LocalDateTime format from backend (e.g., "2025-07-23T13:08:36")
+    const date = new Date(dateString)
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString)
+      return 'Invalid Date'
+    }
+    
+    const now = new Date()
+    const diffMs = now - date
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+    
+    console.log('Formatting time:', dateString, 'parsed date:', date, 'diffHours:', diffHours, 'diffDays:', diffDays)
+    
+    // Same day - show time only
+    if (diffDays === 0) {
+      return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+    }
+    
+    // Within a week - show days ago
+    if (diffDays < 7) {
+      return `${diffDays} ngày trước`
+    }
+    
+    // Older - show date
+    return date.toLocaleDateString('vi-VN')
+  } catch (error) {
+    console.error('Error formatting time:', dateString, error)
+    return 'Lỗi thời gian'
+  }
+}
+
+const selectChat = async (chat) => {
+  try {
+    selectedChat.value = chat
+    chat.unreadCount = 0
+    
+    // Add mobile view handling
+    if (window.innerWidth <= 768) {
+      isMobileAndChatOpen.value = true
+    }
+    
+    // Start loading messages
+    conversationMessagesLoading.value = true
+    
+    console.log('Loading conversation with user:', chat.id)
+    
+    // Call API to get conversation
+    const response = await api.message.getConversation(chat.id)
+    console.log('Conversation API response:', response)
+    
+    // Handle different response formats
+    const conversationData = Array.isArray(response) ? response : (response.content || response.data || response)
+    console.log('Conversation data:', conversationData)
+    
+    // Map messages to expected format based on MessageDTO
+    const mappedMessages = (Array.isArray(conversationData) ? conversationData : []).map(message => {
+      console.log('Mapping message:', message)
+      
+      const senderId = message.senderId
+      const receiverId = message.receiverId
+      
+      // Try to get current user ID from different sources
+      let currentUserId = currentUser.value?.id || 
+                          currentUser.value?.userId || 
+                          currentUser.value?.user_id ||
+                          currentUser.value?.user?.id ||
+                          currentUser.value?.user?.userId ||
+                          localStorage.getItem('currentUserId')
+      
+      // TEMPORARY: If no currentUserId found, try to determine from message pattern
+      // Based on API response, we see 2 users:
+      // - "c6bc94fe-94e5-48e0-95f1-14847e7a8f7a" (nghianhbh00970@fpt.edu.vn)  
+      // - "5c936e0d-0629-4638-ba79-a58f597e2718" (vuongancut789@gmail.com)
+      if (!currentUserId && currentUser.value?.username) {
+        if (currentUser.value.username.includes('nghianhbh00970')) {
+          currentUserId = 'c6bc94fe-94e5-48e0-95f1-14847e7a8f7a'
+        } else if (currentUser.value.username.includes('vuongancut789')) {
+          currentUserId = '5c936e0d-0629-4638-ba79-a58f597e2718'
+        }
+        console.log('TEMPORARY userId mapping based on username:', currentUserId)
+      }
+      
+      // Determine if message was sent by current user
+      const isSent = senderId === currentUserId || String(senderId) === String(currentUserId)
+      
+      console.log('=== MESSAGE MAPPING DEBUG ===')
+      console.log('Message sender ID:', senderId, 'type:', typeof senderId)
+      console.log('Current user ID:', currentUserId, 'type:', typeof currentUserId)
+      console.log('Current user object (full):', JSON.stringify(currentUser.value, null, 2))
+      console.log('LocalStorage user ID:', localStorage.getItem('currentUserId'))
+      console.log('Strict equal?:', senderId === currentUserId)
+      console.log('String comparison:', String(senderId) === String(currentUserId))
+      console.log('Is sent (final):', isSent)
+      console.log('===============================')
+      
+      return {
+        id: message.messageId,
+        content: message.sentMessage,
+        time: message.sentDateTime ? formatMessageTime(message.sentDateTime) : '',
+        isSent: isSent,
+        senderId: senderId,
+        receiverId: receiverId,
+        senderName: message.senderName
+      }
+    })
+    
+    console.log('Mapped messages:', mappedMessages)
+    
+    // Update chat with loaded messages
+    chat.messages = mappedMessages
+    
+    scrollToBottom()
+    
+  } catch (error) {
+    console.error('Failed to load conversation:', error)
+    
+    // Show error message
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Không thể tải cuộc trò chuyện: ' + error.message
+    })
+    
+    // Still select chat but with empty messages
+    chat.messages = []
+    scrollToBottom()
+  } finally {
+    conversationMessagesLoading.value = false
   }
 }
 
@@ -204,19 +414,65 @@ const handleResize = () => {
   }
 }
 
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return
+const sendMessage = async () => {
+  if (!newMessage.value.trim() || !selectedChat.value || sendingMessage.value) return
 
-  const message = {
-    id: Date.now(),
-    content: newMessage.value,
-    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
-    isSent: true
-  }
-
-  selectedChat.value.messages.push(message)
-  newMessage.value = ''
-  scrollToBottom()
+  const messageContent = newMessage.value.trim()
+  const receiverId = selectedChat.value.id
+  
+  try {
+    sendingMessage.value = true
+    console.log('Sending message to:', receiverId, 'Content:', messageContent)
+    
+    // Create MessageDTO for API
+    const messageDTO = {
+      receiverId: receiverId,
+      sentMessage: messageContent
+    }
+    
+    // Call API to send message
+    const response = await api.message.sendMessage(messageDTO)
+    console.log('Message sent, API response:', response)
+    
+    // Map response to message format
+    const newMessageObj = {
+      id: response.messageId,
+      content: response.sentMessage,
+      time: formatMessageTime(response.sentDateTime),
+      isSent: true,
+      senderId: response.senderId,
+      receiverId: response.receiverId,
+      senderName: response.senderName
+    }
+    
+    // Add message to chat
+    if (selectedChat.value.messages) {
+      selectedChat.value.messages.push(newMessageObj)
+    } else {
+      selectedChat.value.messages = [newMessageObj]
+    }
+    
+    // Update last message in conversation list
+    selectedChat.value.lastMessage = messageContent
+    selectedChat.value.lastMessageTime = formatMessageTime(response.sentDateTime)
+    
+    // Clear input and scroll
+    newMessage.value = ''
+    scrollToBottom()
+    
+    console.log('Message added to chat successfully')
+    
+  } catch (error) {
+    console.error('Failed to send message:', error)
+    
+    // Show error message
+         store.dispatch('message/showMessage', {
+       type: 'error',
+       text: 'Không thể gửi tin nhắn: ' + error.message
+     })
+   } finally {
+     sendingMessage.value = false
+   }
 }
 
 const scrollToBottom = () => {
@@ -298,7 +554,13 @@ const updateHeaderHeight = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // Get current user ID first
+  await getCurrentUserId()
+  
+  // Load chat partners when component mounts
+  loadChatPartners()
+  
   scrollToBottom()
   window.addEventListener('click', closeSidebarMenu)
   
