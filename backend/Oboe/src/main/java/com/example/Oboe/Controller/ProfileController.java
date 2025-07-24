@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/profile")
@@ -49,4 +50,9 @@ public class ProfileController {
         user.setPassWord(null); // Ẩn mật khẩu
         return ResponseEntity.ok(user);
     }
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") UUID userId) {
+        return userService.getUserById(userId);
+    }
+
 }

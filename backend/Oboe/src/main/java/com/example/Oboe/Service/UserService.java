@@ -131,6 +131,10 @@ public class UserService implements UserDetailsService {
     public List<User> findByUserNameAndAuthProvider(String userName, AuthProvider provider) {
         return userRepository.findAllByUserNameAndAuthProvider(userName, provider);
     }
+    public User getUserByIds(UUID userId) {
+        return userRepository.findByUser_id(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+    }
 
 
 
