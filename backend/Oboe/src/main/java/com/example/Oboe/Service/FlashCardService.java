@@ -1,7 +1,9 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CardItemDto;
 import com.example.Oboe.DTOs.FlashCardDto;
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.CardItem;
 import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Entity.User;
@@ -19,9 +21,18 @@ public class FlashCardService {
 
     @Autowired
     private FlashCardRepository flashCardRepository;
+    private UserRepository userRepository;
+    private UserService userService ;
 
     @Autowired
-    private UserRepository userRepository;
+    public FlashCardService(FlashCardRepository flashCardRepository,
+                            UserRepository userRepository,
+                            UserService userService) {
+        this.flashCardRepository = flashCardRepository;
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
+
 
     public FlashCards createFlashCard(FlashCardDto dto, UUID userId) {
         User user = userRepository.findById(userId).orElse(null);
@@ -78,6 +89,17 @@ public class FlashCardService {
         return true;
     }
 
+    public List<FlashCardDto> getAllflashByUserId(UUID userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return List.of();
+
+        List<FlashCards> flashcards = flashCardRepository.findflashcardByUserId(userId);
+        return flashcards.stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+
+
     @Transactional
     public FlashCards updateFlashCard(UUID cardId, FlashCardDto dto, UUID userId) {
         Optional<FlashCards> optionalCard = flashCardRepository.findById(cardId);
@@ -102,4 +124,25 @@ public class FlashCardService {
 
         return flashCardRepository.save(flashCards);
     }
+
+    private FlashCardDto convertToDto(FlashCards flashCards) {
+        FlashCardDto dto = new FlashCardDto();
+        dto.setTerm(flashCards.getTerm());
+        dto.setDescription(flashCards.getDescription());
+        dto.setFlashcardID(flashCards.getSet_id());
+        return dto;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

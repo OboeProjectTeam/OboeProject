@@ -32,7 +32,7 @@ public class NotificationsService {
 
         Pageable top30 = PageRequest.of(0, 30); // chỉ lấy 30 thông báo mới nhất
         List<Notifications> notifications = notificationsRepository.findConversation(userId,top30);
-        Collections.reverse(notifications);//chuyển tin nhắn từ mới tới cũ
+        Collections.reverse(notifications);//chuyển thông báo mới nhất mới tới cũ
         return notifications.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -41,8 +41,16 @@ public class NotificationsService {
     public int markAllNotificationsAsRead(UUID userId) {
         return notificationsRepository.markAllAsRead(userId);
     }
-
-
+    @Transactional
+    public boolean markNotificationAsRead(UUID notificationId) {
+        Notifications read = notificationsRepository.findById(notificationId).orElse(null);
+        if (read != null && !read.isRead()) {
+            read.setRead(true); // Đánh dấu đã đọc
+            notificationsRepository.save(read); // Lưu lại
+            return true;
+        }
+        return false;
+    }
     public NotificationsDTO convertToDTO(Notifications notifications) {
 
         return new NotificationsDTO(

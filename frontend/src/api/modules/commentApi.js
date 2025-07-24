@@ -60,14 +60,17 @@ const commentApi = {
     }
   },
 
-  async getUserComments() {
+  async getUserComments(page = 0, size = 10) {
     try {
-      const res = await axios.get(`${PREFIX}/user/comment`);
+      const res = await axios.get(`${PREFIX}/user`, {
+        params: { page, size }
+      });
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   }
+
 };
 
 export default commentApi;

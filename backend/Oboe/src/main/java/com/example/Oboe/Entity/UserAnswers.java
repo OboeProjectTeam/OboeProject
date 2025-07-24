@@ -27,6 +27,17 @@ public class UserAnswers {
     @JoinColumn(name = "QuizzesID", nullable = false)
     private Quizzes quiz;
 
+    public int getAttemptNumber() {
+        return attemptNumber;
+    }
+
+    public void setAttemptNumber(int attemptNumber) {
+        this.attemptNumber = attemptNumber;
+    }
+
+    @Column(name = "attempt_number")
+    private int attemptNumber;
+
     // Getters and Setters
     public UUID getUserAnswersId() {
         return userAnswersId;

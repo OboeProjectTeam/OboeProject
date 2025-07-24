@@ -1,79 +1,74 @@
-// src/store/modules/quiz.js
-
-// Mock data to simulate a database
-let nextQuizId = 1
-const initialQuizzes = [
-  // You can add some initial quiz data here if you want
-]
+import quizApi from '@/api/modules/quizApi'
 
 const state = {
-  quizzes: initialQuizzes
+  quizzes: [],
+  currentQuiz: null,
+  loading: false,
+  error: null
 }
 
-const getters = {
-  getQuizById: (state) => (id) => {
-    return state.quizzes.find(quiz => quiz.id === id)
+const mutations = {
+  setQuizzes(state, quizzes) {
+    state.quizzes = quizzes
   },
-  getAllQuizzes: (state) => {
-    return state.quizzes
+  addQuiz(state, quiz) {
+    state.quizzes.push(quiz)
+  },
+  setCurrentQuiz(state, quiz) {
+    state.currentQuiz = quiz
+  },
+  setLoading(state, loading) {
+    state.loading = loading
+  },
+  setError(state, error) {
+    state.error = error
   }
 }
 
 const actions = {
-  async fetchQuizzes({ commit, state }) {
-    // In a real app, you'd fetch this from an API
-    commit('SET_QUIZZES', state.quizzes)
-    return state.quizzes
+  async fetchQuizzes({ commit }) {
+    try {
+      commit('setLoading', true)
+      console.log('Fetching quizzes...')
+      const response = await quizApi.getAll()
+      console.log('Quizzes fetched:', response)
+      commit('setQuizzes', response)
+      return response
+    } catch (error) {
+      console.error('Error fetching quizzes:', error)
+      commit('setError', error.message)
+      throw error
+    } finally {
+      commit('setLoading', false)
+    }
   },
 
   async createQuiz({ commit }, quizData) {
-    // In a real app, you'd send this to an API and get the created quiz back
-    const newQuiz = {
-      ...quizData,
-      id: nextQuizId++,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      questionCount: quizData.questions.length
+    try {
+      commit('setLoading', true)
+      const response = await quizApi.create(quizData)
+      commit('addQuiz', response)
+      return response
+    } catch (error) {
+      commit('setError', error.message)
+      throw error
+    } finally {
+      commit('setLoading', false)
     }
-    commit('ADD_QUIZ', newQuiz)
-    return newQuiz
-  },
-
-  async updateQuiz({ commit, state }, { id, quizData }) {
-    // In a real app, you'd send this to an API
-    const index = state.quizzes.findIndex(q => q.id === id)
-    if (index !== -1) {
-      const updatedQuiz = { ...state.quizzes[index], ...quizData, updatedAt: new Date().toISOString() }
-      commit('UPDATE_QUIZ', { index, quiz: updatedQuiz })
-      return updatedQuiz
-    }
-  },
-
-  async deleteQuiz({ commit }, quizId) {
-    // In a real app, you'd send a delete request to an API
-    commit('REMOVE_QUIZ', quizId)
   }
 }
 
-const mutations = {
-  SET_QUIZZES(state, quizzes) {
-    state.quizzes = quizzes
-  },
-  ADD_QUIZ(state, quiz) {
-    state.quizzes.unshift(quiz) // Add to the beginning of the array
-  },
-  UPDATE_QUIZ(state, { index, quiz }) {
-    state.quizzes[index] = quiz
-  },
-  REMOVE_QUIZ(state, quizId) {
-    state.quizzes = state.quizzes.filter(quiz => quiz.id !== quizId)
-  }
+const getters = {
+  getAllQuizzes: state => state.quizzes,
+  getCurrentQuiz: state => state.currentQuiz,
+  isLoading: state => state.loading,
+  getError: state => state.error
 }
 
 export default {
   namespaced: true,
   state,
-  getters,
+  mutations,
   actions,
-  mutations
+  getters
 } 

@@ -2,8 +2,14 @@ package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.TopicPostProjection;
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Service.BlogService;
 import com.example.Oboe.response.BaseResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,9 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/blogs")
@@ -77,15 +86,39 @@ public class BlogController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("title") String title) {
-        return ResponseEntity.ok(blogService.searchBlogDTOsByTitle(title));
+    public ResponseEntity<List<BlogDTO>> searchBlogs(@RequestParam("keyword") String keyword) {
+        List<BlogDTO> results = blogService.searchBlogs(keyword, "all");
+        return ResponseEntity.ok(results);
     }
+
     @GetMapping("/user/blogs")
-    public ResponseEntity<?> getUserBlogs(Authentication authentication) {
+    public ResponseEntity<?> getUserBlogs(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userId = userDetails.getUserID();
-            List<BlogDTO> blogs = blogService.getAllBlogbyUserId(userId);
-            return ResponseEntity.ok(blogs);
-        }
+
+        Page<BlogDTO> blogsPage = blogService.getAllBlogByUserIds(userId, page, size);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", blogsPage.getContent());
+        response.put("page", blogsPage.getNumber());
+        response.put("size", blogsPage.getSize());
+        response.put("totalElements", blogsPage.getTotalElements());
+        response.put("totalPages", blogsPage.getTotalPages());
+        response.put("last", blogsPage.isLast());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/featured-topics")
+    public ResponseEntity<List<?>> getTopTopics() {
+        List<?> topTopics = blogService.getTop5TopicsWithMostPosts();
+        return ResponseEntity.ok(topTopics);
+    }
+
 
 }

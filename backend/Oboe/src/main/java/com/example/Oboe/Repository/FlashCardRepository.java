@@ -1,5 +1,6 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.FlashCards;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +21,13 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
     @Query("SELECT f FROM FlashCards f WHERE f.user.user_id = :userId")
     Page<FlashCards> findByUser(@Param("userId") UUID userId, Pageable pageable);
 
+    @Query("SELECT f FROM FlashCards f WHERE f.user.user_id = :userId")
+    List<FlashCards> findflashcardByUserId(@Param("userId") UUID userId);
+
+
     @Query("SELECT f FROM FlashCards f WHERE f.user.user_id = :userId AND LOWER(f.term) LIKE LOWER(CONCAT('%', :term, '%'))")
     Page<FlashCards> searchByUserIdAndTerm(@Param("userId") UUID userId,
                                            @Param("term") String term,
                                            Pageable pageable);
     @Query("SELECT f FROM FlashCards f WHERE f.user.user_id = :userId ORDER BY f.created DESC")
     List<FlashCards> findTop5ByUserIdOrderByCreatedDesc(@Param("userId") UUID userId);
-}

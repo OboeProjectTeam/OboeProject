@@ -11,6 +11,7 @@ export default defineConfig({
     }
   },
   server: {
+    port: 5175, // Match current running port
     hmr: false,
     host: true,
     allowedHosts: [
@@ -21,13 +22,31 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'unsafe-none'
     },
     proxy: {
+      '/api': {
+        target: 'https://oboeru.me',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          });
+        },
+      },
       '/oauth2': {
         target: 'https://oboeru.me',
         changeOrigin: true,
+        secure: true,
       },
       '/login/oauth2': {
         target: 'https://oboeru.me',
         changeOrigin: true,
+        secure: true,
       }
     }
   },
