@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,27 +50,30 @@ public class CommentService {
     }
 
 
-    public  Map<String, Object> getCommentsByTeamId(UUID teamId,int page ,int size) {
-        // Lấy tất cả comment có referenceId = teamId (tức là liên quan đến đối tượng được bình luận)
+    public Map<String, Object> getCommentsByTeamId(UUID teamId, int page, int size) {
         List<Comment> comments = commentRepository.findByReferenceId(teamId);
 
-        // Chuyển đổi danh sách Entity thành danh sách DTOs
         List<CommentDTOs> allDtos = comments.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
 
-        // Xây dựng cây comment cha–con
-        List<CommentDTOs> rootComments = buildCommentTree(allDtos);
-        long totalParent = rootComments.size();
-        //phân trang cha
-        List<CommentDTOs> paginated  = paginateComments(rootComments,page,size);
-        Map<String,Object> response = new HashMap<>();
+        //  Tạo cây và lọc ra các comment cha (gốc)
+        List<CommentDTOs> commentTree = buildCommentTree(allDtos);
+
+        //  commentTree là danh sách gốc (cha), vì buildCommentTree đã lọc
+        List<CommentDTOs> rootComments = commentTree;
+
+        //  Phân trang theo comment cha
+        List<CommentDTOs> paginated = paginateComments(rootComments, page, size);
+
+        Map<String, Object> response = new HashMap<>();
         response.put("comments", paginated);
         response.put("currentPage", page);
         response.put("pageSize", size);
-        response.put("totalElements", totalParent);
+        response.put("totalElements", allDtos.size());
         return response;
     }
+
 
     // chuyển từ Comment dạng phẳng sang dạng cây (cha - Con)
     private List<CommentDTOs> buildCommentTree(List<CommentDTOs> allDtos) {
@@ -133,14 +137,17 @@ public class CommentService {
             // Nếu không phải bất kỳ loại nào
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nội dung phù hợp để bình luận");
         }
+        // lấy giờ việt nam
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
+
         // Tạo Comment
         Comment comment = new Comment();
         comment.setTitle(dto.getTitle());
         comment.setContent(dto.getContent());
-        comment.setCreatedAt(LocalDateTime.now());
+        comment.setCreatedAt(vietnamTime);
         comment.setUser(sender);
         comment.setreferenceId(teamId);
-
         Comment saved = commentRepository.save(comment);
         CommentDTOs commentDTO = toDTO(saved);
 
@@ -182,11 +189,13 @@ public class CommentService {
         Comment parent = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bình luận cha"));
 
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
         //  Tạo phản hồi (comment con)
         Comment reply = new Comment();
         reply.setTitle(dto.getTitle());
         reply.setContent(dto.getContent());
-        reply.setCreatedAt(LocalDateTime.now());
+        reply.setCreatedAt(vietnamTime);
         reply.setUser(sender);
         reply.setParentComment(parent);
         reply.setreferenceId(parent.getreferenceId()); // blogId

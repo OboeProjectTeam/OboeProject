@@ -66,7 +66,6 @@ public class FlashCardService {
         return flashCardRepository.searchByUserIdAndTerm(userId, term, pageable);
     }
 
-
     public Optional<FlashCards> getFlashCardById(UUID cardId) {
         return flashCardRepository.findById(cardId);
     }

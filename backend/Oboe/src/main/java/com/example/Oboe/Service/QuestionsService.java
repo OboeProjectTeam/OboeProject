@@ -6,8 +6,11 @@ import com.example.Oboe.Entity.Quizzes;
 import com.example.Oboe.Repository.QuestionsRepository;
 import com.example.Oboe.Repository.QuizzesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -22,31 +25,38 @@ public class QuestionsService {
     @Autowired
     private QuizzesRepository quizzesRepository;
 
-    public QuestionDTO create(QuestionDTO dto) {
-        Quizzes quiz = quizzesRepository.findById(dto.getQuizId())
-                .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        Questions question = new Questions();
-        question.setQuestionName(dto.getQuestionName());
-        question.setCorrectAnswer(dto.getCorrectAnswer());
+    // đùng List để tạo được nhiều câu hỏi hơn thay vì gọi mỗi QuestionDTO tạo dc từng câu hỏi
+    public List<QuestionDTO> create(List<QuestionDTO> dtoList) {
 
-        // Sửa tại đây: convert List<String> -> String (để lưu vào DB)
-        question.setOptions(String.join(";", dto.getOptions()));
+        List<QuestionDTO> createdQuestions = new ArrayList<>();
 
-        question.setQuiz(quiz);
+        for (QuestionDTO dto : dtoList) {
+            Quizzes quiz = quizzesRepository.findById(dto.getQuizId())
+                    .orElseThrow(() -> new RuntimeException("Quiz not found with ID: " + dto.getQuizId()));
 
-        return toDTO(questionsRepository.save(question));
+            Questions question = new Questions();
+            question.setQuestionName(dto.getQuestionName());
+            question.setCorrectAnswer(dto.getCorrectAnswer());
+            question.setOptions(String.join(";", dto.getOptions()));
+            question.setQuiz(quiz);
+
+            Questions saved = questionsRepository.save(question);
+            createdQuestions.add(toDTO(saved));
+        }
+
+        return createdQuestions;
     }
 
-    public List<QuestionDTO> getQuestionsByQuizId(UUID quizId) {
+    public Page<QuestionDTO> getQuestionsByQuizId(UUID quizId, Pageable pageable) {
         Quizzes quiz = quizzesRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
-        return questionsRepository.findByQuiz(quiz)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return questionsRepository.findByQuiz(quiz, pageable)
+                .map(this::toDTO); // chuyển Page<Questions> -> Page<QuestionDTO>
     }
+
+
 
     private QuestionDTO toDTO(Questions q) {
         QuestionDTO dto = new QuestionDTO();
