@@ -98,18 +98,12 @@ public class UserService implements UserDetailsService {
         AuthProvider provider = userDTOs.getAuthProvider();
         String username = userDTOs.getUserName();
 
-        System.out.println("UserService - addUser called with username: " + username + ", provider: " + provider);
-
         // Cho phép trùng username nếu khác provider
         List<User> existingUsers = userRepository.findAllByUserNameAndAuthProvider(username, provider);
-        System.out.println("UserService - Found " + existingUsers.size() + " existing users with same username and provider");
-        
         if (!existingUsers.isEmpty()) {
             if (provider == AuthProvider.EMAIL) {
-                System.out.println("UserService - Email provider user already exists, throwing exception");
                 throw new IllegalStateException("Tài khoản email đã được sử dụng.");
             } else {
-                System.out.println("UserService - OAuth provider user already exists, returning existing user: " + existingUsers.get(0).getUser_id());
                 return existingUsers.get(0); // Google/Facebook → dùng lại
             }
         }
@@ -201,29 +195,21 @@ public class UserService implements UserDetailsService {
 
 
     public UserDetails loadUserByUsernameAndProvider(String username, AuthProvider provider) {
-        System.out.println("UserService - loadUserByUsernameAndProvider called with username: " + username + ", provider: " + provider);
         List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, provider);
 
-        System.out.println("UserService - Found " + users.size() + " users with username: " + username + " and provider: " + provider);
-        
         if (users.isEmpty()) {
-            System.out.println("UserService - No user found, throwing UsernameNotFoundException");
             throw new UsernameNotFoundException("User not found (" + provider + ")");
         }
         if (users.size() > 1) {
-            System.out.println("UserService - Multiple users found, throwing UsernameNotFoundException");
             throw new UsernameNotFoundException("Tồn tại nhiều người dùng trùng thông tin đăng nhập.");
         }
 
         User user = users.get(0);
-        System.out.println("UserService - Found user: " + user.getUserName() + " with ID: " + user.getUser_id());
 
         if (user.getStatus() != null && user.getStatus().toString().equalsIgnoreCase("BANNED")) {
-            System.out.println("UserService - User is banned, throwing UsernameNotFoundException");
             throw new UsernameNotFoundException("Tài khoản đã bị khóa.");
         }
 
-        System.out.println("UserService - Building principal for user: " + user.getUserName());
         return buildPrincipal(user);
     }
 
