@@ -12,14 +12,19 @@ public class UserSummaryDTO {
     private String lastMessageContent;
     private LocalDateTime lastMessageTime;
 
+
+        private String avatarUrlReceiver;
+
+
     public UserSummaryDTO(UUID userId, String firstName, String lastName, String userName,
-                          String lastMessageContent, LocalDateTime lastMessageTime) {
+                          String lastMessageContent, LocalDateTime lastMessageTime, String avatarUrlReceiver) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
         this.lastMessageContent = lastMessageContent;
         this.lastMessageTime = lastMessageTime;
+        this.avatarUrlReceiver = avatarUrlReceiver;
     }
 
     //  Getters và Setters
@@ -70,4 +75,12 @@ public class UserSummaryDTO {
     public void setLastMessageTime(LocalDateTime lastMessageTime) {
         this.lastMessageTime = lastMessageTime;
     }
+    public String getAvatarUrlReceiver() {
+        return avatarUrlReceiver;
+    }
+
+    public void setAvatarUrlReceiver(String avatarUrlReceiver) {
+        this.avatarUrlReceiver = avatarUrlReceiver;
+    }
+
 }

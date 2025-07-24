@@ -25,6 +25,9 @@ public class CommentDTOs {
 
     private List<CommentDTOs> replies = new ArrayList<>();
 
+
+    private String avatarUrl;
+
     // ======== Constructors =========
     public CommentDTOs() {}
 
@@ -101,4 +104,12 @@ public class CommentDTOs {
     public void setReplies(List<CommentDTOs> replies) {
         this.replies = replies;
     }
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
 }
