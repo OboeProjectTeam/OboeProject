@@ -19,6 +19,7 @@
     import org.springframework.security.core.userdetails.UsernameNotFoundException;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.multipart.MultipartFile;
 
     import java.util.HashMap;
     import java.util.List;
@@ -128,7 +129,11 @@
                         "username", user.getUserName(),
                         "firstName", user.getFirstName(),
                         "lastName", user.getLastName(),
-                        "role", user.getRole().name()
+                        "role", user.getRole().name(),
+                        "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                            ? user.getAvatarUrl()
+                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
                 ));
 
                 return ResponseEntity.ok(response);
@@ -166,6 +171,64 @@
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
             }
+        }
+        @PostMapping("/uploadAvatar")
+        public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file,
+                                              Authentication authentication) {
+            String username = authentication.getName();
+
+            try {
+                User user = userService.uploadAvatarForUser(username, AuthProvider.EMAIL, file);
+                return ResponseEntity.ok(Map.of("avatarUrl", user.getAvatarUrl()));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Upload failed: " + e.getMessage());
+            }
+        }
+       @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Thiếu Authorization header");
+            }
+
+            String token = authHeader.substring(7); // Bỏ "Bearer "
+
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+            }
+
+            // Lấy username (sub) và provider từ JWT
+            String username = jwtUtil.getUsernameFromToken(token);
+            String providerStr = jwtUtil.getProviderFromToken(token);
+
+            AuthProvider provider;
+            try {
+                provider = AuthProvider.valueOf(providerStr);
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider không hợp lệ: " + providerStr);
+            }
+
+            User user = userService.findByUserNameAndAuthProvider(username, provider)
+                    .stream().findFirst().orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Không tìm thấy user với username = " + username + " và provider = " + provider);
+            }
+
+            Map<String, Object> response = Map.of(
+                    "user", Map.of(
+                            "username", user.getUserName(),
+                            "firstName", user.getFirstName(),
+                            "lastName", user.getLastName(),
+                            "role", user.getRole().name(),
+                            "displayName", user.getFirstName() + " " + user.getLastName(),
+                            "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                                ? user.getAvatarUrl()
+                                : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
+                                )
+            );
+
+            return ResponseEntity.ok(response);
         }
 
     }

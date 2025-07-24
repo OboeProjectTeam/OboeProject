@@ -8,12 +8,9 @@
         </svg>
       </div>
     </div>
+
     <div class="form__content">
       <h1>{{ isRegister ? 'Đăng Ký' : 'Đăng Nhập' }}</h1>
-
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
 
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '10px' : '0px' }">
         <input v-model="username" type="text" class="styled-input__input" />
@@ -49,26 +46,18 @@
         </div>
       </div>
 
-      <div v-if="!isRegister">
-        <MCheckbox v-model="remember" :disabled="isLoading">
-          <span style="color: #888888;font-size: 10px;">Ghi nhớ tài khoản</span>
-        </MCheckbox>
-      </div>
       <div v-if="isRegister">
         <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu" target="_blank">
-              Điều khoản dịch vụ
-            </router-link>
+            <router-link to="/dieu-khoan-dich-vu" target="_blank">Điều khoản dịch vụ</router-link>
             và
-            <router-link to="/quyen-rieng-tu" target="_blank">
-              Chính sách quyền riêng tư
-            </router-link>
+            <router-link to="/quyen-rieng-tu" target="_blank">Chính sách quyền riêng tư</router-link>
             của Oboe
           </span>
         </MCheckbox>
       </div>
+
       <button type="button" class="styled-button" @click="submitForm" :disabled="isLoading">
         <span class="styled-button__real-text-holder">
           <span class="styled-button__real-text">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
@@ -97,93 +86,106 @@
       </div>
     </div>
   </form>
+  <!-- Popup thông báo -->
+  <ConfirmDialog
+      v-if="showPopup"
+      :title="popupTitle"
+      :message="popupMessage"
+      confirmText="OK"
+      @confirm="handlePopupConfirm"
+      :showCancel="false" 
+    />
 </template>
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
+import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
-import { useRouter } from 'vue-router';
-import { useStore } from 'vuex';
-import authApi from '@/api/modules/authApi';
-import oauthApi from '@/api/modules/oauthApi';
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
+import api from '@/api'
 
 const props = defineProps({
-  isRegister: {
-    type: Boolean,
-    default: false
-  },
-  formWidth: {
-    type: String,
-    default: '400px'
-  }
-});
+  isRegister: { type: Boolean, default: false },
+  formWidth: { type: String, default: '400px' }
+})
 
-const router = useRouter();
-const store = useStore();
+const router = useRouter()
+const store = useStore()
 
 const username = ref('')
 const password = ref('')
-const remember = ref(false);
-const lastname = ref('');
-const firstname = ref('');
-const errorMessage = ref('');
-const isLoading = ref(false);
+const remember = ref(false)
+const lastname = ref('')
+const firstname = ref('')
+const isLoading = ref(false)
+
+// popup dialog
+const showPopup = ref(false)
+const popupMessage = ref('')
+const popupTitle = ref('Thông báo')
+const success = ref (false)
+
+const showDialog = (message, type = 'success') => {
+  popupTitle.value = type === 'success' ? '🎉 Thành công' : '❗ Thất bại'
+  popupMessage.value = message
+  showPopup.value = true
+}
 
 const handleGoogleLogin = () => {
-  window.location.href = oauthApi.getGoogleAuthUrl();
+  window.location.href = api.oauth.getGoogleAuthUrl()
 }
 
 const handleFacebookLogin = () => {
-  window.location.href = oauthApi.getFacebookAuthUrl();
+  window.location.href = api.oauth.getFacebookAuthUrl()
+}
+const handlePopupConfirm = () => {
+  showPopup.value = false
+  if (success.value && props.isRegister) {
+    router.push('/login')
+  }
 }
 
 const submitForm = async () => {
+  isLoading.value = true
+  store.commit('auth/CLEAR_AUTH')
+
   try {
-    errorMessage.value = '';
-    isLoading.value = true;
-
     if (props.isRegister) {
-      // Validate form
-      if (!username.value || !password.value || !lastname.value || !firstname.value) {
-        errorMessage.value = 'Vui lòng điền đầy đủ thông tin';
-        return;
-      }
-
-      if (!remember.value) {
-        errorMessage.value = 'Vui lòng chấp nhận điều khoản dịch vụ';
-        return;
-      }
-
-      // Call signup API
-      const userData = {
+      await store.dispatch('auth/signup', {
         userName: username.value,
         passWord: password.value,
         firstName: firstname.value,
-        lastName: lastname.value
-      };
+        lastName: lastname.value,
+        authProvider: 'EMAIL',
+      })
 
-      const response = await authApi.signup(userData);
-      // Show success message
-      alert('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
-      // Redirect to login page
-      router.push('/login');
+      showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
+      resetForm()
+      success.value = true 
+
     } else {
-      // Handle login
-      const response = await authApi.login(username.value, password.value);
-      // Store token
-      store.dispatch('auth/setToken', response.token);
-      // Store user info
-      store.dispatch('auth/setUser', response.user);
-      // Redirect to home page
-      router.push('/');
+      await store.dispatch('auth/login', {
+        userName: username.value,
+        passWord: password.value,
+      })
+
+      router.push('/')
     }
-  } catch (error) {
-    errorMessage.value = error.message || 'Có lỗi xảy ra, vui lòng thử lại';
+  } catch (err) {
+    showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
+const resetForm = () => {
+  username.value = ''
+  password.value = ''
+  firstname.value = ''
+  lastname.value = ''
+}
+
 function placeholderAnimationIn(parent, action) {
   const act = action ? 'add' : 'remove'
   let letters = Array.from(parent.querySelectorAll('.letter'))
@@ -197,23 +199,21 @@ function placeholderAnimationIn(parent, action) {
     }, 50 * i)
   })
 }
-//Khởi tạo placeholder chữ động
+
 function initAnimatedPlaceholders() {
-  const placeholders = document.querySelectorAll('.styled-input__placeholder-text');
+  const placeholders = document.querySelectorAll('.styled-input__placeholder-text')
   placeholders.forEach(el => {
-    const value = el.innerText || '\u00A0';
-    el.innerHTML = '';
+    const value = el.innerText || '\u00A0'
+    el.innerHTML = ''
     for (const char of value) {
-      const span = document.createElement('span');
-      span.className = 'letter';
-      // Nếu là khoảng trắng thì thay bằng non-breaking space
-      span.textContent = char === ' ' ? '\u00A0' : char;
-      el.appendChild(span);
+      const span = document.createElement('span')
+      span.className = 'letter'
+      span.textContent = char === ' ' ? '\u00A0' : char
+      el.appendChild(span)
     }
-  });
+  })
 }
 
-// Chạy hiệu ứng cho các placeholder
 function setupInputFocusAnimations() {
   const inputs = document.querySelectorAll('.styled-input__input')
   inputs.forEach(input => {
@@ -229,10 +229,10 @@ function setupInputFocusAnimations() {
     })
   })
 }
-// Chạy hiệu ứng khởi động giao diện
+
 function runStartupTransitions() {
-  setTimeout(() => document.body.classList.add('on-start'), 100);
-  setTimeout(() => document.body.classList.add('document-loaded'), 1800);
+  setTimeout(() => document.body.classList.add('on-start'), 100)
+  setTimeout(() => document.body.classList.add('document-loaded'), 1800)
 }
 
 onMounted(async () => {
@@ -242,7 +242,7 @@ onMounted(async () => {
     setupInputFocusAnimations()
     runStartupTransitions()
   } catch (error) {
-    console.error(' Error in FormAuthen onMounted:', error)
+    console.error('Error in FormAuthen onMounted:', error)
   }
 })
 </script>

@@ -1,15 +1,25 @@
-import axios from '../axiosConfig';
 import { handleApiError } from '../apiUtils';
+import { jwtDecode } from 'jwt-decode'
+import axios from '../axios';
+
+/**
+ * Kiểm tra token JWT có hết hạn hay chưa
+ * @param {string} token - Token JWT
+ * @returns {boolean} true nếu token đã hết hạn hoặc không hợp lệ
+ */
+export function isTokenExpired(token) {
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.exp * 1000 < Date.now();
+  } catch (e) {
+    return true;
+  }
+}
 
 /**
  * Module chứa các API liên quan đến xác thực người dùng
  */
 const authApi = {
-  /**
-   * Đăng ký tài khoản mới
-   * @param {Object} userData - Thông tin đăng ký (username, password, etc.)
-   * @returns {Promise} Thông báo đã gửi email xác thực
-   */
   async signup(userData) {
     try {
       const response = await axios.post('/api/auth/signup', userData);
@@ -19,15 +29,10 @@ const authApi = {
     }
   },
 
-  /**
-   * Xác thực tài khoản
-   * @param {string} token - Token xác thực từ email
-   * @returns {Promise} Thông báo xác thực thành công
-   */
   async verify(token) {
     try {
       const response = await axios.get('/api/auth/verify', {
-        params: { token }
+        params: { token },
       });
       return response.data;
     } catch (error) {
@@ -35,12 +40,6 @@ const authApi = {
     }
   },
 
-  /**
-   * Đăng nhập với username và mật khẩu
-   * @param {string} userName - Tên đăng nhập
-   * @param {string} passWord - Mật khẩu
-   * @returns {Promise} Thông tin người dùng và token
-   */
   async login(userName, passWord) {
     try {
       const response = await axios.post('/api/auth/login', { userName, passWord });
@@ -49,12 +48,14 @@ const authApi = {
       throw new Error(handleApiError(error));
     }
   },
-
-  /**
-   * Cập nhật thông tin cá nhân
-   * @param {Object} userData - Thông tin cần cập nhật
-   * @returns {Promise} Thông tin người dùng đã cập nhật
-   */
+  async logout() {
+    try {
+      const response = await axios.post('/api/auth/logout');
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },  
   async updateProfile(userData) {
     try {
       const response = await axios.put('/api/auth/updateProfile', userData);
@@ -64,11 +65,6 @@ const authApi = {
     }
   },
 
-  /**
-   * Đổi mật khẩu
-   * @param {Object} passwordData - Dữ liệu đổi mật khẩu (oldPassword, newPassword)
-   * @returns {Promise} Thông báo đổi mật khẩu thành công
-   */
   async changePassword(passwordData) {
     try {
       const response = await axios.put('/api/auth/changePassword', passwordData);
@@ -76,7 +72,32 @@ const authApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
-  }
+  },
+
+  async uploadAvatar(file) {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post('/api/auth/uploadAvatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  async getCurrentUser() {
+    try {
+      const response = await axios.get('/api/auth/me');
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
 };
 
-export default authApi; 
+export default authApi;

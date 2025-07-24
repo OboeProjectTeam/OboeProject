@@ -4,7 +4,13 @@
         <div class="confirm-title">{{ title }}</div>
         <div class="confirm-message">{{ message }}</div>
         <div class="confirm-actions">
-          <button class="btn btn-secondary" @click="onCancel">Hủy</button>
+          <button
+            v-if="showCancel"
+            class="btn btn-secondary"
+            @click="onCancel"
+          >
+            Hủy
+          </button>
           <button class="btn btn-primary" @click="onConfirm">{{ confirmText }}</button>
         </div>
       </div>
@@ -15,7 +21,8 @@
   const props = defineProps({
     title: { type: String, default: 'Xác nhận' },
     message: { type: String, required: true },
-    confirmText: { type: String, default: 'Xác nhận' }
+    confirmText: { type: String, default: 'Xác nhận' },
+    showCancel: { type: Boolean, default: true }
   })
   const emit = defineEmits(['confirm', 'cancel'])
   

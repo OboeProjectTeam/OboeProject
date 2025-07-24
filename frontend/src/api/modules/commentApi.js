@@ -1,56 +1,73 @@
-/**
- * API module for handling comments
- */
-import axiosClient from '../axiosConfig';
+import axios from '@/api/axios';
+import { handleApiError } from '@/api/apiUtils';
 
-/**
- * Lấy tất cả comment theo ID (blog, kanji, etc.)
- * @param {string} id - ID của đối tượng cần lấy comment
- * @param {number} page - Số trang
- * @param {number} size - Số lượng item trên một trang
- * @returns {Promise} Promise chứa danh sách comment
- */
-export const getComments = (id, page = 0, size = 5) => {
-  return axiosClient.get(`/api/comments/${id}`, {
-    params: { page, size }
-  });
+const PREFIX = '/api/comments';
+
+const commentApi = {
+  async getComments(teamId, page = 0, size = 5) {
+    try {
+      const res = await axios.get(`${PREFIX}/${teamId}`, {
+        params: { page, size }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async createComment(teamId, dto) {
+    try {
+      const res = await axios.post(`${PREFIX}/${teamId}`, dto);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async replyComment(commentId, dto) {
+    try {
+      const res = await axios.post(`${PREFIX}/reply/${commentId}`, dto);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async updateComment(commentId, dto) {
+    try {
+      const res = await axios.put(`${PREFIX}/${commentId}`, dto);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async deleteComment(commentId) {
+    try {
+      const res = await axios.delete(`${PREFIX}/${commentId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async countComments(teamId) {
+    try {
+      const res = await axios.get(`${PREFIX}/count/${teamId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  async getUserComments() {
+    try {
+      const res = await axios.get(`${PREFIX}/user/comment`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 };
 
-/**
- * Tạo comment mới cho một đối tượng
- * @param {string} teamId - ID của đối tượng được comment
- * @param {Object} commentData - Dữ liệu comment
- * @returns {Promise} Promise chứa comment đã tạo
- */
-export const createComment = (teamId, commentData) => {
-  return axiosClient.post(`/api/comments/${teamId}`, commentData);
-};
-
-/**
- * Trả lời một comment
- * @param {string} commentId - ID của comment được trả lời
- * @param {Object} replyData - Dữ liệu trả lời
- * @returns {Promise} Promise chứa comment trả lời đã tạo
- */
-export const replyToComment = (commentId, replyData) => {
-  return axiosClient.post(`/api/comments/reply/${commentId}`, replyData);
-};
-
-/**
- * Cập nhật một comment
- * @param {string} commentId - ID của comment cần cập nhật
- * @param {Object} commentData - Dữ liệu comment mới
- * @returns {Promise} Promise chứa comment đã cập nhật
- */
-export const updateComment = (commentId, commentData) => {
-  return axiosClient.put(`/api/comments/${commentId}`, commentData);
-};
-
-/**
- * Xóa một comment
- * @param {string} commentId - ID của comment cần xóa
- * @returns {Promise} Promise chứa kết quả xóa
- */
-export const deleteComment = (commentId) => {
-  return axiosClient.delete(`/api/comments/${commentId}`);
-}; 
+export default commentApi;

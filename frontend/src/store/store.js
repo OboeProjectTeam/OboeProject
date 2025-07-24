@@ -1,4 +1,5 @@
 // store/index.js
+import createPersistedState from 'vuex-persistedstate'
 import { createStore } from 'vuex';
 import header from './modules/header';
 import cart from './modules/cart';
@@ -10,6 +11,7 @@ import quiz from './modules/quiz';
 import history from './modules/history';
 import user from './modules/user';
 import forum from './modules/forum';
+
 
 export default createStore({
   modules: {
@@ -24,5 +26,6 @@ export default createStore({
     history,
     forum
   },
+  plugins: [createPersistedState()]
 });
 
