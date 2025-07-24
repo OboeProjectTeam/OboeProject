@@ -68,14 +68,12 @@
         }
 
 
-
-
+        @GetMapping("/latest")
+        public ResponseEntity<?> getTop5LatestFlashCards(
+                @AuthenticationPrincipal(expression = "userID") UUID userId) {
+            return ResponseEntity.ok(flashCardService.getTop5LatestFlashCards(userId));
+        }
     }
 
-    @GetMapping("/latest")
-    public ResponseEntity<?> getTop5LatestFlashCards(
-            @AuthenticationPrincipal(expression = "userID") UUID userId) {
-        return ResponseEntity.ok(flashCardService.getTop5LatestFlashCards(userId));
-    }
 
-}
+
