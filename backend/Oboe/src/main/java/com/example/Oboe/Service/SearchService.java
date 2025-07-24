@@ -22,86 +22,71 @@ public class SearchService {
     @Autowired
     private SampleSentenceRepository sampleSentenceRepository;
 
-    @Autowired
-    private ReadingRepository readingRepository;
+    // Gợi ý tất cả các loại (dành cho /suggest)
+    public List<Map<String, String>> suggestAllTypes(String keyword) {
+        List<Map<String, String>> suggestions = new ArrayList<>();
 
-    public List<Kanji> searchKanji(String keyword) {
-        return kanjiRepository.searchKanji(keyword);
+        suggestions.addAll(searchByType(keyword, "vocabulary"));
+        suggestions.addAll(searchByType(keyword, "kanji"));
+        suggestions.addAll(searchByType(keyword, "grammar"));
+        suggestions.addAll(searchByType(keyword, "sentence"));
+
+        return suggestions;
     }
 
-    public List<Vocabulary> searchVocabulary(String keyword) {
-        return vocabularyRepository.searchVocabulary(keyword);
-    }
+    // Tìm kiếm theo keyword và type cụ thể (dành cho /api/search?keyword=...&type=...)
+    public List<Map<String, String>> searchByType(String keyword, String type) {
+        List<Map<String, String>> suggestions = new ArrayList<>();
 
-    public List<Grammar> searchGrammar(String keyword) {
-        return grammarRepository.searchGrammar(keyword);
-    }
+        switch (type.toLowerCase()) {
+            case "vocabulary":
+                for (Vocabulary v : vocabularyRepository.searchVocabulary(keyword)) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("type", "vocabulary");
+                    item.put("word", v.getWords());
+                    item.put("reading", v.getVietnamesePronunciation());
+                    item.put("meaning", v.getMeanning());
+                    suggestions.add(item);
+                }
+                break;
 
-    public List<SampleSentence> searchSentences(String keyword) {
-        return sampleSentenceRepository.searchByVietnameseMeaning(keyword);
-    }
+            case "kanji":
+                for (Kanji k : kanjiRepository.searchKanji(keyword)) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("type", "kanji");
+                    item.put("word", k.getCharacter_name());
+                    item.put("reading", k.getVietnamesePronunciation());
+                    item.put("meaning", k.getMeaning());
+                    suggestions.add(item);
+                }
+                break;
 
-    /**
-     * Tìm tất cả kết quả liên quan đến từ khoá keyword, bao gồm tra từ, nghĩa hoặc cách đọc (romaji)
-     */
-    public Map<String, List<Map<String, Object>>> searchByKeyword(String keyword) {
-        Map<String, List<Map<String, Object>>> result = new HashMap<>();
+            case "grammar":
+                for (Grammar g : grammarRepository.searchGrammar(keyword)) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("type", "grammar");
+                    item.put("word", g.getStructure());
+                    item.put("reading", g.getVietnamesePronunciation());
+                    item.put("meaning", g.getExplanation());
+                    suggestions.add(item);
+                }
+                break;
 
-        // --- Vocabulary ---
-        List<Map<String, Object>> vocabResults = new ArrayList<>();
-        for (Vocabulary v : vocabularyRepository.searchVocabulary(keyword)) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("vocabulary", v);
-            map.put("readings", readingRepository.findByOwnerTypeAndOwnerId("vocabulary", v.getVocalbId()));
-            vocabResults.add(map);
-        }
-        result.put("vocabulary", vocabResults);
+            case "sentence":
+                for (SampleSentence s : sampleSentenceRepository.searchByVietnameseMeaning(keyword)) {
+                    Map<String, String> item = new HashMap<>();
+                    item.put("type", "sentence");
+                    item.put("word", s.getJapaneseText());
+                    item.put("reading", s.getVietnamesePronunciation());
+                    item.put("meaning", s.getVietnameseMeaning());
+                    suggestions.add(item);
+                }
+                break;
 
-        // --- Kanji ---
-        List<Map<String, Object>> kanjiResults = new ArrayList<>();
-        for (Kanji k : kanjiRepository.searchKanji(keyword)) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("kanji", k);
-            map.put("readings", readingRepository.findByOwnerTypeAndOwnerId("kanji", k.getKanjiId()));
-            kanjiResults.add(map);
-        }
-        result.put("kanji", kanjiResults);
-
-        // --- Grammar ---
-        List<Map<String, Object>> grammarResults = new ArrayList<>();
-        for (Grammar g : grammarRepository.searchGrammar(keyword)) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("grammar", g);
-            map.put("readings", readingRepository.findByOwnerTypeAndOwnerId("gramma", g.getGrammaID()));
-            grammarResults.add(map);
-        }
-        result.put("grammar", grammarResults);
-
-        // --- Reading (e.g. bagen, dekimashita, etc.) ---
-        List<Reading> readings = readingRepository.searchReadingsByText(keyword);
-        for (Reading r : readings) {
-            String ownerType = r.getOwnerType();
-            UUID ownerId = r.getOwnerId();
-
-            Map<String, Object> item = new HashMap<>();
-            item.put("reading", r);
-
-            switch (ownerType) {
-                case "vocabulary" -> vocabularyRepository.findById(ownerId).ifPresent(v -> {
-                    item.put("vocabulary", v);
-                    result.computeIfAbsent("vocabulary", k -> new ArrayList<>()).add(item);
-                });
-                case "kanji" -> kanjiRepository.findById(ownerId).ifPresent(k -> {
-                    item.put("kanji", k);
-                    result.computeIfAbsent("kanji", k2 -> new ArrayList<>()).add(item);
-                });
-                case "gramma" -> grammarRepository.findById(ownerId).ifPresent(g -> {
-                    item.put("grammar", g);
-                    result.computeIfAbsent("grammar", k2 -> new ArrayList<>()).add(item);
-                });
-            }
+            default:
+                throw new IllegalArgumentException("Type không hợp lệ: " + type);
         }
 
-        return result;
+        return suggestions;
     }
 }
