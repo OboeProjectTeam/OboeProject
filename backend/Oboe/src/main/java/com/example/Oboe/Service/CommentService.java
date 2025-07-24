@@ -302,6 +302,7 @@ public class CommentService {
         if (comment.getUser() != null) {
             dto.setUserId(comment.getUser().getUser_id());
             dto.setUserName(comment.getUser().getUserName());
+            dto.setAvatarUrl(comment.getUser().getAvatarUrl());
         }
         // Nếu là phản hồi thì set comment cha
         if (comment.getParentComment() != null) {

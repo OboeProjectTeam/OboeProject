@@ -95,7 +95,8 @@
                         user.getLastName(),
                         user.getUserName(),
                         lastMsg != null ? lastMsg.getSent_message() : null,
-                        lastMsg != null ? lastMsg.getSent_at() : null
+                        lastMsg != null ? lastMsg.getSent_at() : null,
+                        user.getAvatarUrl() //  avatar
                 );
             }).collect(Collectors.toList());
         }
@@ -133,6 +134,8 @@
             dto.setSentMessage(message.getSent_message());
             dto.setSentDateTime(message.getSent_at());
             dto.setSenderName(message.getSender().getUserName());
+            dto.setAvatarUrlSender(message.getSender().getAvatarUrl());
+            dto.setAvatarUrlReceiver(message.getReceiver().getAvatarUrl());
             return dto;
         }
 
