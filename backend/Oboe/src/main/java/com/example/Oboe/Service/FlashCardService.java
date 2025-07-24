@@ -66,6 +66,13 @@ public class FlashCardService {
         return flashCardRepository.searchByUserIdAndTerm(userId, term, pageable);
     }
 
+    public List<FlashCards> getTop5LatestFlashCards(UUID userId) {
+        return flashCardRepository.findTop5ByUserIdOrderByCreatedDesc(userId)
+                .stream()
+                .limit(5)
+                .toList();
+    }
+
     public Optional<FlashCards> getFlashCardById(UUID cardId) {
         return flashCardRepository.findById(cardId);
     }

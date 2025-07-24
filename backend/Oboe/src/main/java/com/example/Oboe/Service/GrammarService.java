@@ -1,11 +1,8 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.GrammarDTO;
-import com.example.Oboe.DTOs.ReadingDTO;
 import com.example.Oboe.Entity.Grammar;
-import com.example.Oboe.Entity.Reading;
 import com.example.Oboe.Repository.GrammarRepository;
-import com.example.Oboe.Repository.ReadingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,12 +19,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class GrammarService {
 
-    private final ReadingRepository readingRepository;
     private final GrammarRepository grammarRepository;
 
-    public GrammarService(GrammarRepository grammarRepository, ReadingRepository readingRepository) {
+    public GrammarService(GrammarRepository grammarRepository) {
         this.grammarRepository = grammarRepository;
-        this.readingRepository = readingRepository;
     }
 
     // Get all grammar with pagination
@@ -60,17 +55,9 @@ public class GrammarService {
         grammar.setExplanation(dto.getExplanation());
         grammar.setExample(dto.getExample());
         grammar.setGrammarType(dto.getGrammarType());
+        grammar.setVietnamesePronunciation(dto.getVietnamesePronunciation());
 
         Grammar saved = grammarRepository.save(grammar);
-
-        if (dto.getReadings() != null && !dto.getReadings().isEmpty()) {
-            List<Reading> readings = dto.getReadings().stream().map(r -> {
-                r.setOwnerType("grammar");
-                r.setOwnerId(saved.getGrammaID());
-                return readingToEntity(r);
-            }).collect(Collectors.toList());
-            readingRepository.saveAll(readings);
-        }
 
         return grammarToDTO(saved);
     }
@@ -93,23 +80,9 @@ public class GrammarService {
         if (dto.getExplanation() != null) grammar.setExplanation(dto.getExplanation());
         if (dto.getExample() != null) grammar.setExample(dto.getExample());
         if (dto.getGrammarType() != null) grammar.setGrammarType(dto.getGrammarType());
+        if (dto.getVietnamesePronunciation() != null) grammar.setVietnamesePronunciation(dto.getVietnamesePronunciation());
 
         Grammar updated = grammarRepository.save(grammar);
-
-        // Xoá readings cũ
-        List<Reading> oldReadings = readingRepository.findByOwnerTypeAndOwnerId("grammar", grammar.getGrammaID());
-        readingRepository.deleteAll(oldReadings);
-
-        // Thêm readings mới nếu có
-        if (dto.getReadings() != null && !dto.getReadings().isEmpty()) {
-            List<Reading> newReadings = dto.getReadings().stream().map(r -> {
-                r.setOwnerType("grammar");
-                r.setOwnerId(grammar.getGrammaID());
-                return readingToEntity(r);
-            }).collect(Collectors.toList());
-            readingRepository.saveAll(newReadings);
-        }
-
         return grammarToDTO(updated);
     }
 
@@ -119,10 +92,6 @@ public class GrammarService {
 
         Grammar grammar = grammarRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Grammar không tồn tại"));
-
-        // Xoá readings trước
-        List<Reading> readings = readingRepository.findByOwnerTypeAndOwnerId("grammar", grammar.getGrammaID());
-        readingRepository.deleteAll(readings);
 
         grammarRepository.delete(grammar);
     }
@@ -143,38 +112,8 @@ public class GrammarService {
         dto.setExplanation(grammar.getExplanation());
         dto.setExample(grammar.getExample());
         dto.setGrammarType(grammar.getGrammarType());
-
-        // Lấy danh sách Reading
-        List<ReadingDTO> readingDTOs = readingRepository
-                .findByOwnerTypeAndOwnerId("grammar", grammar.getGrammaID())
-                .stream()
-                .map(this::readingToDTO)
-                .collect(Collectors.toList());
-
-        dto.setReadings(readingDTOs);
+        dto.setVietnamesePronunciation(grammar.getVietnamesePronunciation());
         return dto;
-    }
-
-    //  Convert Reading → DTO
-    private ReadingDTO readingToDTO(Reading reading) {
-        return new ReadingDTO(
-                reading.getReadingID(),
-                reading.getReadingText(),
-                reading.getReadingType(),
-                reading.getOwnerType(),
-                reading.getOwnerId()
-        );
-    }
-
-    //  Convert DTO → Reading entity
-    private Reading readingToEntity(ReadingDTO dto) {
-        Reading reading = new Reading();
-        reading.setReadingID(dto.getReadingID());
-        reading.setReadingText(dto.getReadingText());
-        reading.setReadingType(dto.getReadingType());
-        reading.setOwnerType(dto.getOwnerType());
-        reading.setOwnerId(dto.getOwnerId());
-        return reading;
     }
 
     //  Check role

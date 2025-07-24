@@ -20,6 +20,18 @@ public class SampleSentence {
     private String vietnameseMeaning; // Nghĩa tiếng Việt
 
 
+    @Column(name = "vietnamese_pronunciation")
+    private String vietnamesePronunciation;
+
+    public String getVietnamesePronunciation() {
+        return vietnamesePronunciation;
+    }
+
+    public void setVietnamesePronunciation(String vietnamesePronunciation) {
+        this.vietnamesePronunciation = vietnamesePronunciation;
+    }
+
+
     // Constructors
     public SampleSentence() {}
 
