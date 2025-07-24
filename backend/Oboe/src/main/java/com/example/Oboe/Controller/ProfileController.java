@@ -1,6 +1,7 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
+import com.example.Oboe.DTOs.UserProfileDTO;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Service.UserService;
@@ -23,7 +24,6 @@ public class ProfileController {
 
     @GetMapping
     public ResponseEntity<?> getProfile(Authentication authentication) {
-
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
@@ -47,8 +47,7 @@ public class ProfileController {
         }
 
         User user = users.get(0);
-        user.setPassWord(null); // Ẩn mật khẩu
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new UserProfileDTO(user));
     }
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") UUID userId) {

@@ -1,6 +1,5 @@
 package com.example.Oboe.Service;
 
-
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.Payment;
 import com.example.Oboe.Entity.User;
@@ -23,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MomoService {
+
+    private static final String AMOUNT = "2000";
 
     @Autowired
     private UserRepository userRepository;
@@ -48,40 +49,34 @@ public class MomoService {
     @Value("${momo.notifyUrl}")
     private String notifyUrl;
 
-    public String createPayment(UUID userId) throws Exception {
+    public Map<String, String> createPayment(UUID userId) throws Exception {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String orderId = UUID.randomUUID().toString();
         String requestId = UUID.randomUUID().toString();
-        String amount = "2000";
         String orderInfo = "Nâng cấp Premium cho người dùng: " + user.getUserName();
+        String extraData = userId.toString(); // ✅ truyền đúng extraData vào rawData
 
-        String rawData = "accessKey=" + accessKey +
-                "&amount=" + amount +
-                "&extraData=" +
-                "&ipnUrl=" + notifyUrl +
-                "&orderId=" + orderId +
-                "&orderInfo=" + orderInfo +
-                "&partnerCode=" + partnerCode +
-                "&redirectUrl=" + returnUrl +
-                "&requestId=" + requestId +
-                "&requestType=captureWallet";
-
+        String rawData = buildRawData(orderId, requestId, orderInfo, extraData);
         String signature = HmacUtil.signSHA256(rawData, secretKey);
 
-        JSONObject json = new JSONObject();
-        json.put("partnerCode", partnerCode);
-        json.put("accessKey", accessKey);
-        json.put("requestId", requestId);
-        json.put("amount", amount);
-        json.put("orderId", orderId);
-        json.put("orderInfo", orderInfo);
-        json.put("redirectUrl", returnUrl);
-        json.put("ipnUrl", notifyUrl);
-        json.put("extraData", "");
-        json.put("requestType", "captureWallet");
-        json.put("signature", signature);
+        System.out.println("==== TẠO CHỮ KÝ MOMO ====");
+        System.out.println("RawData: " + rawData);
+        System.out.println("Signature: " + signature);
+
+        JSONObject payload = new JSONObject();
+        payload.put("partnerCode", partnerCode);
+        payload.put("accessKey", accessKey);
+        payload.put("requestId", requestId);
+        payload.put("amount", AMOUNT);
+        payload.put("orderId", orderId);
+        payload.put("orderInfo", orderInfo);
+        payload.put("redirectUrl", returnUrl);
+        payload.put("ipnUrl", notifyUrl);
+        payload.put("extraData", extraData); // ✅ khớp với rawData
+        payload.put("requestType", "captureWallet");
+        payload.put("signature", signature);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(endpoint).openConnection();
         conn.setDoOutput(true);
@@ -89,40 +84,60 @@ public class MomoService {
         conn.setRequestProperty("Content-Type", "application/json");
 
         try (OutputStream os = conn.getOutputStream()) {
-            os.write(json.toString().getBytes());
+            os.write(payload.toString().getBytes());
         }
 
         String response = new BufferedReader(new InputStreamReader(conn.getInputStream()))
                 .lines().collect(Collectors.joining("\n"));
 
         JSONObject jsonResponse = new JSONObject(response);
-        return jsonResponse.getString("payUrl");
+
+        return Map.of(
+                "payUrl", jsonResponse.getString("payUrl"),
+                "orderId", orderId,
+                "requestId", requestId
+        );
     }
 
+    private String buildRawData(String orderId, String requestId, String orderInfo, String extraData) {
+        return "accessKey=" + accessKey +
+                "&amount=" + AMOUNT +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + notifyUrl +
+                "&orderId=" + orderId +
+                "&orderInfo=" + orderInfo +
+                "&partnerCode=" + partnerCode +
+                "&redirectUrl=" + returnUrl +
+                "&requestId=" + requestId +
+                "&requestType=captureWallet";
+    }
+
+
     public void handleMomoCallback(Map<String, String> payload) {
-        String orderId = payload.get("orderId");
         String resultCode = payload.get("resultCode");
         String amount = payload.get("amount");
+        String extraData = payload.get("extraData");
 
-        if ("0".equals(resultCode)) {
-            // Thành công → xử lý logic upgrade
-            // Mặc định ta tìm user có cùng orderId trong bảng Payment
-            // Hoặc gắn orderId với user theo logic riêng nếu cần
+        if ("0".equals(resultCode) && extraData != null && !extraData.isBlank()) {
+            try {
+                UUID userId = UUID.fromString(extraData);
 
-            // Giả sử bạn gửi thêm userId trong extraData (có thể mở rộng)
-            UUID userId = UUID.fromString(payload.get("extraData")); // cần validate trước
+                userRepository.findById(userId).ifPresent(user -> {
+                    user.setAccountType(AccountType.PREMIUM);
+                    userRepository.save(user);
 
-            userRepository.findById(userId).ifPresent(user -> {
-                user.setAccountType(AccountType.PREMIUM);
-                userRepository.save(user);
+                    Payment payment = new Payment();
+                    payment.setAmount(amount);
+                    payment.setStatus("SUCCESS");
+                    payment.setUser(user);
+                    paymentRepository.save(payment);
+                });
 
-                Payment payment = new Payment();
-                payment.setAmount(amount);
-                payment.setStatus("SUCCESS");
-                payment.setUser(user);
-                paymentRepository.save(payment);
-            });
+            } catch (IllegalArgumentException e) {
+                System.err.println("Invalid UUID in extraData: " + extraData);
+            }
+        } else {
+            System.err.println("Giao dịch thất bại hoặc thiếu thông tin callback.");
         }
     }
 }
-

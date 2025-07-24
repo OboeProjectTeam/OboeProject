@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/api/payment")
 public class PaymentController {
@@ -19,10 +18,13 @@ public class PaymentController {
     @PostMapping("/momo")
     public ResponseEntity<?> payWithMomo(@RequestParam UUID userId) {
         try {
-            String payUrl = momoService.createPayment(userId);
-            return ResponseEntity.ok(Map.of("payUrl", payUrl));
+            Map<String, String> paymentResult = momoService.createPayment(userId);
+            return ResponseEntity.ok(paymentResult); // Trả về full thông tin: payUrl, orderId, requestId
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Lỗi tạo thanh toán: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", "Lỗi tạo thanh toán",
+                    "message", e.getMessage()
+            ));
         }
     }
 
@@ -32,4 +34,3 @@ public class PaymentController {
         return ResponseEntity.ok("success");
     }
 }
-
