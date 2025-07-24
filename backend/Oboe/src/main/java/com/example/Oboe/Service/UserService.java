@@ -3,10 +3,15 @@ package com.example.Oboe.Service;
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.PassWordChangeDTOs;
 import com.example.Oboe.DTOs.UserDTOs;
+import com.example.Oboe.DTOs.UserProfileDTO;
+import com.example.Oboe.DTOs.UserProfileDTOwithStatistical;
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.User;
+import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.CommentRepository;
+import com.example.Oboe.Repository.FlashCardRepository;
 import com.example.Oboe.Repository.UserRepository;
 import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
@@ -33,14 +38,22 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final BlogRepository blogRepository;
+    private final CommentRepository commentRepository;
+    private final FlashCardRepository flashCardRepository;
     @Value("${app.domain}")
     private String domain;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService ,BlogRepository blogRepository,CommentRepository commentRepository,
+                       FlashCardRepository flashCardRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
+        this.blogRepository =blogRepository;
+        this.commentRepository =commentRepository;
+        this.flashCardRepository =flashCardRepository;
+
     }
     @Autowired
     private S3Service s3Service;
@@ -131,6 +144,25 @@ public class UserService implements UserDetailsService {
     public List<User> findByUserNameAndAuthProvider(String userName, AuthProvider provider) {
         return userRepository.findAllByUserNameAndAuthProvider(userName, provider);
     }
+
+    public UserProfileDTOwithStatistical getUserByIds(UUID userId) {
+        User user = userRepository.findByUser_id(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        // Thống kê số lượng nội dung của user
+        long blogCount = blogRepository.countBlogsByUserId(userId);
+        long commentCount = commentRepository.countCommentsByUserId(userId);
+        long flashCardCount = flashCardRepository.countFlashCardByUserId(userId);
+
+        // Tạo DTO với cả thông tin người dùng và thống kê
+        UserProfileDTOwithStatistical dto = new UserProfileDTOwithStatistical(user);
+        dto.setBlogCount((int) blogCount);
+        dto.setCommentCount((int) commentCount);
+        dto.setFlashCardCount((int) flashCardCount);
+
+        return dto;
+    }
+
 
 
 

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -17,6 +18,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.userName = :userName AND u.authProvider = :authProvider")
     List<User> findAllByUserNameAndAuthProvider(@Param("userName") String userName,
                                                 @Param("authProvider") AuthProvider authProvider);
+
+    @Query(value = "SELECT * FROM users WHERE user_id = :userId", nativeQuery = true)
+    Optional<User> findByUser_id(@Param("userId") UUID userId);
 
     boolean existsByUserNameAndAuthProvider(String userName, AuthProvider authProvider);
 
