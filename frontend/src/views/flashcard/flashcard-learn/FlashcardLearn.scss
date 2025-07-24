@@ -478,26 +478,9 @@
 }
 
 :deep(.fullscreen-card) {
-  .card-title {
-    font-size: 2.8rem !important;
-  }
-
-  .main-content-text {
-    font-size: 3.4rem !important;
-    line-height: 1.4 !important;
-  }
-
-  .card-description {
-    font-size: 1.8rem !important;
-  }
-
-  .swiper-pagination {
-    font-size: 1.4rem !important;
-  }
-
-  .cta-button {
-    font-size: 1.2rem !important;
-    padding: 15px 30px !important;
+  .swiper{
+    width: 800px !important;
+    height: 500px !important;
   }
 }
 

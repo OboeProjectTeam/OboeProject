@@ -45,6 +45,7 @@
         <div v-for="set in filteredStudySets" :key="set.id" class="content-card">
           <div class="card-info">
             <h3>{{ set.title }}</h3>
+            <p v-if="set.description" class="card-description">{{ set.description }}</p>
             <p class="card-meta">
               <span>{{ set.cardCount }} thuật ngữ</span>
               <span>{{ formatDate(set.updatedAt) }}</span>
@@ -333,17 +334,33 @@ const loadUserFlashcards = async () => {
     // Handle different response formats
     const flashcards = response.content || response.data || response
     
+         // Debug: Log a single flashcard to see structure
+     if (Array.isArray(flashcards) && flashcards.length > 0) {
+       console.log('First flashcard structure:', flashcards[0])
+       console.log('Description field:', flashcards[0].description)
+       console.log('User field:', flashcards[0].user)
+       console.log('Created field:', flashcards[0].created)
+     }
+    
     // Map flashcards to study sets format
     const mappedSets = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
       id: flashcard.set_id,
-      title: flashcard.term || flashcard.description || 'Flashcard', // Use term first, fallback to description
+      title: flashcard.term || 'Flashcard', // Use term as title
+      description: flashcard.description || '', // Add description field
       cardCount: flashcard.cardItems?.length || 0,
       updatedAt: flashcard.created,
+      createdAt: flashcard.created, // Add created timestamp
+      creator: {
+        name: flashcard.user?.userName || flashcard.user?.firstName || 'Người dùng',
+        avatar: flashcard.user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(flashcard.user?.userName || 'User')}`
+      },
       cards: flashcard.cardItems?.map(item => ({
         front: item.word,
         back: item.meaning
       })) || []
     }))
+    
+    console.log('Mapped sets with descriptions:', mappedSets.map(set => ({ id: set.id, title: set.title, description: set.description })))
     
     studySetsData.value = mappedSets
   } catch (error) {
@@ -595,8 +612,19 @@ const startLearning = async (set) => {
     // Lưu vào store
     await store.dispatch('flashcard/setLearningItems', learningItems)
     
-    // Chuyển đến trang học
-    router.push('/flashcard/learn')
+         // Chuyển đến trang học với thông tin flashcard set
+     router.push({
+       path: '/flashcard/learn',
+       query: {
+         source: 'library',
+         title: set.title,
+         description: set.description || `Học liệu gồm ${set.cardCount} thuật ngữ`,
+         setId: set.id,
+         creatorName: set.creator?.name || 'Người dùng',
+         creatorAvatar: set.creator?.avatar || '',
+         createdAt: set.createdAt || ''
+       }
+     })
   } catch (error) {
     console.error('Error starting learning:', error)
   }
