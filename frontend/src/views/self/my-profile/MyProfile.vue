@@ -65,9 +65,8 @@ onMounted(async () => {
       stats: {
         joined: profile.create_at?.split('T')[0] || '',
         topics: "",
-        likes: 0,
         solutions: "",
-        learning_materials: 0
+        learning_materials: ""
       },
       activities: []
     };

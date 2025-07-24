@@ -70,6 +70,7 @@ const commentApi = {
       throw new Error(handleApiError(error));
     }
   }
+
 };
 
 export default commentApi;

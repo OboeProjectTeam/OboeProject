@@ -2,7 +2,7 @@
   <div class="profile-page" v-if="user">
     <div class="profile-header bd-form">
         <div class="avatar-container">
-          <img :src="avatarPreview || editableUser.avatar" :alt="editableUser.username" class="profile-avatar-large">
+          <img :src="avatarPreview || editableUser.avatarUrl || editableUser.avatar || 'https://ui-avatars.com/api/?name=' + (editableUser.userName || editableUser.username || 'User')" :alt="editableUser.username" class="profile-avatar-large">
           <div v-if="isEditing" class="avatar-upload-overlay">
             <label for="avatar-upload" class="avatar-upload-label">
               <i class="fas fa-camera"></i>
@@ -83,7 +83,7 @@
             <ul v-else class="stats-list">
               <li><span>Chủ đề</span> <strong>{{ userStats?.blogCount ?? editableUser.stats?.topics ?? 0 }}</strong></li>
               <li><span>Bình luận</span> <strong>{{ userStats?.commentCount ?? editableUser.stats?.solutions ?? 0 }}</strong></li>
-              <li><span>Học liệu</span> <strong>{{ userStats?.flashcardCount ?? editableUser.stats?.learning_materials ?? 0 }}</strong></li>
+              <li><span>Học liệu</span> <strong>{{ userStats?.flashCard ?? editableUser.stats?.learning_materials ?? 0 }}</strong></li>
             </ul>
           </div>
       </div>
@@ -138,18 +138,11 @@
                 <div class="activity-snippet">"{{ activity.content_snippet }}"</div>
                  <div class="activity-meta">vào lúc {{ activity.timestamp }}</div>
               </div>
-              <div v-if="activity.type === 'material'">
-                <div class="activity-title">
-                   <router-link :to="activity.url">Đã chia sẻ học liệu: {{ activity.title }}</router-link>
-                </div>
-                 <div class="activity-meta">Trong mục {{ activity.topic }} • {{ activity.timestamp }}</div>
-              </div>
               <div v-if="activity.type === 'quiz'">
                 <div class="activity-title">
-                   <router-link :to="activity.url">Đã tạo bài kiểm tra: {{ activity.title }}</router-link>
+                   <router-link :to="activity.url">Đã tạo Học Liệu {{ activity.title }}</router-link>
                 </div>
                 <div class="activity-snippet" v-if="activity.content_snippet">"{{ activity.content_snippet }}"</div>
-                 <div class="activity-meta">Trong mục {{ activity.topic }} • {{ activity.timestamp }}</div>
               </div>
             </div>
           </li>
@@ -201,6 +194,10 @@ const store = useStore();
 
 const isEditing = ref(false);
 const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
+
+// Debug: Log initial user data
+console.log('ProfileDetail - Initial props.user:', props.user);
+console.log('ProfileDetail - Initial editableUser:', editableUser.value);
   const avatarPreview = ref(null);
   const userBlogs = ref([]);
   const userComments = ref([]);
@@ -226,6 +223,21 @@ watch(() => props.user, (newUser) => {
   }
 }, { deep: true });
 
+// Watch store user changes to update local state
+const storeUser = computed(() => store.getters['auth/currentUser']);
+watch(storeUser, (newStoreUser) => {
+  if (props.isMyProfile && newStoreUser && !isEditing.value) {
+    // Update local editableUser with store changes (like avatar updates)
+    editableUser.value = { 
+      ...editableUser.value, 
+      ...newStoreUser,
+      // Ensure both avatar properties are synced
+      avatar: newStoreUser.avatarUrl || newStoreUser.avatar,
+      avatarUrl: newStoreUser.avatarUrl || newStoreUser.avatar
+    };
+  }
+}, { deep: true });
+
 function startEditing() {
   isEditing.value = true;
 }
@@ -240,8 +252,12 @@ async function handleAvatarChange(event) {
       // Update preview with the returned URL
       avatarPreview.value = response.avatarUrl;
       
-      // Update editable user avatar
+      // Update editable user avatar (both properties for compatibility)
+      editableUser.value.avatarUrl = response.avatarUrl;
       editableUser.value.avatar = response.avatarUrl;
+      
+      // Update Vuex store with new avatar
+      await store.dispatch('auth/updateUserAvatar', response.avatarUrl);
       
       // Show success message
       store.dispatch('showMessage', {
@@ -410,12 +426,12 @@ function prevPage() {
             timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
             url: `/forum/post/${data.referenceId}#comment-${data.commentId}`
           };
-        } else if (type === 'quiz') {
+        } else if (type === 'flashcard') {
           return {
             type: 'quiz',
             id: data.quizzesID,
-            title: data.title,
-            postTitle: data.title,
+            title: data.term,
+            postTitle: data.term,
             content_snippet: data.description ? data.description.substring(0, 150) + '...' : '',
             topic: 'Bài kiểm tra',
             timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
@@ -540,10 +556,10 @@ function prevPage() {
       
       // Map flashcards to the expected format
       const mappedFlashcards = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
-        type: 'material',
+        type: 'quiz',
         id: flashcard.flashcardId || flashcard.id,
-        title: flashcard.title || flashcard.name || 'Flashcard',
-        postTitle: flashcard.title || flashcard.name || 'Flashcard',
+        title: flashcard.title || flashcard.term || 'Flashcard',
+        postTitle: flashcard.title || flashcard.term || 'Flashcard',
         content_snippet: flashcard.description ? flashcard.description.substring(0, 150) + '...' : `${flashcard.cardCount || 0} thẻ học`,
         topic: flashcard.category || flashcard.subject || 'Học liệu',
         timestamp: new Date(flashcard.createdAt).toLocaleString('vi-VN'),
