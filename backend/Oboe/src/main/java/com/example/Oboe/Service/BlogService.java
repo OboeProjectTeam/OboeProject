@@ -84,6 +84,7 @@ public class BlogService {
         blog.setTags(blogDTO.getTags());
         blog.setTopics(blogDTO.getTopics());
 
+
         Blog saved = blogRepository.save(blog);
         return toDTO(saved);
     }
@@ -204,6 +205,7 @@ public class BlogService {
         if (blog.getUser() != null) {
             dto.setUserId(blog.getUser().getUser_id());
             dto.setAuthor(blog.getUser().getUserName());
+            dto.setAvatarUrl(blog.getUser().getAvatarUrl());
         }
 
         // Đếm số comment
@@ -215,6 +217,7 @@ public class BlogService {
                 .ifPresent(latestComment -> {
                     dto.setLatestCommentTime(latestComment.getCreatedAt());
                     dto.setLatestCommenterName(latestComment.getUser().getUserName());
+
                 });
 
         return dto;

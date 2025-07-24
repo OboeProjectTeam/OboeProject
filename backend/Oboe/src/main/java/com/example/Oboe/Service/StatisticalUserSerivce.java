@@ -16,10 +16,11 @@ import java.util.UUID;
 public class StatisticalUserSerivce {
     private final BlogRepository blogRepository;
     private final CommentRepository commentRepository;
+    private final FlashCardRepository flashCardRepository;
     private final BlogService blogService;
     private final CommentService commentService;
     private final FlashCardService flashCardService;
-    private final FlashCardRepository flashCardRepository;
+
 
 
     public StatisticalUserSerivce(

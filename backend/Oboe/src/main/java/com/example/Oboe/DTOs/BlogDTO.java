@@ -18,6 +18,10 @@ public class BlogDTO {
     private UUID userId;
     private String author;
 
+
+
+    private String avatarUrl;
+
     // Các trường mới:
     private int commentCount;
 
@@ -133,5 +137,14 @@ public class BlogDTO {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }
