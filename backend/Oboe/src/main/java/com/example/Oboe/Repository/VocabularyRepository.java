@@ -16,3 +16,4 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, UUID> {
 
     // Nếu cần tìm từ theo KanjiId
     List<Vocabulary> findByKanji_KanjiId(UUID kanjiId);
+}
