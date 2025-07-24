@@ -80,13 +80,19 @@
         
         <!-- Tags -->
         <div v-if="postTags.length > 0" class="post-tags">
+          <i class="fas fa-tags"></i>
           <span v-for="tag in postTags" :key="tag" class="tag">{{ tag }}</span>
         </div>
       </div>
 
-      <!-- Replies Section -->
-      <div class="replies-section">
-        <h2 class="replies-header">{{ postStats.replies }} Trả lời</h2>
+             <!-- Replies Section -->
+       <div class="replies-section">
+         <h2 class="replies-header">
+           {{ postStats.replies }} Trả lời
+           <span v-if="comments.length > 0 && postStats.replies > comments.length" class="showing-count">
+             (hiển thị {{ comments.length }})
+           </span>
+         </h2>
         
         <!-- Comments Loading State -->
         <div v-if="commentsLoading" class="comments-loading">
@@ -103,8 +109,8 @@
           <!-- Reply Thread -->
           <div v-for="reply in replies" :key="reply.id" class="reply-thread">
             
-            <!-- Main Reply -->
-            <div class="reply-item">
+                         <!-- Main Reply -->
+             <div class="reply-item" :class="{ 'newly-created': reply.id === newlyCreatedCommentId }">
               <img 
                 :src="reply.author.avatar" 
                 :alt="reply.author.username" 
@@ -167,8 +173,8 @@
             <!-- Nested Replies -->
             <transition name="slide-fade">
               <div v-if="reply.replies && reply.replies.length > 0 && isRepliesShown(reply.id)" class="nested-replies">
-                <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
-                  <div class="reply-item">
+                                 <div v-for="nestedReply in reply.replies" :key="nestedReply.id" class="reply-thread is-nested">
+                   <div class="reply-item" :class="{ 'newly-created': nestedReply.id === newlyCreatedReplyId }">
                     <img 
                       :src="nestedReply.author.avatar" 
                       :alt="nestedReply.author.username" 
@@ -183,19 +189,33 @@
                                              <div class="reply-content">
                          <p>{{ nestedReply.text }}</p>
                        </div>
-                       <!-- Không hiển thị nút trả lời cho comment cấp 2 -->
                     </div>
-                                     </div>
-
-                   <!-- Không có form trả lời cho comment cấp 2 -->
+                      </div>
                 </div>
               </div>
             </transition>
           </div>
-        </div>
-      </div>
+                 </div>
+                     <!-- Load More Comments Button -->
+           <div v-if="hasMoreComments || (comments.length > 0 && comments.length < postStats.replies)" class="load-more-comments">
+            <button 
+              @click="loadMoreComments"
+              class="btn btn-outline-primary load-more-btn"
+              :disabled="loadingMoreComments"
+            >
+              <span v-if="loadingMoreComments">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+              </span>
+              <span v-else>
+                <i class="fas fa-comment-dots"></i> Xem thêm bình luận
+              </span>
+            </button>
+          </div>
+          
+          
+       </div>
 
-      <!-- Add Reply Form -->
+       <!-- Add Reply Form -->
       <div class="add-reply-card" v-if="currentUser">
         <h3 class="add-reply-header">Tham gia thảo luận</h3>
         <div class="reply-form">
@@ -364,6 +384,12 @@ const comments = ref([]);
 const error = ref(null);
 const commentsLoading = ref(false);
 
+// Comments pagination state
+const commentsPage = ref(0);
+const commentsSize = ref(5); // Match backend default
+const hasMoreComments = ref(false);
+const loadingMoreComments = ref(false);
+
 // Comment form state
 const newCommentTitle = ref('');
 const newCommentContent = ref('');
@@ -372,6 +398,10 @@ const isSubmittingComment = ref(false);
 // Reply form state
 const replyContent = ref({});
 const isSubmittingReply = ref({});
+
+// Highlight new comments
+const newlyCreatedCommentId = ref(null);
+const newlyCreatedReplyId = ref(null);
 
 // API Functions
 const fetchBlogPost = async (postId) => {
@@ -410,14 +440,30 @@ const fetchBlogPost = async (postId) => {
   }
 };
 
-const fetchComments = async (postId) => {
+const fetchComments = async (postId, loadMore = false) => {
   try {
-    commentsLoading.value = true;
-    console.log('Fetching comments for post:', postId);
+    if (!loadMore) {
+      commentsLoading.value = true;
+      commentsPage.value = 0; // Reset to first page
+      comments.value = []; // Clear existing comments
+    } else {
+      loadingMoreComments.value = true;
+    }
     
-    // Use commentApi to get comments for the blog post
-    const response = await commentApi.getComments(postId);
+    console.log('Fetching comments for post:', postId, 'page:', commentsPage.value);
+    
+    // Use commentApi to get comments for the blog post with pagination
+    const response = await commentApi.getComments(postId, commentsPage.value, commentsSize.value);
     console.log('Comments response:', response);
+    console.log('Response keys:', Object.keys(response || {}));
+    console.log('Response structure:', {
+      comments: response?.comments?.length || 0,
+      totalPages: response?.totalPages,
+      totalElements: response?.totalElements,
+      currentPage: response?.currentPage,
+      size: response?.size,
+      numberOfElements: response?.numberOfElements
+    });
     
     // Helper function to map a single comment with its nested replies
     const mapComment = (comment) => ({
@@ -438,19 +484,80 @@ const fetchComments = async (postId) => {
     const commentsArray = response.comments || [];
     const mappedComments = commentsArray.map(comment => mapComment(comment));
     
-    comments.value = mappedComments;
+    if (loadMore) {
+      // Append new comments to existing ones
+      comments.value = [...comments.value, ...mappedComments];
+    } else {
+      // Replace comments (initial load)
+      comments.value = mappedComments;
+    }
+    
+    // Update pagination info
+    const totalElements = response.totalElements || 0;
+    let totalPages = response.totalPages || 0;
+    
+    // Fallback: calculate totalPages if not provided by API
+    if (!totalPages && totalElements > 0) {
+      totalPages = Math.ceil(totalElements / commentsSize.value);
+    }
+    
+    console.log('Pagination info:', {
+      currentPage: commentsPage.value,
+      totalPages,
+      totalElements,
+      commentsLoaded: mappedComments.length,
+      totalCommentsInState: comments.value.length,
+      commentsSize: commentsSize.value
+    });
+    
+    // Check if there are more comments to load
+    // Method 1: Using totalPages
+    const hasMoreByPages = commentsPage.value + 1 < totalPages;
+    
+    // Method 2: Using totalElements (fallback)
+    const hasMoreByElements = comments.value.length < totalElements;
+    
+    console.log('hasMoreComments calculation:', {
+      hasMoreByPages,
+      hasMoreByElements,
+      currentCommentsCount: comments.value.length,
+      totalElements
+    });
+    
+    hasMoreComments.value = hasMoreByPages || hasMoreByElements;
+    console.log('Final hasMoreComments:', hasMoreComments.value);
     
     // Update post stats with total comment count
-    if (blogPost.value && response.totalElements !== undefined) {
-      blogPost.value.stats.replies = response.totalElements;
+    if (blogPost.value && totalElements !== undefined) {
+      blogPost.value.stats.replies = totalElements;
     }
     
   } catch (err) {
     console.error('Error fetching comments:', err);
-    comments.value = [];
+    if (!loadMore) {
+      comments.value = [];
+    }
   } finally {
     commentsLoading.value = false;
+    loadingMoreComments.value = false;
   }
+};
+
+// Load more comments
+const loadMoreComments = async () => {
+  if (!blogPost.value || loadingMoreComments.value) {
+    return;
+  }
+  
+  // Safety check: don't load if we already have all comments
+  if (comments.value.length >= postStats.value.replies) {
+    console.log('All comments loaded, hiding load more button');
+    hasMoreComments.value = false;
+    return;
+  }
+  
+  commentsPage.value += 1;
+  await fetchComments(blogPost.value.id, true);
 };
 
 // Submit new comment
@@ -486,31 +593,21 @@ const submitNewComment = async () => {
     const newComment = await commentApi.createComment(blogPost.value.id, commentData);
     console.log('Comment created:', newComment);
     
-    // Map new comment to component format
-    const mappedNewComment = {
-      id: newComment.commentId,
-      author: {
-        id: newComment.userId,
-        username: newComment.userName || 'Anonymous',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newComment.userName || 'Anonymous')}`
-      },
-      time: formatTimeAgo(new Date(newComment.createdAt)),
-      text: newComment.content,
-      title: newComment.title,
-      replies: []
-    };
+    // Track newly created comment for highlighting
+    newlyCreatedCommentId.value = newComment.commentId;
     
-    // Add new comment to the beginning of the list
-    comments.value.unshift(mappedNewComment);
-    
-    // Update comment count
-    if (blogPost.value.stats) {
-      blogPost.value.stats.replies = (blogPost.value.stats.replies || 0) + 1;
-    }
-    
-    // Reset form
+    // Reset form first
     newCommentTitle.value = '';
     newCommentContent.value = '';
+    
+    // Reload comments from beginning to see the new comment
+    // This ensures we get the latest data and proper pagination
+    await fetchComments(blogPost.value.id, false);
+    
+    // Remove highlight after 5 seconds
+    setTimeout(() => {
+      newlyCreatedCommentId.value = null;
+    }, 5000);
     
     // Show success message
     store.dispatch('showMessage', {
@@ -556,47 +653,20 @@ const submitReply = async (parentCommentId) => {
     const newReply = await commentApi.replyComment(parentCommentId, replyData);
     console.log('Reply created:', newReply);
     
-    // Map new reply to component format
-    const mappedReply = {
-      id: newReply.commentId,
-      author: {
-        id: newReply.userId,
-        username: newReply.userName || 'Anonymous',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(newReply.userName || 'Anonymous')}`
-      },
-      time: formatTimeAgo(new Date(newReply.createdAt)),
-      text: newReply.content,
-      title: newReply.title,
-      replies: []
-    };
-    
-    // Find parent comment and add reply to its replies
-    const findAndAddReply = (commentsList, targetId, newReply) => {
-      for (let comment of commentsList) {
-        if (comment.id === targetId) {
-          comment.replies.push(newReply);
-          return true;
-        }
-        // Search in nested replies
-        if (comment.replies && comment.replies.length > 0) {
-          if (findAndAddReply(comment.replies, targetId, newReply)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    };
-    
-    findAndAddReply(comments.value, parentCommentId, mappedReply);
+    // Track newly created reply for highlighting  
+    newlyCreatedReplyId.value = newReply.commentId;
     
     // Clear reply form
     replyContent.value[parentCommentId] = '';
     replyingTo.value = null;
     
-    // Update total comment count
-    if (blogPost.value.stats) {
-      blogPost.value.stats.replies = (blogPost.value.stats.replies || 0) + 1;
-    }
+    // Reload comments to see the new reply and maintain proper pagination
+    await fetchComments(blogPost.value.id, false);
+    
+    // Remove highlight after 5 seconds
+    setTimeout(() => {
+      newlyCreatedReplyId.value = null;
+    }, 5000);
     
     // Show success message
     store.dispatch('showMessage', {
@@ -679,10 +749,14 @@ const replies = computed(() => comments.value);
 // Load post data
 onMounted(async () => {
   if (route.params.id) {
+    // Clear any existing highlights when loading new post
+    newlyCreatedCommentId.value = null;
+    newlyCreatedReplyId.value = null;
+    
     await fetchBlogPost(route.params.id);
     // Load comments after blog post is loaded
     if (blogPost.value) {
-      await fetchComments(route.params.id);
+      await fetchComments(route.params.id, false);
     }
   }
 });
@@ -1006,6 +1080,130 @@ const isRepliesShown = (replyId) => {
     padding: 12px 24px;
     font-size: 14px;
     font-weight: 600;
+  }
+}
+
+// Replies header styling
+.replies-header {
+  .showing-count {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6c757d;
+    margin-left: 8px;
+  }
+}
+
+// Load more comments styling
+.load-more-comments {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  
+  .load-more-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-width: 200px;
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    i {
+      margin-right: 8px;
+    }
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+    }
+  }
+}
+
+// Newly created comment/reply highlight
+.reply-item.newly-created {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.12), rgba(255, 142, 142, 0.06));
+  border: 1px solid rgba(255, 107, 107, 0.25);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 8px 0;
+  position: relative;
+  animation: highlightPulse 4s ease-in-out;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
+  transition: all 0.3s ease-out;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(255, 142, 142, 0.08));
+    border-radius: 12px;
+    z-index: -1;
+    animation: glowPulse 3s ease-in-out infinite alternate;
+    opacity: 0.7;
+  }
+  
+  &::after {
+    content: '✨ Mới';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+    animation: newBadgePulse 2s ease-in-out infinite alternate;
+  }
+  
+  // Override the default reply-item padding since we're adding our own
+  .reply-content-wrapper {
+    margin-left: 0;
+    padding-right: 60px; // Make space for "Mới" badge
+  }
+}
+
+@keyframes highlightPulse {
+  0% {
+    background: rgba(255, 107, 107, 0.15);
+    transform: scale(1.01);
+  }
+  50% {
+    background: rgba(255, 107, 107, 0.08);
+    transform: scale(1);
+  }
+  100% {
+    background: rgba(255, 107, 107, 0.05);
+    transform: scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@keyframes newBadgePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(255, 107, 107, 0.4);
   }
 }
 </style> 

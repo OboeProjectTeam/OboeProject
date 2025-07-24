@@ -6,13 +6,22 @@
                 <h1>Diễn đàn Oboe</h1>
                 <div class="header-actions flex-jsb">
                     <div class="search-container">
-                        <input 
-                            type="text" 
-                            v-model="searchQuery" 
-                            placeholder="Tìm kiếm bài viết..." 
-                            class="search-input"
-                            @input="handleSearch"
-                        >
+                        <div class="search-input-wrapper">
+                            <input 
+                                type="text" 
+                                v-model="searchQuery" 
+                                placeholder="Tìm kiếm bài viết..." 
+                                class="search-input"
+                                @input="debouncedSearch"
+                                @keyup.enter="handleSearch"
+                            >
+                            <div v-if="isSearching" class="search-loading">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div v-else-if="searchQuery" class="search-clear" @click="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
                         <i class="fas fa-edit"></i> Tạo bài viết mới
@@ -63,13 +72,25 @@
                 </div>
             </div>
 
+            <!-- Search Results Header -->
+            <div v-if="searchQuery && !loading" class="search-results-header">
+                <div class="search-info">
+                    <i class="fas fa-search"></i>
+                    <span>Kết quả tìm kiếm cho: "<strong>{{ searchQuery }}</strong>"</span>
+                    <span class="result-count">({{ totalElements }} kết quả)</span>
+                </div>
+                <button @click="clearSearch" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> Xóa tìm kiếm
+                </button>
+            </div>
+
             <!-- Post List -->
             <div class="post-list">
                 <!-- Loading State -->
                 <div v-if="loading" class="loading-container">
                     <div class="loading-spinner">
                         <i class="fas fa-spinner fa-spin fa-2x"></i>
-                        <p>Đang tải bài viết...</p>
+                        <p>{{ searchQuery ? 'Đang tìm kiếm...' : 'Đang tải bài viết...' }}</p>
                     </div>
                 </div>
                 
@@ -87,8 +108,11 @@
                 <!-- Empty State -->
                 <div v-else-if="posts.length === 0" class="empty-container">
                     <div class="empty-message">
-                        <i class="fas fa-comments fa-2x"></i>
-                        <p>Chưa có bài viết nào</p>
+                        <i class="fas fa-2x" :class="searchQuery ? 'fa-search' : 'fa-comments'"></i>
+                        <p>{{ searchQuery ? `Không tìm thấy bài viết nào cho "${searchQuery}"` : 'Chưa có bài viết nào' }}</p>
+                        <button v-if="searchQuery" @click="clearSearch" class="btn btn-secondary">
+                            Xóa tìm kiếm
+                        </button>
                     </div>
                 </div>
                 
@@ -179,7 +203,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import blogApi from '@/api/modules/blogApi';
 
@@ -201,6 +225,10 @@ const error = ref(null);
 const totalPages = ref(0);
 const totalElements = ref(0);
 
+// Search debounce
+const searchTimeout = ref(null);
+const isSearching = ref(false);
+
 // --- DATA ---
 const categories = ref([
     { id: 'all', name: 'Tất cả chuyên mục', color: '' },
@@ -214,40 +242,54 @@ const categories = ref([
 ]);
 
 // --- API FUNCTIONS ---
-const fetchBlogs = async (page = 0, size = 10, searchTitle = '') => {
+const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
     try {
         loading.value = true;
         error.value = null;
         
-        console.log('Fetching blogs...', { page, size, searchTitle });
+        console.log('Fetching blogs...', { page, size, searchKeyword });
         
         let response;
-        if (searchTitle && searchTitle.trim()) {
-            // Use search API
-            response = await blogApi.search(searchTitle.trim());
-            // Search API may not support pagination, so we handle it differently
-            if (Array.isArray(response)) {
-                // If search returns array directly
-                const startIndex = page * size;
-                const endIndex = startIndex + size;
-                const paginatedResults = response.slice(startIndex, endIndex);
-                
+        let blogs;
+        
+        if (searchKeyword && searchKeyword.trim()) {
+            // Use search API - returns array directly
+            const searchResults = await blogApi.search(searchKeyword.trim());
+            console.log('Search API response:', searchResults);
+            
+            // Ensure searchResults is an array
+            const resultsArray = Array.isArray(searchResults) ? searchResults : [];
+            
+            // Handle client-side pagination for search results
+            const startIndex = page * size;
+            const endIndex = startIndex + size;
+            blogs = resultsArray.slice(startIndex, endIndex);
+            
+            // Create pagination info for search results
+            response = {
+                blogs: blogs,
+                totalPages: Math.ceil(resultsArray.length / size),
+                totalElements: resultsArray.length,
+                currentPage: page
+            };
+        } else {
+            // Use getAll API - returns paginated response
+            response = await blogApi.getAll({ page, size });
+            console.log('GetAll API response:', response);
+            blogs = response.blogs || response.content || response || [];
+            
+            // Handle pagination info from getAll API
+            if (!response.totalPages) {
                 response = {
-                    blogs: paginatedResults,
-                    totalPages: Math.ceil(response.length / size),
-                    totalElements: response.length,
+                    blogs: blogs,
+                    totalPages: response.totalPages || 1,
+                    totalElements: response.totalElements || blogs.length,
                     currentPage: page
                 };
             }
-        } else {
-            // Use getAll API
-            response = await blogApi.getAll({ page, size });
         }
         
-        console.log('Blogs API response:', response);
-        
-        // Map API response to component format
-        const blogs = response.blogs || response; // Handle different response formats
+        console.log('Final blogs to display:', blogs);
         const mappedPosts = (Array.isArray(blogs) ? blogs : []).map(blog => ({
             id: blog.id,
             title: blog.title,
@@ -266,7 +308,7 @@ const fetchBlogs = async (page = 0, size = 10, searchTitle = '') => {
         }));
         
         posts.value = mappedPosts;
-        totalPages.value = response.totalPages || Math.ceil((response.totalElements || mappedPosts.length) / size);
+        totalPages.value = response.totalPages || 1;
         totalElements.value = response.totalElements || mappedPosts.length;
         
     } catch (err) {
@@ -309,20 +351,17 @@ const allTags = computed(() => {
 const filteredPosts = computed(() => {
     let result = posts.value;
     
-    // Apply search filter
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        result = result.filter(post => 
-            post.title.toLowerCase().includes(query)
-        );
+    // If searching, use server results directly (no client-side filtering)
+    if (searchQuery.value && searchQuery.value.trim()) {
+        return result;
     }
     
-    // Apply category filter
+    // Apply category filter only when not searching
     if (selectedCategory.value !== 'all') {
         result = result.filter(post => post.category === selectedCategory.value);
     }
     
-    // Apply tag filter
+    // Apply tag filter only when not searching
     if (selectedTag.value !== 'all') {
         result = result.filter(post => post.tags && post.tags.includes(selectedTag.value));
     }
@@ -413,9 +452,47 @@ function formatTimeAgo(date) {
     return "Vài giây trước";
 }
 
+// Debounced search function
+const debouncedSearch = () => {
+    // Clear previous timeout
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
+    
+    // Set loading state for visual feedback
+    isSearching.value = true;
+    
+    // Set new timeout
+    searchTimeout.value = setTimeout(async () => {
+        await handleSearch();
+        isSearching.value = false;
+    }, 500); // 500ms delay
+};
+
 const handleSearch = async () => {
-    currentPage.value = 1; // Reset to first page when searching
-    await fetchBlogs(0, postsPerPage.value, searchQuery.value); // Reload data with search
+    try {
+        currentPage.value = 1; // Reset to first page when searching
+        
+        // Reset filters when searching to avoid confusion
+        if (searchQuery.value && searchQuery.value.trim()) {
+            selectedCategory.value = 'all';
+            selectedTag.value = 'all';
+        }
+        
+        await fetchBlogs(0, postsPerPage.value, searchQuery.value); // Reload data with search
+    } catch (err) {
+        console.error('Search error:', err);
+    } finally {
+        isSearching.value = false;
+    }
+};
+
+// Clear search function
+const clearSearch = async () => {
+    searchQuery.value = '';
+    currentPage.value = 1;
+    // Clear search and reload normal data
+    await fetchBlogs(0, postsPerPage.value, '');
 };
 
 // Get visible page numbers for pagination
@@ -433,6 +510,13 @@ const getVisiblePages = () => {
 // Initialize data when component mounts
 onMounted(() => {
     fetchBlogs(0, postsPerPage.value, searchQuery.value);
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+    if (searchTimeout.value) {
+        clearTimeout(searchTimeout.value);
+    }
 });
 </script>
 
@@ -511,6 +595,90 @@ onMounted(() => {
         border-color: #dee2e6;
         color: #6c757d;
         cursor: not-allowed;
+    }
+}
+
+// Search results header styles
+.search-results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    
+    .search-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #495057;
+        
+        i {
+            color: #6c757d;
+        }
+        
+        .result-count {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        strong {
+            color: #007bff;
+        }
+    }
+    
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        i {
+            font-size: 12px;
+        }
+    }
+}
+
+// Search input wrapper styles
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    
+    .search-input {
+        width: 100%;
+        padding-right: 40px; // Make space for loading/clear icon
+    }
+    
+    .search-loading, .search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        
+        i {
+            font-size: 14px;
+        }
+    }
+    
+    .search-clear:hover {
+        color: #dc3545;
+    }
+    
+    .search-loading {
+        cursor: default;
+        
+        i {
+            color: #007bff;
+        }
     }
 }
 </style>
