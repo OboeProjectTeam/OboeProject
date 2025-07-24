@@ -296,7 +296,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
             content: blog.content,
             author: {
                 name: blog.author,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(blog.author)}`
+                avatar: blog.avatarUrl,
             },
             time: new Date(blog.createdAt),
             stats: {

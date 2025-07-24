@@ -88,10 +88,10 @@
             </p>
           </div>
           <div class="card-actions">
-            <router-link :to="`/quiz/${quiz.id}`" class="action-btn primary">
+            <button @click="startQuiz(quiz)" class="action-btn primary">
               <i class="fas fa-play"></i>
               Làm bài
-            </router-link>
+            </button>
             <button @click="deleteQuiz(quiz.id)" class="action-btn">
               <i class="fas fa-trash"></i>
             </button>
@@ -627,6 +627,57 @@ const startLearning = async (set) => {
      })
   } catch (error) {
     console.error('Error starting learning:', error)
+  }
+}
+
+const startQuiz = async (quiz) => {
+  try {
+    console.log('Starting quiz:', quiz)
+    
+    // Load quiz questions từ API
+    const response = await api.question.getByQuiz(quiz.id)
+    console.log('Quiz questions loaded:', response)
+    
+    // Handle different response formats
+    const questions = response.content || response.data || response
+    
+    if (!Array.isArray(questions) || questions.length === 0) {
+      // store.dispatch('message/showMessage', { type: 'error', text: 'Bài Kiểm tra không có câu hỏi nào' })
+      return
+    }
+    
+    // Convert questions thành format cho FlashcardTest
+    const learningItems = questions.map(question => ({
+      type: 'question',
+      front: question.question || question.content,
+      back: question.correctAnswer || question.answer,
+      content: question.question || question.content,
+      backcontent: question.correctAnswer || question.answer
+    }))
+    
+    console.log('Converted quiz questions to learning items:', learningItems)
+    
+    // Lưu vào store để FlashcardTest có thể access
+    await store.dispatch('flashcard/setLearningItems', learningItems)
+    
+    // Navigate đến FlashcardTest với quiz type
+    router.push({
+      path: '/flashcard/test',
+      query: {
+        type: 'multiple-choice', // Default test type for quizzes
+        source: 'library',
+        title: quiz.title,
+        description: quiz.description || `Bài kiểm tra gồm ${questions.length} câu hỏi`,
+        quizId: quiz.id
+      }
+    })
+    
+  } catch (error) {
+    console.error('Error starting quiz:', error)
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Không thể tải bài kiểm tra: ' + error.message
+    })
   }
 }
 

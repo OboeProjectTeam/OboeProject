@@ -1,273 +1,219 @@
 <template>
   <div class="forum-profile-container">
     <div class="breadcrumb">
-      <router-link to="/forum">Diễn đàn</router-link>
-      <i class="fas fa-chevron-right separator"></i>
-      <router-link :to="`/forum/post/${route.query.fromPostId}`">Chi tiết bài viết</router-link>
-      <i class="fas fa-chevron-right separator"></i>
-      <span>Hồ sơ</span>
+      <!-- Dynamic breadcrumb based on source -->
+      <template v-if="route.query.fromSource === 'messages'">
+        <!-- From Messages: Messenger > Hồ sơ -->
+        <router-link to="/messages">Messenger</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <span>Hồ sơ</span>
+      </template>
+      <template v-else-if="route.query.fromPostId">
+        <!-- From Forum Post: Diễn đàn > Chi tiết bài viết > Hồ sơ -->
+        <router-link to="/forum">Diễn đàn</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <router-link :to="`/forum/post/${route.query.fromPostId}`">Chi tiết bài viết</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <span>Hồ sơ </span>
+      </template>
+      <template v-else>
+        <!-- Default from Forum: Diễn đàn > Hồ sơ -->
+        <router-link to="/forum">Diễn đàn</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <span>Hồ sơ</span>
+      </template>
     </div>
-    <ProfileDetail v-if="user" :user="user"/> 
-    <div v-else class="loading">
-      Đang tải hồ sơ...
+    
+    <!-- Loading state -->
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Đang tải hồ sơ...</p>
     </div>
+    
+    <!-- Error state -->
+    <div v-else-if="error" class="error-container">
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" @click="loadUserProfile">Thử lại</button>
+      </div>
+    </div>
+    
+    <!-- Profile content -->
+    <ProfileDetail 
+      v-else-if="user" 
+      :user="user" 
+      :isMyProfile="isMyProfile"
+      @send-message="handleSendMessage"
+    /> 
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import ProfileDetail from '@/components/layout/forum/profile/ProfileDetail.vue';
+import profileApi from '@/api/modules/profileApi';
 
 const route = useRoute();
+const router = useRouter();
+const store = useStore();
+
 const user = ref(null);
+const loading = ref(false);
+const error = ref(null);
+
 const username = computed(() => route.params.username);
+const currentUser = computed(() => store.getters['auth/currentUser']);
 
-// This is the mock data. In a real application, you would fetch this from your API.
-const mockUsers = {
-    'sarah-w': {
-      username: 'sarah-w',
-      fullName: 'Sarah Wilson',
-      title: 'Product Designer',
-      avatar: 'https://i.pravatar.cc/150?u=sarah-w',
-      bio: 'Chuyên gia thiết kế tập trung vào trải nghiệm người dùng và các hệ thống thiết kế. Yêu thích việc tạo ra các sản phẩm đẹp và dễ sử dụng.',
-      location: 'TP. Hồ Chí Minh',
-      website: 'thietkesarah.com',
-      websiteUrl: 'https://thietkesarah.com',
-      stats: {
-        learning_materials: '12',
-        joined: '15 tháng 5, 2022',
-        read: '10 giờ',
-        solutions: 42,
-        topics: 120,
-        likes: '2.5k'
-      },
-      activities: [
-        {
-          type: 'post',
-          id: 'post-1',
-          title: 'Thảo luận về các phương pháp học Kanji hiệu quả',
-          timestamp: '2 ngày trước',
-          topic: 'Học Kanji',
-          url: '/forum/post/1'
-        },
-        {
-          type: 'reply',
-          id: 'reply-1',
-          postTitle: 'Cách phân biệt trợ từ は và が?',
-          content_snippet: 'Một cách dễ hiểu là は nhấn mạnh vào hành động/mô tả phía sau, trong khi が nhấn mạnh vào chủ thể thực hiện...',
-          timestamp: '5 ngày trước',
-          url: '/forum/post/2#comment-123'
-        },
-        {
-          type: 'post',
-          id: 'post-2',
-          title: 'Tổng hợp tài liệu luyện thi JLPT N2 miễn phí',
-          timestamp: '1 tuần trước',
-          topic: 'Tài liệu JLPT',
-          url: '/forum/post/3'
-        },
-        {
-          type: 'reply',
-          id: 'reply-2',
-          postTitle: 'Mẫu câu giao tiếp trong nhà hàng',
-          content_snippet: ' có thể thêm vào danh sách mẫu "すみません、注文お願いします" (Xin lỗi, cho tôi gọi món) nhé. Rất phổ biến!',
-          timestamp: '2 tuần trước',
-          url: '/forum/post/4#comment-456'
-        },
-         {
-          type: 'reply',
-          id: 'reply-3',
-          postTitle: 'App học tiếng Nhật nào tốt nhất cho người mới bắt đầu?',
-          content_snippet: 'Mình thấy Duolingo khá ổn cho việc làm quen mặt chữ và từ vựng cơ bản, nhưng để chuyên sâu hơn thì nên kết hợp với sách...',
-          timestamp: '3 tuần trước',
-          url: '/forum/post/5#comment-789'
-        },
-        {
-          type: 'answer',
-          id: 'answer-2',
-          postTitle: 'Nên bắt đầu học tiếng Nhật từ đâu?',
-          content_snippet: 'Theo kinh nghiệm của mình,  nên bắt đầu với bảng chữ cái Hiragana và Katakana trước tiên. Sau đó học các mẫu câu chào hỏi cơ bản.',
-          timestamp: '1 tháng trước',
-          url: '/forum/post/8#answer-2'
-        },
-        {
-            type: 'material',
-            id: 'material-2',
-            title: 'Tổng hợp ngữ pháp N5',
-            topic: 'Tài liệu JLPT',
-            timestamp: '2 tháng trước',
-            url: '/forum/material/2'
-        },
-        {
-            type: 'post',
-            id: 'post-5',
-            title: 'Hỏi về cách dùng thể sai khiến',
-            timestamp: '3 tháng trước',
-            topic: 'Ngữ pháp',
-            url: '/forum/post/9'
-        },
-        {
-            type: 'answer',
-            id: 'answer-6',
-            postTitle: 'Nên bắt đầu học tiếng Nhật từ đâu?',
-            content_snippet: 'Bắt đầu với bảng chữ cái là chuẩn rồi .',
-            timestamp: '4 tháng trước',
-            url: '/forum/post/8#answer-6'
-        },
-        {
-            type: 'material',
-            id: 'material-3',
-            title: 'Bài tập ngữ pháp N4',
-            topic: 'Tài liệu JLPT',
-            timestamp: '4 tháng trước',
-            url: '/forum/material/3'
-        },
-        {
-            type: 'post',
-            id: 'post-12',
-            title: 'Cách nói "Cảm ơn" trong các tình huống khác nhau',
-            timestamp: '5 tháng trước',
-            topic: 'Giao tiếp',
-            url: '/forum/post/12'
+// Check if this is current user's profile
+const isMyProfile = computed(() => {
+  if (!currentUser.value || !username.value) return false;
+  
+  const currentUsername = currentUser.value.username || currentUser.value.userName;
+  return currentUsername === username.value;
+});
+
+// Load user profile by username or userId
+const loadUserProfile = async () => {
+  if (!username.value) return;
+  
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    // For current user, we can get more detailed info
+    if (isMyProfile.value) {
+      const profileData = await profileApi.getProfile();
+      user.value = {
+        ...profileData,
+        username: profileData.userName || profileData.username,
+        stats: {
+          joined: formatDate(profileData.create_at),
+          learning_materials: profileData.flashCardCount || 0,
+          topics: profileData.blogCount || 0,
+          solutions: profileData.commentCount || 0
         }
-      ]
-    },
-    'Mai An': {
-      username: 'Mai An',
-      fullName: 'Mai Thị An',
-      title: 'Chuyên gia Ngôn ngữ Nhật',
-      avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d',
-      bio: 'Chỉ là một cô gái đang cố gắng tìm hiểu về Kanji. Chia sẻ hành trình của mình và học hỏi từ cộng đồng.',
-      location: 'Hà Nội, Việt Nam',
-      website: 'my-japanese-journey.com',
-      websiteUrl: 'https://oboe.com',
-      stats: {
-        learning_materials: '12',
-        joined: '12 tháng 1, 2023',
-        read: '152 giờ',
-        solutions: 89,
-        topics: 34,
-        likes: '1.8k'
-      },
-      activities: [
-        {
-          type: 'post',
-          id: 'post-1',
-          title: 'Thảo luận về các phương pháp học Kanji hiệu quả',
-          timestamp: '2 ngày trước',
-          topic: 'Học Kanji',
-          url: '/forum/post/1'
-        },
-        {
-          type: 'reply',
-          id: 'reply-1',
-          postTitle: 'Cách phân biệt trợ từ は và が?',
-          content_snippet: 'Một cách dễ hiểu là は nhấn mạnh vào hành động/mô tả phía sau, trong khi が nhấn mạnh vào chủ thể thực hiện...',
-          timestamp: '5 ngày trước',
-          url: '/forum/post/2#comment-123'
-        },
-        {
-          type: 'answer',
-          id: 'answer-1',
-          postTitle: 'Làm thế nào để nhớ được nhiều từ vựng?',
-          content_snippet: 'Mình thường dùng flashcard và lặp lại cách quãng (spaced repetition), thấy khá hiệu quả.  có thể thử app Anki xem sao.',
-          timestamp: '1 tháng trước',
-          url: '/forum/post/6#answer-1'
-        },
-        {
-          type: 'material',
-          id: 'material-1',
-          title: 'Bộ flashcard 1000 từ vựng N3',
-          topic: 'Tài liệu JLPT',
-          timestamp: '2 tháng trước',
-          url: '/forum/material/1'
-        },
-        {
-          type: 'post',
-          id: 'post-2',
-          title: 'Tổng hợp tài liệu luyện thi JLPT N2 miễn phí',
-          timestamp: '1 tuần trước',
-          topic: 'Tài liệu JLPT',
-          url: '/forum/post/3'
-        },
-        {
-          type: 'reply',
-          id: 'reply-2',
-          postTitle: 'Mẫu câu giao tiếp trong nhà hàng',
-          content_snippet: ' có thể thêm vào danh sách mẫu "すみません、注文お願いします" (Xin lỗi, cho tôi gọi món) nhé. Rất phổ biến!',
-          timestamp: '2 tuần trước',
-          url: '/forum/post/4#comment-456'
-        },
-         {
-          type: 'reply',
-          id: 'reply-3',
-          postTitle: 'App học tiếng Nhật nào tốt nhất cho người mới bắt đầu?',
-          content_snippet: 'Mình thấy Duolingo khá ổn cho việc làm quen mặt chữ và từ vựng cơ bản, nhưng để chuyên sâu hơn thì nên kết hợp với sách...',
-          timestamp: '3 tuần trước',
-          url: '/forum/post/5#comment-789'
-        },
-        {
-            type: 'post',
-            id: 'post-4',
-            title: 'Kinh nghiệm du lịch Nhật Bản tự túc',
-            timestamp: '3 tháng trước',
-            topic: 'Du lịch',
-            url: '/forum/post/8'
-        },
-        {
-            type: 'answer',
-            id: 'answer-5',
-            postTitle: 'Học online hiệu quả?',
-            content_snippet: 'Tự giác là quan trọng nhất nhé bro.',
-            timestamp: '5 tháng trước',
-            url: '/forum/post/9#answer-5'
-        },
-        {
-            type: 'material',
-            id: 'material-5',
-            title: 'Giáo trình Minnano Nihongo',
-            topic: 'Thư viện',
-            timestamp: '5 tháng trước',
-            url: '/forum/material/5'
-        },
-        {
-            type: 'post',
-            id: 'post-9',
-            title: 'Review sách "Thiết kế cuộc đời đáng sống"',
-            timestamp: '5 tháng trước',
-            topic: 'Sách hay',
-            url: '/forum/post/10'
-        },
-        {
-            type: 'reply',
-            id: 'reply-8',
-            postTitle: 'Mẫu câu giao tiếp trong nhà hàng',
-            content_snippet: 'Hay quá, cảm ơn !',
-            timestamp: '6 tháng trước',
-            url: '/forum/post/4#comment-459'
-        },
-        {
-            type: 'post',
-            id: 'post-11',
-            title: 'Tìm  học chung N1',
-            timestamp: '7 tháng trước',
-            topic: 'Tìm  học',
-            url: '/forum/post/11'
-        }
-      ]
-    },
-    // Add other mock users if needed, matching the usernames from your data
-  };
+      };
+    } else {
+      // For other users, get userId from query params
+      const userId = route.query.userId;
+      if (userId) {
+        const profileData = await profileApi.getUserProfileById(userId);
+        user.value = {
+          ...profileData,
+          username: profileData.userName || profileData.username,
+          stats: {
+            joined: formatDate(profileData.create_at),
+            learning_materials: profileData.flashCardCount || 0,
+            topics: profileData.blogCount || 0,
+            solutions: profileData.commentCount || 0
+          }
+        };
+      } else {
+        throw new Error('Không tìm thấy thông tin người dùng');
+      }
+    }
+  } catch (err) {
+    console.error('Error loading user profile:', err);
+    error.value = err.message || 'Không thể tải thông tin người dùng';
+    user.value = null;
+  } finally {
+    loading.value = false;
+  }
+};
 
+// Format date helper
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 
+// Handle send message event
+const handleSendMessage = (userData) => {
+  // Navigate to messages with the selected user
+  router.push({
+    name: 'messages',
+    query: { user: userData.userName || userData.username }
+  });
+};
+
+// Watch username and userId changes
+watch([username, () => route.query.userId], () => {
+  loadUserProfile();
+}, { immediate: true });
+
+// Load on mount
 onMounted(() => {
-  // Simulate API call to fetch user data
-  setTimeout(() => {
-    user.value = mockUsers[username.value] || null;
-  }, 500);
+  loadUserProfile();
 });
 </script>
+
 <style lang="scss" scoped>
 @use '@/views/forum/forum-profile/ForumProfile.scss';
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #e91e63;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem;
+  
+  .error-message {
+    text-align: center;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    
+    i {
+      font-size: 3rem;
+      color: #f44336;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: #666;
+      margin: 1rem 0;
+      font-size: 1.1rem;
+    }
+    
+    .btn {
+      margin-top: 1rem;
+    }
+  }
+}
 </style>

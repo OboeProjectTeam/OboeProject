@@ -53,9 +53,9 @@
                   <i class="fas fa-trash"></i>
                   Xóa bài viết
                 </button>
-                <button class="menu-item" @click="handleMenuItemClick('toggle-lock')">
-                  <i class="fas" :class="isCommentsLocked ? 'fa-lock-open' : 'fa-lock'"></i>
-                  {{ isCommentsLocked ? 'Mở khóa bình luận' : 'Khóa bình luận' }}
+                <button class="menu-item" @click="handleMenuItemClick('update')">
+                  <i class="fas fa-edit"></i>
+                  Sửa bài viết
                 </button>
               </template>
               <!-- Options for other users -->
@@ -255,7 +255,9 @@
       <UserProfileCard 
         ref="floatingEl"
         v-if="activeUserCard" 
-        :user="activeUserCard" 
+        :userId="activeUserCard.id" 
+        :postId="blogPost?.id"
+        :postTitle="blogPost?.title"
         :style="floatingStyles"
         @send-message="handleSendMessage"
       />
@@ -409,9 +411,8 @@ const fetchBlogPost = async (postId) => {
     isLoading.value = true;
     error.value = null;
     
-    console.log('Fetching blog post:', postId);
     const response = await blogApi.getById(postId);
-    console.log('Blog post response:', response);
+
     
     blogPost.value = {
       id: response.id,
@@ -420,7 +421,7 @@ const fetchBlogPost = async (postId) => {
       author: {
         id: response.userId,
         username: response.author,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(response.author)}`
+        avatar: response.avatarUrl
       },
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
@@ -471,7 +472,7 @@ const fetchComments = async (postId, loadMore = false) => {
       author: {
         id: comment.userId,
         username: comment.userName || 'Anonymous',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName || 'Anonymous')}`
+        avatar: comment.avatarUrl
       },
       time: formatTimeAgo(new Date(comment.createdAt)),
       text: comment.content,
@@ -740,7 +741,40 @@ const isPostLoaded = computed(() => blogPost.value !== null && !error.value);
 // Check if current user is post owner
 const isPostOwner = computed(() => {
   if (!currentUser.value || !blogPost.value) return false;
-  return currentUser.value.userId === blogPost.value.author.id;
+  
+  // Debug logs for post ownership
+  console.log('=== POST OWNERSHIP CHECK ===');
+  console.log('Current User:', currentUser.value);
+  console.log('Blog Post Author:', blogPost.value.author);
+  console.log('Current User keys:', Object.keys(currentUser.value));
+  
+  // Try different field combinations for current user ID
+  const currentUserId = currentUser.value.userId || currentUser.value.user_id || currentUser.value.id;
+  const postAuthorId = blogPost.value.author.id;
+  
+  console.log('Post Ownership - Current User ID:', currentUserId);
+  console.log('Post Ownership - Post Author ID:', postAuthorId);
+  console.log('Post Ownership - ID Match:', currentUserId === postAuthorId);
+  
+  if (currentUserId && postAuthorId && currentUserId === postAuthorId) {
+    console.log('✅ Current user is POST OWNER');
+    return true;
+  }
+  
+  // Fallback: Username comparison
+  const currentUsername = currentUser.value.username || currentUser.value.userName;
+  const postAuthorUsername = blogPost.value.author.username;
+  
+  console.log('Post Ownership - Username fallback:', currentUsername, 'vs', postAuthorUsername);
+  
+  if (currentUsername && postAuthorUsername && currentUsername === postAuthorUsername) {
+    console.log('✅ Current user is POST OWNER (username match)');
+    return true;
+  }
+  
+  console.log('❌ Current user is NOT post owner');
+  console.log('=============================');
+  return false;
 });
 
 // Use comments from API instead of mock data
@@ -791,6 +825,10 @@ const handleMenuItemClick = (action) => {
     case 'delete':
       showDeleteConfirm.value = true;
       break;
+    case 'update':
+    case 'edit':
+      handleEditPost();
+      break;
     case 'toggle-lock':
       showLockConfirm.value = true;
       break;
@@ -800,6 +838,14 @@ const handleMenuItemClick = (action) => {
     case 'hide':
       showHideConfirm.value = true;
       break;
+  }
+};
+
+// Handle edit post
+const handleEditPost = () => {
+  if (blogPost.value) {
+    // Redirect to edit page with post ID
+    router.push(`/forum/edit/${blogPost.value.id}`);
   }
 };
 
@@ -913,6 +959,55 @@ const goBackToForum = () => {
 
 const toggleUserCard = (event, user) => {
   if (!user) return;
+  
+  // Get current user from store
+  const currentUser = store.getters['auth/currentUser'];
+  
+  // Check if clicking on own avatar - prevent showing popup
+  if (currentUser && user) {
+    // Try different field combinations for comparison
+    const currentUserId = currentUser.userId || currentUser.user_id;
+    const clickedUserId = user.id || user.userId || user.user_id;
+    
+         console.log('=== TOGGLE USER CARD DEBUG ===');
+     console.log('Current User Full Object:', currentUser);
+     console.log('Current User keys:', Object.keys(currentUser));
+     console.log('Clicked User Full Object:', user);
+     console.log('Current User ID (extracted):', currentUserId);
+     console.log('Clicked User ID (extracted):', clickedUserId);
+     console.log('Alternative current user ID fields:');
+     console.log('  - currentUser.id:', currentUser.id);
+     console.log('  - currentUser.user_id:', currentUser.user_id);
+     console.log('  - currentUser.userId:', currentUser.userId);
+     console.log('  - currentUser.username:', currentUser.username);
+     console.log('  - currentUser.userName:', currentUser.userName);
+     console.log('Type of currentUserId:', typeof currentUserId);
+     console.log('Type of clickedUserId:', typeof clickedUserId);
+     console.log('Strict equality check:', currentUserId === clickedUserId);
+     console.log('Loose equality check:', currentUserId == clickedUserId);
+     console.log('==================================');
+    
+         // Primary comparison: ID-based
+     if (currentUserId && clickedUserId && currentUserId === clickedUserId) {
+       console.log('🛑 Cannot click on own avatar (ID match) - preventing popup');
+       return; // Don't show popup for own avatar
+     }
+     
+     // Fallback comparison: Username-based
+     const currentUsername = currentUser.username || currentUser.userName;
+     const clickedUsername = user.username || user.userName;
+     
+     console.log('Fallback username comparison:');
+     console.log('  currentUsername:', currentUsername);
+     console.log('  clickedUsername:', clickedUsername);
+     
+     if (currentUsername && clickedUsername && currentUsername === clickedUsername) {
+       console.log('🛑 Cannot click on own avatar (username match) - preventing popup');
+       return; // Don't show popup for own avatar
+     }
+     
+     console.log('✅ Different user - allowing popup');
+  }
   
   if (activeUserCard.value && activeUserCard.value.username === user.username) {
     activeUserCard.value = null;

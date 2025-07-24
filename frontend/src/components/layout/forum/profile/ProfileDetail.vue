@@ -2,7 +2,7 @@
   <div class="profile-page" v-if="user">
     <div class="profile-header bd-form">
         <div class="avatar-container">
-          <img :src="avatarPreview || editableUser.avatarUrl || editableUser.avatar || 'https://ui-avatars.com/api/?name=' + (editableUser.userName || editableUser.username || 'User')" :alt="editableUser.username" class="profile-avatar-large">
+                     <img :src="avatarPreview || editableUser.avatarUrl || editableUser.avatar || 'https://ui-avatars.com/api/?name=' + (editableUser.userName || editableUser.username || 'User')" :alt="editableUser.userName || editableUser.username" class="profile-avatar-large">
           <div v-if="isEditing" class="avatar-upload-overlay">
             <label for="avatar-upload" class="avatar-upload-label">
               <i class="fas fa-camera"></i>
@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="profile-main-info">
-          <h1 class="username-large">{{ editableUser.username }}</h1>
+                     <h1 class="username-large">{{ editableUser.userName || editableUser.username }}</h1>
           
           <p v-if="!isEditing" class="full-name-large">{{ editableUser.fullName }}</p>
           <input v-else type="text" v-model="editableUser.fullName" class="form-control mb-2" maxlength="50">
@@ -26,7 +26,7 @@
           <p v-if="!isEditing" class="title-large" >{{ editableUser.title }}</p>
         </div>
         <div class="profile-actions">
-          <div v-if="isMyProfile">
+          <div v-if="props.isMyProfile">
             <template v-if="!isEditing">
               <button @click="startEditing" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Chỉnh sửa hồ sơ</button>
             </template>
@@ -41,19 +41,37 @@
         </div>
     </div>
     
-    <div v-if="isMyProfile" class="profile-notification bd-form">
+    <div v-if="props.isMyProfile" class="profile-notification bd-form">
       <i class="fas fa-info-circle"></i>
       <span>7 ngày trải nghiệm các tính năng AI miễn phí sau khi cập nhật đầy đủ thông tin hồ sơ.</span>
     </div>
 
-    <div v-if="isMyProfile" class="personal-info-widget bd-form">
+    <!-- Basic personal info for all users -->
+    <div class="personal-info-widget bd-form">
       <h3>Thông tin cá nhân</h3>
       <ul class="personal-info-list">
-         <li v-for="field in personalFields" :key="field.key">
-          <i :class="field.icon"></i>
-          <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
-          <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
+        <!-- Basic info shown for all users -->
+        <li v-if="editableUser.day_of_birth">
+          <i class="fas fa-birthday-cake"></i>
+          <span>{{ formatDate(editableUser.day_of_birth) }}</span>
         </li>
+        <li v-if="editableUser.userName">
+          <i class="fas fa-envelope"></i>
+          <span>{{ editableUser.userName }}</span>
+        </li>
+        <li v-if="editableUser.address">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ editableUser.address }}</span>
+        </li>
+        
+        <!-- Editable fields for own profile only -->
+        <template v-if="props.isMyProfile">
+          <li v-for="field in editableFields" :key="field.key">
+            <i :class="field.icon"></i>
+            <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
+            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
+          </li>
+        </template>
       </ul>
     </div>
 
@@ -77,7 +95,7 @@
         </div>
                   <div class="sidebar-widget bd-form">
             <h3>Thống kê</h3>
-            <div v-if="statsLoading && isMyProfile" class="stats-loading">
+            <div v-if="statsLoading && props.isMyProfile" class="stats-loading">
               <p>Đang tải thống kê...</p>
             </div>
             <ul v-else class="stats-list">
@@ -176,6 +194,7 @@
   import commentApi from '@/api/modules/commentApi';
   import flashcardApi from '@/api/modules/flashcardApi';
   import statisticsApi from '@/api/modules/statisticsApi';
+  import profileApi from '@/api/modules/profileApi';
 
   const props = defineProps({
   user: {
@@ -210,12 +229,21 @@ console.log('ProfileDetail - Initial editableUser:', editableUser.value);
   const commentsLoading = ref(false);
   const flashcardsLoading = ref(false);
 
-const personalFields = [
-  { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
+// Only additional fields that can be edited (phone for now, since day_of_birth, email, address are already shown above)
+const editableFields = [
   { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
-  { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
-  { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
 ];
+
+// Format date helper for display
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 
 watch(() => props.user, (newUser) => {
   if (!isEditing.value) {
@@ -375,7 +403,8 @@ function prevPage() {
 
   // Load user statistics
   async function loadUserStats() {
-    if (!props.isMyProfile) return; // Only load stats for own profile
+    // Only load detailed stats for own profile
+    if (!props.isMyProfile) return;
     
     try {
       statsLoading.value = true;
@@ -391,12 +420,23 @@ function prevPage() {
 
   // Load user activities
   async function loadUserActivities(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load activities for own profile
-    
     try {
       activitiesLoading.value = true;
       console.log('Loading user activities...');
-      const response = await statisticsApi.getUserActivity(page, size);
+      
+      let response;
+      if (props.isMyProfile) {
+        // For current user, use statistics API
+        response = await statisticsApi.getUserActivity(page, size);
+      } else {
+        // For other users, use profile API with user ID
+        const userId = props.user.user_id || props.user.userId;
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+        response = await profileApi.getUserActivities(userId, page, size);
+      }
+      
       console.log('User activities loaded:', response);
       
       // Map activities to the expected format based on new API structure
@@ -467,7 +507,8 @@ function prevPage() {
 
   // Load user blogs
   async function loadUserBlogs(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load blogs for own profile
+    // Only load detailed blogs for own profile - other users' blogs are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       blogsLoading.value = true;
@@ -505,7 +546,8 @@ function prevPage() {
 
   // Load user comments
   async function loadUserComments(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load comments for own profile
+    // Only load detailed comments for own profile - other users' comments are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       commentsLoading.value = true;
@@ -543,7 +585,8 @@ function prevPage() {
 
   // Load user flashcards
   async function loadUserFlashcards(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load flashcards for own profile
+    // Only load detailed flashcards for own profile - other users' flashcards are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       flashcardsLoading.value = true;
@@ -579,42 +622,61 @@ function prevPage() {
     }
   }
 
-  // Load stats when component mounts and when user changes
+  // Load data when component mounts and when user changes
   onMounted(() => {
+    // Load stats only for own profile
     if (props.isMyProfile) {
       loadUserStats();
-      // Load data based on current tab
-      if (currentTab.value === 'all') {
-        loadUserActivities();
-      } else if (currentTab.value === 'post') {
-        loadUserBlogs();
-      } else if (currentTab.value === 'reply') {
-        loadUserComments();
-      } else if (currentTab.value === 'material') {
-        loadUserFlashcards();
-      }
+    }
+    
+    // Load data based on current tab for all users
+    if (currentTab.value === 'all') {
+      loadUserActivities();
+    } else if (currentTab.value === 'post') {
+      loadUserBlogs();
+    } else if (currentTab.value === 'reply') {
+      loadUserComments();
+    } else if (currentTab.value === 'material') {
+      loadUserFlashcards();
     }
   });
 
   watch(() => props.user, () => {
+    // Load stats only for own profile
     if (props.isMyProfile) {
       loadUserStats();
-      if (currentTab.value === 'all') {
-        loadUserActivities();
-      } else if (currentTab.value === 'post') {
-        loadUserBlogs();
-      } else if (currentTab.value === 'reply') {
-        loadUserComments();
-      } else if (currentTab.value === 'material') {
-        loadUserFlashcards();
-      }
+    }
+    
+    // Load data based on current tab for all users
+    if (currentTab.value === 'all') {
+      loadUserActivities();
+    } else if (currentTab.value === 'post') {
+      loadUserBlogs();
+    } else if (currentTab.value === 'reply') {
+      loadUserComments();
+    } else if (currentTab.value === 'material') {
+      loadUserFlashcards();
     }
   });
 
   function handleSendMessage() {
-    if (router.currentRoute.value.meta.emit) {
-      router.currentRoute.value.meta.emit('send-message', props.user);
+    console.log('ProfileDetail: handleSendMessage called with user:', props.user)
+    
+    // Prepare user data for ChatBox
+    const chatUser = {
+      user_id: props.user.user_id || props.user.userId,
+      userId: props.user.user_id || props.user.userId,
+      id: props.user.user_id || props.user.userId,
+      userName: props.user.userName || props.user.username,
+      fullName: props.user.fullName,
+      avatarUrl: props.user.avatarUrl || props.user.avatar,
+      avatar: props.user.avatarUrl || props.user.avatar
     }
+    
+    console.log('ProfileDetail: Emitting send-message event with user:', chatUser)
+    
+    // Emit to parent to open ChatBox
+    emit('send-message', chatUser)
   }
 
 </script>

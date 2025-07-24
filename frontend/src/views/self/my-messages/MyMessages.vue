@@ -26,7 +26,7 @@
              @click="selectChat(chat)">
           <div class="avatar">
             <img
-              :src="chat.avatar"
+              :src="chat.avatarUrlReceiver"
               :alt="chat.name"
               class="avatar-img"
               @click.stop="openSidebarMenu($event, chat)"
@@ -55,7 +55,7 @@
             <i class="fas fa-arrow-left"></i>
           </div>
           <div class="chat-user-info">
-            <img :src="selectedChat.avatar" :alt="selectedChat.name">
+            <img :src="selectedChat.avatarUrlReceiver" :alt="selectedChat.name">
             <div>
               <h3>{{ selectedChat.name }}</h3>
             </div>
@@ -128,6 +128,8 @@
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
+
+
   </div>
 </template>
 
@@ -159,6 +161,9 @@ const confirmDialog = ref({
 const router = useRouter()
 const store = useStore()
 
+// Define emits for parent component
+const emit = defineEmits(['send-message'])
+
 // Loading state
 const conversationsLoading = ref(false)
 const conversationMessagesLoading = ref(false)
@@ -172,7 +177,6 @@ const getCurrentUserId = async () => {
   try {
     // First try to get from profile API which might have more complete user info
     const profileResponse = await api.profile.getProfile()
-    console.log('Profile API response:', profileResponse)
     
     if (profileResponse?.user_id) {
       localStorage.setItem('currentUserId', profileResponse.user_id)
@@ -184,7 +188,6 @@ const getCurrentUserId = async () => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]))
-        console.log('JWT payload:', payload)
         // JWT might contain user ID or username that we can use
       } catch (e) {
         console.error('Error decoding JWT:', e)
@@ -205,51 +208,47 @@ const conversations = ref([])
 const loadChatPartners = async () => {
   try {
     conversationsLoading.value = true
-    console.log('Loading chat partners...')
     
     const response = await api.message.getChatPartners()
-    console.log('Chat partners API response:', response)
     
     // Handle different response formats
     const partnersData = Array.isArray(response) ? response : (response.content || response.data || response)
-    console.log('Partners data:', partnersData)
     
-    // Map API data to conversation format based on actual UserSummaryDTO
-    const mappedConversations = (Array.isArray(partnersData) ? partnersData : []).map(partner => {
-      console.log('Mapping partner:', partner)
-      
-      // Build full name from firstName and lastName
-      const firstName = partner.firstName || ''
-      const lastName = partner.lastName || ''
-      const fullName = `${firstName} ${lastName}`.trim() || partner.userName || 'Người dùng'
-      
-      return {
-        id: partner.userId,
-        name: fullName,
-        avatar: partner.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
-        lastMessage: partner.lastMessageContent || 'Chưa có tin nhắn',
-        lastMessageTime: partner.lastMessageTime ? formatMessageTime(partner.lastMessageTime) : '',
-        unreadCount: 0, // Not provided in UserSummaryDTO
-        messages: [] // Will be loaded when chat is selected
-      }
-    })
+         // Map API data to conversation format based on actual UserSummaryDTO
+     const mappedConversations = (Array.isArray(partnersData) ? partnersData : []).map(partner => {
+       console.log('Mapping partner:', partner)
+       
+       // Build full name from firstName and lastName
+       const firstName = partner.firstName || ''
+       const lastName = partner.lastName || ''
+       const fullName = `${firstName} ${lastName}`.trim() || partner.userName || 'Người dùng'
+       
+       return {
+         id: partner.userId,
+         name: fullName,
+         username: partner.userName, // Add username for profile navigation
+         fullName: fullName,
+         avatarUrlReceiver: partner.avatarUrlReceiver || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
+         lastMessage: partner.lastMessageContent || 'Chưa có tin nhắn',
+         lastMessageTime: partner.lastMessageTime ? formatMessageTime(partner.lastMessageTime) : '',
+         unreadCount: 0, // Not provided in UserSummaryDTO
+         messages: [] // Will be loaded when chat is selected
+       }
+     })
     
-    console.log('Mapped conversations:', mappedConversations)
     conversations.value = mappedConversations
     
     // Store in Vuex
     store.commit('message/setChatPartners', partnersData)
     
     // Show success message
-    store.dispatch('message/showMessage', {
+    store.dispatch('showMessage', {
       type: 'success',
       text: `Đã tải ${mappedConversations.length} cuộc trò chuyện`
     })
   } catch (error) {
-    console.error('Failed to load chat partners:', error)
-    
     // Show error message
-    store.dispatch('message/showMessage', {
+    store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể tải danh sách tin nhắn: ' + error.message
     })
@@ -271,7 +270,6 @@ const formatMessageTime = (dateString) => {
     
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString)
       return 'Invalid Date'
     }
     
@@ -280,7 +278,6 @@ const formatMessageTime = (dateString) => {
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
     
-    console.log('Formatting time:', dateString, 'parsed date:', date, 'diffHours:', diffHours, 'diffDays:', diffDays)
     
     // Same day - show time only
     if (diffDays === 0) {
@@ -313,19 +310,15 @@ const selectChat = async (chat) => {
     // Start loading messages
     conversationMessagesLoading.value = true
     
-    console.log('Loading conversation with user:', chat.id)
     
     // Call API to get conversation
     const response = await api.message.getConversation(chat.id)
-    console.log('Conversation API response:', response)
     
     // Handle different response formats
     const conversationData = Array.isArray(response) ? response : (response.content || response.data || response)
-    console.log('Conversation data:', conversationData)
     
     // Map messages to expected format based on MessageDTO
     const mappedMessages = (Array.isArray(conversationData) ? conversationData : []).map(message => {
-      console.log('Mapping message:', message)
       
       const senderId = message.senderId
       const receiverId = message.receiverId
@@ -348,21 +341,10 @@ const selectChat = async (chat) => {
         } else if (currentUser.value.username.includes('vuongancut789')) {
           currentUserId = '5c936e0d-0629-4638-ba79-a58f597e2718'
         }
-        console.log('TEMPORARY userId mapping based on username:', currentUserId)
       }
       
       // Determine if message was sent by current user
       const isSent = senderId === currentUserId || String(senderId) === String(currentUserId)
-      
-      console.log('=== MESSAGE MAPPING DEBUG ===')
-      console.log('Message sender ID:', senderId, 'type:', typeof senderId)
-      console.log('Current user ID:', currentUserId, 'type:', typeof currentUserId)
-      console.log('Current user object (full):', JSON.stringify(currentUser.value, null, 2))
-      console.log('LocalStorage user ID:', localStorage.getItem('currentUserId'))
-      console.log('Strict equal?:', senderId === currentUserId)
-      console.log('String comparison:', String(senderId) === String(currentUserId))
-      console.log('Is sent (final):', isSent)
-      console.log('===============================')
       
       return {
         id: message.messageId,
@@ -375,18 +357,15 @@ const selectChat = async (chat) => {
       }
     })
     
-    console.log('Mapped messages:', mappedMessages)
-    
     // Update chat with loaded messages
     chat.messages = mappedMessages
     
     scrollToBottom()
     
   } catch (error) {
-    console.error('Failed to load conversation:', error)
     
     // Show error message
-    store.dispatch('message/showMessage', {
+    store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể tải cuộc trò chuyện: ' + error.message
     })
@@ -422,7 +401,6 @@ const sendMessage = async () => {
   
   try {
     sendingMessage.value = true
-    console.log('Sending message to:', receiverId, 'Content:', messageContent)
     
     // Create MessageDTO for API
     const messageDTO = {
@@ -432,7 +410,6 @@ const sendMessage = async () => {
     
     // Call API to send message
     const response = await api.message.sendMessage(messageDTO)
-    console.log('Message sent, API response:', response)
     
     // Map response to message format
     const newMessageObj = {
@@ -460,13 +437,9 @@ const sendMessage = async () => {
     newMessage.value = ''
     scrollToBottom()
     
-    console.log('Message added to chat successfully')
-    
   } catch (error) {
-    console.error('Failed to send message:', error)
-    
     // Show error message
-         store.dispatch('message/showMessage', {
+         store.dispatch('showMessage', {
        type: 'error',
        text: 'Không thể gửi tin nhắn: ' + error.message
      })
@@ -494,14 +467,34 @@ const closeSidebarMenu = () => {
 }
 
 const viewProfile = (user) => {
+  console.log('MyMessages: Opening profile for user:', user)
+  
   closeSidebarMenu()
-  // Nếu user có username, chuyển hướng sang trang hồ sơ
-  if (user.username) {
-    router.push(`/forum/u/${user.username}`)
-  } else if (user.name) {
-    // Nếu user chỉ có name, dùng name làm username
-    router.push(`/forum/u/${user.name}`)
+  
+  // Check if user has required data
+  if (!user.username && !user.name) {
+    console.error('MyMessages: No username or name found for user:', user)
+    return
   }
+  
+  if (!user.id) {
+    console.error('MyMessages: No user ID found for user:', user)
+    return
+  }
+  
+  // Use username if available, otherwise fallback to name
+  const usernameForRoute = user.username || user.name
+  
+  // Navigate to forum profile page with userId in query params
+  router.push({
+    path: `/forum/u/${usernameForRoute}`,
+    query: {
+      userId: user.id,
+      fromSource: 'messages'
+    }
+  })
+  
+  console.log('MyMessages: Navigating to profile:', `/forum/u/${usernameForRoute}?userId=${user.id}`)
 }
 
 const deleteConversation = (user) => {
@@ -529,8 +522,29 @@ const blockUser = (user) => {
 }
 
 const openChatBox = (user) => {
-  // Emit send-message event through router meta
-  router.currentRoute.value.meta.emit?.('send-message', user)
+  console.log('MyMessages: Opening ChatBox for user:', user)
+  
+  const userId = user.id
+  if (!userId) {
+    console.error('MyMessages: No userId found in user object:', user)
+    return
+  }
+  
+  // Prepare user data for ChatBox
+  const chatUser = {
+    id: userId,
+    userId: userId,
+    name: user.name,
+    username: user.name,
+    fullName: user.name,
+    avatarUrlReceiver: user.avatarUrlReceiver
+  }
+  
+  console.log('MyMessages: Emitting send-message event with user:', chatUser)
+  
+  // Emit to App.vue to open global ChatBox
+  emit('send-message', chatUser)
+  
   closeSidebarMenu()
 }
 
@@ -547,6 +561,49 @@ function handleCancel() {
   confirmDialog.value.show = false
 }
 
+// Handle incoming user from other pages (like profile page)
+const handleIncomingUser = () => {
+  const query = router.currentRoute.value.query
+  
+  if (query.userId && query.userName) {
+    // Check if user already exists in conversations
+    const existingChat = conversations.value.find(chat => chat.id === query.userId)
+    
+    if (existingChat) {
+      // User already in conversations, select it
+      selectChat(existingChat)
+    } else {
+      // Create new conversation entry
+      const newChat = {
+        id: query.userId,
+        name: query.fullName || query.userName,
+        avatarUrlReceiver: query.avatarUrlReceiver || `https://ui-avatars.com/api/?name=${encodeURIComponent(query.fullName || query.userName)}&background=random`,
+        lastMessage: 'Bắt đầu cuộc trò chuyện',
+        lastMessageTime: '',
+        unreadCount: 0,
+        messages: []
+      }
+      
+      // Add to conversations list
+      conversations.value.unshift(newChat)
+      
+      // Select the new chat
+      selectChat(newChat)
+      
+      // Show notification
+      store.dispatch('showMessage', {
+        type: 'info',
+        text: `Bắt đầu cuộc trò chuyện với ${newChat.name}`
+      })
+    }
+    
+    // Clear query params to prevent re-triggering
+    router.replace({ name: 'messages' })
+  }
+}
+
+
+
 const updateHeaderHeight = () => {
   const header = document.querySelector('.header') 
   if (header) {
@@ -554,12 +611,17 @@ const updateHeaderHeight = () => {
   }
 }
 
+
+
 onMounted(async () => {
   // Get current user ID first
   await getCurrentUserId()
   
   // Load chat partners when component mounts
-  loadChatPartners()
+  await loadChatPartners()
+  
+  // Check if there's a user to start conversation with
+  handleIncomingUser()
   
   scrollToBottom()
   window.addEventListener('click', closeSidebarMenu)
