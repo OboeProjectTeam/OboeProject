@@ -50,27 +50,6 @@ watch(() => route.query.newPost, async (newPost) => {
 onMounted(async () => {
   try {
     const profile = await api.profile.getProfile();
-    const blogs = await api.blog.getUserBlogs();
-    const comments = await api.comment.getUserComments();
-
-    const blogActivities = blogs.map(blog => ({
-      type: 'post',
-      id: `blog-${blog.id}`,
-      title: blog.title,
-      timestamp: blog.updatedAt || blog.createdAt,
-      topic: blog.category || 'Bài viết',
-      url: `/blog/${blog.id}`
-    }));
-
-    const commentActivities = comments.map(comment => ({
-      type: 'reply',
-      id: `comment-${comment.id}`,
-      postTitle: comment.postTitle || 'Bài viết',
-      content_snippet: comment.content.slice(0, 100),
-      timestamp: comment.updatedAt || comment.createdAt,
-      url: `/forum/post/${comment.postId}#comment-${comment.id}`
-    }));
-
     user.value = {
       username: profile.userName,
       fullName: (profile.lastName || '') + ' ' + (profile.firstName || ''),
@@ -85,12 +64,11 @@ onMounted(async () => {
       location: profile.location || '',
       stats: {
         joined: profile.create_at?.split('T')[0] || '',
-        topics: blogs.length,
-        likes: 0,
-        solutions: comments.length,
-        learning_materials: 0
+        topics: "",
+        solutions: "",
+        learning_materials: ""
       },
-      activities: [...blogActivities, ...commentActivities]
+      activities: []
     };
   } catch (err) {
     console.error('Lỗi tải hồ sơ:', err);

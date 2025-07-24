@@ -176,6 +176,17 @@
   }
 }
 
+.card-description {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .card-meta {
   display: flex;
   gap: 16px;

@@ -29,18 +29,18 @@ const mutations = {
 };
 
 const actions = {
-    // Xử lý login OAuth2: nhận token và fetch user
-    async fetchCurrentUser({ commit }, { token }) {
-      commit('SET_TOKEN', token);
-  
-      try {
-        const user = await api.auth.getCurrentUser();
-        commit('SET_USER', user);
-      } catch (error) {
-        console.error('Lỗi lấy user từ token:', error);
-        commit('CLEAR_AUTH');
-      }
-    },
+      // Xử lý login OAuth2: nhận token và fetch user
+  async fetchCurrentUser({ commit }, { token }) {
+    commit('SET_TOKEN', token);
+
+    try {
+      const user = await api.profile.getProfile();
+      commit('SET_USER', user);
+    } catch (error) {
+      console.error('Lỗi lấy user từ token:', error);
+      commit('CLEAR_AUTH');
+    }
+  },
   
   // Đăng nhập: gọi API và lưu token + user
   async login({ commit }, { userName, passWord }) {
@@ -79,8 +79,26 @@ const actions = {
   // Upload avatar mới và cập nhật lại thông tin
   async uploadAvatar({ commit, state }, file) {
     const avatarUrl = await api.auth.uploadAvatar(file);
-    const updatedUser = { ...state.user, avatar: avatarUrl };
+    const updatedUser = { ...state.user, avatarUrl: avatarUrl };
     commit('SET_USER', updatedUser);
+  },
+
+  // Cập nhật avatar URL trong store (không gọi API)
+  updateUserAvatar({ commit, state }, avatarUrl) {
+    const updatedUser = { ...state.user, avatarUrl: avatarUrl };
+    commit('SET_USER', updatedUser);
+  },
+
+  // Tải lại profile từ server
+  async refreshProfile({ commit }) {
+    try {
+      const user = await api.profile.getProfile();
+      commit('SET_USER', user);
+      return user;
+    } catch (error) {
+      console.error('Lỗi khi tải lại profile:', error);
+      throw error;
+    }
   },
 
   // Đăng xuất: gọi API và xóa thông tin local

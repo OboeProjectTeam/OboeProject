@@ -22,7 +22,7 @@
         </div>
         <div class="user-stats">
           <div class="stat-item">
-            <div>Đã đăng</div>
+            <div>Bài viết</div>
             <div class="stat-value">{{ user.stats?.posted || 0 }}</div>
           </div>
           <div class="stat-item">
@@ -30,8 +30,8 @@
             <div class="stat-value">{{ user.stats?.joined || '-' }}</div>
           </div>
           <div class="stat-item">
-            <div>Đã đọc</div>
-            <div class="stat-value">{{ user.stats?.read || 0 }}</div>
+            <div>Bình luận</div>
+            <div class="stat-value">{{ user.stats?.comments || 0 }}</div>
           </div>
           <div class="stat-item">
             <div>Giải pháp</div>
