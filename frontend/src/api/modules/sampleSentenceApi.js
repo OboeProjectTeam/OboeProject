@@ -1,30 +1,10 @@
 import axios from '@/api/axios';
 import { handleApiError } from '@/api/apiUtils';
 
-const PREFIX = '/api/quizzes';
+const PREFIX = '/api/sample-sentences';
 
-const quizApi = {
-  // Lấy tất cả quizzes
-  async getAll() {
-    try {
-      const res = await axios.get(PREFIX);
-      return res.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  },
-
-  // Lấy quiz theo ID
-  async getById(id) {
-    try {
-      const res = await axios.get(`${PREFIX}/${id}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  },
-
-  // Tạo quiz mới
+const sampleSentenceApi = {
+  // Tạo mẫu câu mới
   async create(dto) {
     try {
       const res = await axios.post(PREFIX, dto);
@@ -34,7 +14,7 @@ const quizApi = {
     }
   },
 
-  // Cập nhật quiz
+  // Cập nhật mẫu câu
   async update(id, dto) {
     try {
       const res = await axios.put(`${PREFIX}/${id}`, dto);
@@ -44,7 +24,7 @@ const quizApi = {
     }
   },
 
-  // Xóa quiz
+  // Xoá mẫu câu
   async delete(id) {
     try {
       const res = await axios.delete(`${PREFIX}/${id}`);
@@ -52,7 +32,27 @@ const quizApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+
+  // Lấy mẫu câu theo ID
+  async getById(id) {
+    try {
+      const res = await axios.get(`${PREFIX}/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  // Lấy tất cả mẫu câu
+  async getAll() {
+    try {
+      const res = await axios.get(PREFIX);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
 };
 
-export default quizApi;
+export default sampleSentenceApi;

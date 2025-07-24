@@ -50,22 +50,6 @@ const goToUpgrade = () => {
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
 onMounted(() => {
-  // Listen for auth state changes
-  // auth.onAuthStateChanged((user) => { // This line is removed as per the edit hint
-  //   if (user) {
-  //     const userData = {
-  //       displayName: user.displayName,
-  //       email: user.email,
-  //       photoURL: user.photoURL,
-  //       uid: user.uid
-  //     }
-  //     store.dispatch('auth/setUser', userData)
-  //   } else {
-  //     store.dispatch('auth/setUser', null)
-  //   }
-  // })
-
-  // Add event listener for send-message events
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
       if (event === 'send-message') {

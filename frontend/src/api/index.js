@@ -15,23 +15,26 @@ import questionApi from './modules/questionApi';
 import quizApi from './modules/quizApi';
 import reportApi from './modules/reportApi';
 import vocabularyApi from './modules/vocabularyApi';
+import sampleSentenceApi from './modules/sampleSentenceApi';
 
-// Export tất cả các module API
-export {
-  adminApi,
-  authApi,
-  blogApi,
-  commentApi,
-  favoriteApi,
-  flashcardApi,
-  grammarApi,
-  kanjiApi,
-  messageApi,
-  notificationApi,
-  oauthApi,
-  profileApi,
-  questionApi,
-  quizApi,
-  reportApi,
-  vocabularyApi
-}; 
+const api = {
+    admin: adminApi,
+    auth: authApi,
+    blog: blogApi,
+    comment: commentApi,
+    favorite: favoriteApi,
+    flashcard: flashcardApi,
+    grammar: grammarApi,
+    kanji: kanjiApi,
+    message: messageApi,
+    notification: notificationApi,
+    oauth: oauthApi,
+    profile: profileApi,
+    question: questionApi,
+    quiz: quizApi,
+    report: reportApi,
+    vocabulary: vocabularyApi,
+    sampleSentence: sampleSentenceApi
+  };
+  
+  export default api;

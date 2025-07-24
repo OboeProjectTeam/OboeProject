@@ -146,7 +146,7 @@ export const FOOTER = {
       title: "DỊCH VỤ KHÁCH HÀNG",
       service: [
         { title: "Điều khoản dịch vụ", link: "/footer-services" },
-        { title: "Chính sách quyền riêng tư", link: "/footer-services/security" },
+        { title: "Chính sách quyền riêng tư", link: "/footer-services/privacy" },
         { title: "Hướng dẫn tự học", link: "/footer-services/study-guide" },
         { title: "Hướng dẫn thanh toán", link: "/footer-services/payment-guide" }
       ]
@@ -154,16 +154,16 @@ export const FOOTER = {
     {
       title: "MẸO SỬ DỤNG",
       service: [
-        { title: "Tại sao nên học flashcard", link: "/footer-services/flashcard" },
-        { title: "Phân biệt hiragana, katakana", link: "/footer-services/hiragana-katakana" },
+        { title: "Tại sao nên học flashcard", link: "/footer-services/why-flashcard" },
+        { title: "Phân biệt hiragana, katakana", link: "/footer-services/writing-guide" },
         { title: "Lợi ích của học Tiếng Nhật", link: "/footer-services/benefits-japanese" },
-        { title: "Cách nhận diện chữ Hán", link: "/footer-services/kanji-recognition" }
+        { title: "Cách nhận diện chữ Hán", link: "/footer-services/kanji-guide" }
       ]
     },
     {
       title: "THÔNG TIN CHUNG",
       service: [
-        { title: "Tin tức thị trường Nhật Bản", link: "/footer-services/news" },
+        { title: "Tin tức thị trường Nhật Bản", link: "/footer-services/japan-news" },
         { title: "Quyền lợi nâng cấp tài khoản", link: "/upgrade" },
         { title: "Liên hệ chúng tôi", link: "/footer-services/contact" }
       ]

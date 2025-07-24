@@ -23,8 +23,7 @@
             <p v-if="!isEditing" class="full-name-large">{{ editableUser.fullName }}</p>
             <input v-else type="text" v-model="editableUser.fullName" class="form-control mb-2" maxlength="50">
 
-            <p v-if="!isEditing" class="title-large">{{ editableUser.title }}</p>
-            <input v-else type="text" v-model="editableUser.title" class="form-control" maxlength="50">
+            <p v-if="!isEditing" class="title-large" >{{ editableUser.title }}</p>
           </div>
           <div class="profile-actions">
             <div v-if="isMyProfile">
@@ -66,11 +65,6 @@
               <textarea v-else v-model="editableUser.bio" class="form-control" rows="5" maxlength="500"></textarea>
             
             <ul>
-              <li>
-                <i class="fas fa-map-marker-alt"></i>
-                 <span v-if="!isEditing">{{ editableUser.location || 'Chưa cập nhật' }}</span>
-                 <input v-else type="text" v-model="editableUser.location" placeholder="Vị trí" class="form-control" maxlength="50">
-              </li>
                <li>
                   <i class="fas fa-globe"></i>
                   <template v-if="!isEditing">
@@ -96,7 +90,6 @@
             <button class="tab-button" :class="{ active: currentTab === 'all' }" @click="currentTab = 'all'">Tất cả</button>
             <button class="tab-button" :class="{ active: currentTab === 'post' }" @click="currentTab = 'post'">Chủ đề</button>
             <button class="tab-button" :class="{ active: currentTab === 'reply' }" @click="currentTab = 'reply'">Bình luận</button>
-            <button class="tab-button" :class="{ active: currentTab === 'answer' }" @click="currentTab = 'answer'">Trả lời</button>
             <button class="tab-button" :class="{ active: currentTab === 'material' }" @click="currentTab = 'material'">Học Liệu</button>
           </div>
   
@@ -158,6 +151,7 @@
   import { ref, computed, watch } from 'vue';
   import { useStore } from 'vuex';
   import { useRouter } from 'vue-router';
+  import authApi from '@/api/modules/authApi'; // Add this import
 
     const props = defineProps({
     user: {
@@ -180,10 +174,9 @@
   const avatarFile = ref(null);
 
   const personalFields = [
-    { key: 'dob', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
+    { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
     { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
     { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
-    { key: 'hometown', icon: 'fas fa-home', placeholder: 'Quê quán', type: 'text', maxlength: 50 },
     { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
   ];
 
@@ -197,40 +190,62 @@
     isEditing.value = true;
   }
 
-  function handleAvatarChange(event) {
+  async function handleAvatarChange(event) {
     const file = event.target.files[0];
     if (file) {
-      avatarFile.value = file;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        avatarPreview.value = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Upload avatar immediately when file is selected
+        const response = await authApi.uploadAvatar(file);
+        
+        // Update preview with the returned URL
+        avatarPreview.value = response.avatarUrl;
+        
+        // Update editable user avatar
+        editableUser.value.avatar = response.avatarUrl;
+        
+        // Show success message
+        store.dispatch('showMessage', {
+          type: 'success',
+          text: 'Avatar đã được cập nhật thành công!'
+        });
+      } catch (error) {
+        store.dispatch('showMessage', {
+          type: 'error',
+          text: 'Không thể tải lên avatar: ' + error.message
+        });
+        // Reset file input
+        event.target.value = '';
+      }
     }
   }
 
-  function saveProfile() {
-    const formData = new FormData();
-    
-    // Append avatar file if changed
-    if (avatarFile.value) {
-      formData.append('avatar', avatarFile.value);
+  async function saveProfile() {
+    try {
+      // Since avatar is uploaded separately, we only need to save other profile data
+      const userData = { ...editableUser.value };
+      
+      // Call API to update profile
+      await store.dispatch('updateProfile', userData);
+      
+      // Show success message
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: 'Hồ sơ đã được cập nhật thành công!'
+      });
+      
+      isEditing.value = false;
+    } catch (error) {
+      store.dispatch('showMessage', {
+        type: 'error',
+        text: 'Không thể cập nhật hồ sơ: ' + error.message
+      });
     }
-    // Append other user data
-    const userData = { ...editableUser.value };
-    if (avatarPreview.value) {
-      userData.avatar = avatarPreview.value;
-    }
-    
-    emit('save-profile', { formData, userData });
-    isEditing.value = false;
   }
 
   function cancelEditing() {
     isEditing.value = false;
     editableUser.value = JSON.parse(JSON.stringify(props.user));
     avatarPreview.value = null;
-    avatarFile.value = null;
   }
 
   const currentTab = ref('all');
