@@ -56,7 +56,7 @@ public class FlashCardService {
     }
 
     public List<FlashCards> getTop5LatestFlashCards(UUID userId) {
-        return flashCardRepository.findTop5ByUserIdOrderByCreatedDesc(userId)
+        return flashCardRepository.countFlashCardByUser(userId)
                 .stream()
                 .limit(5)
                 .toList();
