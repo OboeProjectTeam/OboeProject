@@ -272,6 +272,29 @@ const initializeTest = () => {
 
     switch (testType.value) {
       case 'multiple-choice': {
+        // Kiểm tra nếu card đã có options sẵn (từ quiz)
+        if (card.options && Array.isArray(card.options) && card.options.length > 1) {
+          console.log('Using existing options from card:', card.options);
+          // Đảm bảo đáp án đúng nằm trong options
+          let options = [...card.options];
+          if (!options.includes(back)) {
+            options.push(back);
+          }
+          
+          // Shuffle options
+          options.sort(() => Math.random() - 0.5);
+          
+          // Lấy index của đáp án đúng
+          const correctIndex = options.indexOf(back);
+          
+          return {
+            ...baseQuestion,
+            options: options,
+            correctAnswer: correctIndex
+          };
+        }
+        
+        // Nếu không có options sẵn, tạo options từ các flashcard khác
         // Generate wrong answers from other flashcards
         const wrongAnswers = flashcards
           .filter(f => {
@@ -663,4 +686,4 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-test/FlashcardTest.scss';
-</style> 
+</style>
