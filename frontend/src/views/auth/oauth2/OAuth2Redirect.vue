@@ -17,18 +17,32 @@ onMounted(() => {
     const provider = params.get('provider');
 
     console.log('Redirect hash:', hash);
-    console.log('Token:', token);
+    console.log('Token length:', token ? token.length : 'null');
+    console.log('Token first 50 chars:', token ? token.substring(0, 50) + '...' : 'null');
+    console.log('Provider:', provider);
 
     if (token) {
       try {
+        // Decode JWT để kiểm tra payload
+        if (token.includes('.')) {
+          const payload = token.split('.')[1];
+          const decodedPayload = JSON.parse(atob(payload));
+          console.log('JWT Payload:', decodedPayload);
+        }
+
         localStorage.setItem('token', token);
+        console.log('Token saved to localStorage');
+        
         await store.dispatch('auth/fetchCurrentUser', { token, provider });
+        console.log('fetchCurrentUser completed successfully');
         router.replace('/');
       } catch (e) {
         console.error('OAuth2 Redirect Error:', e);
+        console.error('Error details:', e.response?.data || e.message);
         router.replace('/login');
       }
     } else {
+      console.error('No token received in OAuth2 redirect');
       router.replace('/login');
     }
   }, 100); // thử delay 100ms

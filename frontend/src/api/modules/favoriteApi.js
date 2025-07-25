@@ -1,7 +1,7 @@
 import axios from '@/api/axios';
 import { handleApiError } from '@/api/apiUtils';
 
-const PREFIX = '/favorites';
+const PREFIX = '/api/favorites';
 
 const favoriteApi = {
   async createFavorite(favoritesDTO) {

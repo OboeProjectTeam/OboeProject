@@ -2,17 +2,17 @@ package com.example.Oboe.Service;
 
 import com.example.Oboe.Constant.Constant;
 import com.example.Oboe.DTOs.BlogDTO;
+import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.CommentRepository;
 import com.example.Oboe.response.BaseResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,10 +21,12 @@ public class BlogService {
 
     private final BlogRepository blogRepository;
     private final UserService userService;
+    private final CommentRepository commentRepository;
 
-    public BlogService(BlogRepository blogRepository, UserService userService) {
+    public BlogService(BlogRepository blogRepository, UserService userService,CommentRepository commentRepository) {
         this.blogRepository = blogRepository;
         this.userService = userService;
+        this.commentRepository = commentRepository;
     }
 
     //  Lấy danh sách tất cả Blog
@@ -70,13 +72,18 @@ public class BlogService {
     public BlogDTO createBlogFromDTO(BlogDTO blogDTO, UUID userId) {
         Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
-
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
         Blog blog = new Blog();
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
         blog.setUser(userOpt.get());
-        blog.setCreatedAt(LocalDateTime.now());
-        blog.setUpdatedAt(LocalDateTime.now());
+        blog.setCreatedAt(vietnamTime);
+        blog.setUpdatedAt(vietnamTime);
+        //  Thêm tags và topics
+        blog.setTags(blogDTO.getTags());
+        blog.setTopics(blogDTO.getTopics());
+
 
         Blog saved = blogRepository.save(blog);
         return toDTO(saved);
@@ -90,18 +97,22 @@ public class BlogService {
         Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
 
+
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
         Blog blog = blogOpt.get();
         User currentUser = userOpt.get();
 
-        // Kiểm tra quyền sở hữu
         if (blog.getUser() == null || !blog.getUser().getUser_id().equals(currentUser.getUser_id())) {
-            return null; // Không phải chủ sở hữu -> không cho sửa
+            return null;
         }
-
-        // Cập nhật thông tin
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
-        blog.setUpdatedAt(LocalDateTime.now());
+        blog.setUpdatedAt(vietnamTime);
+
+        // Cập nhật tags và topics
+        blog.setTags(blogDTO.getTags());
+        blog.setTopics(blogDTO.getTopics());
 
         Blog updated = blogRepository.save(blog);
         return toDTO(updated);
@@ -128,25 +139,56 @@ public class BlogService {
     }
 
     //  Tìm kiếm Blog theo từ khóa tiêu đề
-    public List<BlogDTO> searchBlogDTOsByTitle(String keyword) {
-        return blogRepository.findByTitleContainingIgnoreCase(keyword)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-        //map từ Blog  về BlogDto qua hàm toDto()
+
+    public List<BlogDTO> searchBlogs(String keyword, String field) {
+        List<Blog> blogs;
+
+        switch (field.toLowerCase()) {
+            case "title":
+                blogs = blogRepository.findByTitleContainingIgnoreCase(keyword);
+                break;
+            case "tags":
+                blogs = blogRepository.findByTagsContainingIgnoreCase(keyword);
+                break;
+            case "topics":
+                blogs = blogRepository.findByTopicsContainingIgnoreCase(keyword);
+                break;
+            default: // "all"
+                blogs = blogRepository.searchByKeyword(keyword);
+                break;
+        }
+
+        return blogs.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    //  Lấy tất cả Blog của một User cụ thể
-    public List<BlogDTO> getAllBlogbyUserId(UUID userId) {
+
+    //  Lấy tất cả Blog của một User cụ thể phân trang
+    public Page<BlogDTO> getAllBlogByUserIds(UUID userId, int page, int size) {
         Optional<User> userOpt = userService.findById(userId);
-        if (userOpt.isEmpty()) return null;
+        if (userOpt.isEmpty()) return Page.empty();
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Blog> blogPage = blogRepository.findBlogsByUserIds(userId, pageable);
+        // Chuyển đổi Page<Blog> thành Page<BlogDTO>
+        List<BlogDTO> blogDTOs = blogPage.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        return new PageImpl<>(blogDTOs, pageable, blogPage.getTotalElements());
+    }
+    public List<BlogDTO> getAllBlogByUserId(UUID userId) {
+        Optional<User> userOpt = userService.findById(userId);
+        if (userOpt.isEmpty()) return List.of();
 
         List<Blog> blogs = blogRepository.findBlogsByUserId(userId);
-        //map từ Blog  về BlogDto qua hàm toDto()
         return blogs.stream()
                 .map(this::toDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
+
+    // lấy 5 chủ đề nổi bật nhất
+    public List<TopicPostProjection> getTop5TopicsWithMostPosts() {
+        return blogRepository.findTop5TopicsWithMostPosts();
+    }
+
 
     //  Chuyển đổi từ Entity sang DTO
     private BlogDTO toDTO(Blog blog) {
@@ -157,12 +199,29 @@ public class BlogService {
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
 
+        dto.setTags(blog.getTags());
+        dto.setTopics(blog.getTopics());
+
         if (blog.getUser() != null) {
             dto.setUserId(blog.getUser().getUser_id());
             dto.setAuthor(blog.getUser().getUserName());
+            dto.setAvatarUrl(blog.getUser().getAvatarUrl());
         }
+
+        // Đếm số comment
+        long count = commentRepository.countByReferenceId(blog.getBlogId());
+        dto.setCommentCount((int) count);
+
+        //  Lấy comment gần nhất
+        commentRepository.findTopByReferenceIdOrderByCreatedAtDesc(blog.getBlogId())
+                .ifPresent(latestComment -> {
+                    dto.setLatestCommentTime(latestComment.getCreatedAt());
+                    dto.setLatestCommenterName(latestComment.getUser().getUserName());
+
+                });
 
         return dto;
     }
+
 
 }

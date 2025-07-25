@@ -16,6 +16,9 @@ import quizApi from './modules/quizApi';
 import reportApi from './modules/reportApi';
 import vocabularyApi from './modules/vocabularyApi';
 import sampleSentenceApi from './modules/sampleSentenceApi';
+import paymentApi from './modules/paymentApi';
+import statisticsApi from './modules/statisticsApi';
+import learningMaterialApi from './modules/learningMaterialApi';
 
 const api = {
     admin: adminApi,
@@ -26,13 +29,16 @@ const api = {
     flashcard: flashcardApi,
     grammar: grammarApi,
     kanji: kanjiApi,
+    learningMaterial: learningMaterialApi,
     message: messageApi,
     notification: notificationApi,
     oauth: oauthApi,
+    payment: paymentApi,
     profile: profileApi,
     question: questionApi,
     quiz: quizApi,
     report: reportApi,
+    statistics: statisticsApi,
     vocabulary: vocabularyApi,
     sampleSentence: sampleSentenceApi
   };

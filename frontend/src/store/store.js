@@ -11,7 +11,7 @@ import quiz from './modules/quiz';
 import history from './modules/history';
 import user from './modules/user';
 import forum from './modules/forum';
-
+import message from './modules/message';
 
 export default createStore({
   modules: {
@@ -24,7 +24,8 @@ export default createStore({
     auth,
     quiz,
     history,
-    forum
+    forum,
+    message
   },
   plugins: [createPersistedState()]
 });

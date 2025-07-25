@@ -14,8 +14,5 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, UUID> {
             "OR LOWER(v.vietnamesePronunciation) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Vocabulary> searchVocabulary(@Param("keyword") String keyword);
 
-
     // Nếu cần tìm từ theo KanjiId
     List<Vocabulary> findByKanji_KanjiId(UUID kanjiId);
-
-}

@@ -66,11 +66,15 @@
                   <button @click="markAllAsRead" class="mark-read-btn">Đánh dấu đã đọc</button>
                 </div>
                 <div class="notifications-list">
-                  <div v-if="notifications.length === 0" class="no-notifications">
+                  <div v-if="notificationsLoading" class="loading-notifications">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Đang tải thông báo...
+                  </div>
+                  <div v-else-if="notifications.length === 0" class="no-notifications">
                     Không có thông báo mới
                   </div>
                   <div v-else v-for="(notification, index) in notifications" 
-                    :key="index" 
+                    :key="notification.id || index" 
                     class="notification-item"
                     :class="{ 'unread': !notification.read }"
                     @click="handleNotificationClick(notification)">
@@ -100,16 +104,16 @@
               </div>
             </div>
             <div class="user-profile" @click="toggleUserMenu">
-              <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+              <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                 alt="User Avatar" 
                 class="user-avatar" />
               <div v-if="showUserMenu" class="user-menu">
                 <div class="user-info">
-                  <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                  <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                     alt="User Avatar" 
                     class="menu-avatar" />
                   <div class="user-details">
-                    <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                    <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                     <span class="user-email">{{ currentUser?.email }}</span>
                   </div>
                 </div>
@@ -119,10 +123,10 @@
                     <i class="fas fa-user"></i>
                     Hồ sơ
                   </router-link>
-                  <router-link to="/messages" class="menu-item">
+                  <div class="menu-item" @click="handleMessagesClick">
                     <i class="fas fa-envelope"></i>
                     Tin nhắn
-                  </router-link>
+                  </div>
                   <router-link to="/settings" class="menu-item">
                     <i class="fas fa-cog"></i>
                     Cài đặt
@@ -164,11 +168,15 @@
                     <button @click="markAllAsRead" class="mark-read-btn">Đánh dấu đã đọc</button>
                   </div>
                   <div class="notifications-list">
-                    <div v-if="notifications.length === 0" class="no-notifications">
+                    <div v-if="notificationsLoading" class="loading-notifications">
+                      <i class="fas fa-spinner fa-spin"></i>
+                      Đang tải thông báo...
+                    </div>
+                    <div v-else-if="notifications.length === 0" class="no-notifications">
                       Không có thông báo mới
                     </div>
                     <div v-else v-for="(notification, index) in notifications" 
-                      :key="index" 
+                      :key="notification.id || index" 
                       class="notification-item"
                       :class="{ 'unread': !notification.read }"
                       @click="handleNotificationClick(notification)">
@@ -198,16 +206,16 @@
                 </div>
               </div>
               <div class="user-profile" @click="toggleUserMenu">
-                <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                   alt="User Avatar" 
                   class="user-avatar" />
                 <div v-if="showUserMenu" class="user-menu">
                   <div class="user-info">
-                    <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                    <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                       alt="User Avatar" 
                       class="menu-avatar" />
                     <div class="user-details">
-                      <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                      <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                       <span class="user-email">{{ currentUser?.email }}</span>
                     </div>
                   </div>
@@ -217,10 +225,10 @@
                       <i class="fas fa-user"></i>
                       Hồ sơ
                     </router-link>
-                    <router-link to="/messages" class="menu-item">
+                    <div class="menu-item" @click="handleMessagesClick">
                       <i class="fas fa-envelope"></i>
                       Tin nhắn
-                    </router-link>
+                    </div>
                     <router-link to="/settings" class="menu-item">
                       <i class="fas fa-cog"></i>
                       Cài đặt
@@ -309,6 +317,7 @@ import { useRouter } from 'vue-router'
 import MsButton from '@/components/common/button/MsButton.vue'
 import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
 import TheLogo from '@/components/layout/logo/TheLogo.vue'
+import api from '@/api'
 
 const store = useStore()
 const router = useRouter()
@@ -365,6 +374,11 @@ onMounted(() => {
   window.addEventListener('resize', checkMobile)
   window.addEventListener('scroll', handleScroll)
   document.addEventListener('click', handleClickOutside)
+  
+  // Load notifications for authenticated users
+  if (isAuthenticated.value) {
+    loadNotifications()
+  }
 })
 
 onUnmounted(() => {
@@ -377,100 +391,69 @@ const options = computed(() => store.getters['header/options'])
 const isAuthenticated = computed(() => store.getters['auth/isAuthenticated'])
 const currentUser = computed(() => store.getters['auth/currentUser'])
 
-const notifications = ref([
-  {
-    id: 1,
-    content: 'Bạn có tin nhắn mới từ Nguyễn Văn A',
-    time: '2 phút trước',
-    read: false,
-    type: 'message',
-    user: {
-      name: 'Nguyễn Văn A',
-      avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=random'
-    }
-  },
-  {
-    id: 2,
-    content: 'Bạn có tin nhắn mới từ Nguyễn Văn B',
-    time: '2 phút trước',
-    read: false,
-    type: 'message',
-    user: {
-      name: 'Nguyễn Văn B',
-      avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+B&background=random'
-    }
-  },
-  {
-    id: 3,
-    content: 'Nguyễn Văn C đã bình luận về bài viết của bạn',
-    time: '1 giờ trước',
-    read: false,
-    type: 'comment',
-    user: {
-      name: 'Nguyễn Văn C',
-      avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+C&background=random'
-    }
-  },
-  {
-    id: 4,
-    content: 'Đã có người trả lời bình luận của bạn',
-    time: '1 ngày trước',
-    read: true,
-    type: 'forum',
-    user: {
-      name: 'Trần Thị D',
-      avatar: 'https://ui-avatars.com/api/?name=Tran+Thi+D&background=random'
-    }
-  },
-  {
-    id: 5,
-    content: 'Nguyễn Văn D đã bình luận về bài viết của bạn',
-    time: '1 giờ trước',
-    read: false,
-    type: 'comment',
-    user: {
-      name: 'Nguyễn Văn C',
-      avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+C&background=random'
-    }
-  },
-  {
-    id: 6,
-    content: 'Đã có người trả lời bình luận của bạn',
-    time: '1 ngày trước',
-    read: true,
-    type: 'forum',
-    user: {
-      name: 'Trần Thị D',
-      avatar: 'https://ui-avatars.com/api/?name=Tran+Thi+D&background=random'
-    }
-  },
-  {
-    id: 7,
-    content: 'Nguyễn Văn E đã bình luận về bài viết của bạn',
-    time: '1 giờ trước',
-    read: false,
-    type: 'comment',
-    user: {
-      name: 'Nguyễn Văn D',
-      avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+D&background=random'
-    }
-  },
-  {
-    id: 8,
-    content: 'Đã có người trả lời bình luận của bạn',
-    time: '1 ngày trước',
-    read: true,
-    type: 'forum',
-    user: {
-      name: 'Trần Thị D',
-      avatar: 'https://ui-avatars.com/api/?name=Tran+Thi+D&background=random'
-    }
-  }
-])
+const notifications = ref([])
+const notificationsLoading = ref(false)
 
 const unreadNotifications = computed(() => {
-  return notifications.value.filter(n => !n.read).length
+  const count = notifications.value.filter(n => !n.read).length
+  console.log('Unread notifications count:', count)
+  console.log('Total notifications:', notifications.value.length)
+  return count
 })
+
+// Load notifications from API
+const loadNotifications = async () => {
+  try {
+    notificationsLoading.value = true
+    console.log('Loading notifications...')
+    console.log('Is authenticated:', isAuthenticated.value)
+    const response = await api.notification.getAll()
+    console.log('Notifications API response:', response)
+    
+    // Handle different response formats
+    const notificationsData = Array.isArray(response) ? response : (response.content || response.data || response)
+    console.log('Raw notifications data:', notificationsData)
+    console.log('Is array?', Array.isArray(notificationsData))
+    
+    // Map notifications to expected format based on actual API response
+    const mappedNotifications = (Array.isArray(notificationsData) ? notificationsData : []).map(notification => {
+      console.log('Mapping notification:', notification)
+      return {
+        id: notification.notifiId || notification.id,
+        content: notification.textNotification || notification.content || notification.message,
+        time: notification.updateAt ? formatNotificationTime(notification.updateAt) : 'Không rõ',
+        read: notification.read || false,
+        type: 'comment', // Default type based on API content
+        user: null // No user data in current API response
+      }
+    })
+    
+    console.log('Mapped notifications:', mappedNotifications)
+    notifications.value = mappedNotifications
+  } catch (error) {
+    console.error('Failed to load notifications:', error)
+    // Keep empty array on error
+    notifications.value = []
+  } finally {
+    notificationsLoading.value = false
+  }
+}
+
+// Format notification time
+const formatNotificationTime = (dateString) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  
+  if (diffMins < 1) return 'Vừa xong'
+  if (diffMins < 60) return `${diffMins} phút trước`
+  if (diffHours < 24) return `${diffHours} giờ trước`
+  if (diffDays < 7) return `${diffDays} ngày trước`
+  return date.toLocaleDateString('vi-VN')
+}
 
 const toggleMobileMenu = () => {
   state.showMobileMenu = !state.showMobileMenu
@@ -507,14 +490,39 @@ const toggleNotifications = () => {
   if (state.showNotifications) {
     state.showUserMenu = false
     state.showCreateMenu = false
+    // Load notifications when opening
+    loadNotifications()
   }
 }
 
-const markAllAsRead = () => {
-  notifications.value = notifications.value.map(notification => ({
-    ...notification,
-    read: true
-  }))
+const markAllAsRead = async () => {
+  try {
+    console.log('Marking all notifications as read...')
+    await api.notification.markAllAsRead()
+    
+    // Update local state
+    notifications.value = notifications.value.map(notification => ({
+      ...notification,
+      read: true
+    }))
+    
+    console.log('All notifications marked as read')
+  } catch (error) {
+    console.error('Failed to mark notifications as read:', error)
+    // Show error message
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Không thể đánh dấu thông báo đã đọc: ' + error.message
+    })
+  }
+}
+
+const handleMessagesClick = () => {
+  // Close user menu
+  state.showUserMenu = false
+  
+  // Navigate to messages page (will load data automatically)
+  router.push('/messages')
 }
 
 const handleLogout = async () => {

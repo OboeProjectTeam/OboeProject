@@ -10,6 +10,14 @@ public class MessageDTO {
     private LocalDateTime sentDateTime;
     private String senderName;
     private UUID messageId;
+
+
+
+    private String avatarUrlSender;
+
+
+
+    private String avatarUrlReceiver;
     // Getters & Setters
     public UUID getSenderId() {
         return senderId;
@@ -50,5 +58,19 @@ public class MessageDTO {
     }
     public void setMessageId(UUID messageId) {
         this.messageId = messageId;
+    }
+    public String getAvatarUrlSender() {
+        return avatarUrlSender;
+    }
+
+    public void setAvatarUrlSender(String avatarUrl) {
+        this.avatarUrlSender = avatarUrl;
+    }
+    public String getAvatarUrlReceiver() {
+        return avatarUrlReceiver;
+    }
+
+    public void setAvatarUrlReceiver(String avatarUrlReceiver) {
+        this.avatarUrlReceiver = avatarUrlReceiver;
     }
 }

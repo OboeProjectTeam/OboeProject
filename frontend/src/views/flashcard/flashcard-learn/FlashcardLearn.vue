@@ -5,19 +5,7 @@
         <h2 class="deck-title">
           {{ deckTitle }}
         </h2>
-        <p class="description-text">mô tả ở đây</p>
-      </div>
-      <div class="creator-info">
-        <div class="creator-card">
-          <div class="creator-avatar">
-            <img :src="creatorInfo.avatar" :alt="creatorInfo.name" />
-          </div>
-          <div class="creator-details">
-            <h3 class="creator-name">{{ creatorInfo.name }}</h3>
-            <p class="creator-date">Đã tạo {{ creatorInfo.createdDate }}</p>
-
-          </div>
-        </div>
+        <p class="description-text">{{ deckDescription }}</p>
       </div>
     </div>
 
@@ -60,6 +48,8 @@
           @swiper="onSwiper" 
           @card-flipped="onCardFlip"
           @slideChange="onSlideChange" 
+          :width="isFullscreen ? 900 : undefined"
+          :height="isFullscreen ? 500 : undefined"
         />
       </div>
 
@@ -69,7 +59,7 @@
           <i :class="isAutoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
           <span>{{ isAutoPlaying ? 'Tạm dừng' : 'Phát' }}</span>
         </button>
-        <button class="control-btn" :class="{ 'disabled': trackProgress }" @click="!trackProgress && shuffleCards">
+        <button class="control-btn" :class="{ 'disabled': trackProgress }" @click="handleShuffleClick">
           <i class="fas fa-random"></i>
           <span>Trộn thẻ</span>
         </button>
@@ -411,20 +401,79 @@ remaining: 0
 });
 
 // Add these new refs for creator info
-const isCurrentUserCreator = ref(false); // Will be true if current user is creator
+const isCurrentUserCreator = computed(() => {
+  const currentUser = store.getters['auth/getCurrentUser'];
+  const creatorName = route.query.creatorName;
+  
+  // Check if current user is the creator
+  return currentUser && creatorName && 
+    (currentUser.userName === creatorName || 
+     currentUser.firstName === creatorName ||
+     `${currentUser.firstName} ${currentUser.lastName}`.trim() === creatorName);
+});
 const isFollowing = ref(false);
-const creatorInfo = ref({
-avatar: ImagePaths.avatar.default, // This should come from your data
-name: 'hoangdul999', // This should come from your data
-createdDate: '3 ngày trước', // This should come from your data
+const creatorInfo = computed(() => {
+  const fromLibrary = route.query.source === 'library';
+  
+  if (fromLibrary) {
+    // Use data from query params when coming from library
+    const creatorName = route.query.creatorName || 'Người dùng';
+    const displayName = isCurrentUserCreator.value ? 'Bạn' : creatorName;
+    
+    return {
+      avatar: route.query.creatorAvatar || ImagePaths.avatar.default,
+      name: displayName,
+      createdDate: formatCreatedDate(route.query.createdAt)
+    };
+  } else {
+    // Default fallback for other sources
+    return {
+      avatar: ImagePaths.avatar.default,
+      name: 'Bạn',
+      createdDate: 'Mới tạo'
+    };
+  }
 });
 
 // Computed title based on source
 const deckTitle = computed(() => {
-const fromLibrary = route.query.source === 'library';
-const setTitle = route.query.title;
-return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
+  const fromLibrary = route.query.source === 'library';
+  const setTitle = route.query.title;
+  return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
 });
+
+// Computed description based on source
+const deckDescription = computed(() => {
+  const fromLibrary = route.query.source === 'library';
+  const setDescription = route.query.description;
+  return fromLibrary ? setDescription : 'Mô tả flashcard ở đây';
+});
+
+// Helper function to format created date
+const formatCreatedDate = (timestamp) => {
+  if (!timestamp) return 'Mới tạo';
+  
+  try {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    
+    if (diffInDays > 0) {
+      return `${diffInDays} ngày trước`;
+    } else if (diffInHours > 0) {
+      return `${diffInHours} giờ trước`;
+    } else if (diffInMinutes > 0) {
+      return `${diffInMinutes} phút trước`;
+    } else {
+      return 'Vừa tạo';
+    }
+  } catch (error) {
+    return 'Mới tạo';
+  }
+};
 
 
 // Method to handle mode changes
@@ -636,9 +685,10 @@ if (trackProgress.value) {
 };
 
 onMounted(() => {
-// Attempt to restore state if returning from test OR match
+// Attempt to restore state if returning from test, match, OR create flashcard
 const savedLearnStateFromTestString = localStorage.getItem('flashcardLearnStateBeforeTest');
 const savedLearnStateFromMatchString = localStorage.getItem('flashcardLearnStateBeforeMatch');
+const savedLearnStateFromCreateString = localStorage.getItem('flashcardLearnState');
 
 let savedLearnStateString = null;
 let fromKey = '';
@@ -649,6 +699,9 @@ if (savedLearnStateFromTestString) {
 } else if (savedLearnStateFromMatchString) {
   savedLearnStateString = savedLearnStateFromMatchString;
   fromKey = 'flashcardLearnStateBeforeMatch';
+} else if (savedLearnStateFromCreateString) {
+  savedLearnStateString = savedLearnStateFromCreateString;
+  fromKey = 'flashcardLearnState';
 }
 
 if (savedLearnStateString) {
@@ -657,7 +710,9 @@ if (savedLearnStateString) {
     console.log(`Restoring FlashcardLearn state from localStorage (key: ${fromKey}):`, savedState);
 
     // Restore allItems and dependent states
-    allItems.value = addIdsToItems(savedState.allItems || []); // Ensure IDs are re-added if not saved or structure changed
+    // Handle different field names: 'allItems' from test/match, 'items' from create flashcard
+    const itemsToRestore = savedState.allItems || savedState.items || [];
+    allItems.value = addIdsToItems(itemsToRestore); // Ensure IDs are re-added if not saved or structure changed
 
     // Restore learningStats
     if (savedState.learningStats) {
@@ -668,11 +723,22 @@ if (savedLearnStateString) {
     updateCounts(); // Recalculate based on restored allItems and their statuses
 
     // Restore settings
-    activeMode.value = savedState.activeMode || 'flashcard';
-    autoplaySpeed.value = savedState.autoplaySpeed || 3;
-    trackProgress.value = savedState.trackProgress || false;
-    reverseCards.value = savedState.reverseCards || false;
-    isAutoPlaying.value = savedState.isAutoPlaying || false;
+    // Handle different structure: direct fields from test/match, 'settings' object from create flashcard
+    if (savedState.settings) {
+      // From create flashcard
+      activeMode.value = savedState.settings.activeMode || 'flashcard';
+      autoplaySpeed.value = savedState.settings.autoplaySpeed || 3;
+      trackProgress.value = savedState.settings.trackProgress || false;
+      reverseCards.value = savedState.settings.reverseCards || false;
+      isAutoPlaying.value = savedState.settings.isAutoPlaying || false;
+    } else {
+      // From test/match (direct fields)
+      activeMode.value = savedState.activeMode || 'flashcard';
+      autoplaySpeed.value = savedState.autoplaySpeed || 3;
+      trackProgress.value = savedState.trackProgress || false;
+      reverseCards.value = savedState.reverseCards || false;
+      isAutoPlaying.value = savedState.isAutoPlaying || false;
+    }
 
     // Update tempSettings to reflect restored main settings
     tempSettings.autoplaySpeed = autoplaySpeed.value;
@@ -684,7 +750,9 @@ if (savedLearnStateString) {
     // Wait for slides to update and swiper to be ready
     nextTick(() => {
       if (swiperInstance.value) {
-        swiperInstance.value.slideTo(savedState.currentSlideIndex || 0, 0); // No animation
+        // Handle different structure for currentSlideIndex
+        const slideIndex = savedState.settings?.currentSlideIndex || savedState.currentSlideIndex || 0;
+        swiperInstance.value.slideTo(slideIndex, 0); // No animation
         swiperInstance.value.update(); // Ensure swiper reflects changes
         if (isAutoPlaying.value) {
           startAutoplay(); // Restart autoplay if it was active
@@ -820,18 +888,34 @@ if (isAutoPlaying.value) {
 }
 });
 
-const shuffleCards = () => {
-const currentItems = store.getters['flashcard/getLearningItems'];
-const shuffledItems = [...currentItems].sort(() => Math.random() - 0.5);
-store.commit('flashcard/setLearningItems', shuffledItems);
-
-nextTick(() => {
-  const swiper = cardRef.value?.swiper;
-  if (swiper) {
-    swiper.slideTo(0, 0);
-    swiper.update();
+// Handle shuffle button click
+const handleShuffleClick = () => {
+  if (!trackProgress.value) {
+    shuffleCards();
   }
-});
+};
+
+const shuffleCards = () => {
+  console.log('Shuffling cards...');
+  
+  // Shuffle the allItems array directly
+  const shuffledItems = [...allItems.value].sort(() => Math.random() - 0.5);
+  console.log('Shuffled items:', shuffledItems);
+  
+  // Update both local state and store
+  allItems.value = shuffledItems;
+  store.commit('flashcard/setLearningItems', shuffledItems);
+
+  nextTick(() => {
+    // Use the correct swiper instance reference
+    if (swiperInstance.value) {
+      console.log('Updating swiper after shuffle');
+      swiperInstance.value.slideTo(0, 0);
+      swiperInstance.value.update();
+    } else {
+      console.log('No swiper instance found');
+    }
+  });
 };
 
 // Hàm mở modal cài đặt
@@ -1176,57 +1260,105 @@ console.log('=== End Debug ===');
 
 // Navigation function
 const navigateToTermCreation = () => {
-// Lưu trạng thái hiện tại vào store hoặc localStorage
-const currentState = {
-  items: allItems.value,
-  learningStats: {
-    known: learningStats.known,
-    learning: learningStats.learning,
-    remaining: learningStats.remaining
-  },
-  settings: {
-    isAutoPlaying: isAutoPlaying.value,
-    autoplaySpeed: autoplaySpeed.value,
-    trackProgress: trackProgress.value,
-    reverseCards: reverseCards.value,
-    activeMode: activeMode.value,
-    currentSlideIndex: swiperInstance.value?.activeIndex || 0
-  },
-  fromLearningPage: true
-};
+  console.log('Navigating to CreateFlashcard from FlashcardLearn...');
+  console.log('Current allItems:', allItems.value);
+  console.log('Current deckTitle:', deckTitle.value);
+  console.log('Current deckDescription:', deckDescription.value);
 
-// Dừng autoplay nếu đang chạy
-if (isAutoPlaying.value) {
-  stopAutoplay();
-}
+  // Lưu trạng thái hiện tại vào store hoặc localStorage
+  const currentState = {
+    items: allItems.value,
+    title: deckTitle.value,
+    description: deckDescription.value,
+    learningStats: {
+      known: learningStats.known,
+      learning: learningStats.learning,
+      remaining: learningStats.remaining
+    },
+    settings: {
+      isAutoPlaying: isAutoPlaying.value,
+      autoplaySpeed: autoplaySpeed.value,
+      trackProgress: trackProgress.value,
+      reverseCards: reverseCards.value,
+      activeMode: activeMode.value,
+      currentSlideIndex: swiperInstance.value?.activeIndex || 0
+    },
+    fromLearningPage: true
+  };
 
-// Lưu state vào localStorage
-localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
+  console.log('Saving state to localStorage:', currentState);
 
-// Chuyển hướng đến trang tạo thuật ngữ với query params
-router.push({
-  name: 'CreateFlashcard',
-  query: {
-    fromLearn: 'true',
-    deckId: route.query.deckId || '',
-    source: route.query.source || ''
+  // Dừng autoplay nếu đang chạy
+  if (isAutoPlaying.value) {
+    stopAutoplay();
   }
-});
+
+  // Lưu state vào localStorage
+  localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
+
+  // Chuyển hướng đến trang tạo thuật ngữ với query params
+  const navigationQuery = {
+    fromLearn: 'true',
+    deckId: route.query.deckId || route.query.id || '',
+    source: route.query.source || 'library',
+    title: deckTitle.value,
+    description: deckDescription.value
+  };
+
+  console.log('Navigating with query:', navigationQuery);
+
+  router.push({
+    name: 'CreateFlashcard',
+    query: navigationQuery
+  });
 };
 
 // Watch for route changes to update data when returning from edit page
 watch(
-() => route.query,
-() => {
-  // Kiểm tra nếu có dữ liệu mới từ store
-  const storeItems = store.getters['flashcard/getLearningItems'];
-  if (storeItems && storeItems.length > 0) {
-    console.log('Updating items from store:', storeItems);
-    allItems.value = addIdsToItems(storeItems);
-    updateCounts();
-  }
-},
-{ immediate: true, deep: true }
+  () => route.query,
+  (newQuery, oldQuery) => {
+    // Check if returning from CreateFlashcard with updated data
+    if (newQuery.updated === 'true' && oldQuery?.updated !== 'true') {
+      console.log('Detected return from CreateFlashcard with updated data');
+      
+      // Clean the updated flag from query
+      const cleanQuery = { ...newQuery };
+      delete cleanQuery.updated;
+      router.replace({ query: cleanQuery });
+      
+      // Refresh data from store
+      const storeItems = store.getters['flashcard/getLearningItems'];
+      if (storeItems && storeItems.length > 0) {
+        console.log('Updating items from store after edit:', storeItems);
+        allItems.value = addIdsToItems(storeItems);
+        updateCounts();
+        
+        // Reset progress tracking if was enabled
+        if (trackProgress.value) {
+          learningStats.known = 0;
+          learningStats.learning = allItems.value.length;
+          learningStats.remaining = allItems.value.length;
+        }
+        
+        // Update swiper
+        nextTick(() => {
+          if (swiperInstance.value) {
+            swiperInstance.value.slideTo(0);
+            swiperInstance.value.update();
+          }
+        });
+      }
+    } else {
+      // Normal route change handling
+      const storeItems = store.getters['flashcard/getLearningItems'];
+      if (storeItems && storeItems.length > 0) {
+        console.log('Updating items from store:', storeItems);
+        allItems.value = addIdsToItems(storeItems);
+        updateCounts();
+      }
+    }
+  },
+  { immediate: true, deep: true }
 );
 
 // Thêm hàm để cập nhật slides khi allItems thay đổi

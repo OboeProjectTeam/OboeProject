@@ -67,6 +67,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import quizApi from '@/api/modules/quizApi'
 
 const router = useRouter()
 const store = useStore()
@@ -108,29 +109,79 @@ const removeOption = (qIndex, oIndex) => {
   }
 }
 
-const saveQuiz = async () => {
+const validateQuiz = () => {
   if (!title.value.trim()) {
-    alert('Vui lòng nhập tên bài kiểm tra.')
-    return
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Vui lòng nhập tên bài kiểm tra.'
+    });
+    return false;
   }
 
   if (questions.value.length === 0) {
-    alert('Vui lòng thêm ít nhất một câu hỏi.')
-    return
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Vui lòng thêm ít nhất một câu hỏi.'
+    });
+    return false;
   }
 
+  for (let i = 0; i < questions.value.length; i++) {
+    const question = questions.value[i];
+    if (!question.text.trim()) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: `Vui lòng nhập nội dung cho câu hỏi ${i + 1}.`
+      });
+      return false;
+    }
+
+    const emptyOption = question.options.findIndex(opt => !opt.trim());
+    if (emptyOption !== -1) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: `Vui lòng nhập nội dung cho phương án ${emptyOption + 1} của câu hỏi ${i + 1}.`
+      });
+      return false;
+    }
+  }
+
+  return true;
+}
+
+const saveQuiz = async () => {
+  if (!validateQuiz()) return;
+
   const quizData = {
-    title: title.value,
-    description: description.value,
-    questions: questions.value,
+    title: title.value.trim(),
+    description: description.value.trim(),
+    questions: questions.value.map(q => ({
+      questionText: q.text.trim(),
+      options: q.options.map(opt => opt.trim()),
+      correctAnswer: q.correctAnswer
+    }))
   };
 
+  console.log('Quiz Data being sent:', quizData);
+
   try {
-    await store.dispatch('quiz/createQuiz', quizData)
-    router.push('/library')
+    console.log('Calling quiz/createQuiz action...');
+    const response = await store.dispatch('quiz/createQuiz', quizData);
+    console.log('Quiz created successfully:', response);
+    
+    store.dispatch('message/showMessage', {
+      type: 'success',
+      text: 'Tạo bài kiểm tra thành công!'
+    });
+    
+    // Chuyển hướng đến trang thư viện
+    router.push('/library');
   } catch (error) {
-    console.error('Error saving quiz:', error)
-    alert('Đã có lỗi xảy ra khi lưu bài kiểm tra. Vui lòng thử lại.')
+    console.error('Error creating quiz:', error);
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Đã có lỗi xảy ra khi lưu bài kiểm tra: ' + error.message
+    });
   }
 }
 </script>

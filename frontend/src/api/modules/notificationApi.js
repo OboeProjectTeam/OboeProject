@@ -22,7 +22,18 @@ const notificationApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+
+  // Đánh dấu một thông báo là đã đọc
+  async markAsRead(id) {
+    try {
+      const res = await axios.put(`${PREFIX}/read/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
+
 };
 
 export default notificationApi;
