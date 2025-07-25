@@ -26,4 +26,6 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
                                            Pageable pageable);
     @Query("SELECT f FROM FlashCards f WHERE f.user.user_id = :userId ORDER BY f.created DESC")
     List<FlashCards> countFlashCardByUser(@Param("userId") UUID userId);
+
+
 }
