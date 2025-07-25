@@ -1,4 +1,5 @@
 import quizApi from '@/api/modules/quizApi'
+import { cloneVNode } from 'vue'
 
 const state = {
   quizzes: [],
@@ -48,6 +49,7 @@ const actions = {
       commit('setLoading', true)
       const response = await quizApi.create(quizData)
       commit('addQuiz', response)
+      console.log('Quiz created:testttttttttttttttttttt', response)
       return response
     } catch (error) {
       commit('setError', error.message)
