@@ -53,7 +53,8 @@ export default {
           backcontent: '',
           kanji: '',
           meaning: '',
-          status: item.status || 'learning'
+          status: item.status || 'learning',
+          options: item.options || [] // Thêm options vào normalized object
         };
 
         // Handle different content types
@@ -74,6 +75,14 @@ export default {
           case 'sentence':
             normalized.front = item.sentence || '';
             normalized.back = item.translation || '';
+            break;
+          
+          case 'question':
+            normalized.front = item.front || item.content || '';
+            normalized.back = item.back || item.backcontent || '';
+            normalized.content = item.content || item.front || '';
+            normalized.backcontent = item.backcontent || item.back || '';
+            normalized.options = item.options || [];
             break;
           
           case 'word':
@@ -190,4 +199,4 @@ export default {
       return state.flashcardSets.find(set => set.id === id)
     }
   }
-} 
+}
