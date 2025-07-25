@@ -56,12 +56,23 @@ public class LearningMaterialService {
     }
 
     private LearningMaterialDTO toDTO(Quizzes quiz) {
-        return new LearningMaterialDTO(
-                quiz.getQuizzesID(),
-                quiz.getTitle(),
-                quiz.getDescription()
-        );
+        LearningMaterialDTO dto = new LearningMaterialDTO();
+
+        if (quiz.getUser() != null) {
+            dto.setAuthor(quiz.getUser().getUserName());
+            dto.setAvatarUrl(quiz.getUser().getAvatarUrl());
+        } else {
+            dto.setAuthor("Unknown");
+            dto.setAvatarUrl(null);
+        }
+
+        dto.setTitle(quiz.getTitle());
+        dto.setDescription(quiz.getDescription());
+        dto.setQuizId(quiz.getQuizzesID());
+
+        return dto;
     }
+
     public List<LearningMaterialDTO> getSuggestedMaterialsRandomFromDB() {
         List<Quizzes> randomQuizzes = quizzesRepository.findRandomQuizzes();
 
