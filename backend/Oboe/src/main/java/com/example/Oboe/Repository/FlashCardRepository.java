@@ -33,5 +33,4 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
     List<FlashCards> findTop5ByUserIdOrderByCreatedDesc(@Param("userId") UUID userId);
 
     @Query("SELECT COUNT(f) FROM FlashCards f WHERE f.user.user_id = :userId")
-    long countFlashCardByUserId(@Param("userId") UUID userId);
-}
+  }
