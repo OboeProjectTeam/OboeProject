@@ -151,8 +151,6 @@ onMounted(() => {
 
   // If coming from learning page, load data
   if (fromLearningPage.value) {
-    console.log('Loading data from learning page...')
-    
     // Set title and description from query params
     title.value = route.query.title || ''
     description.value = route.query.description || ''
@@ -162,8 +160,6 @@ onMounted(() => {
     if (learningState) {
       try {
         const state = JSON.parse(learningState)
-        console.log('Loaded learning state:', state)
-        
         // Load title and description from state if available (override query params)
         if (state.title) {
           title.value = state.title
@@ -178,21 +174,17 @@ onMounted(() => {
             front: item.content || item.kanji || '',
             back: item.backcontent || item.meaning || ''
           }))
-          console.log('Converted cards:', cards.value)
         } else {
-          console.log('No items found in state, using default card')
           cards.value = [{ front: '', back: '' }]
         }
         
         isEditing.value = true
-        console.log('Set editing mode to true')
       } catch (error) {
         console.error('Error loading learning state:', error)
         // Fallback to empty card on error
         cards.value = [{ front: '', back: '' }]
       }
     } else {
-      console.log('No learning state found in localStorage')
       // Set default empty card if no state found
       cards.value = [{ front: '', back: '' }]
     }
@@ -350,20 +342,20 @@ const saveFlashcard = async () => {
       }))
     };
 
-    console.log('Flashcard Data being sent:', flashcardData);
+
 
     let response;
     if (isEditing.value && originalDeckId.value) {
       // Update existing flashcard set
-      console.log('Updating existing flashcard set:', originalDeckId.value);
+
       response = await flashcardApi.update(originalDeckId.value, flashcardData);
     } else {
       // Create new flashcard set
-      console.log('Creating new flashcard set');
+
       response = await flashcardApi.create(flashcardData);
     }
 
-    console.log('Flashcard API response:', response);
+
 
     // Show success message
     store.dispatch('message/showMessage', {

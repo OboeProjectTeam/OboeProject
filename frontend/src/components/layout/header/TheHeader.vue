@@ -396,8 +396,6 @@ const notificationsLoading = ref(false)
 
 const unreadNotifications = computed(() => {
   const count = notifications.value.filter(n => !n.read).length
-  console.log('Unread notifications count:', count)
-  console.log('Total notifications:', notifications.value.length)
   return count
 })
 
@@ -405,19 +403,11 @@ const unreadNotifications = computed(() => {
 const loadNotifications = async () => {
   try {
     notificationsLoading.value = true
-    console.log('Loading notifications...')
-    console.log('Is authenticated:', isAuthenticated.value)
     const response = await api.notification.getAll()
-    console.log('Notifications API response:', response)
-    
     // Handle different response formats
     const notificationsData = Array.isArray(response) ? response : (response.content || response.data || response)
-    console.log('Raw notifications data:', notificationsData)
-    console.log('Is array?', Array.isArray(notificationsData))
-    
     // Map notifications to expected format based on actual API response
     const mappedNotifications = (Array.isArray(notificationsData) ? notificationsData : []).map(notification => {
-      console.log('Mapping notification:', notification)
       return {
         id: notification.notifiId || notification.id,
         content: notification.textNotification || notification.content || notification.message,
@@ -427,8 +417,6 @@ const loadNotifications = async () => {
         user: null // No user data in current API response
       }
     })
-    
-    console.log('Mapped notifications:', mappedNotifications)
     notifications.value = mappedNotifications
   } catch (error) {
     console.error('Failed to load notifications:', error)
@@ -497,7 +485,6 @@ const toggleNotifications = () => {
 
 const markAllAsRead = async () => {
   try {
-    console.log('Marking all notifications as read...')
     await api.notification.markAllAsRead()
     
     // Update local state
@@ -505,8 +492,6 @@ const markAllAsRead = async () => {
       ...notification,
       read: true
     }))
-    
-    console.log('All notifications marked as read')
   } catch (error) {
     console.error('Failed to mark notifications as read:', error)
     // Show error message

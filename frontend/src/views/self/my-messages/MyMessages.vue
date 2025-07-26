@@ -216,8 +216,6 @@ const loadChatPartners = async () => {
     
          // Map API data to conversation format based on actual UserSummaryDTO
      const mappedConversations = (Array.isArray(partnersData) ? partnersData : []).map(partner => {
-       console.log('Mapping partner:', partner)
-       
        // Build full name from firstName and lastName
        const firstName = partner.firstName || ''
        const lastName = partner.lastName || ''
@@ -467,8 +465,6 @@ const closeSidebarMenu = () => {
 }
 
 const viewProfile = (user) => {
-  console.log('MyMessages: Opening profile for user:', user)
-  
   closeSidebarMenu()
   
   // Check if user has required data
@@ -493,8 +489,6 @@ const viewProfile = (user) => {
       fromSource: 'messages'
     }
   })
-  
-  console.log('MyMessages: Navigating to profile:', `/forum/u/${usernameForRoute}?userId=${user.id}`)
 }
 
 const deleteConversation = (user) => {
@@ -522,8 +516,6 @@ const blockUser = (user) => {
 }
 
 const openChatBox = (user) => {
-  console.log('MyMessages: Opening ChatBox for user:', user)
-  
   const userId = user.id
   if (!userId) {
     console.error('MyMessages: No userId found in user object:', user)
@@ -539,9 +531,6 @@ const openChatBox = (user) => {
     fullName: user.name,
     avatarUrlReceiver: user.avatarUrlReceiver
   }
-  
-  console.log('MyMessages: Emitting send-message event with user:', chatUser)
-  
   // Emit to App.vue to open global ChatBox
   emit('send-message', chatUser)
   

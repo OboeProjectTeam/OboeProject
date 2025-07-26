@@ -120,7 +120,7 @@ function onSwiper(swiper) {
 
 // Xử lý khi bấm nút "Xem thêm"
 function onSeeMore(slide) {
-  console.log("Clicked Xem thêm:", slide);
+
   // ví dụ: mở modal, hoặc navigate đến route chi tiết
 }
 
@@ -154,10 +154,8 @@ function flipCard(index) {
 
 // Xử lý khi chuyển slide (slideChange event)
 function handleSlideChange() {
-  console.log("swiper", swiperInstance.value)
   if (swiperInstance.value) {
     activeIndex.value = swiperInstance.value.activeIndex
-    console.log("activeIndex", activeIndex.value)
   }
   flippedIndex.value = null
   showBackIndex.value = null

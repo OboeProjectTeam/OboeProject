@@ -587,12 +587,8 @@ const startLearning = async (set) => {
 
 const startQuiz = async (quiz) => {
   try {
-    console.log(quiz.id)
     const response = await api.question.getByQuiz(quiz.id)
-    console.log('Quiz questions responseeeeeeeeeeee:', response)
     const questions = response.content || response.data || response
-    console.log('Quiz questions loadedddddddd:', questions)
-
     if (!Array.isArray(questions) || questions.length === 0) {
       store.dispatch('message/showMessage', {
         type: 'error',
@@ -611,8 +607,6 @@ const startQuiz = async (quiz) => {
       content: q.questionName,
       backcontent: q.correctAnswer
     }))
-    console.log('Mapped learning itemssssssssssss:', learningItems)
-
     await store.dispatch('flashcard/setLearningItems', learningItems)
     router.push({
       path: '/flashcard/test',

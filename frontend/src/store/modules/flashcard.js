@@ -38,7 +38,7 @@ export default {
       state.currentPage = page
     },
     setLearningItems(state, items) {
-      console.log('Setting learning items:', items);
+
       state.learningItems = items.map(item => {
         // Ensure each item has a unique ID
         const id = item.id ? item.id : `item-${Date.now()}-${Math.random()}`;
@@ -97,7 +97,7 @@ export default {
 
         return normalized;
       });
-      console.log('Normalized learning items:', state.learningItems);
+
     },
     // Thêm mutations cho bộ thẻ ghi nhớ
     addFlashcardSet(state, set) {
