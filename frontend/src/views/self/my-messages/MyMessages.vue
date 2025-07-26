@@ -139,6 +139,7 @@ import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import api from '@/api'
+import webSocketService from '@/services/websocket'
 
 const selectedChat = ref(null)
 const newMessage = ref('')
@@ -172,32 +173,96 @@ const sendingMessage = ref(false)
 // Get current user info
 const currentUser = computed(() => store.getters['auth/currentUser'])
 
-// Get current user ID from different sources
-const getCurrentUserId = async () => {
+// Get current user ID from store
+const currentUserId = computed(() => {
+  if (!currentUser.value) return null
+  return currentUser.value.userId || currentUser.value.user_id || currentUser.value.id
+})
+
+const connectWebSocket = async () => {
   try {
-    // First try to get from profile API which might have more complete user info
-    const profileResponse = await api.profile.getProfile()
-    
-    if (profileResponse?.user_id) {
-      localStorage.setItem('currentUserId', profileResponse.user_id)
-      return profileResponse.user_id
+    if (!webSocketService.isConnected()) {
+      await webSocketService.connect()
     }
     
-    // Fallback: try to decode JWT token to get user ID
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        // JWT might contain user ID or username that we can use
-      } catch (e) {
-        console.error('Error decoding JWT:', e)
-      }
+    // Subscribe to messages for current user
+    if (currentUserId.value) {
+      webSocketService.subscribeToMessages(currentUserId.value, handleIncomingMessage)
     }
-    
-    return null
   } catch (error) {
-    console.error('Error getting current user ID:', error)
-    return null
+    console.error('Failed to connect WebSocket:', error)
+  }
+}
+
+// Handle incoming WebSocket messages
+const handleIncomingMessage = (messageData) => {
+  console.log('MyMessages: Received WebSocket message:', messageData)
+  
+  // Find the conversation this message belongs to
+  const senderId = messageData.senderId
+  const receiverId = messageData.receiverId
+  
+  // Determine which user this conversation is with
+  const otherUserId = senderId === currentUserId.value ? receiverId : senderId
+  
+  // Find existing conversation
+  let conversation = conversations.value.find(conv => conv.id === otherUserId)
+  
+  if (!conversation) {
+    // Create new conversation if it doesn't exist
+    conversation = {
+      id: otherUserId,
+      name: messageData.senderName || 'Người dùng',
+      username: messageData.senderName,
+      fullName: messageData.senderName,
+      avatarUrlReceiver: `https://ui-avatars.com/api/?name=${encodeURIComponent(messageData.senderName || 'User')}&background=random`,
+      lastMessage: messageData.sentMessage,
+      lastMessageTime: formatMessageTime(messageData.sentDateTime),
+      unreadCount: senderId !== currentUserId.value ? 1 : 0,
+      messages: []
+    }
+    
+    // Add to top of conversations list
+    conversations.value.unshift(conversation)
+  } else {
+    // Update existing conversation
+    conversation.lastMessage = messageData.sentMessage
+    conversation.lastMessageTime = formatMessageTime(messageData.sentDateTime)
+    
+    // Increment unread count if message is not from current user and not currently viewing this chat
+    if (senderId !== currentUserId.value && selectedChat.value?.id !== otherUserId) {
+      conversation.unreadCount = (conversation.unreadCount || 0) + 1
+    }
+    
+    // Move conversation to top
+    const index = conversations.value.indexOf(conversation)
+    if (index > 0) {
+      conversations.value.splice(index, 1)
+      conversations.value.unshift(conversation)
+    }
+  }
+  
+  // If this conversation is currently selected, add message to chat
+  if (selectedChat.value?.id === otherUserId) {
+    const newMessage = {
+      id: messageData.messageId,
+      content: messageData.sentMessage,
+      time: formatMessageTime(messageData.sentDateTime),
+      isSent: senderId === currentUserId.value,
+      senderId: senderId,
+      receiverId: receiverId,
+      senderName: messageData.senderName
+    }
+    
+    selectedChat.value.messages.push(newMessage)
+    
+    // Reset unread count for current chat
+    conversation.unreadCount = 0
+    
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollToBottom()
+    }, 100)
   }
 }
 
@@ -322,27 +387,22 @@ const selectChat = async (chat) => {
       const receiverId = message.receiverId
       
       // Try to get current user ID from different sources
-      let currentUserId = currentUser.value?.id || 
-                          currentUser.value?.userId || 
-                          currentUser.value?.user_id ||
-                          currentUser.value?.user?.id ||
-                          currentUser.value?.user?.userId ||
-                          localStorage.getItem('currentUserId')
+      let currentUserIdValue = currentUserId.value
       
       // TEMPORARY: If no currentUserId found, try to determine from message pattern
       // Based on API response, we see 2 users:
       // - "c6bc94fe-94e5-48e0-95f1-14847e7a8f7a" (nghianhbh00970@fpt.edu.vn)  
       // - "5c936e0d-0629-4638-ba79-a58f597e2718" (vuongancut789@gmail.com)
-      if (!currentUserId && currentUser.value?.username) {
+      if (!currentUserIdValue && currentUser.value?.username) {
         if (currentUser.value.username.includes('nghianhbh00970')) {
-          currentUserId = 'c6bc94fe-94e5-48e0-95f1-14847e7a8f7a'
+          currentUserIdValue = 'c6bc94fe-94e5-48e0-95f1-14847e7a8f7a'
         } else if (currentUser.value.username.includes('vuongancut789')) {
-          currentUserId = '5c936e0d-0629-4638-ba79-a58f597e2718'
+          currentUserIdValue = '5c936e0d-0629-4638-ba79-a58f597e2718'
         }
       }
       
       // Determine if message was sent by current user
-      const isSent = senderId === currentUserId || String(senderId) === String(currentUserId)
+      const isSent = senderId === currentUserIdValue || String(senderId) === String(currentUserIdValue)
       
       return {
         id: message.messageId,
@@ -603,8 +663,8 @@ const updateHeaderHeight = () => {
 
 
 onMounted(async () => {
-  // Get current user ID first
-  await getCurrentUserId()
+  // Connect WebSocket
+  await connectWebSocket()
   
   // Load chat partners when component mounts
   await loadChatPartners()
@@ -633,6 +693,11 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  // Cleanup WebSocket
+  if (currentUserId.value) {
+    webSocketService.unsubscribeFromMessages(currentUserId.value)
+  }
+  
   window.removeEventListener('click', closeSidebarMenu)
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('popstate', closeChat)
@@ -643,4 +708,4 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @use '@/views/self/my-messages/MyMessages.scss';
-</style> 
+</style>

@@ -56,9 +56,11 @@
   </template>
   
   <script setup>
-     import { ref, computed, watch, nextTick, onMounted } from 'vue'
+     import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useStore } from 'vuex'
   import api from '@/api'
+  import webSocketService from '@/services/websocket'
   
   const router = useRouter()
   
@@ -73,7 +75,7 @@
     }
   })
   
-  const emit = defineEmits(['close', 'message-sent', 'conversation-loaded'])
+  const emit = defineEmits(['close', 'message-sent', 'message-received', 'conversation-loaded'])
   
   const minimized = ref(false)
   const newMessage = ref('')
@@ -81,6 +83,66 @@
   const messagesLoading = ref(false)
   const sendingMessage = ref(false)
   const messagesContainer = ref(null)
+  
+  // Get current user from store
+  const store = useStore()
+  const currentUser = computed(() => store.getters['auth/currentUser'])
+  const currentUserId = computed(() => {
+    if (!currentUser.value) return null
+    return currentUser.value.userId || currentUser.value.user_id || currentUser.value.id
+  })
+  
+  // WebSocket connection and subscription
+  const connectWebSocket = async () => {
+    try {
+      if (!webSocketService.isConnected()) {
+        await webSocketService.connect()
+      }
+      
+      // Subscribe to messages for current user
+      if (currentUserId.value) {
+        webSocketService.subscribeToMessages(currentUserId.value, handleIncomingMessage)
+      }
+    } catch (error) {
+      console.error('Failed to connect WebSocket:', error)
+    }
+  }
+  
+  // Handle incoming WebSocket messages
+  const handleIncomingMessage = (messageData) => {
+    console.log('ChatBox: Received WebSocket message:', messageData)
+    
+    // Check if this message is for the current conversation
+    const chatUserId = props.user?.id || props.user?.userId
+    const isForCurrentChat = 
+      (messageData.senderId === chatUserId && messageData.receiverId === currentUserId.value) ||
+      (messageData.senderId === currentUserId.value && messageData.receiverId === chatUserId)
+    
+    if (isForCurrentChat) {
+      // Map message to expected format
+      const newMessage = {
+        id: messageData.messageId,
+        content: messageData.sentMessage,
+        text: messageData.sentMessage,
+        time: formatMessageTime(messageData.sentDateTime),
+        isSent: messageData.senderId === currentUserId.value,
+        senderId: messageData.senderId,
+        receiverId: messageData.receiverId,
+        senderName: messageData.senderName
+      }
+      
+      // Add message to conversation
+      messages.value.push(newMessage)
+      
+      // Scroll to bottom
+      setTimeout(() => {
+        scrollToBottom()
+      }, 100)
+      
+      // Emit to parent
+      emit('message-received', newMessage)
+    }
+  }
   
   // Load conversation from API - always fresh data
   const loadConversation = async () => {
@@ -119,10 +181,10 @@
       const mappedMessages = conversationData.map(message => {
         
         const senderId = message.senderId
-        let currentUserId = localStorage.getItem('currentUserId')
+        const currentUserIdValue = currentUserId.value
         
         // Determine if message was sent by current user
-        const isSent = senderId === currentUserId || String(senderId) === String(currentUserId)
+        const isSent = senderId === currentUserIdValue || String(senderId) === String(currentUserIdValue)
         
         const mappedMessage = {
           id: message.messageId,
@@ -280,9 +342,22 @@
 
        // Debug: Add onMounted to see if component is mounting
     onMounted(() => {
+      console.log('ChatBox mounted')
+      
+      // Connect WebSocket
+      connectWebSocket()
+      
       // If already visible on mount, load conversation
       if (props.visible) {
         loadConversation()
+      }
+    })
+    
+    // Cleanup WebSocket on unmount
+    onUnmounted(() => {
+      console.log('ChatBox unmounted')
+      if (currentUserId.value) {
+        webSocketService.unsubscribeFromMessages(currentUserId.value)
       }
     })
     

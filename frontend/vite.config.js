@@ -5,6 +5,9 @@ import path from 'path'
 export default defineConfig({
   base: '/',
   plugins: [vue()],
+  define: {
+    global: 'globalThis',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
@@ -47,6 +50,12 @@ export default defineConfig({
         target: 'https://oboeru.me',
         changeOrigin: true,
         secure: true,
+      },
+      '/ws': {
+        target: 'https://oboeru.me',
+        changeOrigin: true,
+        secure: true,
+        ws: true, // Enable WebSocket proxying
       }
     }
   },
