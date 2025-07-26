@@ -6,6 +6,8 @@
     mainField="kana"
     readingField="romaji"
     meaningField="meaning"
+    :showExamples="true"
+    exampleField="example"
     notFoundMessage="Không tìm thấy ngữ pháp"
   />
 </template>
@@ -24,11 +26,11 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
-    const grammarId = ref(parseInt(route.params.id));
+    const grammarId = ref(route.params.id); // Keep as string for UUID
 
     // Function to fetch grammar data
     const fetchGrammarData = (id) => {
-      store.dispatch('search/getGrammarById', parseInt(id));
+      store.dispatch('search/getGrammarById', id);
     };
 
     // Initial fetch
@@ -39,7 +41,7 @@ export default {
       () => route.params.id,
       (newId) => {
         if (newId) {
-          grammarId.value = parseInt(newId);
+          grammarId.value = newId;
           fetchGrammarData(grammarId.value);
         }
       }

@@ -228,20 +228,20 @@ const loadUserAnswerForCurrentQuestion = () => {
     } else if (testType.value === 'true-false') {
       selectedAnswer.value = answerRecord.userAnswer === 'Đúng';
     }
-    console.log(`Review Mode: Loaded answer for Q${currentQuestionIndex.value + 1}: '${answerRecord.userAnswer}', Selected: '${selectedAnswer.value}'`);
+
   } else {
     selectedAnswer.value = null;
     writtenAnswer.value = '';
-    console.log(`Review Mode: No answer record for Q${currentQuestionIndex.value + 1}.`);
+
   }
 };
 
 // Methods
 const initializeTest = () => {
   isReviewing.value = false; // NEW: Ensure not in review mode
-  console.log('Initializing test with type:', testType.value);
+
   const flashcards = store.getters['flashcard/getLearningItems'];
-  console.log('Retrieved flashcards:', flashcards);
+
   
   if (!flashcards || flashcards.length === 0) {
     console.error('No flashcards found in store');
@@ -274,7 +274,7 @@ const initializeTest = () => {
       case 'multiple-choice': {
         // Kiểm tra nếu card đã có options sẵn (từ quiz)
         if (card.options && Array.isArray(card.options) && card.options.length > 1) {
-          console.log('Using existing options from card:', card.options);
+
           // Đảm bảo đáp án đúng nằm trong options
           let options = [...card.options];
           if (!options.includes(back)) {
@@ -396,7 +396,7 @@ const initializeTest = () => {
     return;
   }
 
-  console.log('Generated questions:', questions.value);
+
 
   // Reset all state
   currentQuestionIndex.value = 0;
@@ -519,7 +519,7 @@ const selectAnswer = (answer) => {
 };
 
 const submitAnswer = () => {
-  console.log('Submitting answer for test type:', testType.value);
+
   const currentQ = questions.value[currentQuestionIndex.value];
   let isCorrect = false;
 
@@ -631,7 +631,7 @@ const saveTestToHistory = async () => {
     };
     
     await store.dispatch('history/saveTestToHistory', testData);
-    console.log('Test saved to history:', testData);
+
   } catch (error) {
     console.error('Failed to save test to history:', error);
   }

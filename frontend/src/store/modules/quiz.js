@@ -30,9 +30,7 @@ const actions = {
   async fetchQuizzes({ commit }) {
     try {
       commit('setLoading', true)
-      console.log('Fetching quizzes...')
       const response = await quizApi.getAll()
-      console.log('Quizzes fetched:', response)
       commit('setQuizzes', response)
       return response
     } catch (error) {
@@ -49,7 +47,6 @@ const actions = {
       commit('setLoading', true)
       const response = await quizApi.create(quizData)
       commit('addQuiz', response)
-      console.log('Quiz created:testttttttttttttttttttt', response)
       return response
     } catch (error) {
       commit('setError', error.message)

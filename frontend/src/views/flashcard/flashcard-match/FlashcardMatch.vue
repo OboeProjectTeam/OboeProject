@@ -103,7 +103,7 @@ const stopGameTimer = () => {
 };
 
 const initializeGame = () => {
-  console.log("Initializing Match Game...");
+
   isGameWon.value = false;
   selectedCell1.value = null;
   selectedCell2.value = null;
@@ -116,7 +116,7 @@ const initializeGame = () => {
     return;
   }
   allFlashcards.value = JSON.parse(JSON.stringify(storedFlashcards));
-  console.log("Retrieved flashcards for game:", allFlashcards.value);
+
 
   let cardsForGame = [];
   if (allFlashcards.value.length > MAX_PAIRS) {
@@ -133,7 +133,7 @@ const initializeGame = () => {
     return;
   }
 
-  console.log("Cards selected for this game:", cardsForGame);
+
 
   let tempGridItems = [];
   cardsForGame.forEach((card, index) => {
@@ -160,7 +160,7 @@ const initializeGame = () => {
   });
 
   gridItems.value = tempGridItems.sort(() => Math.random() - 0.5);
-  console.log("Shuffled grid items:", gridItems.value);
+
   
   startGameTimer();
 };
@@ -171,19 +171,19 @@ const handleCellClick = (clickedItem) => {
     return;
   }
 
-  console.log("Cell clicked:", clickedItem);
+
 
   if (!selectedCell1.value) {
     selectedCell1.value = clickedItem;
-    console.log("Selected cell 1:", selectedCell1.value);
+
   } else if (selectedCell1.value && selectedCell1.value.id !== clickedItem.id) {
     selectedCell2.value = clickedItem;
-    console.log("Selected cell 2:", selectedCell2.value);
+
 
     // Check for match
     if (selectedCell1.value.cardId === selectedCell2.value.cardId) {
       // Match found!
-      console.log("Match found!");
+
       selectedCell1.value.isMatched = true;
       selectedCell2.value.isMatched = true;
       
@@ -196,7 +196,7 @@ const handleCellClick = (clickedItem) => {
 
     } else {
       // No match
-      console.log("No match.");
+
       selectedCell1.value.isError = true;
       selectedCell2.value.isError = true;
 
@@ -217,7 +217,7 @@ const checkGameWin = () => {
     isGameWon.value = true;
     stopGameTimer();
     finalTime.value = formattedTime.value;
-    console.log("Game Won! Time:", finalTime.value);
+
   }
 };
 

@@ -161,7 +161,7 @@ const saveQuiz = async () => {
   try {
     // Bước 1: Tạo quiz
     const response = await store.dispatch('quiz/createQuiz', quizData);
-    console.log('Quiz created successfully:', response);
+
     
     // Bước 2: Tạo câu hỏi cho quiz
     const questionsList = questions.value.map(q => ({

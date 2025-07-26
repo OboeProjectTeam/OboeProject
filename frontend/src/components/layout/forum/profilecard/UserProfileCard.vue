@@ -138,18 +138,18 @@ const isCurrentUser = computed(() => {
   if (!currentUser.value || !userProfile.value) return false;
   
   // Debug logs
-  console.log('UserProfileCard - Current User:', currentUser.value);
-  console.log('UserProfileCard - Profile User:', userProfile.value);
-  console.log('UserProfileCard - Current User keys:', Object.keys(currentUser.value));
+
+
+
   
   // Primary comparison: ID-based
   const currentUserId = currentUser.value.userId || currentUser.value.user_id || currentUser.value.id;
   const profileUserId = userProfile.value.user_id;
   
-  console.log('UserProfileCard - ID comparison:', currentUserId, 'vs', profileUserId);
+
   
   if (currentUserId && profileUserId && currentUserId === profileUserId) {
-    console.log('UserProfileCard - ID match: Same user');
+
     return true;
   }
   
@@ -157,14 +157,14 @@ const isCurrentUser = computed(() => {
   const currentUsername = currentUser.value.username || currentUser.value.userName;
   const profileUsername = userProfile.value.userName;
   
-  console.log('UserProfileCard - Username comparison:', currentUsername, 'vs', profileUsername);
+
   
   if (currentUsername && profileUsername && currentUsername === profileUsername) {
-    console.log('UserProfileCard - Username match: Same user');
+
     return true;
   }
   
-  console.log('UserProfileCard - Different user');
+
   return false;
 });
 

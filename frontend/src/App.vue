@@ -60,8 +60,6 @@ onMounted(() => {
 })
 
 function openChatBox(user) {
-  console.log('App.vue: openChatBox called with user:', user)
-  
   // Handle different user data formats
   const chatUser = {
     id: user.user_id || user.userId || user.id,
@@ -71,9 +69,6 @@ function openChatBox(user) {
     fullName: user.fullName || user.name,
     avatar: user.avatarUrl || user.avatar || user.avatarUrlReceiver
   }
-  
-  console.log('App.vue: Mapped chat user:', chatUser)
-  
   chatBoxUser.value = chatUser
   chatBoxVisible.value = true
 }
