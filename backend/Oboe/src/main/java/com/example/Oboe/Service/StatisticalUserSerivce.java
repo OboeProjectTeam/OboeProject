@@ -44,10 +44,11 @@ public class StatisticalUserSerivce {
      */
     public StatisticalUserDTOs countUserContent(UUID userId) {
         long blogCount = blogRepository.countBlogsByUserId(userId);
-        long commentCount = commentRepository.countCommentsByUserId(userId);
+        long commentCount = commentRepository.countBlogCommentsByUserId(userId); //  lọc đúng chỉ comment blog
         long flashCardCount = flashCardRepository.countFlashCardByUserId(userId);
         return new StatisticalUserDTOs(blogCount, commentCount, flashCardCount);
     }
+
 
     /**
      * Trả về danh sách hoạt động của user (blog, comment, flashcard) dưới dạng phân trang.
@@ -61,12 +62,15 @@ public class StatisticalUserSerivce {
             blogs.forEach(blog -> activities.add(new ActivityDTO("blog", blog)));
         }
 
-        // Lấy danh sách comment
         List<CommentDTOs> comments = commentService.getCommentByUserId(userId);
         if (comments != null) {
-            comments.forEach(comment -> activities.add(new ActivityDTO("comment", comment)));
+            for (CommentDTOs comment : comments) {
+                UUID refId = comment.getReferenceId();
+                if (blogService.blogExists(refId)) {
+                    activities.add(new ActivityDTO("comment", comment));
+                }
+            }
         }
-
         // Lấy danh sách flashcard
         List<FlashCardDto> flashcards = flashCardService.getAllflashByUserId(userId);
         if (flashcards != null) {

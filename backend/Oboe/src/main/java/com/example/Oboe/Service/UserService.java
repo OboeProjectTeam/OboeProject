@@ -151,7 +151,7 @@ public class UserService implements UserDetailsService {
 
         // Thống kê số lượng nội dung của user
         long blogCount = blogRepository.countBlogsByUserId(userId);
-        long commentCount = commentRepository.countCommentsByUserId(userId);
+        long commentCount = commentRepository.countBlogCommentsByUserId(userId);
         long flashCardCount = flashCardRepository.countFlashCardByUserId(userId);
 
         // Tạo DTO với cả thông tin người dùng và thống kê
