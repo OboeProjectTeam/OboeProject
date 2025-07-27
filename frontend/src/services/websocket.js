@@ -1,11 +1,9 @@
-// services/websocket.js
-
 let socket = null;
 let userId = null;
 const reconnectDelay = 5000;
 
-const messageListeners = new Set();
-const notificationListeners = new Set();
+let onMessageCallback = null;
+let onNotificationCallback = null;
 
 function connect(id) {
   userId = id;
@@ -13,33 +11,41 @@ function connect(id) {
   socket = new WebSocket(wsUrl);
 
   socket.onopen = () => {
-    console.log("✅ WebSocket connected");
+    console.log(" WebSocket connected");
   };
 
   socket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
 
+      // Phân biệt giữa message và notification
       if (data.messageId && data.senderId) {
-        messageListeners.forEach((cb) => cb(data));
-      } else if (data.notifiId && data.textNotification) {
-        notificationListeners.forEach((cb) => cb(data));
+        if (onMessageCallback) {
+          onMessageCallback(data);
+        } else {
+          console.warn(" onMessageCallback not defined");
+        }
+      } else if (data.text_notification || data.notifiId) {
+        if (onNotificationCallback) {
+          onNotificationCallback(data);
+        } else {
+          console.warn(" onNotificationCallback not defined");
+        }
       } else {
-        console.warn("🟡 Received unknown WebSocket data format:", data);
+        console.warn(" Received unknown WebSocket data format:", data);
       }
-
-    } catch (err) {
-      console.warn("Received non-JSON message:", event.data);
+    } catch (e) {
+      console.error(" Failed to parse WebSocket message", e);
     }
   };
 
   socket.onclose = () => {
-    console.warn("WebSocket closed. Reconnecting in 5s...");
+    console.warn(" WebSocket closed. Reconnecting in 5s...");
     setTimeout(() => connect(userId), reconnectDelay);
   };
 
   socket.onerror = (err) => {
-    console.error("WebSocket error:", err);
+    console.error(" WebSocket error:", err);
   };
 }
 
@@ -47,24 +53,24 @@ function send(data) {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(JSON.stringify(data));
   } else {
-    console.warn("WebSocket not connected. Cannot send:", data);
+    console.warn("⚠️ WebSocket not connected. Cannot send:", data);
   }
 }
 
-// 👇 Cho tin nhắn
+// Gán callback cho message
 function onMessage(callback) {
-  messageListeners.add(callback);
+  onMessageCallback = callback;
 }
-function removeMessageListener(callback) {
-  messageListeners.delete(callback);
+function removeMessageListener() {
+  onMessageCallback = null;
 }
 
-// 👇 Cho thông báo
+// Gán callback cho notification
 function onNotification(callback) {
-  notificationListeners.add(callback);
+  onNotificationCallback = callback;
 }
-function removeNotificationListener(callback) {
-  notificationListeners.delete(callback);
+function removeNotificationListener() {
+  onNotificationCallback = null;
 }
 
 export default {

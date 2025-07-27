@@ -363,7 +363,6 @@ const handleClickOutside = (event) => {
     state.showNotifications = false
   }
 }
-
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
@@ -373,12 +372,13 @@ onMounted(() => {
   if (isAuthenticated.value) {
     loadNotifications()
     WebSocketService.connect(currentUser.value?.userId || currentUser.value?.id)
-    WebSocketService.onMessage((data) => {
-      if (data.messageId && data.senderId) {
-        return;
-      } else if (data.notifiId && data.textNotification) {
-        handleIncomingNotification(data);
-      }
+
+    WebSocketService.onMessage((msg) => {
+      console.log("[ Message Received]", msg);
+    });
+
+    WebSocketService.onNotification((noti) => {
+      handleIncomingNotification(noti);
     });
   }
 })
@@ -402,15 +402,23 @@ const unreadNotifications = computed(() => {
 })
 
 const handleIncomingNotification = (data) => {
+  // Chuyển key từ snake_case sang camelCase nếu cần
+  const id = data.notifiId || data.notifId || data.id;
+  const content = data.textNotification || data.text_notification || data.message;
+  const updateAt = data.updateAt || data.update_at || new Date().toISOString();
+  const read = data.read ?? false;
+
   const newNotification = {
-    id: data.notifiId,
-    content: data.textNotification,
-    time: formatNotificationTime(data.updateAt),
-    read: false,
+    id,
+    content,
+    time: formatNotificationTime(updateAt),
+    read,
     type: 'message'
   };
+
   notifications.value.unshift(newNotification);
 };
+
 
 const loadNotifications = async () => {
   try {
