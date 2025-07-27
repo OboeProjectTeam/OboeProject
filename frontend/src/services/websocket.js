@@ -1,54 +1,77 @@
-// src/services/websocket-stomp.js
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
+// services/websocket.js
 
-class StompWebSocket {
-  constructor(url, userId) {
-    this.url = url
-    this.userId = userId
-    this.client = null
-    this.subscriptions = {}
-  }
+let socket = null;
+let userId = null;
+const reconnectDelay = 5000;
 
-  connect(onConnected, onMessage) {
-    const socket = new SockJS(this.url)
-    this.client = new Client({
-      webSocketFactory: () => socket,
-      debug: function (str) {
-        console.log('[STOMP]', str)
-      },
-      reconnectDelay: 3000,
-      onConnect: () => {
-        console.log('STOMP connected')
-        this.subscribeToMessages(onMessage)
-        if (onConnected) onConnected()
-      },
-      onStompError: (frame) => {
-        console.error('STOMP error', frame)
+const messageListeners = new Set();
+const notificationListeners = new Set();
+
+function connect(id) {
+  userId = id;
+  const wsUrl = `wss://oboeru.me/ws-raw?userId=${userId}`;
+  socket = new WebSocket(wsUrl);
+
+  socket.onopen = () => {
+    console.log("✅ WebSocket connected");
+  };
+
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (data.messageId && data.senderId) {
+        messageListeners.forEach((cb) => cb(data));
+      } else if (data.notifiId && data.textNotification) {
+        notificationListeners.forEach((cb) => cb(data));
+      } else {
+        console.warn("🟡 Received unknown WebSocket data format:", data);
       }
-    })
-    this.client.activate()
-  }
 
-  subscribeToMessages(onMessage) {
-    const dest = `/receiver/${this.userId}`
-    this.subscriptions[dest] = this.client.subscribe(dest, (message) => {
-      const data = JSON.parse(message.body)
-      if (onMessage) onMessage(data)
-    })
-  }
-
-  send(destination, body) {
-    if (this.client && this.client.connected) {
-      this.client.publish({ destination, body: JSON.stringify(body) })
-    } else {
-      console.warn('STOMP client not connected')
+    } catch (err) {
+      console.warn("Received non-JSON message:", event.data);
     }
-  }
+  };
 
-  disconnect() {
-    if (this.client) this.client.deactivate()
+  socket.onclose = () => {
+    console.warn("WebSocket closed. Reconnecting in 5s...");
+    setTimeout(() => connect(userId), reconnectDelay);
+  };
+
+  socket.onerror = (err) => {
+    console.error("WebSocket error:", err);
+  };
+}
+
+function send(data) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(data));
+  } else {
+    console.warn("WebSocket not connected. Cannot send:", data);
   }
 }
 
-export default StompWebSocket
+// 👇 Cho tin nhắn
+function onMessage(callback) {
+  messageListeners.add(callback);
+}
+function removeMessageListener(callback) {
+  messageListeners.delete(callback);
+}
+
+// 👇 Cho thông báo
+function onNotification(callback) {
+  notificationListeners.add(callback);
+}
+function removeNotificationListener(callback) {
+  notificationListeners.delete(callback);
+}
+
+export default {
+  connect,
+  send,
+  onMessage,
+  onNotification,
+  removeMessageListener,
+  removeNotificationListener,
+};

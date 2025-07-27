@@ -56,11 +56,11 @@
   </template>
   
   <script setup>
-     import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+  import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
   import { useRouter } from 'vue-router'
   import { useStore } from 'vuex'
   import api from '@/api'
-  import webSocketService from '@/services/websocket'
+  import WebSocketService from '@/services/websocket'
   
   const router = useRouter()
   
@@ -95,13 +95,13 @@
   // WebSocket connection and subscription
   const connectWebSocket = async () => {
     try {
-      if (!webSocketService.isConnected()) {
-        await webSocketService.connect()
+      if (!WebSocketService.isConnected()) {
+        await WebSocketService.connect()
       }
       
       // Subscribe to messages for current user
       if (currentUserId.value) {
-        webSocketService.subscribeToMessages(currentUserId.value, handleIncomingMessage)
+        WebSocketService.subscribeToMessages(currentUserId.value, handleIncomingMessage)
       }
     } catch (error) {
       console.error('Failed to connect WebSocket:', error)
@@ -357,7 +357,7 @@
     onUnmounted(() => {
       console.log('ChatBox unmounted')
       if (currentUserId.value) {
-        webSocketService.unsubscribeFromMessages(currentUserId.value)
+        WebSocketService.unsubscribeFromMessages(currentUserId.value)
       }
     })
     
