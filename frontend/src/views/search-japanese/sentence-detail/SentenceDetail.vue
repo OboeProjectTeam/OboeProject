@@ -3,9 +3,9 @@
     type="sentence"
     :item="selectedSentence"
     :itemId="sentenceId"
-    mainField="sentence"
-    readingField="reading"
-    meaningField="translation"
+    mainField="japaneseText"
+    readingField=""
+    meaningField="vietnameseMeaning"
     notFoundMessage="Không tìm thấy câu mẫu"
   />
 </template>

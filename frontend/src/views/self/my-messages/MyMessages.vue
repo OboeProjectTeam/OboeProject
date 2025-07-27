@@ -139,9 +139,9 @@ import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import api from '@/api'
-import StompWebSocket from '@/services/websocket.js'
+import WebSocketService from '@/services/websocket'
 
-const stompClient = ref(null)
+
 const selectedChat = ref(null)
 const newMessage = ref('')
 const messagesContainer = ref(null)
@@ -602,33 +602,51 @@ const updateHeaderHeight = () => {
   }
 }
 
-const WebSocket = async  () => {
-   const userId = await getCurrentUserId()
+const handleIncomingRealtimeMessage = (message) => {
+  const chat = conversations.value.find(c => c.id === message.senderId || c.id === message.receiverId)
 
-  stompClient.value = new StompWebSocket('https://oboeru.me/ws', userId)
-
-  stompClient.value.connect(
-    () => console.log('STOMP ready'),
-    (data) => {
-      // Nhận tin nhắn từ WebSocket
-      if (selectedChat.value && data.senderId === selectedChat.value.id) {
-        selectedChat.value.messages.push({
-          id: data.messageId,
-          content: data.sentMessage,
-          time: formatMessageTime(data.sentDateTime),
-          isSent: false,
-          senderId: data.senderId,
-          receiverId: data.receiverId,
-          senderName: data.senderName
-        })
-        scrollToBottom()
-      }
+  if (chat) {
+    const newMsg = {
+      id: message.messageId,
+      content: message.sentMessage,
+      time: formatMessageTime(message.sentDateTime),
+      isSent: false,
+      senderId: message.senderId,
+      receiverId: message.receiverId,
+      senderName: message.senderName
     }
-  )
+
+    chat.lastMessage = message.sentMessage
+    chat.lastMessageTime = formatMessageTime(message.sentDateTime)
+
+    if (!chat.messages) chat.messages = []
+    chat.messages.push(newMsg)
+
+    // Nếu đang mở đúng chat thì scroll xuống cuối
+    if (selectedChat.value?.id === chat.id) {
+      scrollToBottom()
+    } else {
+      chat.unreadCount = (chat.unreadCount || 0) + 1
+    }
+  } else {
+    // Tin nhắn từ người mới → reload danh sách
+    loadChatPartners()
+  }
 }
 
+
 onMounted(async () => {
-  await WebSocket()
+  const userId = await getCurrentUserId()
+  if (userId) {
+    WebSocketService.connect(userId)
+
+    // Nghe tin nhắn mới realtime
+    WebSocketService.onMessage((data) => {
+      if (data.messageId && data.senderId) {
+        handleIncomingRealtimeMessage(data)
+      }
+    })
+  }
   // Get current user ID first
   await getCurrentUserId()
   

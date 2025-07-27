@@ -1,54 +1,57 @@
-// src/services/websocket-stomp.js
-import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs'
+// services/websocket.js
 
-class StompWebSocket {
-  constructor(url, userId) {
-    this.url = url
-    this.userId = userId
-    this.client = null
-    this.subscriptions = {}
-  }
+let socket = null;
+let userId = null;
+const reconnectDelay = 5000;
+const listeners = new Set();
 
-  connect(onConnected, onMessage) {
-    const socket = new SockJS(this.url)
-    this.client = new Client({
-      webSocketFactory: () => socket,
-      debug: function (str) {
-        console.log('[STOMP]', str)
-      },
-      reconnectDelay: 3000,
-      onConnect: () => {
-        console.log('STOMP connected')
-        this.subscribeToMessages(onMessage)
-        if (onConnected) onConnected()
-      },
-      onStompError: (frame) => {
-        console.error('STOMP error', frame)
-      }
-    })
-    this.client.activate()
-  }
+function connect(id) {
+  userId = id;
+  const wsUrl = `wss://oboeru.me/ws-raw?userId=${userId}`;
+  socket = new WebSocket(wsUrl);
 
-  subscribeToMessages(onMessage) {
-    const dest = `/receiver/${this.userId}`
-    this.subscriptions[dest] = this.client.subscribe(dest, (message) => {
-      const data = JSON.parse(message.body)
-      if (onMessage) onMessage(data)
-    })
-  }
+  socket.onopen = () => {
+    console.log("✅ WebSocket connected");
+  };
 
-  send(destination, body) {
-    if (this.client && this.client.connected) {
-      this.client.publish({ destination, body: JSON.stringify(body) })
-    } else {
-      console.warn('STOMP client not connected')
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      listeners.forEach((cb) => cb(data));
+    } catch (err) {
+      console.warn("Received non-JSON message:", event.data);
     }
-  }
+  };
 
-  disconnect() {
-    if (this.client) this.client.deactivate()
+  socket.onclose = () => {
+    console.warn("WebSocket closed. Reconnecting in 5s...");
+    setTimeout(() => connect(userId), reconnectDelay);
+  };
+
+  socket.onerror = (err) => {
+    console.error("WebSocket error:", err);
+  };
+}
+
+function send(data) {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify(data));
+  } else {
+    console.warn("WebSocket not connected. Cannot send:", data);
   }
 }
 
-export default StompWebSocket
+function onMessage(callback) {
+  listeners.add(callback);
+}
+
+function removeListener(callback) {
+  listeners.delete(callback);
+}
+
+export default {
+  connect,
+  send,
+  onMessage,
+  removeListener,
+};
