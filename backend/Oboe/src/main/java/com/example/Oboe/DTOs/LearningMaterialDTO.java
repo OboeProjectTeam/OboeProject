@@ -7,13 +7,34 @@ public class LearningMaterialDTO {
     private String title;
     private String description;
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    private String author;
+    private String avatarUrl;
+
     public LearningMaterialDTO() {
     }
 
-    public LearningMaterialDTO(UUID quizId, String title, String description) {
+    public LearningMaterialDTO(UUID quizId, String title, String description , String author , String avatarUrl) {
         this.quizId = quizId;
         this.title = title;
         this.description = description;
+        this.author = author;
+        this.avatarUrl = avatarUrl;
     }
 
     public UUID getQuizId() {

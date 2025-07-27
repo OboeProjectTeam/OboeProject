@@ -8,12 +8,16 @@ import com.example.Oboe.Entity.User;
 import com.example.Oboe.Service.MessageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +28,11 @@ public class MessageController {
     private final MessageService messageService;
 
 
+
     public MessageController(MessageService messageService) {
         this.messageService = messageService;
+
+
 
     }
 
@@ -38,6 +45,8 @@ public class MessageController {
         MessageDTO savedMessage = messageService.sendMessage(userId,messageDto);
         return ResponseEntity.ok(savedMessage);
     }
+
+
 
     //lấy ra những người đã nhắn tin
     @GetMapping("/partners")

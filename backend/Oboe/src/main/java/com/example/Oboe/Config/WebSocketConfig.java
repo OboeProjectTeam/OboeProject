@@ -1,31 +1,28 @@
 package com.example.Oboe.Config;
 
+import com.example.Oboe.websocket.MyRawSocketHandler;
+import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Autowired
+    private MyRawSocketHandler myRawSocketHandler;
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        // Bật broker cho các kênh mà server sẽ gửi dữ liệu tới client:
-        config.enableSimpleBroker(
-                "/receiver",        // Gửi tin nhắn cá nhân
-                "/notification",    // Gửi thông báo hệ thống
-                "/blog"             // Gửi bình luận blog theo blogId
-        );
-
-        // Prefix client gửi tới server (ví dụ: /app/chat)
-        config.setApplicationDestinationPrefixes("/app");
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(myRawSocketHandler, "/ws-raw")
+                .setAllowedOrigins("*");
     }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint để client kết nối websocket (gọi tới /ws)
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*") // Cho phép mọi domain (CORS)
-                .withSockJS();                 // Hỗ trợ SockJS fallback
+    @PostConstruct
+    public void logInit() {
+        System.out.println(" WebSocketConfig (Raw) initialized: /ws-raw endpoint ready.");
     }
 }
