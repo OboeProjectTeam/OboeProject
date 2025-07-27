@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,8 +53,10 @@ public class AdminController {
         try {
             adminService.deleteUser(id);
             return ResponseEntity.ok("Xoá người dùng thành công.");
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(404).body("Không tìm thấy người dùng.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
         }
     }
 

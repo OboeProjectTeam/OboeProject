@@ -99,6 +99,10 @@ public class FlashCardService {
                 .toList();
     }
 
+    public List<FlashCards> getAllFlashCards() {
+        return flashCardRepository.findAll();
+    }
+
 
     @Transactional
     public FlashCards updateFlashCard(UUID cardId, FlashCardDto dto, UUID userId) {

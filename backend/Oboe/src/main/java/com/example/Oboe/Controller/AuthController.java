@@ -21,10 +21,7 @@
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
 
-    import java.util.HashMap;
-    import java.util.List;
-    import java.util.Map;
-    import java.util.Optional;
+    import java.util.*;
 
     @RestController
     @RequestMapping("/api/auth")
@@ -172,6 +169,14 @@
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong");
             }
         }
+
+        @DeleteMapping("/users/{id}")
+        public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("Tài khoản và dữ liệu liên quan đã được xóa.");
+        }
+
+
         @PostMapping("/uploadAvatar")
         public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file,
                                               Authentication authentication) {

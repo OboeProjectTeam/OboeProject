@@ -7,6 +7,7 @@ import com.example.Oboe.Entity.User;
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtUtil;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,16 +22,18 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
+
     @Value("${app.domain}")
     private String domain;
+
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
-
-    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, String domain) {
+    public CustomOAuth2SuccessHandler(UserService userService, JwtUtil jwtUtil, @Value("${app.domain}") String domain) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.domain = domain;
@@ -56,6 +59,17 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = oauth.getAttribute("email");
         String name = oauth.getAttribute("name") != null ? oauth.getAttribute("name") : "Unknown";
 
+        String avatar = null;
+        try {
+            Map<String, Object> pictureObj = (Map<String, Object>) oauth.getAttribute("picture");
+            if (pictureObj != null && pictureObj.get("data") instanceof Map) {
+                Map<String, Object> dataObj = (Map<String, Object>) pictureObj.get("data");
+                avatar = (String) dataObj.get("url");
+            }
+        } catch (Exception ex) {
+            System.out.println("Không thể lấy avatar từ Facebook: " + ex.getMessage());
+        }
+
         try {
             List<User> users = userService.findByUserNameAndAuthProvider(providerId, provider);
             User user;
@@ -65,7 +79,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
                 String lastName = name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "";
 
                 UserDTOs dto = new UserDTOs();
-                dto.setUserName(email != null ? email : providerId); // username là email nếu có
+                dto.setUserName(email != null ? email : providerId);
                 dto.setFirstName(firstName);
                 dto.setLastName(lastName);
                 dto.setVerified(true);
@@ -83,13 +97,28 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
-            String redirectUrl = domain + "/oauth2/redirect#token=" + token + "&provider=" + provider.name();
-            response.sendRedirect(redirectUrl);
+            // Gửi token qua Cookie
+            Cookie tokenCookie = new Cookie("JWT_TOKEN", token);
+            tokenCookie.setHttpOnly(false); //  JS đọc
+            tokenCookie.setSecure(false); // true nếu dùng HTTPS
+            tokenCookie.setPath("/");
+            tokenCookie.setMaxAge(60 * 60); // 1 giờ
+
+            response.addCookie(tokenCookie);
+
+            // Redirect về frontend không chứa token
+//            String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
+//            response.sendRedirect(redirectUrl);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"token\": \"" + token + "\", \"message\": \"OAuth2 login successful\"}");
+            response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
             response.sendRedirect(domain + "/login?error=" + errorMsg);
         }
+
         System.out.println("Redirecting to domain: " + domain);
     }
 }
