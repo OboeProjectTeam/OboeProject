@@ -23,8 +23,16 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     //Để thêm người comment gần nhất cho một bài blog
     Optional<Comment> findTopByReferenceIdOrderByCreatedAtDesc(UUID referenceId);
 
+    @Query("""
+    SELECT COUNT(c)
+    FROM Comment c
+    WHERE c.user.user_id = :userId
+      AND c.referenceId IN (
+        SELECT b.blogId FROM Blog b
+      )
+    """)
+    long countBlogCommentsByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT COUNT(c) FROM Comment c WHERE c.user.user_id = :userId")
-    long countCommentsByUserId(@Param("userId") UUID userId);
+
 
 }

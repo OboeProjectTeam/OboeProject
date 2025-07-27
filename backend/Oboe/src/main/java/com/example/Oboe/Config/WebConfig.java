@@ -100,14 +100,15 @@ public class WebConfig {
                                 "/oauth2/**",
                                 "/api/search/**",
                                 "/api/search",
-                                "/ws/**"
+                                "/ws/**",
+                                "/ws-raw"
                         ).permitAll()
                         // Chỉ cho phép GET cho các API sau mà không cần đăng nhập
                         .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()
-
+                        .requestMatchers("/ws/**", "/ws-raw").permitAll()
                         // Public cho Swagger
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()

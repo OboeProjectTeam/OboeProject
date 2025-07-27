@@ -1,21 +1,25 @@
 package com.example.Oboe.Service;
 
-import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CommentDTOs;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Entity.Notifications;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -28,24 +32,24 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserService userService;
     private final NotificationsRepository notificationsRepository;
-    private final SimpMessagingTemplate messagingTemplate;
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
-    private final SampleSentenceRepository sampleSentenceRepository;
+    private final SampleSentenceRepository sampleSentenceRepository ;
+
 
     public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository,
-                          SimpMessagingTemplate messagingTemplate,
                           KanjiRepository kanjiRepository,
-                          GrammarRepository grammarRepository,
+                          GrammarRepository grammarRepository
+                          ,
                           SampleSentenceRepository sampleSentenceRepository) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.blogRepository = blogRepository;
         this.notificationsRepository = notificationsRepository;
-        this.messagingTemplate = messagingTemplate;
         this.kanjiRepository = kanjiRepository;
         this.grammarRepository = grammarRepository;
         this.sampleSentenceRepository = sampleSentenceRepository;
+
 
     }
 
@@ -116,32 +120,31 @@ public class CommentService {
 
     //  Tạo comment mới (comment cha)
     public CommentDTOs createComment(UUID teamId, UUID userId, CommentDTOs dto) {
+        //  Lấy người gửi
         User sender = userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
         User receiver = null;
-        // Biến Check Blog
         boolean isBlog = false;
 
-        //  lấy blog check
+        //  Xác định loại nội dung
         Optional<Blog> blogOpt = blogRepository.findById(teamId);
         if (blogOpt.isPresent()) {
-            //nếu là Blog thì true
             isBlog = true;
             receiver = blogOpt.get().getUser();
         } else if (
                 !kanjiRepository.existsById(teamId) &&
                         !grammarRepository.existsById(teamId) &&
-                        !sampleSentenceRepository.existsById(teamId)
+                     !sampleSentenceRepository.existsById(teamId)
         ) {
-            // Nếu không phải bất kỳ loại nào
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nội dung phù hợp để bình luận");
         }
-        // lấy giờ việt nam
+
+        //  Lấy giờ Việt Nam
         ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
         LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
 
-        // Tạo Comment
+        //  Tạo Comment
         Comment comment = new Comment();
         comment.setTitle(dto.getTitle());
         comment.setContent(dto.getContent());
@@ -151,27 +154,37 @@ public class CommentService {
         Comment saved = commentRepository.save(comment);
         CommentDTOs commentDTO = toDTO(saved);
 
-        // chỉ gửi thông báo cho Comment cho Blog
-        if (isBlog) {
-            // Gửi WebSocket bình luận cho blog
-            messagingTemplate.convertAndSend(
-                    "/blog/" + teamId + "/comments",
-                    commentDTO
-            );
-            if (receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
-                // Gửi notification cho chủ blog
-                Notifications notification = new Notifications();
-                notification.setUser(receiver);
-                notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
-                notification.setRead(false);
-                notification.setUpdate_at(LocalDateTime.now());
+        //  Nếu là comment blog → tạo thông báo và gửi WebSocket
+        if (isBlog && receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
+            // Tạo thông báo
+            Notifications notification = new Notifications();
+            notification.setUser(receiver);
+            notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
+            notification.setRead(false);
+            notification.setUpdate_at(LocalDateTime.now());
 
-                Notifications savedNoti = notificationsRepository.save(notification);
+            Notifications savedNoti = notificationsRepository.save(notification);
 
-                messagingTemplate.convertAndSend(
-                        "/notification/" + receiver.getUser_id(),
-                        savedNoti.getText_notification()
-                );
+            // Gửi WebSocket nếu người nhận đang online
+            WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
+
+            if (receiverSession != null && receiverSession.isOpen()) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.registerModule(new JavaTimeModule());
+                    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+                    String commentJson = mapper.writeValueAsString(commentDTO);
+                    String notificationJson = mapper.writeValueAsString(savedNoti);
+
+                    // Gửi cả comment và notification
+                    receiverSession.sendMessage(new TextMessage(commentJson));
+                    receiverSession.sendMessage(new TextMessage(notificationJson));
+
+                } catch (IOException e) {
+                    e.printStackTrace(); // In ra thông tin lỗi
+                }
             }
         }
 
@@ -179,49 +192,75 @@ public class CommentService {
     }
 
 
+
     // Tạo phản hồi (comment con) dựa trên comment cha
     public CommentDTOs Commentreply(UUID parentCommentId, UUID userId, CommentDTOs dto) {
-        //  Lấy người gửi
+        // Lấy người gửi (sender) từ userId
         User sender = userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
-        //  Lấy comment cha
+        //  Lấy comment cha (parent comment)
         Comment parent = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bình luận cha"));
 
+        // Lấy giờ hiện tại theo múi giờ Việt Nam
         ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
         LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
-        //  Tạo phản hồi (comment con)
+
+        //  Tạo comment con (reply)
         Comment reply = new Comment();
         reply.setTitle(dto.getTitle());
         reply.setContent(dto.getContent());
         reply.setCreatedAt(vietnamTime);
         reply.setUser(sender);
         reply.setParentComment(parent);
-        reply.setreferenceId(parent.getreferenceId()); // blogId
+        reply.setreferenceId(parent.getreferenceId()); // giữ nguyên blogId hoặc teamId giống comment cha
 
+        // Lưu comment con vào database
         Comment savedReply = commentRepository.save(reply);
 
-        //  Gửi thông báo nếu người nhận khác người gửi
+        // Lấy người nhận (receiver) là người viết comment cha
         User receiver = parent.getUser();
-            if(receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
-                Notifications notification = new Notifications();
-                notification.setUser(receiver);
-                notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
-                notification.setRead(false);
-                notification.setUpdate_at(LocalDateTime.now());
 
-                Notifications savedNoti = notificationsRepository.save(notification);
+        //  Nếu người nhận khác người gửi → tạo và lưu thông báo
+        if (receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
+            Notifications notification = new Notifications();
+            notification.setUser(receiver); // Gửi tới người nhận
+            notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
+            notification.setRead(false);
+            notification.setUpdate_at(LocalDateTime.now());
 
-                // Gửi WebSocket thông báo riêng cho Comment cha
-                messagingTemplate.convertAndSend(
-                        "/notification/" + receiver.getUser_id(),
-                        savedNoti.getText_notification()
-                );
+            Notifications savedNoti = notificationsRepository.save(notification); // lưu thông báo vào DB
 
+            //  Gửi WebSocket nếu người nhận đang online
+            WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
+            if (receiverSession != null && receiverSession.isOpen()) {
+                try {
+                    // Chuyển đổi dữ liệu thành JSON
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.registerModule(new JavaTimeModule());
+                    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+                    // JSON của bình luận phản hồi
+                    String replyJson = mapper.writeValueAsString(toDTO(savedReply));
+                    // JSON của thông báo
+                    String notificationJson = mapper.writeValueAsString(savedNoti);
+
+                    // Gửi cả bình luận và thông báo qua WebSocket
+                    receiverSession.sendMessage(new TextMessage(replyJson));
+                    receiverSession.sendMessage(new TextMessage(notificationJson));
+
+                } catch (IOException e) {
+                    e.printStackTrace(); // In ra thông tin lỗi
+                }
             }
+        }
+
+        //  Trả về DTO của comment con
         return toDTO(savedReply);
     }
+
 
 
     //  Cập nhật comment (chỉ người tạo mới được sửa)
