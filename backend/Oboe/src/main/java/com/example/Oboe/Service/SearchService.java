@@ -43,6 +43,7 @@ public class SearchService {
                 for (Vocabulary v : vocabularyRepository.searchVocabulary(keyword)) {
                     Map<String, String> item = new HashMap<>();
                     item.put("type", "vocabulary");
+                    item.put("id", v.getVocalbId().toString());
                     item.put("word", v.getWords());
                     item.put("reading", v.getVietnamesePronunciation());
                     item.put("meaning", v.getMeanning());
@@ -54,6 +55,7 @@ public class SearchService {
                 for (Kanji k : kanjiRepository.searchKanji(keyword)) {
                     Map<String, String> item = new HashMap<>();
                     item.put("type", "kanji");
+                    item.put("id", k.getKanjiId().toString());
                     item.put("word", k.getCharacter_name());
                     item.put("reading", k.getVietnamesePronunciation());
                     item.put("meaning", k.getMeaning());
@@ -65,6 +67,7 @@ public class SearchService {
                 for (Grammar g : grammarRepository.searchGrammar(keyword)) {
                     Map<String, String> item = new HashMap<>();
                     item.put("type", "grammar");
+                    item.put("id:",g.getGrammaID().toString());
                     item.put("word", g.getStructure());
                     item.put("reading", g.getVietnamesePronunciation());
                     item.put("meaning", g.getExplanation());
@@ -76,6 +79,7 @@ public class SearchService {
                 for (SampleSentence s : sampleSentenceRepository.searchByVietnameseMeaning(keyword)) {
                     Map<String, String> item = new HashMap<>();
                     item.put("type", "sentence");
+                    item.put("id:",s.getSample_sentence_id().toString());
                     item.put("word", s.getJapaneseText());
                     item.put("reading", s.getVietnamesePronunciation());
                     item.put("meaning", s.getVietnameseMeaning());
