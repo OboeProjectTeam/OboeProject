@@ -97,6 +97,11 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             UserDetails principal = userService.loadUserByUsernameAndProvider(user.getUserName(), provider);
             String token = jwtUtil.generateToken(principal, provider.name());
 
+            System.out.println("=== OAUTH2 SUCCESS HANDLER ===");
+            System.out.println("Generated token: " + token.substring(0, 20) + "...");
+            System.out.println("Provider: " + provider.name());
+            System.out.println("Domain: " + domain);
+
             // Gửi token qua Cookie
             Cookie tokenCookie = new Cookie("JWT_TOKEN", token);
             tokenCookie.setHttpOnly(false); //  JS đọc
@@ -105,6 +110,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             tokenCookie.setMaxAge(60 * 60); // 1 giờ
 
             response.addCookie(tokenCookie);
+            System.out.println("Cookie added: JWT_TOKEN");
 
 //             Redirect về frontend không chứa token
             String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
@@ -113,6 +119,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("{\"token\": \"" + token + "\", \"message\": \"OAuth2 login successful\"}");
             response.setStatus(HttpServletResponse.SC_OK);
+
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);

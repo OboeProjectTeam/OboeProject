@@ -5,7 +5,7 @@ import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.TopicPostProjection;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Service.BlogService;
-import com.example.Oboe.response.BaseResponse;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
