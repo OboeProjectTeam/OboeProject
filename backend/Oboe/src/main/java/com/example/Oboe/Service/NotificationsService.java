@@ -32,7 +32,6 @@ public class NotificationsService {
 
         Pageable top30 = PageRequest.of(0, 30); // chỉ lấy 30 thông báo mới nhất
         List<Notifications> notifications = notificationsRepository.findConversation(userId,top30);
-        Collections.reverse(notifications);//chuyển thông báo mới nhất mới tới cũ
         return notifications.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());

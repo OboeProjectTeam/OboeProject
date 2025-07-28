@@ -20,4 +20,9 @@ public class SessionManager {
     public static WebSocketSession getSession(UUID userId) {
         return sessions.get(userId);
     }
+    public static Map<UUID, WebSocketSession> getAllSessions() {
+        return sessions;
+    }
+
+
 }

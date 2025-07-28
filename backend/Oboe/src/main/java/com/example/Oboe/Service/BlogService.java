@@ -7,7 +7,7 @@ import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.response.BaseResponse;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +62,7 @@ public class BlogService {
     public BlogDTO getBlogDTOById(UUID id) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
         if (blogOpt.isEmpty()) {
-            System.out.println(Constant.BLOG_NOT_FOUND);
+
             return null;
         }
         return toDTO(blogOpt.get());

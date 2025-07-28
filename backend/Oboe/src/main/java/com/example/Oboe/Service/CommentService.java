@@ -35,11 +35,13 @@ public class CommentService {
     private final KanjiRepository kanjiRepository;
     private final GrammarRepository grammarRepository;
     private final SampleSentenceRepository sampleSentenceRepository ;
+    private final VocabularyRepository vocabularyRepository ;
 
 
     public CommentService(CommentRepository commentRepository, UserService userService, BlogRepository blogRepository, NotificationsRepository notificationsRepository,
                           KanjiRepository kanjiRepository,
-                          GrammarRepository grammarRepository
+                          GrammarRepository grammarRepository,
+                          VocabularyRepository vocabularyRepository
                           ,
                           SampleSentenceRepository sampleSentenceRepository) {
         this.commentRepository = commentRepository;
@@ -49,6 +51,7 @@ public class CommentService {
         this.kanjiRepository = kanjiRepository;
         this.grammarRepository = grammarRepository;
         this.sampleSentenceRepository = sampleSentenceRepository;
+        this.vocabularyRepository = vocabularyRepository;
 
 
     }
@@ -135,7 +138,8 @@ public class CommentService {
         } else if (
                 !kanjiRepository.existsById(teamId) &&
                         !grammarRepository.existsById(teamId) &&
-                     !sampleSentenceRepository.existsById(teamId)
+                     !sampleSentenceRepository.existsById(teamId)&&
+                        !vocabularyRepository.existsById(teamId)
         ) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy nội dung phù hợp để bình luận");
         }
