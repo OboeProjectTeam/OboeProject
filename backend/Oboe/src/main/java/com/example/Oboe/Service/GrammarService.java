@@ -1,8 +1,11 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.GrammarDTO;
+import com.example.Oboe.DTOs.ReadingDTO;
 import com.example.Oboe.Entity.Grammar;
+import com.example.Oboe.Entity.Reading;
 import com.example.Oboe.Repository.GrammarRepository;
+import com.example.Oboe.Repository.ReadingRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,9 +23,11 @@ import java.util.stream.Collectors;
 public class GrammarService {
 
     private final GrammarRepository grammarRepository;
+    private final ReadingRepository readingRepository;
 
-    public GrammarService(GrammarRepository grammarRepository) {
+    public GrammarService(GrammarRepository grammarRepository,ReadingRepository readingRepository) {
         this.grammarRepository = grammarRepository;
+        this.readingRepository = readingRepository;
     }
 
     // Get all grammar with pagination
@@ -113,7 +118,20 @@ public class GrammarService {
         dto.setExample(grammar.getExample());
         dto.setGrammarType(grammar.getGrammarType());
         dto.setVietnamesePronunciation(grammar.getVietnamesePronunciation());
+        List<ReadingDTO> readingDTOs = readingRepository.findByOwnerTypeAndOwnerId("grammar", grammar.getGrammaID())
+                .stream().map(this::readingToDTO).collect(Collectors.toList());
+        dto.setReadings(readingDTOs);
         return dto;
+    }
+
+    private ReadingDTO readingToDTO(Reading r) {
+        return new ReadingDTO(
+                r.getReadingID(),
+                r.getReadingText(),
+                r.getReadingType(),
+                r.getOwnerType(),
+                r.getOwnerId()
+        );
     }
 
     //  Check role

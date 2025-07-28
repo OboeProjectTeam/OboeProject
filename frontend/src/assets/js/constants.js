@@ -3,23 +3,23 @@ export const APP_NAME = 'Oboe';
 export const APP_DESCRIPTION = 'Nền tảng học tiếng Nhật thông minh';
 
 // API Endpoints
-export const API = {
-  AUTH: {
-    LOGIN: '/api/auth/login',
-    REGISTER: '/api/auth/register',
-    LOGOUT: '/api/auth/logout'
-  },
-  USER: {
-    PROFILE: '/api/user/profile',
-    UPDATE: '/api/user/update',
-    CHANGE_PASSWORD: '/api/user/change-password'
-  },
-  FLASHCARD: {
-    CREATE: '/api/flashcard/create',
-    LIST: '/api/flashcard/list',
-    DELETE: '/api/flashcard/delete'
-  }
-};
+// export const API = {
+//   AUTH: {
+//     LOGIN: '/api/auth/login',
+//     REGISTER: '/api/auth/register',
+//     LOGOUT: '/api/auth/logout'
+//   },
+//   USER: {
+//     PROFILE: '/api/user/profile',
+//     UPDATE: '/api/user/update',
+//     CHANGE_PASSWORD: '/api/user/change-password'
+//   },
+//   FLASHCARD: {
+//     CREATE: '/api/flashcard/create',
+//     LIST: '/api/flashcard/list',
+//     DELETE: '/api/flashcard/delete'
+//   }
+// };
 
 // Pricing Constants
 export const PRICING = {

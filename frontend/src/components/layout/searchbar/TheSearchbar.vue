@@ -106,46 +106,32 @@ const performSearch = async (query) => {
     isLoading.value = true
     const searchType = getSearchType()
     
-    // Mock data for testing when backend is not available
-    const mockData = {
-      vocabulary: [
-        { vocalbId: "vocab-1", id: "vocab-1", word: "覚え", reading: "おぼえ", meaning: "ghi nhớ", type: "vocabulary" },
-        { vocalbId: "vocab-2", id: "vocab-2", word: "お盆", reading: "おぼん", meaning: "lễ Obon", type: "vocabulary" },
-        { vocalbId: "vocab-3", id: "vocab-3", word: "朧う", reading: "おぼろ", meaning: "mờ ảo", type: "vocabulary" }
-      ],
-      kanji: [
-        { kanjiId: "kanji-1", id: "kanji-1", word: "水", reading: "すい", meaning: "nước", type: "kanji" },
-        { kanjiId: "kanji-2", id: "kanji-2", word: "木", reading: "もく", meaning: "cây", type: "kanji" },
-        { kanjiId: "kanji-3", id: "kanji-3", word: "土", reading: "ど", meaning: "đất", type: "kanji" }
-      ],
-      grammar: [
-        { grammarId: "grammar-1", id: "grammar-1", word: "です", reading: "", meaning: "là (lịch sự)", type: "grammar" },
-        { grammarId: "grammar-2", id: "grammar-2", word: "ます", reading: "", meaning: "thể lịch sự", type: "grammar" },
-        { grammarId: "grammar-3", id: "grammar-3", word: "だ", reading: "", meaning: "là (thường)", type: "grammar" }
-      ],
-      sentence: [
-        { id: "sentence-1", word: "こんにちは", reading: "", meaning: "Xin chào", type: "sentence" },
-        { id: "sentence-2", word: "ありがとう", reading: "", meaning: "Cảm ơn", type: "sentence" },
-        { id: "sentence-3", word: "すみません", reading: "", meaning: "Xin lỗi", type: "sentence" }
-      ]
-    }
+    console.log('=== Search API Call ===')
+    console.log('Query:', query)
+    console.log('Search Type:', searchType)
+    console.log('Active Index:', activeIndex.value)
     
-    try {
-      // Try to use real API first
-      const response = await api.search.search(query, searchType)
-      const results = Array.isArray(response) ? response : (response.content || response.data || [])
-      searchResults.value = results.slice(0, 10)
-    } catch (error) {
-      console.warn('API not available, using mock data:', error)
-      // Fallback to mock data
-      const results = mockData[searchType] || []
-      searchResults.value = results.filter(item => 
-        item.word.toLowerCase().includes(query.toLowerCase()) ||
-        item.reading.toLowerCase().includes(query.toLowerCase()) ||
-        item.meaning.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 10)
-    }
+    // Use real API
+    const response = await api.search.search(query, searchType)
+    console.log('Raw API response:', response)
     
+    // API trả về array của objects với structure: {id, type, word, reading, meaning}
+    const results = Array.isArray(response) ? response : (response.content || response.data || [])
+    console.log('Processed results:', results)
+    console.log('Results length:', results.length)
+    
+    // Log từng item để debug
+    results.forEach((item, index) => {
+      console.log(`Item ${index}:`, {
+        id: item.id,
+        type: item.type,
+        word: item.word,
+        reading: item.reading,
+        meaning: item.meaning
+      })
+    })
+    
+    searchResults.value = results.slice(0, 10)
     showSuggestions.value = true
     
   } catch (error) {
@@ -179,6 +165,12 @@ const clearSearch = () => {
 
 const selectSuggestion = (item) => {
   try {
+    console.log('=== selectSuggestion called ===')
+    console.log('Selected item:', item)
+    console.log('Item type:', item.type)
+    console.log('Item ID:', item.id)
+    console.log('Item word:', item.word)
+    
     // Set search query to the word from API response
     searchQuery.value = item.word || ''
     
@@ -193,83 +185,50 @@ const selectSuggestion = (item) => {
 }
 
 const navigateToDetail = (item) => {
-  console.log('Navigating to detail for item:', item) // Debug log
+  console.log('=== Navigation Debug ===')
+  console.log('Navigating to detail for item:', item)
   
   try {
-    let itemId;
-    let routePath;
+    // API mới trả về cấu trúc chuẩn: {id, type, word, reading, meaning}
+    const itemId = item.id
+    console.log('Using item.id:', itemId)
     
-    // Get correct ID field based on item type
+    if (!itemId) {
+      console.error('Cannot navigate: missing itemId', item)
+      return
+    }
+    
+    // Map type to route path (theo router configuration)
+    let routeType
     switch (item.type) {
       case 'vocabulary':
-        itemId = item.vocalbId || item.id || item.wordId
-        routePath = '/word'
+        routeType = 'word'  // Route: /word/:id
         break
       case 'kanji':
-        itemId = item.kanjiId || item.id || item.characterId
-        routePath = '/kanji'
+        routeType = 'kanji'  // Route: /kanji/:id
         break
       case 'grammar':
-        itemId = item.grammarId || item.id || item.structureId
-        routePath = '/grammar'
+        routeType = 'grammar'  // Route: /grammar/:id
         break
       case 'sentence':
-        itemId = item.id || item.sentenceId
-        routePath = '/sentence'
+        routeType = 'sentence'  // Route: /sentence/:id
         break
       default:
-        // Fallback to activeIndex mapping if type is not available
-        if (isWord.value) {
-          itemId = item.vocalbId || item.id || item.wordId || 'vocab-1'
-          routePath = '/word'
-        } else if (isKanji.value) {
-          itemId = item.kanjiId || item.id || item.characterId || 'kanji-1'
-          routePath = '/kanji'
-        } else if (isGrammar.value) {
-          itemId = item.grammarId || item.id || item.structureId || 'grammar-1'
-          routePath = '/grammar'
-        } else if (isSentence.value) {
-          itemId = item.id || item.sentenceId || 'sentence-1'
-          routePath = '/sentence'
-        }
-        break
+        console.error('Unknown item type:', item.type)
+        return
     }
     
-    // If still no itemId, generate one based on type and word
-    if (!itemId) {
-      const searchType = getSearchType()
-      switch (searchType) {
-        case 'vocabulary':
-          itemId = 'vocab-1'
-          routePath = '/word'
-          break
-        case 'kanji':
-          itemId = 'kanji-1'
-          routePath = '/kanji'
-          break
-        case 'grammar':
-          itemId = 'grammar-1'
-          routePath = '/grammar'
-          break
-        case 'sentence':
-          itemId = 'sentence-1'
-          routePath = '/sentence'
-          break
-        default:
-          itemId = 'vocab-1'
-          routePath = '/word'
-      }
-    }
+    const fullPath = `/${routeType}/${itemId}`
+    console.log('Navigating to:', fullPath)
     
-    console.log('Navigation details:', { itemId, routePath, item }) // Debug log
-    
-    if (itemId && routePath) {
-      const fullPath = `${routePath}/${itemId}`
-      console.log('Navigating to:', fullPath) // Debug log
-      router.push(fullPath)
-    } else {
-      console.error('Cannot navigate: missing itemId or routePath', { itemId, routePath, item })
-    }
+    router.push(fullPath)
+      .then(() => {
+        console.log('Navigation successful to:', fullPath)
+      })
+      .catch((error) => {
+        console.error('Navigation failed:', error)
+      })
+      
   } catch (error) {
     console.error('Error in navigateToDetail:', error)
   }
