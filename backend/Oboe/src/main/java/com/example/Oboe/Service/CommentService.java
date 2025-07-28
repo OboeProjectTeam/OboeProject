@@ -165,7 +165,7 @@ public class CommentService {
             notification.setUser(receiver);
             notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
             notification.setRead(false);
-            notification.setUpdate_at(LocalDateTime.now());
+            notification.setUpdate_at(vietnamTime);
 
             Notifications savedNoti = notificationsRepository.save(notification);
 
