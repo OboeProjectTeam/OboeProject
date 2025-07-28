@@ -135,6 +135,7 @@ public class VocabularyService {
         dto.setMeanning(vocab.getMeanning());
         dto.setWordType(vocab.getWordType());
         dto.setScriptType(vocab.getScriptType());
+        dto.setKanjiId(vocab.getKanji().getKanjiId());
 
         List<ReadingDTO> readingDTOs = readingRepository.findByOwnerTypeAndOwnerId("vocabulary", vocab.getVocalbId())
                 .stream().map(this::readingToDTO).collect(Collectors.toList());

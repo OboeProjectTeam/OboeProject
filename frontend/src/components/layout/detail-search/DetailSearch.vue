@@ -27,7 +27,7 @@
       <!-- Main Content -->
       <div class="main-info">
         <h1 class="main-text">{{ item[mainField] }}</h1>
-        <div v-if="item[readingField]" class="reading-text">{{ item[readingField] }}</div>
+        <div v-if="readingField && item[readingField]" class="reading-text">{{ item[readingField] }}</div>
         <div class="meaning-text">{{ item[meaningField] }}</div>
       </div>
 
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import CommentSection from '@/components/layout/comment/CommentSection.vue';
@@ -185,7 +185,11 @@ export default defineComponent({
     };
 
     const toggleFavorite = () => {
-      if (!props.item) return;
+      if (!props.item) {
+        console.error('No item provided');
+        return;
+      }
+      
       store.dispatch('user/toggleFavorite', { 
         type: favoriteType.value, 
         item: props.item 
@@ -208,6 +212,11 @@ export default defineComponent({
       }
     };
 
+    // Load favorites when component mounts
+    onMounted(() => {
+      store.dispatch('user/fetchFavorites');
+    });
+
     return {
       onRelatedItemClick,
       isFavorite,
@@ -223,4 +232,4 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @use "@/components/layout/detail-search/DetailSearch.scss";
-</style> 
+</style>

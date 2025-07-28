@@ -65,7 +65,7 @@
             notification.setUser(receiver);
             notification.setText_notification("Bạn nhận được một tin nhắn mới từ " + sender.getUserName());
             notification.setRead(false);
-            notification.setUpdate_at(LocalDateTime.now());
+            notification.setUpdate_at(localDateTimeVN);
 
             notificationsRepository.save(notification);
 

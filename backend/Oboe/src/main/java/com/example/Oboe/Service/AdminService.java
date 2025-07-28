@@ -125,7 +125,6 @@ public class AdminService {
 
         blogRepository.deleteUser(id);
 
-        flashCardRepository.deleteUser(id);
 
         userRepository.delete(user);
     }
