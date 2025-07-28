@@ -1,6 +1,6 @@
 // src/api/modules/oauthApi.js
 
-const BASE_URL = 'https://oboeru.me/oauth2/authorization';
+const BASE_URL = 'https://oboeru.me/login/oauth2/code';
 
 const oauthApi = {
   getGoogleAuthUrl() {
