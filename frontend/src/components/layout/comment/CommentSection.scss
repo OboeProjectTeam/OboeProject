@@ -1,4 +1,5 @@
 @use '@/assets/css/index.scss' as *;
+@use 'sass:color';
 
 .comment-section {
   margin-top: 3rem;
@@ -19,31 +20,59 @@
   width: 100%;
   padding: 1rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
   resize: vertical;
   margin-bottom: 1rem;
   font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px color.adjust($primary-color, $alpha: -0.7);
+  }
 }
 
 .comment-form button {
-  padding: 0.5rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background-color: $primary-color;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-}
-
-.comment-form button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover:not(:disabled) {
+    background-color: color.adjust($primary-color, $lightness: -5%);
+    transform: translateY(-1px);
+  }
+  
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .fa-spinner {
+    animation: spin 1s linear infinite;
+  }
 }
 
 .comment-item {
   padding: 1rem;
   border-bottom: 1px solid #eee;
   margin-bottom: 1rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #f8f9fa;
+  }
 }
 
 .comment-header {
@@ -87,5 +116,113 @@
   color: #666;
   padding: 2rem;
   background-color: #f9f9f9;
-  border-radius: 4px;
+  border-radius: 8px;
+}
+
+// Loading states
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #666;
+  
+  &::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+  }
+}
+
+// Load more button
+.load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  
+  button {
+    padding: 0.75rem 2rem;
+    background-color: transparent;
+    color: $primary-color;
+    border: 2px solid $primary-color;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    
+    &:hover:not(:disabled) {
+      background-color: $primary-color;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px color.adjust($primary-color, $alpha: -0.6);
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .fa-spinner {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+// Replies styling
+.replies {
+  margin-top: 1rem;
+  padding-left: 2rem;
+  border-left: 2px solid #e9ecef;
+}
+
+.reply-item {
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid $primary-color;
+}
+
+// Spinner animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Mobile responsive
+@include mobile-only {
+  .comment-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+  
+  .comment-form textarea {
+    padding: 0.75rem;
+  }
+  
+  .comment-form button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .load-more button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .replies {
+    padding-left: 1rem;
+  }
 }

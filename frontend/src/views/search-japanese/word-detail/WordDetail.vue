@@ -1,27 +1,20 @@
 <template>
   <DetailPage
     type="word"
-    :item="selectedWord"
+    :item="wordData"
     :itemId="wordId"
-    mainField="kanji"
-    readingField="kana"
-    meaningField="meaning"
-    :showRelated="true"
-    :relatedItems="relatedKanji"
-    relatedTitle="Hán tự liên quan"
-    relatedMainField="kanji"
-    relatedKeyField="kanji"
-    emptyRelatedMessage="Không có Hán tự liên quan"
+    mainField="words"
+    readingField=""
+    meaningField="meanning"
     notFoundMessage="Không tìm thấy từ vựng"
-    @relatedItemClick="navigateToKanjiDetail"
   />
 </template>
 
 <script>
-import { computed, watch, ref } from 'vue';
-import { useStore } from 'vuex';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
+import vocabularyApi from '@/api/modules/vocabularyApi';
 
 export default {
   name: 'WordDetail',
@@ -29,18 +22,35 @@ export default {
     DetailPage
   },
   setup() {
-    const store = useStore();
     const route = useRoute();
     const router = useRouter();
-    const wordId = ref(route.params.id); // Keep as string for UUID
+    const wordId = ref(route.params.id);
+    const wordData = ref(null);
+    const isLoading = ref(false);
 
     // Function to fetch word data
-    const fetchWordData = (id) => {
-      store.dispatch('search/getWordById', id);
+    const fetchWordData = async (id) => {
+      try {
+        isLoading.value = true;
+        console.log('Fetching word data for ID:', id); // Debug log
+        const response = await vocabularyApi.getById(id);
+        console.log('Word API response:', response); // Debug log
+        wordData.value = response;
+        console.log('Word data set to:', wordData.value); // Debug log
+      } catch (error) {
+        console.error('Error fetching word data:', error);
+        wordData.value = null;
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     // Initial fetch
-    fetchWordData(wordId.value);
+    onMounted(() => {
+      if (wordId.value) {
+        fetchWordData(wordId.value);
+      }
+    });
 
     // Watch for route changes
     watch(
@@ -53,23 +63,10 @@ export default {
       }
     );
 
-    const selectedWord = computed(() => store.getters['search/selectedWord']);
-    const relatedKanji = computed(() => {
-      const word = selectedWord.value;
-      if (!word) return [];
-      return store.getters['search/getRelatedKanjiList'](word);
-    });
-
-    const navigateToKanjiDetail = (kanji) => {
-      // Navigate using kanji ID instead of character
-      router.push({ name: 'KanjiDetail', params: { id: kanji.kanjiId || kanji.id } });
-    };
-
     return {
-      selectedWord,
-      relatedKanji,
-      navigateToKanjiDetail,
-      wordId
+      wordData,
+      wordId,
+      isLoading
     };
   }
 };

@@ -106,30 +106,6 @@ const performSearch = async (query) => {
     isLoading.value = true
     const searchType = getSearchType()
     
-    // Mock data for testing when backend is not available
-    const mockData = {
-      vocabulary: [
-        { vocalbId: "vocab-1", id: "vocab-1", word: "覚え", reading: "おぼえ", meaning: "ghi nhớ", type: "vocabulary" },
-        { vocalbId: "vocab-2", id: "vocab-2", word: "お盆", reading: "おぼん", meaning: "lễ Obon", type: "vocabulary" },
-        { vocalbId: "vocab-3", id: "vocab-3", word: "朧う", reading: "おぼろ", meaning: "mờ ảo", type: "vocabulary" }
-      ],
-      kanji: [
-        { kanjiId: "kanji-1", id: "kanji-1", word: "水", reading: "すい", meaning: "nước", type: "kanji" },
-        { kanjiId: "kanji-2", id: "kanji-2", word: "木", reading: "もく", meaning: "cây", type: "kanji" },
-        { kanjiId: "kanji-3", id: "kanji-3", word: "土", reading: "ど", meaning: "đất", type: "kanji" }
-      ],
-      grammar: [
-        { grammarId: "grammar-1", id: "grammar-1", word: "です", reading: "", meaning: "là (lịch sự)", type: "grammar" },
-        { grammarId: "grammar-2", id: "grammar-2", word: "ます", reading: "", meaning: "thể lịch sự", type: "grammar" },
-        { grammarId: "grammar-3", id: "grammar-3", word: "だ", reading: "", meaning: "là (thường)", type: "grammar" }
-      ],
-      sentence: [
-        { id: "sentence-1", word: "こんにちは", reading: "", meaning: "Xin chào", type: "sentence" },
-        { id: "sentence-2", word: "ありがとう", reading: "", meaning: "Cảm ơn", type: "sentence" },
-        { id: "sentence-3", word: "すみません", reading: "", meaning: "Xin lỗi", type: "sentence" }
-      ]
-    }
-    
     try {
       // Try to use real API first
       const response = await api.search.search(query, searchType)
@@ -137,8 +113,7 @@ const performSearch = async (query) => {
       searchResults.value = results.slice(0, 10)
     } catch (error) {
       console.warn('API not available, using mock data:', error)
-      // Fallback to mock data
-      const results = mockData[searchType] || []
+      
       searchResults.value = results.filter(item => 
         item.word.toLowerCase().includes(query.toLowerCase()) ||
         item.reading.toLowerCase().includes(query.toLowerCase()) ||

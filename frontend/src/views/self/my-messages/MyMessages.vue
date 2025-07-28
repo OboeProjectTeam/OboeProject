@@ -242,13 +242,13 @@ const loadChatPartners = async () => {
     store.commit('message/setChatPartners', partnersData)
     
     // Show success message
-    store.dispatch('showMessage', {
+    store.dispatch('message/showMessage', {
       type: 'success',
       text: `Đã tải ${mappedConversations.length} cuộc trò chuyện`
     })
   } catch (error) {
     // Show error message
-    store.dispatch('showMessage', {
+    store.dispatch('message/showMessage', {
       type: 'error',
       text: 'Không thể tải danh sách tin nhắn: ' + error.message
     })
@@ -365,7 +365,7 @@ const selectChat = async (chat) => {
   } catch (error) {
     
     // Show error message
-    store.dispatch('showMessage', {
+    store.dispatch('message/showMessage', {
       type: 'error',
       text: 'Không thể tải cuộc trò chuyện: ' + error.message
     })
@@ -439,7 +439,7 @@ const sendMessage = async () => {
     
   } catch (error) {
     // Show error message
-         store.dispatch('showMessage', {
+         store.dispatch('message/showMessage', {
        type: 'error',
        text: 'Không thể gửi tin nhắn: ' + error.message
      })
@@ -582,7 +582,7 @@ const handleIncomingUser = () => {
       selectChat(newChat)
       
       // Show notification
-      store.dispatch('showMessage', {
+      store.dispatch('message/showMessage', {
         type: 'info',
         text: `Bắt đầu cuộc trò chuyện với ${newChat.name}`
       })
@@ -687,4 +687,4 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @use '@/views/self/my-messages/MyMessages.scss';
-</style> 
+</style>

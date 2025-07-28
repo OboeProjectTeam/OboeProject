@@ -27,7 +27,7 @@
       <!-- Main Content -->
       <div class="main-info">
         <h1 class="main-text">{{ item[mainField] }}</h1>
-        <div v-if="item[readingField]" class="reading-text">{{ item[readingField] }}</div>
+        <div v-if="readingField && item[readingField]" class="reading-text">{{ item[readingField] }}</div>
         <div class="meaning-text">{{ item[meaningField] }}</div>
       </div>
 
@@ -223,4 +223,4 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @use "@/components/layout/detail-search/DetailSearch.scss";
-</style> 
+</style>
