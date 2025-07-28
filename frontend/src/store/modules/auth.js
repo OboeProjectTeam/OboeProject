@@ -35,7 +35,7 @@ const actions = {
     commit('SET_TOKEN', token);
 
     try {
-      const user = await api.profile.getProfile();
+      // const user = await api.profile.getProfile();
       commit('SET_USER', user);
     } catch (error) {
       console.error('Lỗi lấy user từ token:', error);
@@ -93,7 +93,7 @@ const actions = {
   // Tải lại profile từ server
   async refreshProfile({ commit }) {
     try {
-      const user = await api.profile.getProfile();
+      // const user = await api.profile.getProfile();
       commit('SET_USER', user);
       return user;
     } catch (error) {

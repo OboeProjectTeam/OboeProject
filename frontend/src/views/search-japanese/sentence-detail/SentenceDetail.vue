@@ -1,7 +1,7 @@
 <template>
   <DetailPage
     type="sentence"
-    :item="selectedSentence"
+    :item="sentenceData"
     :itemId="sentenceId"
     mainField="japaneseText"
     readingField=""
@@ -11,10 +11,10 @@
 </template>
 
 <script>
-import { computed, watch, ref } from 'vue';
-import { useStore } from 'vuex';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
+import sampleSentenceApi from '@/api/modules/sampleSentenceApi';
 
 export default {
   name: 'SentenceDetail',
@@ -22,17 +22,31 @@ export default {
     DetailPage
   },
   setup() {
-    const store = useStore();
     const route = useRoute();
-    const sentenceId = ref(route.params.id); // Keep as string for UUID
+    const sentenceId = ref(route.params.id);
+    const sentenceData = ref(null);
+    const isLoading = ref(false);
 
     // Function to fetch sentence data
-    const fetchSentenceData = (id) => {
-      store.dispatch('search/getSentenceById', id);
+    const fetchSentenceData = async (id) => {
+      try {
+        isLoading.value = true;
+        const response = await sampleSentenceApi.getById(id);
+        sentenceData.value = response;
+      } catch (error) {
+        console.error('Error fetching sentence data:', error);
+        sentenceData.value = null;
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     // Initial fetch
-    fetchSentenceData(sentenceId.value);
+    onMounted(() => {
+      if (sentenceId.value) {
+        fetchSentenceData(sentenceId.value);
+      }
+    });
 
     // Watch for route changes
     watch(
@@ -45,11 +59,10 @@ export default {
       }
     );
 
-    const selectedSentence = computed(() => store.getters['search/selectedSentence']);
-
     return {
-      selectedSentence,
-      sentenceId
+      sentenceData,
+      sentenceId,
+      isLoading
     };
   }
 };

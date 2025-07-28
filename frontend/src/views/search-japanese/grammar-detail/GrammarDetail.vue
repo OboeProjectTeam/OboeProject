@@ -1,22 +1,20 @@
 <template>
   <DetailPage
     type="grammar"
-    :item="selectedGrammar"
+    :item="grammarData"
     :itemId="grammarId"
-    mainField="kana"
-    readingField="romaji"
-    meaningField="meaning"
-    :showExamples="true"
-    exampleField="example"
+    mainField="structure"
+    readingField="vietnamesePronunciation"
+    meaningField="explanation"
     notFoundMessage="Không tìm thấy ngữ pháp"
   />
 </template>
 
 <script>
-import { computed, watch, ref } from 'vue';
-import { useStore } from 'vuex';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
+import grammarApi from '@/api/modules/grammarApi';
 
 export default {
   name: 'GrammarDetail',
@@ -24,17 +22,34 @@ export default {
     DetailPage
   },
   setup() {
-    const store = useStore();
     const route = useRoute();
-    const grammarId = ref(route.params.id); // Keep as string for UUID
+    const grammarId = ref(route.params.id);
+    const grammarData = ref(null);
+    const isLoading = ref(false);
 
     // Function to fetch grammar data
-    const fetchGrammarData = (id) => {
-      store.dispatch('search/getGrammarById', id);
+    const fetchGrammarData = async (id) => {
+      try {
+        console.log('Fetching grammar data for ID:', id);
+        isLoading.value = true;
+        const response = await grammarApi.getById(id);
+        console.log('Grammar API response:', response);
+        grammarData.value = response;
+        console.log('Grammar data set:', grammarData.value);
+      } catch (error) {
+        console.error('Error fetching grammar data:', error);
+        grammarData.value = null;
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     // Initial fetch
-    fetchGrammarData(grammarId.value);
+    onMounted(() => {
+      if (grammarId.value) {
+        fetchGrammarData(grammarId.value);
+      }
+    });
 
     // Watch for route changes
     watch(
@@ -47,11 +62,10 @@ export default {
       }
     );
 
-    const selectedGrammar = computed(() => store.getters['search/selectedGrammar']);
-
     return {
-      selectedGrammar,
-      grammarId
+      grammarData,
+      grammarId,
+      isLoading
     };
   }
 };
