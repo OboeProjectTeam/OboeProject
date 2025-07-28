@@ -128,22 +128,31 @@ const actions = {
     }
   },
 
-  async toggleFavorite({ commit, dispatch, state }, { type, item }) {
-    console.log('Toggle favorite called with:', { type, item });
+  async toggleFavorite({ commit, dispatch, state }, { type, itemId }) {
+    console.log('Toggle favorite called with:', { type, itemId });
     
-    if (!item) {
-      console.error('Invalid item for toggle favorite:', item);
-      return;
-    }
-
-    const itemId = getItemId(item, type);
     if (!itemId) {
-      console.error('Could not extract ID from item:', item, 'for type:', type);
+      console.error('Invalid itemId for toggle favorite:', itemId);
       return;
     }
 
     try {
-      const existingFavorite = findFavoriteByItem(state.favoriteItems, type, item);
+      // Find existing favorite by itemId and type
+      const existingFavorite = state.favoriteItems.find(fav => {
+        switch (type) {
+          case 'word':
+            return fav.vocabularyId === itemId;
+          case 'grammar':
+            return fav.grammarId === itemId;
+          case 'kanji':
+            return fav.kanjiId === itemId;
+          case 'sentence':
+            return fav.sampleSentenceId === itemId;
+          default:
+            return false;
+        }
+      });
+      
       console.log('Existing favorite found:', existingFavorite);
       
       if (existingFavorite) {
@@ -160,8 +169,7 @@ const actions = {
         
         // Set the appropriate ID field based on type
         switch (type) {
-          case 'vocabulary':
-          case 'word': // Handle 'word' as alias for 'vocabulary'
+          case 'word':
             favoriteDTO.vocabularyId = itemId;
             break;
           case 'grammar':
@@ -170,8 +178,7 @@ const actions = {
           case 'kanji':
             favoriteDTO.kanjiId = itemId;
             break;
-          case 'sentences':
-          case 'sentence': // Handle 'sentence' as alias for 'sentences'
+          case 'sentence':
             favoriteDTO.sampleSentenceId = itemId;
             break;
           default:

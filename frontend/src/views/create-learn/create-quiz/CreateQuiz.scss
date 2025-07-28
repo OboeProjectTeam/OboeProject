@@ -292,14 +292,40 @@
   @include font-size(1rem);
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  @include flex-center;
+  gap: 8px;
 
   @include mobile-only {
     padding: 10px 18px;
     @include font-size(10px);
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: $hover-btn-color;
+    transform: translateY(-1px);
   }
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  i {
+    @include font-size(14px);
+    
+    @include mobile-only {
+      @include font-size(12px);
+    }
+  }
+
+  .fa-spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
