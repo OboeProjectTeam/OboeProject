@@ -34,6 +34,12 @@ export default {
         isLoading.value = true;
         const response = await grammarApi.getById(id);
         console.log('Grammar API response:', response);
+        console.log('Grammar response keys:', Object.keys(response || {}));
+        console.log('Grammar ID fields check:', {
+          id: response?.id,
+          grammarId: response?.grammarId,
+          grammaID: response?.grammaID
+        });
         grammarData.value = response;
         console.log('Grammar data set:', grammarData.value);
       } catch (error) {

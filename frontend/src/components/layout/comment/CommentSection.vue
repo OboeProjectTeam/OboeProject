@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import commentApi from '@/api/modules/commentApi'
 
 const props = defineProps({
@@ -193,6 +193,19 @@ const submitComment = async () => {
 // Load comments on component mount
 onMounted(() => {
   loadComments()
+})
+
+// Watch for itemId changes and reload comments
+watch(() => props.itemId, (newItemId, oldItemId) => {
+  if (newItemId !== oldItemId) {
+    console.log('ItemId changed from', oldItemId, 'to', newItemId, '- reloading comments')
+    // Reset pagination state
+    currentPage.value = 0
+    totalPages.value = 0
+    comments.value = []
+    // Load comments for new item
+    loadComments()
+  }
 })
 </script>
 

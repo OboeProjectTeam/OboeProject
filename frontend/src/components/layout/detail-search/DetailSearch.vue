@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import CommentSection from '@/components/layout/comment/CommentSection.vue';
@@ -185,7 +185,11 @@ export default defineComponent({
     };
 
     const toggleFavorite = () => {
-      if (!props.item) return;
+      if (!props.item) {
+        console.error('No item provided');
+        return;
+      }
+      
       store.dispatch('user/toggleFavorite', { 
         type: favoriteType.value, 
         item: props.item 
@@ -207,6 +211,11 @@ export default defineComponent({
         });
       }
     };
+
+    // Load favorites when component mounts
+    onMounted(() => {
+      store.dispatch('user/fetchFavorites');
+    });
 
     return {
       onRelatedItemClick,

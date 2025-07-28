@@ -49,11 +49,18 @@
 }
 
 .action-btn.active {
-  color: $primary-color;
+  color: #ffd700; /* Gold color for active star */
 }
 
 .action-btn.active:hover {
-  background-color: #fde8ec;
+  background-color: #fff8dc;
+  color: #ffb347; /* Lighter gold on hover */
+}
+
+/* Specific styling for favorite star */
+.action-btn.active .fa-star {
+  color: #ffd700;
+  text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
 }
 
 .main-info {
