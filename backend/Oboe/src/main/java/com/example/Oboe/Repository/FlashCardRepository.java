@@ -24,4 +24,11 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
     Page<FlashCards> searchByUserIdAndTerm(@Param("userId") UUID userId,
                                            @Param("term") String term,
                                            Pageable pageable);
+
+    // **SỬA TÊN BẢNG TỪ 'flash_cards' THÀNH 'FlashCards' Ở ĐÂY**
+    @Query("SELECT f FROM FlashCards f WHERE f.user.id = :userId ORDER BY function('RAND')")
+    List<FlashCards> findRandomFlashcardsForUser(@Param("userId") UUID userId, Pageable pageable);
+
+
+
 }
