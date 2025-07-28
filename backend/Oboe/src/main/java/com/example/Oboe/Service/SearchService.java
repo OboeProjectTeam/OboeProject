@@ -58,7 +58,7 @@ public class SearchService {
                     item.put("word", k.getCharacter_name());
                     item.put("reading", k.getVietnamesePronunciation());
                     item.put("meaning", k.getMeaning());
-                    item.put("id:", k.getKanjiId().toString());
+                    item.put("id", k.getKanjiId().toString());
                     suggestions.add(item);
                 }
                 break;
@@ -70,7 +70,7 @@ public class SearchService {
                     item.put("word", g.getStructure());
                     item.put("reading", g.getVietnamesePronunciation());
                     item.put("meaning", g.getExplanation());
-                    item.put("id:",g.getGrammaID().toString());
+                    item.put("id", g.getGrammaID().toString());
                     suggestions.add(item);
                 }
                 break;
@@ -82,7 +82,7 @@ public class SearchService {
                     item.put("word", s.getJapaneseText());
                     item.put("reading", s.getVietnamesePronunciation());
                     item.put("meaning", s.getVietnameseMeaning());
-                    item.put("id:",s.getSample_sentence_id().toString());
+                    item.put("id", s.getSample_sentence_id().toString());
                     suggestions.add(item);
                 }
                 break;
