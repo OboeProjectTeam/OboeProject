@@ -106,7 +106,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
             response.addCookie(tokenCookie);
 
-            Redirect về frontend không chứa token
+            // Redirect về frontend không chứa token
            String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
            response.sendRedirect(redirectUrl);
             response.setContentType("application/json");
