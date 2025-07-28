@@ -106,9 +106,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
             response.addCookie(tokenCookie);
 
-            // Redirect về frontend không chứa token
-//            String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
-//            response.sendRedirect(redirectUrl);
+//             Redirect về frontend không chứa token
+            String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
+            response.sendRedirect(redirectUrl);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("{\"token\": \"" + token + "\", \"message\": \"OAuth2 login successful\"}");
