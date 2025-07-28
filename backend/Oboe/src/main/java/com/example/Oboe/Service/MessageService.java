@@ -75,25 +75,29 @@
             WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
 
             try {
+                // Chuẩn bị Jackson mapper
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
-                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ISO format
-                mapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty JSON
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-                String MessageWebsocket = mapper.writeValueAsString(dto);
+                // Chuyển DTO và notification thành JSON string
+                String messageWebsocket = mapper.writeValueAsString(dto);
                 String notificationWebsocket = mapper.writeValueAsString(notification);
 
-
-                // nếu người dùng không đăng nhập thì ko conection với websocket thì vẫn gửi
+                // Gửi WebSocket nếu session còn mở
                 if (receiverSession != null && receiverSession.isOpen()) {
-                    receiverSession.sendMessage(new TextMessage(MessageWebsocket));
+                    receiverSession.sendMessage(new TextMessage(messageWebsocket));
                     receiverSession.sendMessage(new TextMessage(notificationWebsocket));
+                } else {
+                    System.out.println("Người nhận không online hoặc đã đóng WebSocket.");
                 }
-
             } catch (IOException e) {
-                e.printStackTrace(); // hoặc dùng log
-            }
+                System.out.println(" Lỗi khi gửi WebSocket: " + e.getMessage());
 
+                // Nếu lỗi khi gửi, loại bỏ session cũ
+                SessionManager.removeSession(receiver.getUser_id());
+            }
             return dto;
         }
 
