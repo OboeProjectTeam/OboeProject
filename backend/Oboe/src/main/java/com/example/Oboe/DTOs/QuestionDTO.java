@@ -5,18 +5,12 @@ import java.util.UUID;
 
 public class QuestionDTO {
     private UUID questionID;
-    private String questionName;
-    private String correctAnswer;
-    private List<String> options; // <-- đổi thành List<String>// có thể là JSON array dạng string
+    private String questionName; // Tên câu hỏi (từ "question" của JSON)
+    private String correctAnswer; // Đáp án đúng (từ "answer" của JSON)
+    private List<String> options; // Danh sách lựa chọn (từ "choices" của JSON)
     private UUID quizId;
 
-    public String getCorrectAnswer() {
-        return correctAnswer;
-    }
-
-    public void setCorrectAnswer(String correctAnswer) {
-        this.correctAnswer = correctAnswer;
-    }
+    // === Getters và Setters ===
 
     public UUID getQuestionID() {
         return questionID;
@@ -34,10 +28,18 @@ public class QuestionDTO {
         this.questionName = questionName;
     }
 
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
 
     public List<String> getOptions() {
         return options;
     }
+
     public void setOptions(List<String> options) {
         this.options = options;
     }
@@ -49,9 +51,4 @@ public class QuestionDTO {
     public void setQuizId(UUID quizId) {
         this.quizId = quizId;
     }
-
-
-
-    // Getters and Setters
-
 }
