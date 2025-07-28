@@ -48,6 +48,8 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     @Query("SELECT COUNT(b) FROM Blog b WHERE b.user.user_id = :userId")
     long countBlogsByUserId(@Param("userId") UUID userId);
 
+    @Query("DELETE FROM Blog b WHERE b.user.user_id = :userId")
+    void deleteUser(@Param("userId") UUID userId);
 
 
 

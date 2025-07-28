@@ -28,7 +28,7 @@ public class UserDTOs {
 
     private AuthProvider authProvider = AuthProvider.EMAIL; // Mặc định là EMAIL
 
-    // ======== GETTER - SETTER ========
+
     public String getUserName() {
         return userName;
     }

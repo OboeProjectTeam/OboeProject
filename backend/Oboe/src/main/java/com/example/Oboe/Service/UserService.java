@@ -163,6 +163,22 @@ public class UserService implements UserDetailsService {
         return dto;
     }
 
+    public void deleteUser(UUID userId) {
+        User user = userRepository.findByUser_id(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Xóa comment của user
+        commentRepository.deleteUser(userId);
+
+        // Xóa blog của user
+        blogRepository.deleteUser(userId);
+
+        // Xóa flashcard của user
+        flashCardRepository.deleteUser(userId);
+
+        // xóa user
+        userRepository.delete(user);
+    }
 
 
 

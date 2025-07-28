@@ -33,6 +33,4 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     """)
     long countBlogCommentsByUserId(@Param("userId") UUID userId);
 
-
-
 }

@@ -2,6 +2,7 @@ package com.example.Oboe.Repository;
 
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.FlashCards;
+import com.example.Oboe.Entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
