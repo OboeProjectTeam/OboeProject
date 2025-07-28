@@ -38,7 +38,7 @@ export default {
       state.currentPage = page
     },
     setLearningItems(state, items) {
-      console.log('Setting learning items:', items);
+
       state.learningItems = items.map(item => {
         // Ensure each item has a unique ID
         const id = item.id ? item.id : `item-${Date.now()}-${Math.random()}`;
@@ -53,7 +53,8 @@ export default {
           backcontent: '',
           kanji: '',
           meaning: '',
-          status: item.status || 'learning'
+          status: item.status || 'learning',
+          options: item.options || [] // Thêm options vào normalized object
         };
 
         // Handle different content types
@@ -76,6 +77,14 @@ export default {
             normalized.back = item.translation || '';
             break;
           
+          case 'question':
+            normalized.front = item.front || item.content || '';
+            normalized.back = item.back || item.backcontent || '';
+            normalized.content = item.content || item.front || '';
+            normalized.backcontent = item.backcontent || item.back || '';
+            normalized.options = item.options || [];
+            break;
+          
           case 'word':
           default:
             normalized.front = item.front || item.kanji || item.content || '';
@@ -88,7 +97,7 @@ export default {
 
         return normalized;
       });
-      console.log('Normalized learning items:', state.learningItems);
+
     },
     // Thêm mutations cho bộ thẻ ghi nhớ
     addFlashcardSet(state, set) {
@@ -190,4 +199,4 @@ export default {
       return state.flashcardSets.find(set => set.id === id)
     }
   }
-} 
+}

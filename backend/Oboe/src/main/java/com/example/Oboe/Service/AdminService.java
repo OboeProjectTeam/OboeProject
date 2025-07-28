@@ -2,6 +2,9 @@ package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.Entity.*;
+import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.CommentRepository;
+import com.example.Oboe.Repository.FlashCardRepository;
 import com.example.Oboe.Repository.UserRepository;
 import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
@@ -25,15 +28,23 @@ public class AdminService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final BlogRepository blogRepository;
+    private final CommentRepository commentRepository;
+    private final FlashCardRepository flashCardRepository;
+    
     @Value("${app.domain}")
     private String domain;
     @Autowired
-    public AdminService(UserRepository userRepository,
+    public AdminService(UserRepository userRepository, BlogRepository blogRepository, CommentRepository commentRepository,
+                        FlashCardRepository flashCardRepository,
                         PasswordEncoder passwordEncoder,
                         MailService mailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
+        this.blogRepository = blogRepository;
+        this.commentRepository = commentRepository;
+        this.flashCardRepository = flashCardRepository;
     }
 
     // Tạo tài khoản mới (Admin hoặc User)
@@ -107,11 +118,18 @@ public class AdminService {
 
     // Xoá người dùng
     public void deleteUser(UUID id) {
-        if (!userRepository.existsById(id)) {
-            throw new UsernameNotFoundException("Không tìm thấy người dùng.");
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
+
+        commentRepository.deleteUser(id);
+
+        blogRepository.deleteUser(id);
+
+        flashCardRepository.deleteUser(id);
+
+        userRepository.delete(user);
     }
+
 
     // Đổi role
     public User changeRole(UUID id, Role newRole) {

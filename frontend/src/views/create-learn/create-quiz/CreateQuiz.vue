@@ -68,6 +68,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import quizApi from '@/api/modules/quizApi'
+import questionApi from '@/api/modules/questionApi'
 
 const router = useRouter()
 const store = useStore()
@@ -154,20 +155,24 @@ const saveQuiz = async () => {
 
   const quizData = {
     title: title.value.trim(),
-    description: description.value.trim(),
-    questions: questions.value.map(q => ({
-      questionText: q.text.trim(),
-      options: q.options.map(opt => opt.trim()),
-      correctAnswer: q.correctAnswer
-    }))
+    description: description.value.trim()
   };
 
-  console.log('Quiz Data being sent:', quizData);
-
   try {
-    console.log('Calling quiz/createQuiz action...');
+    // Bước 1: Tạo quiz
     const response = await store.dispatch('quiz/createQuiz', quizData);
-    console.log('Quiz created successfully:', response);
+
+    
+    // Bước 2: Tạo câu hỏi cho quiz
+    const questionsList = questions.value.map(q => ({
+      questionName: q.text.trim(),
+      correctAnswer: q.options[q.correctAnswer].trim(),
+      options: q.options.map(opt => opt.trim()),
+      quizId: response.quizzesID
+    }));
+    
+    // Gọi API tạo câu hỏi
+    await questionApi.create(questionsList);
     
     store.dispatch('message/showMessage', {
       type: 'success',

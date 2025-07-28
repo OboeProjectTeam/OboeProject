@@ -121,7 +121,7 @@ const performSearch = () => {
 
 const startLearning = (set) => {
   // This would dispatch an action to set the current learning deck
-  console.log('Starting to learn set:', set.title);
+
   // Example navigation
   router.push('/flashcard/learn');
 };

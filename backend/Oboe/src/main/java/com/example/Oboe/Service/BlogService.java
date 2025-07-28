@@ -7,11 +7,12 @@ import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.response.BaseResponse;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,7 @@ public class BlogService {
     public BlogDTO getBlogDTOById(UUID id) {
         Optional<Blog> blogOpt = blogRepository.findById(id);
         if (blogOpt.isEmpty()) {
-            System.out.println(Constant.BLOG_NOT_FOUND);
+
             return null;
         }
         return toDTO(blogOpt.get());
@@ -71,16 +72,18 @@ public class BlogService {
     public BlogDTO createBlogFromDTO(BlogDTO blogDTO, UUID userId) {
         Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
-
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
         Blog blog = new Blog();
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
         blog.setUser(userOpt.get());
-        blog.setCreatedAt(LocalDateTime.now());
-        blog.setUpdatedAt(LocalDateTime.now());
+        blog.setCreatedAt(vietnamTime);
+        blog.setUpdatedAt(vietnamTime);
         //  Thêm tags và topics
         blog.setTags(blogDTO.getTags());
         blog.setTopics(blogDTO.getTopics());
+
 
         Blog saved = blogRepository.save(blog);
         return toDTO(saved);
@@ -94,16 +97,18 @@ public class BlogService {
         Optional<User> userOpt = userService.findById(userId);
         if (userOpt.isEmpty()) return null;
 
+
+        ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+        LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
         Blog blog = blogOpt.get();
         User currentUser = userOpt.get();
 
         if (blog.getUser() == null || !blog.getUser().getUser_id().equals(currentUser.getUser_id())) {
             return null;
         }
-
         blog.setTitle(blogDTO.getTitle());
         blog.setContent(blogDTO.getContent());
-        blog.setUpdatedAt(LocalDateTime.now());
+        blog.setUpdatedAt(vietnamTime);
 
         // Cập nhật tags và topics
         blog.setTags(blogDTO.getTags());
@@ -200,6 +205,7 @@ public class BlogService {
         if (blog.getUser() != null) {
             dto.setUserId(blog.getUser().getUser_id());
             dto.setAuthor(blog.getUser().getUserName());
+            dto.setAvatarUrl(blog.getUser().getAvatarUrl());
         }
 
         // Đếm số comment
@@ -211,10 +217,15 @@ public class BlogService {
                 .ifPresent(latestComment -> {
                     dto.setLatestCommentTime(latestComment.getCreatedAt());
                     dto.setLatestCommenterName(latestComment.getUser().getUserName());
+
                 });
 
         return dto;
     }
+    public boolean blogExists(UUID id) {
+        return blogRepository.existsById(id);
+    }
+
 
 
 }

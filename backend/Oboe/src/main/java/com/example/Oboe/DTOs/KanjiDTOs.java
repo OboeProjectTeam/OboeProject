@@ -8,17 +8,19 @@ public class KanjiDTOs {
     private String characterName;
     private String meaning;
     private String strokes;
-    private List<ReadingDTO> readings;
+    private String VietnamesePronunciation;
+
 
     // Constructors
     public KanjiDTOs() {}
 
-    public KanjiDTOs(UUID kanjiId, String characterName, String meaning, String strokes, List<ReadingDTO> readings) {
+    public KanjiDTOs(UUID kanjiId, String characterName, String meaning, String strokes, String VietnamesePronunciation) {
         this.kanjiId = kanjiId;
         this.characterName = characterName;
         this.meaning = meaning;
         this.strokes = strokes;
-        this.readings = readings;
+        this.VietnamesePronunciation = VietnamesePronunciation;
+
     }
 
     // Getters and Setters
@@ -54,12 +56,11 @@ public class KanjiDTOs {
         this.strokes = strokes;
     }
 
-    public List<ReadingDTO> getReadings() {
-        return readings;
+    public String getVietnamesePronunciation() {
+        return VietnamesePronunciation;
     }
 
-    public void setReadings(List<ReadingDTO> readings) {
-        this.readings = readings;
+    public void setVietnamesePronunciation(String vietnamesePronunciation) {
+        VietnamesePronunciation = vietnamesePronunciation;
     }
-
 }

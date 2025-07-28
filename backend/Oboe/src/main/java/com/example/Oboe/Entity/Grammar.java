@@ -47,6 +47,14 @@ public class Grammar {
         this.grammarType = grammarType;
     }
 
+    public String getVietnamesePronunciation() {
+        return vietnamesePronunciation;
+    }
+
+    public void setVietnamesePronunciation(String vietnamesePronunciation) {
+        this.vietnamesePronunciation = vietnamesePronunciation;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "grammaID", updatable = false, nullable = false)
@@ -55,5 +63,7 @@ public class Grammar {
     private String explanation;
     private String example;
     private String grammarType;
+    @Column(name = "vietnamese_pronunciation")
+    private String vietnamesePronunciation;
 
 }

@@ -51,10 +51,10 @@ const blogApi = {
     }
   },
 
-  async search(title) {
+  async search(keyword) {
     try {
       const res = await axios.get(`${PREFIX}/search`, {
-        params: { title }
+        params: { keyword }
       });
       return res.data;
     } catch (error) {

@@ -45,6 +45,7 @@
         <div v-for="set in filteredStudySets" :key="set.id" class="content-card">
           <div class="card-info">
             <h3>{{ set.title }}</h3>
+            <p v-if="set.description" class="card-description">{{ set.description }}</p>
             <p class="card-meta">
               <span>{{ set.cardCount }} thuật ngữ</span>
               <span>{{ formatDate(set.updatedAt) }}</span>
@@ -87,10 +88,10 @@
             </p>
           </div>
           <div class="card-actions">
-            <router-link :to="`/quiz/${quiz.id}`" class="action-btn primary">
+            <button @click="startQuiz(quiz)" class="action-btn primary">
               <i class="fas fa-play"></i>
               Làm bài
-            </router-link>
+            </button>
             <button @click="deleteQuiz(quiz.id)" class="action-btn">
               <i class="fas fa-trash"></i>
             </button>
@@ -326,28 +327,33 @@ const currentSort = ref(sortOptions[0])
 const loadUserFlashcards = async () => {
   try {
     studySetsLoading.value = true
-    console.log('Loading user flashcards...')
     const response = await api.flashcard.getUserFlashcards()
-    console.log('User flashcards loaded:', response)
     
     // Handle different response formats
     const flashcards = response.content || response.data || response
     
+  
     // Map flashcards to study sets format
     const mappedSets = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
       id: flashcard.set_id,
-      title: flashcard.term || flashcard.description || 'Flashcard', // Use term first, fallback to description
+      title: flashcard.term || 'Flashcard', // Use term as title
+      description: flashcard.description || '', // Add description field
       cardCount: flashcard.cardItems?.length || 0,
       updatedAt: flashcard.created,
+      createdAt: flashcard.created, // Add created timestamp
+      creator: {
+        name: flashcard.user?.userName || flashcard.user?.firstName || 'Người dùng',
+        avatar: flashcard.user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(flashcard.user?.userName || 'User')}`
+      },
       cards: flashcard.cardItems?.map(item => ({
         front: item.word,
         back: item.meaning
       })) || []
     }))
     
+    
     studySetsData.value = mappedSets
   } catch (error) {
-    console.error('Failed to load user flashcards:', error)
     studySetsData.value = []
   } finally {
     studySetsLoading.value = false
@@ -358,10 +364,7 @@ const loadUserFlashcards = async () => {
 const loadUserQuizzes = async () => {
   try {
     quizzesLoading.value = true
-    console.log('Loading user quizzes...')
     const response = await api.quiz.getUserQuizzes()
-    console.log('User quizzes loaded:', response)
-    
     // Handle different response formats
     const quizzes = response.content || response.data || response
     
@@ -376,7 +379,6 @@ const loadUserQuizzes = async () => {
     
     quizzesData.value = mappedQuizzes
   } catch (error) {
-    console.error('Failed to load user quizzes:', error)
     quizzesData.value = []
   } finally {
     quizzesLoading.value = false
@@ -387,20 +389,6 @@ const loadUserQuizzes = async () => {
 const loadUserFavorites = async () => {
   try {
     favoritesLoading.value = true
-    console.log('Loading user favorites...')
-    
-    // Temporarily disable favorites API calls since backend doesn't have this endpoint
-    // Load different types of favorites
-    // const [vocabularyRes, kanjiRes, grammarRes, sentencesRes] = await Promise.all([
-    //   api.favorite.getUserFavorites('vocabulary').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('kanji').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('grammar').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('sentences').catch(() => ({ data: [] }))
-    // ])
-    
-    console.log('Favorites API not available, using empty data')
-    
-    // Set empty data for now until backend implements the API
     favoritesData.value = {
       vocabulary: [],
       kanji: [],
@@ -408,7 +396,6 @@ const loadUserFavorites = async () => {
       sentences: []
     }
   } catch (error) {
-    console.error('Failed to load user favorites:', error)
     favoritesData.value = { vocabulary: [], grammar: [], sentences: [], kanji: [] }
   } finally {
     favoritesLoading.value = false
@@ -480,8 +467,6 @@ const handleDeleteConfirm = async () => {
   
   try {
     if (deleteType.value === 'flashcard') {
-      console.log('Deleting flashcard set:', deleteId.value)
-      
       // Call API to delete flashcard
       await api.flashcard.delete(deleteId.value)
       
@@ -494,8 +479,6 @@ const handleDeleteConfirm = async () => {
         text: 'Xóa học liệu thành công!'
       })
     } else if (deleteType.value === 'quiz') {
-      console.log('Deleting quiz:', deleteId.value)
-      
       // Call API to delete quiz
       await api.quiz.delete(deleteId.value)
       
@@ -509,8 +492,6 @@ const handleDeleteConfirm = async () => {
       })
     }
   } catch (error) {
-    console.error('Error deleting item:', error)
-    
     // Show error message
     const itemType = deleteType.value === 'flashcard' ? 'học liệu' : 'bài kiểm tra'
     store.dispatch('message/showMessage', {
@@ -549,12 +530,7 @@ const deleteBlog = async (id) => {
 
 const removeFromFavorites = async (type, id) => {
   try {
-    // Temporarily disable API call since backend doesn't have this endpoint
-    // await api.favorite.deleteFavorite(id);
-    
-    console.log('Remove favorite API not available, removing from local data only')
-    
-    // Remove from local data
+
     if (favoritesData.value[type]) {
       favoritesData.value[type] = favoritesData.value[type].filter(item => item.id !== id);
     }
@@ -580,8 +556,6 @@ const formatDate = (timestamp) => {
 
 const startLearning = async (set) => {
   try {
-    console.log('Original set:', set)
-    
     // Chuyển đổi cards thành format phù hợp cho learning items
     const learningItems = set.cards.map(card => ({
       type: 'word',
@@ -590,15 +564,65 @@ const startLearning = async (set) => {
       meaning: card.back
     }))
     
-    console.log('Converted learning items:', learningItems)
-    
     // Lưu vào store
     await store.dispatch('flashcard/setLearningItems', learningItems)
     
-    // Chuyển đến trang học
-    router.push('/flashcard/learn')
+         // Chuyển đến trang học với thông tin flashcard set
+     router.push({
+       path: '/flashcard/learn',
+       query: {
+         source: 'library',
+         title: set.title,
+         description: set.description || `Học liệu gồm ${set.cardCount} thuật ngữ`,
+         setId: set.id,
+         creatorName: set.creator?.name || 'Người dùng',
+         creatorAvatar: set.creator?.avatar || '',
+         createdAt: set.createdAt || ''
+       }
+     })
   } catch (error) {
     console.error('Error starting learning:', error)
+  }
+}
+
+const startQuiz = async (quiz) => {
+  try {
+    const response = await api.question.getByQuiz(quiz.id)
+    const questions = response.content || response.data || response
+    if (!Array.isArray(questions) || questions.length === 0) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: 'Bài kiểm tra không có câu hỏi nào'
+      })
+      return
+    }
+
+    // Map đúng trường từ API
+    const learningItems = questions.map(q => ({
+      type: 'question',
+      id: q.questionID,
+      front: q.questionName,
+      back: q.correctAnswer,
+      options: q.options,
+      content: q.questionName,
+      backcontent: q.correctAnswer
+    }))
+    await store.dispatch('flashcard/setLearningItems', learningItems)
+    router.push({
+      path: '/flashcard/test',
+      query: {
+        type: 'multiple-choice',
+        source: 'library',
+        title: quiz.title,
+        description: quiz.description || `Bài kiểm tra gồm ${questions.length} câu hỏi`,
+        quizId: quiz.id
+      }
+    })
+  } catch (error) {
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Không thể tải bài kiểm tra: ' + error.message
+    })
   }
 }
 

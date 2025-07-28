@@ -9,11 +9,11 @@ public class FavoritesDTO {
     private String title;
     private String content;
     private LocalDate favoritesAt;
-
     private UUID userId;
     private UUID grammaId;
     private UUID kanjiId;
-    private UUID flashCardId;
+
+    private UUID sampleSentenceId;
     private UUID vocabularyId;
     //gọi DTo của Kanji để trả ve dữ liệu
     private String type;
@@ -21,7 +21,7 @@ public class FavoritesDTO {
     public FavoritesDTO() {}
 
     public FavoritesDTO(UUID favoritesId, String title, String content, LocalDate favoritesAt,
-                        UUID userId, UUID grammaId, UUID kanjiId, UUID flashCardId, UUID vocabularyId) {
+                        UUID userId, UUID grammaId, UUID kanjiId, UUID sampleSentenceId, UUID vocabularyId) {
         this.favoritesId = favoritesId;
         this.title = title;
         this.content = content;
@@ -29,7 +29,7 @@ public class FavoritesDTO {
         this.userId = userId;
         this.grammaId = grammaId;
         this.kanjiId = kanjiId;
-        this.flashCardId = flashCardId;
+        this.sampleSentenceId = sampleSentenceId;
         this.vocabularyId = vocabularyId;
     }
     // Getters and Setters
@@ -89,13 +89,6 @@ public class FavoritesDTO {
         this.kanjiId = kanjiId;
     }
 
-    public UUID getFlashCardId() {
-        return flashCardId;
-    }
-
-    public void setFlashCardId(UUID flashCardId) {
-        this.flashCardId = flashCardId;
-    }
 
     public UUID getVocabularyId() {
         return vocabularyId;
@@ -110,5 +103,15 @@ public class FavoritesDTO {
    public void setType(String type) {
         this.type = type;
    }
+
+    public UUID getSampleSentenceId() {
+        return sampleSentenceId;
+    }
+
+    public void setSampleSentenceId(UUID sampleSentenceId) {
+        this.sampleSentenceId = sampleSentenceId;
+    }
+
+
 }
 

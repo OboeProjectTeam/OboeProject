@@ -1,5 +1,6 @@
 package com.example.Oboe.Config;
 
+import com.example.Oboe.Config.CustomOAuth2SuccessHandler;
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
@@ -26,10 +27,10 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -82,6 +83,7 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
+                                                   UserService userService,
                                                    CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
                                                    CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
@@ -89,33 +91,35 @@ public class WebConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                // API xác thực
                                 "/api/auth/signup",
                                 "/api/auth/login",
                                 "/api/auth/verify",
-
-                                // API AI công khai
-                                //"/api/ai/generate-random-question",
-                                //"/api/ai/generate-question/**", // ✅ Thêm dòng này
-
-                                // API học tập công khai (chỉ GET)
-                                "/api/kanji/**",
-                                "/api/grammar/**",
-                                "/api/vocabulary/**",
-                                "/api/sample-sentences/**",
-
-                                // OAuth2
-                                "/oauth2/**",
-                                "/login/oauth2/**",
-
-                                // WebSocket
-                                "/ws/**",
-
-                                // Swagger UI
                                 "/swagger-ui/**",
-                                "/v3/api-docs/**"
+                                "/oauth2/redirect",
+                                "/v3/api-docs/**",
+                                "/oauth2/**",
+                                "/api/search/**",
+                                "/api/search",
+                                "/ws/**",
+                                "/ws-raw"
                         ).permitAll()
+                        // Chỉ cho phép GET cho các API sau mà không cần đăng nhập
+                        .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()
+                        .requestMatchers("/ws/**", "/ws-raw").permitAll()
+                        // Public cho Swagger
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
 
+                        // OAuth2 login
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                        // WebSocket
+                        .requestMatchers("/ws/**").permitAll()
+
+                        // Tất cả các request còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -123,16 +127,19 @@ public class WebConfig {
                         .failureHandler((request, response, exception) -> {
                             exception.printStackTrace();
                             String error = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
-                            response.sendRedirect(domain + "/login?error=" + error);
+                            response.sendRedirect(domain + "/login?error=" + error); // dùng domain luôn
                         })
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            Authentication authContext = SecurityContextHolder.getContext().getAuthentication();
-                            if (authContext != null) {
-                                new SecurityContextLogoutHandler().logout(request, response, authContext);
+                            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                            if (auth != null) {
+                                new SecurityContextLogoutHandler().logout(request, response, auth);
                             }
+
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
                             response.setStatus(HttpServletResponse.SC_OK);
                             response.getWriter().write("{\"message\": \"Logout successful\"}");
                         })
@@ -141,21 +148,21 @@ public class WebConfig {
 
         return http.build();
     }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "http://localhost:5175",
-                "https://oboeru.me"
+                "http://localhost:3000",  // local dev
+                "http://localhost:5173",  // vite dev server default
+                "http://localhost:5175",  // current vite dev server port
+                "https://oboeru.me"       // production domain
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+        config.setMaxAge(3600L); // Cache preflight trong 1h
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

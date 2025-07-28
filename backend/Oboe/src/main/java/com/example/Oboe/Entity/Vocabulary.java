@@ -9,11 +9,24 @@ public class Vocabulary {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "Vocalb_id", updatable = false, nullable = false)
+
     private UUID vocalbId;
 
     private String words;
 
     private String meanning;
+
+    @Column(name = "vietnamese_pronunciation")
+    private String vietnamesePronunciation;
+
+    public String getVietnamesePronunciation() {
+        return vietnamesePronunciation;
+    }
+
+    public void setVietnamesePronunciation(String vietnamesePronunciation) {
+        this.vietnamesePronunciation = vietnamesePronunciation;
+    }
+
 
     public String getWordType() {
         return wordType;

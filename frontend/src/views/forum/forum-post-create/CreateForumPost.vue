@@ -67,8 +67,15 @@
             <textarea id="post-content" v-model="postContent" rows="12" placeholder="Viết nội dung chi tiết ở đây.  có thể sử dụng markdown để định dạng."></textarea>
           </div>
            <div class="form-actions">
-            <button type="button" class="btn btn-secondary" @click="goBackToForum">Hủy</button>
-            <button type="submit" class="btn btn-primary">Đăng bài</button>
+            <button type="button" class="btn btn-secondary" @click="goBackToForum" :disabled="isSubmitting">Hủy</button>
+            <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting">
+                <i class="fas fa-spinner fa-spin"></i> Đang đăng...
+              </span>
+              <span v-else>
+                <i class="fas fa-paper-plane"></i> Đăng bài
+              </span>
+            </button>
           </div>
         </form>
       </div>
@@ -80,6 +87,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import blogApi from '@/api/modules/blogApi';
 
 const router = useRouter();
 const store = useStore();
@@ -93,6 +101,7 @@ const tagSearch = ref('');
 const isTagDropdownActive = ref(false);
 const tagInputRef = ref(null);
 const tagsContainerRef = ref(null);
+const isSubmitting = ref(false);
 
 // Get current user from store
 const currentUser = computed(() => store.state.auth.user);
@@ -194,49 +203,69 @@ const handleSubmit = async (event) => {
   event.preventDefault(); // Prevent default form submission
 
   if (!postTitle.value || !postContent.value || !selectedCategory.value) {
-    alert('Vui lòng điền đầy đủ thông tin bài viết');
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Vui lòng điền đầy đủ thông tin bài viết'
+    });
     return;
   }
 
-  const newPost = {
-    id: Date.now().toString(),
-    title: postTitle.value,
-    content: postContent.value,
-    category: selectedCategory.value,
-    tags: selectedTags.value,
-    timestamp: new Date().toISOString(),
-    author: {
-      id: 'current-user-123', // Sử dụng ID giả để kiểm tra quyền sở hữu bài viết
-      username: 'Người dùng hiện tại',
-      fullName: 'Người dùng hiện tại',
-      title: 'Thành viên mới',
-      avatar: 'https://i.pravatar.cc/150?u=current-user',
-      bio: 'Chưa có thông tin giới thiệu.',
-      website: '',
-      websiteUrl: '#',
-      location: 'Việt Nam',
-      stats: { 
-        posted: 'Vừa xong', 
-        joined: new Date().toLocaleDateString('vi-VN'), 
-        read: '1 giờ', 
-        solutions: 0 
-      }
-    },
-    stats: {
-      replies: 0,
-      views: 0
-    }
-  };
+  // Check if user is authenticated
+  if (!currentUser.value) {
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: 'Bạn cần đăng nhập để tạo bài viết'
+    });
+    router.push('/login');
+    return;
+  }
 
   try {
-    // Add post to store
-    await store.dispatch('forum/createPost', newPost);
+    isSubmitting.value = true;
     
-    // Navigate to post detail page
-    await router.push(`/forum/post/${newPost.id}`);
+    // Prepare BlogDTO according to backend format
+    const blogDTO = {
+      title: postTitle.value.trim(),
+      content: postContent.value.trim(),
+      topics: selectedCategory.value, // Map category to topics field
+      tags: selectedTags.value.length > 0 ? selectedTags.value.join(', ') : '', // Convert array to comma-separated string
+    };
+
+
+
+    // Call API to create blog post
+    const response = await blogApi.create(blogDTO);
+
+
+    // Extract blog data from response
+    // Response format: { message: "Đăng bài thành công!", data: BlogDTO }
+    const createdBlog = response.data;
+
+    // Show success message
+    store.dispatch('showMessage', {
+      type: 'success',
+      text: response.message || 'Bài viết đã được tạo thành công!'
+    });
+
+    // Navigate to the newly created post detail page
+    await router.push(`/forum/post/${createdBlog.id}`);
+
   } catch (error) {
-    console.error('Error creating post:', error);
-    alert('Có lỗi xảy ra khi tạo bài viết. Vui lòng thử lại sau.');
+    console.error('Error creating blog post:', error);
+    
+    // Handle different error scenarios
+    let errorMessage = 'Có lỗi xảy ra khi tạo bài viết. Vui lòng thử lại sau.';
+    
+    if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: errorMessage
+    });
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

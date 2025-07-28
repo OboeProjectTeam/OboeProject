@@ -6,10 +6,25 @@ import store from '../store/store';
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    // If there's a saved position (back/forward navigation), use it
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // If there's a hash (anchor link), scroll to that element
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth'
+      };
+    }
+    // Otherwise, scroll to top
+    return { top: 0, behavior: 'smooth' };
+  }
 });
 
 router.beforeEach(async (to, from, next) => {
-  console.log(`Navigating to: ${to.path}`);
+
   
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
@@ -19,7 +34,7 @@ router.beforeEach(async (to, from, next) => {
   const user = localStorage.getItem('user');
   const isAuthenticated = !!(token && user);
   
-  console.log(`Route requires auth: ${requiresAuth}, User authenticated: ${isAuthenticated}`);
+
   
   // Validate token if exists
   if (token && isAuthenticated) {
@@ -31,7 +46,7 @@ router.beforeEach(async (to, from, next) => {
       const stillAuthenticated = store.getters['auth/isAuthenticated'];
       
       if (!stillAuthenticated && requiresAuth) {
-        console.log('Token expired, redirecting to login');
+
         return next('/login');
       }
     } catch (error) {
@@ -44,12 +59,12 @@ router.beforeEach(async (to, from, next) => {
   
   // Handle authentication requirements
   if (requiresAuth && !isAuthenticated) {
-    console.log('Authentication required, redirecting to login');
+
     return next('/login');
   }
   
   if (requiresGuest && isAuthenticated) {
-    console.log('Guest route accessed by authenticated user, redirecting to home');
+
     return next('/');
   }
   

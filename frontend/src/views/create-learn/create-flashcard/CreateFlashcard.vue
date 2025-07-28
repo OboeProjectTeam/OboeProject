@@ -7,7 +7,6 @@
       </button>
       <div class="flex-jsb">
         <h1>{{ isEditing ? 'Chỉnh sửa Bộ Thẻ Ghi Nhớ' : 'Tạo Bộ Thẻ Ghi Nhớ Mới' }}</h1>
-        <button class="ai-btn">Tạo bằng AI</button>
       </div>
     </div>
     <div class="form-container">
@@ -150,30 +149,68 @@ onMounted(() => {
   fromLearningPage.value = route.query.fromLearn === 'true'
   originalDeckId.value = route.query.deckId
 
-  // Try to load learning page state first
-  const learningState = localStorage.getItem('flashcardLearnState')
-  if (learningState) {
-    try {
-      const state = JSON.parse(learningState)
-      // Convert learning items to cards format
-      cards.value = state.items.map(item => ({
-        front: item.content || item.kanji || '',
-        back: item.backcontent || item.meaning || ''
-      }))
-      isEditing.value = true
-    } catch (error) {
-      console.error('Error loading learning state:', error)
+  // If coming from learning page, load data
+  if (fromLearningPage.value) {
+    // Set title and description from query params
+    title.value = route.query.title || ''
+    description.value = route.query.description || ''
+    
+    // Try to load learning page state
+    const learningState = localStorage.getItem('flashcardLearnState')
+    if (learningState) {
+      try {
+        const state = JSON.parse(learningState)
+        // Load title and description from state if available (override query params)
+        if (state.title) {
+          title.value = state.title
+        }
+        if (state.description) {
+          description.value = state.description
+        }
+        
+        // Convert learning items to cards format
+        if (state.items && Array.isArray(state.items) && state.items.length > 0) {
+          cards.value = state.items.map(item => ({
+            front: item.content || item.kanji || '',
+            back: item.backcontent || item.meaning || ''
+          }))
+        } else {
+          cards.value = [{ front: '', back: '' }]
+        }
+        
+        isEditing.value = true
+      } catch (error) {
+        console.error('Error loading learning state:', error)
+        // Fallback to empty card on error
+        cards.value = [{ front: '', back: '' }]
+      }
+    } else {
+      // Set default empty card if no state found
+      cards.value = [{ front: '', back: '' }]
     }
   } else {
-    // If no learning state, try loading draft
+    // If not from learning page, try loading draft
     const savedState = localStorage.getItem(STORAGE_KEY)
     if (savedState) {
-      const state = JSON.parse(savedState)
-      title.value = state.title
-      description.value = state.description
-      cards.value = state.cards
+      try {
+        const state = JSON.parse(savedState)
+        title.value = state.title || ''
+        description.value = state.description || ''
+        cards.value = state.cards || [{ front: '', back: '' }]
+      } catch (error) {
+        console.error('Error loading draft state:', error)
+        cards.value = [{ front: '', back: '' }]
+      }
     }
   }
+  
+  console.log('Final loaded data:', {
+    title: title.value,
+    description: description.value,
+    cards: cards.value,
+    fromLearningPage: fromLearningPage.value,
+    isEditing: isEditing.value
+  })
 })
 
 // Auto-save functionality
@@ -270,7 +307,12 @@ const goBackToLearning = () => {
     query: {
       deckId: originalDeckId.value,
       source: route.query.source,
-      title: title.value
+      title: title.value,
+      description: description.value,
+      // Preserve other important query params if they exist
+      creatorName: route.query.creatorName,
+      creatorAvatar: route.query.creatorAvatar,
+      createdAt: route.query.createdAt
     }
   })
 }
@@ -292,28 +334,28 @@ const saveFlashcard = async () => {
 
   try {
     const flashcardData = {
-      term: title.value.trim(), // Backend expects 'term' not 'title'
+      term: title.value.trim(),
       description: description.value.trim(),
       cardItems: validCards.map(card => ({
-        word: card.front.trim(), // Backend expects 'word' not 'front'
-        meaning: card.back.trim() // Backend expects 'meaning' not 'back'
+        word: card.front.trim(),
+        meaning: card.back.trim()
       }))
     };
 
-    console.log('Flashcard Data being sent:', flashcardData);
+
 
     let response;
     if (isEditing.value && originalDeckId.value) {
       // Update existing flashcard set
-      console.log('Updating existing flashcard set:', originalDeckId.value);
+
       response = await flashcardApi.update(originalDeckId.value, flashcardData);
     } else {
       // Create new flashcard set
-      console.log('Creating new flashcard set');
+
       response = await flashcardApi.create(flashcardData);
     }
 
-    console.log('Flashcard API response:', response);
+
 
     // Show success message
     store.dispatch('message/showMessage', {
@@ -321,23 +363,35 @@ const saveFlashcard = async () => {
       text: isEditing.value ? 'Cập nhật bộ thẻ thành công!' : 'Tạo bộ thẻ thành công!'
     });
 
-    // Update store
-    if (isEditing.value) {
-      await store.dispatch('flashcard/updateFlashcardSet', {
-        id: originalDeckId.value,
-        set: response
-      });
-    } else {
-      await store.dispatch('flashcard/addFlashcardSet', response);
-    }
-
     // Clean up storage
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('flashcardLearnState');
 
     // Navigate based on source
     if (fromLearningPage.value) {
-      goBackToLearning();
+      // Convert updated flashcard response to format expected by FlashcardLearn
+      const updatedItems = response.cardItems ? response.cardItems.map((item, index) => ({
+        id: `item-${index}-${item.word}`,
+        content: item.word,
+        backcontent: item.meaning,
+        type: 'word',
+        status: 'learning'
+      })) : [];
+
+      // Update store with new items
+      await store.dispatch('flashcard/setLearningItems', updatedItems);
+      
+      // Navigate back to learning page
+      await router.push({
+        name: 'flashcardLearn',
+        query: {
+          deckId: originalDeckId.value || response.flashcardID,
+          source: route.query.source || 'library',
+          title: response.term || title.value,
+          description: response.description || description.value,
+          updated: 'true' // Flag to indicate data was updated
+        }
+      });
     } else {
       router.push('/library');
     }

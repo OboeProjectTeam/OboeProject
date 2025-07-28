@@ -27,7 +27,7 @@ const activeTab = computed(() => route.query.tab || 'activities');
 function handleProfileSave(updatedUser) {
   user.value = updatedUser;
   // Trong ứng dụng thực tế, gửi API update tại đây
-  console.log('Profile saved!', updatedUser);
+
 }
 
 watch(() => route.query.newPost, async (newPost) => {
@@ -65,9 +65,8 @@ onMounted(async () => {
       stats: {
         joined: profile.create_at?.split('T')[0] || '',
         topics: "",
-        likes: 0,
         solutions: "",
-        learning_materials: 0
+        learning_materials: ""
       },
       activities: []
     };

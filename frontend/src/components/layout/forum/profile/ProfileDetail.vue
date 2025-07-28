@@ -2,7 +2,7 @@
   <div class="profile-page" v-if="user">
     <div class="profile-header bd-form">
         <div class="avatar-container">
-          <img :src="avatarPreview || editableUser.avatar" :alt="editableUser.username" class="profile-avatar-large">
+                     <img :src="avatarPreview || editableUser.avatarUrl || editableUser.avatar || 'https://ui-avatars.com/api/?name=' + (editableUser.userName || editableUser.username || 'User')" :alt="editableUser.userName || editableUser.username" class="profile-avatar-large">
           <div v-if="isEditing" class="avatar-upload-overlay">
             <label for="avatar-upload" class="avatar-upload-label">
               <i class="fas fa-camera"></i>
@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="profile-main-info">
-          <h1 class="username-large">{{ editableUser.username }}</h1>
+                     <h1 class="username-large">{{ editableUser.userName || editableUser.username }}</h1>
           
           <p v-if="!isEditing" class="full-name-large">{{ editableUser.fullName }}</p>
           <input v-else type="text" v-model="editableUser.fullName" class="form-control mb-2" maxlength="50">
@@ -26,7 +26,7 @@
           <p v-if="!isEditing" class="title-large" >{{ editableUser.title }}</p>
         </div>
         <div class="profile-actions">
-          <div v-if="isMyProfile">
+          <div v-if="props.isMyProfile">
             <template v-if="!isEditing">
               <button @click="startEditing" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Chỉnh sửa hồ sơ</button>
             </template>
@@ -41,19 +41,37 @@
         </div>
     </div>
     
-    <div v-if="isMyProfile" class="profile-notification bd-form">
+    <div v-if="props.isMyProfile" class="profile-notification bd-form">
       <i class="fas fa-info-circle"></i>
       <span>7 ngày trải nghiệm các tính năng AI miễn phí sau khi cập nhật đầy đủ thông tin hồ sơ.</span>
     </div>
 
-    <div v-if="isMyProfile" class="personal-info-widget bd-form">
+    <!-- Basic personal info for all users -->
+    <div class="personal-info-widget bd-form">
       <h3>Thông tin cá nhân</h3>
       <ul class="personal-info-list">
-         <li v-for="field in personalFields" :key="field.key">
-          <i :class="field.icon"></i>
-          <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
-          <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
+        <!-- Basic info shown for all users -->
+        <li v-if="editableUser.day_of_birth">
+          <i class="fas fa-birthday-cake"></i>
+          <span>{{ formatDate(editableUser.day_of_birth) }}</span>
         </li>
+        <li v-if="editableUser.userName">
+          <i class="fas fa-envelope"></i>
+          <span>{{ editableUser.userName }}</span>
+        </li>
+        <li v-if="editableUser.address">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ editableUser.address }}</span>
+        </li>
+        
+        <!-- Editable fields for own profile only -->
+        <template v-if="props.isMyProfile">
+          <li v-for="field in editableFields" :key="field.key">
+            <i :class="field.icon"></i>
+            <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
+            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
+          </li>
+        </template>
       </ul>
     </div>
 
@@ -77,13 +95,13 @@
         </div>
                   <div class="sidebar-widget bd-form">
             <h3>Thống kê</h3>
-            <div v-if="statsLoading && isMyProfile" class="stats-loading">
+            <div v-if="statsLoading && props.isMyProfile" class="stats-loading">
               <p>Đang tải thống kê...</p>
             </div>
             <ul v-else class="stats-list">
               <li><span>Chủ đề</span> <strong>{{ userStats?.blogCount ?? editableUser.stats?.topics ?? 0 }}</strong></li>
               <li><span>Bình luận</span> <strong>{{ userStats?.commentCount ?? editableUser.stats?.solutions ?? 0 }}</strong></li>
-              <li><span>Học liệu</span> <strong>{{ userStats?.flashcardCount ?? editableUser.stats?.learning_materials ?? 0 }}</strong></li>
+              <li><span>Học liệu</span> <strong>{{ userStats?.flashCard ?? editableUser.stats?.learning_materials ?? 0 }}</strong></li>
             </ul>
           </div>
       </div>
@@ -112,10 +130,7 @@
               <div class="activity-icon">
                 <i v-if="activity.type === 'post'" class="fas fa-file-alt" title="Chủ đề mới"></i>
                 <i v-if="activity.type === 'reply'" class="fas fa-reply" title="Bình luận mới"></i>
-                <i v-if="activity.type === 'answer'" class="fas fa-check-square" title="Câu trả lời"></i>
-                <i v-if="activity.type === 'material'" class="fas fa-book" title="Học liệu"></i>
-                <i v-if="activity.type === 'quiz'" class="fas fa-question-circle" title="Bài kiểm tra"></i>
-                <i v-if="activity.type === 'flashcard'" class="fas fa-layer-group" title="Flashcard"></i>
+                <i v-if="activity.type === 'flashcard'" class="fas fa-book" title="Học liệu"></i>
               </div>
             <div class="activity-content">
               <div v-if="activity.type === 'post'">
@@ -131,25 +146,11 @@
                 <div class="activity-snippet">"{{ activity.content_snippet }}"</div>
                  <div class="activity-meta">vào lúc {{ activity.timestamp }}</div>
               </div>
-              <div v-if="activity.type === 'answer'">
-                <div class="activity-title">
-                   <router-link :to="activity.url">Đã trả lời câu hỏi: {{ activity.postTitle }}</router-link>
-                </div>
-                <div class="activity-snippet">"{{ activity.content_snippet }}"</div>
-                 <div class="activity-meta">vào lúc {{ activity.timestamp }}</div>
-              </div>
-              <div v-if="activity.type === 'material'">
-                <div class="activity-title">
-                   <router-link :to="activity.url">Đã chia sẻ học liệu: {{ activity.title }}</router-link>
-                </div>
-                 <div class="activity-meta">Trong mục {{ activity.topic }} • {{ activity.timestamp }}</div>
-              </div>
               <div v-if="activity.type === 'quiz'">
                 <div class="activity-title">
-                   <router-link :to="activity.url">Đã tạo bài kiểm tra: {{ activity.title }}</router-link>
+                   <a @click.prevent="handleFlashcardClick(activity)" style="cursor: pointer; text-decoration: none; display: block; padding: 5px;">Đã tạo Học Liệu {{ activity.title }}</a>
                 </div>
                 <div class="activity-snippet" v-if="activity.content_snippet">"{{ activity.content_snippet }}"</div>
-                 <div class="activity-meta">Trong mục {{ activity.topic }} • {{ activity.timestamp }}</div>
               </div>
             </div>
           </li>
@@ -183,6 +184,7 @@
   import commentApi from '@/api/modules/commentApi';
   import flashcardApi from '@/api/modules/flashcardApi';
   import statisticsApi from '@/api/modules/statisticsApi';
+  import profileApi from '@/api/modules/profileApi';
 
   const props = defineProps({
   user: {
@@ -201,6 +203,10 @@ const store = useStore();
 
 const isEditing = ref(false);
 const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
+
+// Debug: Log initial user data
+
+
   const avatarPreview = ref(null);
   const userBlogs = ref([]);
   const userComments = ref([]);
@@ -213,16 +219,40 @@ const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
   const commentsLoading = ref(false);
   const flashcardsLoading = ref(false);
 
-const personalFields = [
-  { key: 'day_of_birth', icon: 'fas fa-birthday-cake', placeholder: 'Ngày sinh', type: 'text', maxlength: 20 },
+// Only additional fields that can be edited (phone for now, since day_of_birth, email, address are already shown above)
+const editableFields = [
   { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
-  { key: 'email', icon: 'fas fa-envelope', placeholder: 'Email', type: 'email', maxlength: 100 },
-  { key: 'address', icon: 'fas fa-map-pin', placeholder: 'Địa chỉ', type: 'text', maxlength: 150 },
 ];
+
+// Format date helper for display
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 
 watch(() => props.user, (newUser) => {
   if (!isEditing.value) {
     editableUser.value = JSON.parse(JSON.stringify(newUser));
+  }
+}, { deep: true });
+
+// Watch store user changes to update local state
+const storeUser = computed(() => store.getters['auth/currentUser']);
+watch(storeUser, (newStoreUser) => {
+  if (props.isMyProfile && newStoreUser && !isEditing.value) {
+    // Update local editableUser with store changes (like avatar updates)
+    editableUser.value = { 
+      ...editableUser.value, 
+      ...newStoreUser,
+      // Ensure both avatar properties are synced
+      avatar: newStoreUser.avatarUrl || newStoreUser.avatar,
+      avatarUrl: newStoreUser.avatarUrl || newStoreUser.avatar
+    };
   }
 }, { deep: true });
 
@@ -240,8 +270,12 @@ async function handleAvatarChange(event) {
       // Update preview with the returned URL
       avatarPreview.value = response.avatarUrl;
       
-      // Update editable user avatar
+      // Update editable user avatar (both properties for compatibility)
+      editableUser.value.avatarUrl = response.avatarUrl;
       editableUser.value.avatar = response.avatarUrl;
+      
+      // Update Vuex store with new avatar
+      await store.dispatch('auth/updateUserAvatar', response.avatarUrl);
       
       // Show success message
       store.dispatch('showMessage', {
@@ -291,18 +325,27 @@ function cancelEditing() {
 const currentTab = ref('all');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const totalElements = ref(0);
+const totalPages = ref(0);
 
   async function handleTabClick(tab) {
     currentTab.value = tab;
+    currentPage.value = 1; // Reset to first page when switching tabs
     
     if (tab === 'all') {
-      await loadUserActivities();
-    } else if (tab === 'post') {
-      await loadUserBlogs();
-    } else if (tab === 'reply') {
-      await loadUserComments();
-    } else if (tab === 'material') {
-      await loadUserFlashcards();
+      await loadUserActivities(0, itemsPerPage.value);
+    } else if (props.isMyProfile) {
+      // For own profile, load specific data for each tab
+      if (tab === 'post') {
+        await loadUserBlogs(0, itemsPerPage.value);
+      } else if (tab === 'reply') {
+        await loadUserComments(0, itemsPerPage.value);
+      } else if (tab === 'material') {
+        await loadUserFlashcards(0, itemsPerPage.value);
+      }
+    } else {
+      // For other users' profiles, always load activities and filter in computed
+      await loadUserActivities(0, itemsPerPage.value);
     }
   }
 
@@ -312,15 +355,30 @@ const itemsPerPage = ref(10);
     }
 
     if (currentTab.value === 'post') {
-      return userBlogs.value;
+      // For own profile, use userBlogs; for others, filter from userActivities
+      if (props.isMyProfile) {
+        return userBlogs.value;
+      } else {
+        return userActivities.value.filter(activity => activity.type === 'post');
+      }
     }
 
     if (currentTab.value === 'reply') {
-      return userComments.value;
+      // For own profile, use userComments; for others, filter from userActivities
+      if (props.isMyProfile) {
+        return userComments.value;
+      } else {
+        return userActivities.value.filter(activity => activity.type === 'reply');
+      }
     }
 
     if (currentTab.value === 'material') {
-      return userFlashcards.value;
+      // For own profile, use userFlashcards; for others, filter from userActivities
+      if (props.isMyProfile) {
+        return userFlashcards.value;
+      } else {
+        return userActivities.value.filter(activity => activity.type === 'quiz');
+      }
     }
 
     // For other tabs, use fallback data
@@ -331,25 +389,54 @@ const itemsPerPage = ref(10);
     return props.user.activities.filter(activity => activity.type === currentTab.value);
   });
 
-const totalPages = computed(() => {
-  return Math.ceil(filteredActivities.value.length / itemsPerPage.value);
-});
-
+// Use server-side pagination data
 const paginatedActivities = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredActivities.value.slice(start, end);
+  return filteredActivities.value;
 });
 
-function nextPage() {
+async function nextPage() {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
+    const page = currentPage.value - 1; // Convert to 0-based index
+    
+    if (currentTab.value === 'all') {
+      await loadUserActivities(page, itemsPerPage.value);
+    } else if (props.isMyProfile) {
+      // For own profile, load specific data for each tab
+      if (currentTab.value === 'post') {
+        await loadUserBlogs(page, itemsPerPage.value);
+      } else if (currentTab.value === 'reply') {
+        await loadUserComments(page, itemsPerPage.value);
+      } else if (currentTab.value === 'material') {
+        await loadUserFlashcards(page, itemsPerPage.value);
+      }
+    } else {
+      // For other users' profiles, always load activities and filter in computed
+      await loadUserActivities(page, itemsPerPage.value);
+    }
   }
 }
 
-function prevPage() {
+async function prevPage() {
   if (currentPage.value > 1) {
     currentPage.value--;
+    const page = currentPage.value - 1; // Convert to 0-based index
+    
+    if (currentTab.value === 'all') {
+      await loadUserActivities(page, itemsPerPage.value);
+    } else if (props.isMyProfile) {
+      // For own profile, load specific data for each tab
+      if (currentTab.value === 'post') {
+        await loadUserBlogs(page, itemsPerPage.value);
+      } else if (currentTab.value === 'reply') {
+        await loadUserComments(page, itemsPerPage.value);
+      } else if (currentTab.value === 'material') {
+        await loadUserFlashcards(page, itemsPerPage.value);
+      }
+    } else {
+      // For other users' profiles, always load activities and filter in computed
+      await loadUserActivities(page, itemsPerPage.value);
+    }
   }
 }
 
@@ -359,7 +446,8 @@ function prevPage() {
 
   // Load user statistics
   async function loadUserStats() {
-    if (!props.isMyProfile) return; // Only load stats for own profile
+    // Only load detailed stats for own profile
+    if (!props.isMyProfile) return;
     
     try {
       statsLoading.value = true;
@@ -375,17 +463,34 @@ function prevPage() {
 
   // Load user activities
   async function loadUserActivities(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load activities for own profile
-    
     try {
       activitiesLoading.value = true;
-      console.log('Loading user activities...');
-      const response = await statisticsApi.getUserActivity(page, size);
-      console.log('User activities loaded:', response);
+
+      
+      let response;
+      if (props.isMyProfile) {
+        // For current user, use statistics API
+        response = await statisticsApi.getUserActivity(page, size);
+      } else {
+        // For other users, use profile API with user ID
+        const userId = props.user.user_id || props.user.userId;
+        if (!userId) {
+          throw new Error('User ID not found');
+        }
+        response = await profileApi.getUserActivities(userId, page, size);
+      }
+      
+
+
+      
+      // Update pagination info from API response
+      totalElements.value = response.totalElements || 0;
+      totalPages.value = response.totalPages || 0;
       
       // Map activities to the expected format based on new API structure
       const activities = response.content.map(item => {
         const { type, data } = item;
+
         
         // Handle different activity types
         if (type === 'blog') {
@@ -400,6 +505,11 @@ function prevPage() {
             url: `/forum/post/${data.id}`
           };
         } else if (type === 'comment') {
+
+
+
+
+
           return {
             type: 'reply',
             id: data.commentId,
@@ -408,18 +518,37 @@ function prevPage() {
             content_snippet: data.content ? data.content.substring(0, 150) + '...' : '',
             topic: 'Bình luận',
             timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
-            url: `/forum/post/${data.referenceId}#comment-${data.commentId}`
+            url: `/forum/post/${data.referenceId}`
           };
-        } else if (type === 'quiz') {
+          
+        } else if (type === 'flashcard') {
+          // Construct URL with query parameters for FlashcardLearn
+          const queryParams = new URLSearchParams({
+            source: 'library',
+            title: data.term || data.title || 'Flashcard',
+            description: data.description || `Bộ thẻ học`,
+            setId: data.quizzesID || data.id,
+            creatorName: data.creatorName || data.userName || props.user.userName || 'Người dùng',
+            creatorAvatar: data.creatorAvatar || data.avatarUrl || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
+            createdAt: data.createdAt || new Date().toISOString()
+          });
+          
+          const flashcardUrl = `/flashcard/learn?${queryParams.toString()}`;
+
+
+
+
+
+          
           return {
             type: 'quiz',
             id: data.quizzesID,
-            title: data.title,
-            postTitle: data.title,
+            title: data.term,
+            postTitle: data.term,
             content_snippet: data.description ? data.description.substring(0, 150) + '...' : '',
             topic: 'Bài kiểm tra',
             timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
-            url: `/learn/quiz/${data.quizzesID}`
+            url: flashcardUrl
           };
         } else {
           // Fallback for unknown types
@@ -444,6 +573,8 @@ function prevPage() {
         text: 'Không thể tải hoạt động: ' + error.message
       });
       userActivities.value = [];
+      totalElements.value = 0;
+      totalPages.value = 0;
     } finally {
       activitiesLoading.value = false;
     }
@@ -451,13 +582,18 @@ function prevPage() {
 
   // Load user blogs
   async function loadUserBlogs(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load blogs for own profile
+    // Only load detailed blogs for own profile - other users' blogs are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       blogsLoading.value = true;
-      console.log('Loading user blogs...');
+
       const response = await blogApi.getUserBlogs(page, size);
-      console.log('User blogs loaded:', response);
+
+      
+      // Update pagination info from API response
+      totalElements.value = response.totalElements || 0;
+      totalPages.value = response.totalPages || 0;
       
       // Handle different response formats
       const blogs = response.content || response.data || response;
@@ -471,7 +607,7 @@ function prevPage() {
         content_snippet: blog.content ? blog.content.substring(0, 150) + '...' : '',
         topic: blog.topics || blog.category || 'Chủ đề',
         timestamp: new Date(blog.createdAt).toLocaleString('vi-VN'),
-        url: `/blog/${blog.blogId || blog.id}`
+        url: `/forum/post/${blog.blogId || blog.id}`
       }));
       
       userBlogs.value = mappedBlogs;
@@ -482,6 +618,8 @@ function prevPage() {
         text: 'Không thể tải bài viết: ' + error.message
       });
       userBlogs.value = [];
+      totalElements.value = 0;
+      totalPages.value = 0;
     } finally {
       blogsLoading.value = false;
     }
@@ -489,28 +627,52 @@ function prevPage() {
 
   // Load user comments
   async function loadUserComments(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load comments for own profile
+    // Only load detailed comments for own profile - other users' comments are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       commentsLoading.value = true;
-      console.log('Loading user comments...');
+
       const response = await commentApi.getUserComments(page, size);
-      console.log('User comments loaded:', response);
+
+      
+      // Update pagination info from API response
+      totalElements.value = response.totalElements || 0;
+      totalPages.value = response.totalPages || 0;
       
       // Handle different response formats
       const comments = response.content || response.data || response;
       
-      // Map comments to the expected format
-      const mappedComments = (Array.isArray(comments) ? comments : []).map(comment => ({
-        type: 'reply',
-        id: comment.commentId || comment.id,
-        title: comment.blogTitle || comment.postTitle || 'Bình luận',
-        postTitle: comment.blogTitle || comment.postTitle || 'Bình luận',
-        content_snippet: comment.content ? comment.content.substring(0, 150) + '...' : '',
-        topic: 'Bình luận',
-        timestamp: new Date(comment.createdAt).toLocaleString('vi-VN'),
-        url: `/blog/${comment.blogId || comment.postId}#comment-${comment.commentId || comment.id}`
-      }));
+      // Map comments and fetch blog titles
+      const mappedComments = await Promise.all(
+        (Array.isArray(comments) ? comments : []).map(async (comment) => {
+          let blogTitle = comment.title || comment.blogTitle || comment.postTitle || 'Bài viết';
+          
+          // Try to fetch the actual blog title using blogApi.getById
+          const postId = comment.referenceId || comment.blogId || comment.postId;
+          if (postId) {
+            try {
+
+              const blogResponse = await blogApi.getById(postId);
+              blogTitle = blogResponse.title || blogTitle;
+
+            } catch (error) {
+              console.warn(`Failed to fetch blog title for postId ${postId}:`, error);
+              // Keep the original title if API call fails
+            }
+          }
+          
+          return {
+            type: 'reply',
+            id: comment.commentId || comment.id,
+            postTitle: ` ${blogTitle}`,
+            content_snippet: comment.content ? comment.content.substring(0, 150) + '...' : '',
+            topic: 'Bình luận',
+            timestamp: new Date(comment.createdAt).toLocaleString('vi-VN'),
+            url: `/forum/post/${postId}#comment-${comment.commentId || comment.id}`
+          };
+        })
+      );
       
       userComments.value = mappedComments;
     } catch (error) {
@@ -520,6 +682,8 @@ function prevPage() {
         text: 'Không thể tải bình luận: ' + error.message
       });
       userComments.value = [];
+      totalElements.value = 0;
+      totalPages.value = 0;
     } finally {
       commentsLoading.value = false;
     }
@@ -527,28 +691,56 @@ function prevPage() {
 
   // Load user flashcards
   async function loadUserFlashcards(page = 0, size = 10) {
-    if (!props.isMyProfile) return; // Only load flashcards for own profile
+    // Only load detailed flashcards for own profile - other users' flashcards are shown in activities
+    if (!props.isMyProfile) return;
     
     try {
       flashcardsLoading.value = true;
-      console.log('Loading user flashcards...');
+
       const response = await flashcardApi.getUserFlashcards(page, size);
-      console.log('User flashcards loaded:', response);
+
+      
+      // Update pagination info from API response
+      totalElements.value = response.totalElements || 0;
+      totalPages.value = response.totalPages || 0;
       
       // Handle different response formats
       const flashcards = response.content || response.data || response;
       
-      // Map flashcards to the expected format
-      const mappedFlashcards = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
-        type: 'material',
-        id: flashcard.flashcardId || flashcard.id,
-        title: flashcard.title || flashcard.name || 'Flashcard',
-        postTitle: flashcard.title || flashcard.name || 'Flashcard',
-        content_snippet: flashcard.description ? flashcard.description.substring(0, 150) + '...' : `${flashcard.cardCount || 0} thẻ học`,
-        topic: flashcard.category || flashcard.subject || 'Học liệu',
-        timestamp: new Date(flashcard.createdAt).toLocaleString('vi-VN'),
-        url: `/flashcard/${flashcard.flashcardId || flashcard.id}`
-      }));
+      // Map flashcards to the expected format - PRESERVE cardItems like MyLibrary does
+      const mappedFlashcards = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => {
+        // Construct URL with query parameters for FlashcardLearn
+        const queryParams = new URLSearchParams({
+          source: 'library',
+          title: flashcard.title || flashcard.term || 'Flashcard',
+          description: flashcard.description || `Bộ thẻ chứa ${flashcard.cardCount || 0} thẻ học`,
+          setId: flashcard.set_id || flashcard.flashcardId || flashcard.id,
+          creatorName: flashcard.creatorName || flashcard.userName || props.user.userName || 'Người dùng',
+          creatorAvatar: flashcard.creatorAvatar || flashcard.avatarUrl || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
+          createdAt: flashcard.createdAt || flashcard.created || new Date().toISOString()
+        });
+        
+        const flashcardUrl = `/flashcard/learn?${queryParams.toString()}`;
+
+
+
+
+
+
+        
+        return {
+          type: 'quiz',
+          id: flashcard.set_id || flashcard.flashcardId || flashcard.id,
+          title: flashcard.title || flashcard.term || 'Flashcard',
+          postTitle: flashcard.title || flashcard.term || 'Flashcard',
+          content_snippet: flashcard.description ? flashcard.description.substring(0, 150) + '...' : `${flashcard.cardCount || 0} thẻ học`,
+          topic: flashcard.category || flashcard.subject || 'Học liệu',
+          timestamp: new Date(flashcard.createdAt || flashcard.created).toLocaleString('vi-VN'),
+          url: flashcardUrl,
+          // IMPORTANT: Preserve cardItems for handleFlashcardClick
+          cardItems: flashcard.cardItems || []
+        };
+      });
       
       userFlashcards.value = mappedFlashcards;
     } catch (error) {
@@ -558,46 +750,147 @@ function prevPage() {
         text: 'Không thể tải flashcards: ' + error.message
       });
       userFlashcards.value = [];
+      totalElements.value = 0;
+      totalPages.value = 0;
     } finally {
       flashcardsLoading.value = false;
     }
   }
 
-  // Load stats when component mounts and when user changes
+  // Load data when component mounts and when user changes
   onMounted(() => {
+    // Load stats only for own profile
     if (props.isMyProfile) {
       loadUserStats();
-      // Load data based on current tab
-      if (currentTab.value === 'all') {
-        loadUserActivities();
-      } else if (currentTab.value === 'post') {
-        loadUserBlogs();
+    }
+    
+    // Load data based on current tab
+    if (currentTab.value === 'all') {
+      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
+    } else if (props.isMyProfile) {
+      // For own profile, load specific data for each tab
+      if (currentTab.value === 'post') {
+        loadUserBlogs(currentPage.value - 1, itemsPerPage.value);
       } else if (currentTab.value === 'reply') {
-        loadUserComments();
+        loadUserComments(currentPage.value - 1, itemsPerPage.value);
       } else if (currentTab.value === 'material') {
-        loadUserFlashcards();
+        loadUserFlashcards(currentPage.value - 1, itemsPerPage.value);
       }
+    } else {
+      // For other users' profiles, always load activities and filter in computed
+      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
     }
   });
 
   watch(() => props.user, () => {
+    // Load stats only for own profile
     if (props.isMyProfile) {
       loadUserStats();
-      if (currentTab.value === 'all') {
-        loadUserActivities();
-      } else if (currentTab.value === 'post') {
-        loadUserBlogs();
+    }
+    
+    // Load data based on current tab
+    if (currentTab.value === 'all') {
+      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
+    } else if (props.isMyProfile) {
+      // For own profile, load specific data for each tab
+      if (currentTab.value === 'post') {
+        loadUserBlogs(currentPage.value - 1, itemsPerPage.value);
       } else if (currentTab.value === 'reply') {
-        loadUserComments();
+        loadUserComments(currentPage.value - 1, itemsPerPage.value);
       } else if (currentTab.value === 'material') {
-        loadUserFlashcards();
+        loadUserFlashcards(currentPage.value - 1, itemsPerPage.value);
       }
+    } else {
+      // For other users' profiles, always load activities and filter in computed
+      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
     }
   });
 
   function handleSendMessage() {
-    if (router.currentRoute.value.meta.emit) {
-      router.currentRoute.value.meta.emit('send-message', props.user);
+    // Prepare user data for ChatBox
+    const chatUser = {
+      user_id: props.user.user_id || props.user.userId,
+      userId: props.user.user_id || props.user.userId,
+      id: props.user.user_id || props.user.userId,
+      userName: props.user.userName || props.user.username,
+      fullName: props.user.fullName,
+      avatarUrl: props.user.avatarUrl || props.user.avatar,
+      avatar: props.user.avatarUrl || props.user.avatar
+    }
+    // Emit to parent to open ChatBox
+    emit('send-message', chatUser)
+  }
+
+  // Handle flashcard click - pass data directly like MyLibrary does
+  async function handleFlashcardClick(activity) {
+    try {
+
+
+      
+      // Extract setId from the activity URL or use activity id
+      const urlParams = new URLSearchParams(activity.url.split('?')[1]);
+      const setId = urlParams.get('setId') || activity.id;
+      
+
+
+      
+      if (!setId) {
+        console.error('No setId found for flashcard');
+        return;
+      }
+      
+      // Find the flashcard data from userFlashcards to get cardItems
+      const flashcardData = userFlashcards.value.find(fc => fc.id === setId);
+
+      
+      if (!flashcardData || !flashcardData.cardItems) {
+        console.error('No flashcard data or cardItems found for setId:', setId);
+        store.dispatch('message/showMessage', {
+          type: 'error',
+          text: 'Không tìm thấy dữ liệu học liệu'
+        });
+        return;
+      }
+      
+      // Convert cardItems to learning format like MyLibrary does
+      const learningItems = flashcardData.cardItems.map(card => ({
+        type: 'word',
+        kanji: card.word || '',
+        kana: '',
+        meaning: card.meaning || ''
+      }));
+      
+
+      
+      // Save to store like MyLibrary does
+      await store.dispatch('flashcard/setLearningItems', learningItems);
+      
+      // Navigate to flashcard learn page with query params
+      const navigationQuery = {
+        source: 'library',
+        title: urlParams.get('title') || activity.title,
+        description: urlParams.get('description') || activity.content_snippet || `Học liệu`,
+        setId: setId,
+        creatorName: urlParams.get('creatorName') || props.user.userName || 'Người dùng',
+        creatorAvatar: urlParams.get('creatorAvatar') || props.user.avatarUrl || props.user.avatar || '',
+        createdAt: urlParams.get('createdAt') || new Date().toISOString()
+      };
+      
+
+      
+      router.push({
+        path: '/flashcard/learn',
+        query: navigationQuery
+      });
+      
+
+      
+    } catch (error) {
+      console.error('Error handling flashcard click:', error);
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: 'Không thể tải học liệu: ' + error.message
+      });
     }
   }
 
@@ -612,4 +905,4 @@ function prevPage() {
     color: #666;
     font-style: italic;
   }
-  </style> 
+  </style>

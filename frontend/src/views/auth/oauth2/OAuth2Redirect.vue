@@ -6,7 +6,7 @@ import { onMounted } from 'vue'
 const router = useRouter()
 const store = useStore()
 
-console.log(" Vào OAuth2Redirect.vue");
+
 
 onMounted(() => {
   setTimeout(async () => {
@@ -16,19 +16,33 @@ onMounted(() => {
     const token = params.get('token');
     const provider = params.get('provider');
 
-    console.log('Redirect hash:', hash);
-    console.log('Token:', token);
+
+
+
+
 
     if (token) {
       try {
+        // Decode JWT để kiểm tra payload
+        if (token.includes('.')) {
+          const payload = token.split('.')[1];
+          const decodedPayload = JSON.parse(atob(payload));
+
+        }
+
         localStorage.setItem('token', token);
+
+        
         await store.dispatch('auth/fetchCurrentUser', { token, provider });
+
         router.replace('/');
       } catch (e) {
         console.error('OAuth2 Redirect Error:', e);
+        console.error('Error details:', e.response?.data || e.message);
         router.replace('/login');
       }
     } else {
+      console.error('No token received in OAuth2 redirect');
       router.replace('/login');
     }
   }, 100); // thử delay 100ms

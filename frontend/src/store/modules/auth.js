@@ -1,5 +1,6 @@
 import api from '@/api';
 import { isTokenExpired } from '@/api/modules/authApi';
+import WebSocketService from '@/services/websocket';
 
 const state = () => ({
   token: localStorage.getItem('token') || null,
@@ -29,18 +30,18 @@ const mutations = {
 };
 
 const actions = {
-    // Xử lý login OAuth2: nhận token và fetch user
-    async fetchCurrentUser({ commit }, { token }) {
-      commit('SET_TOKEN', token);
-  
-      try {
-        const user = await api.auth.getCurrentUser();
-        commit('SET_USER', user);
-      } catch (error) {
-        console.error('Lỗi lấy user từ token:', error);
-        commit('CLEAR_AUTH');
-      }
-    },
+      // Xử lý login OAuth2: nhận token và fetch user
+  async fetchCurrentUser({ commit }, { token }) {
+    commit('SET_TOKEN', token);
+
+    try {
+      const user = await api.profile.getProfile();
+      commit('SET_USER', user);
+    } catch (error) {
+      console.error('Lỗi lấy user từ token:', error);
+      commit('CLEAR_AUTH');
+    }
+  },
   
   // Đăng nhập: gọi API và lưu token + user
   async login({ commit }, { userName, passWord }) {
@@ -53,7 +54,7 @@ const actions = {
   async signup(_, userData) {
     try {
       const result = await api.auth.signup(userData);
-      console.log('Đăng ký thành công:', result);
+
     } catch (error) {
       console.error('Lỗi khi đăng ký:', error);
       throw error;
@@ -79,13 +80,34 @@ const actions = {
   // Upload avatar mới và cập nhật lại thông tin
   async uploadAvatar({ commit, state }, file) {
     const avatarUrl = await api.auth.uploadAvatar(file);
-    const updatedUser = { ...state.user, avatar: avatarUrl };
+    const updatedUser = { ...state.user, avatarUrl: avatarUrl };
     commit('SET_USER', updatedUser);
+  },
+
+  // Cập nhật avatar URL trong store (không gọi API)
+  updateUserAvatar({ commit, state }, avatarUrl) {
+    const updatedUser = { ...state.user, avatarUrl: avatarUrl };
+    commit('SET_USER', updatedUser);
+  },
+
+  // Tải lại profile từ server
+  async refreshProfile({ commit }) {
+    try {
+      const user = await api.profile.getProfile();
+      commit('SET_USER', user);
+      return user;
+    } catch (error) {
+      console.error('Lỗi khi tải lại profile:', error);
+      throw error;
+    }
   },
 
   // Đăng xuất: gọi API và xóa thông tin local
   async logout({ commit }) {
     try {
+      // Disconnect WebSocket trước khi logout
+      WebSocketService.disconnect();
+      
       await api.auth.logout?.(); // Nếu có API logout thì gọi, không có thì bỏ qua
     } catch (e) {
       console.warn('Không gọi được logout API, vẫn xóa local.');

@@ -27,6 +27,18 @@ public class Kanji {
     @Column(name = "strokes")
     private String strokes;
 
+
+    @Column(name = "vietnamese_pronunciation")
+    private String vietnamesePronunciation;
+
+    public String getVietnamesePronunciation() {
+        return vietnamesePronunciation;
+    }
+
+    public void setVietnamesePronunciation(String vietnamesePronunciation) {
+        this.vietnamesePronunciation = vietnamesePronunciation;
+    }
+
     // Getters/Setters
     public UUID getKanjiId() {
         return kanjiId;

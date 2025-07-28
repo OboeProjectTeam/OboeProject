@@ -1,4 +1,5 @@
 import quizApi from '@/api/modules/quizApi'
+import { cloneVNode } from 'vue'
 
 const state = {
   quizzes: [],
@@ -29,9 +30,7 @@ const actions = {
   async fetchQuizzes({ commit }) {
     try {
       commit('setLoading', true)
-      console.log('Fetching quizzes...')
       const response = await quizApi.getAll()
-      console.log('Quizzes fetched:', response)
       commit('setQuizzes', response)
       return response
     } catch (error) {

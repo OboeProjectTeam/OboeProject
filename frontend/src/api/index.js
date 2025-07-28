@@ -19,6 +19,7 @@ import sampleSentenceApi from './modules/sampleSentenceApi';
 import paymentApi from './modules/paymentApi';
 import statisticsApi from './modules/statisticsApi';
 import learningMaterialApi from './modules/learningMaterialApi';
+import searchApi from './modules/searchApi';
 
 const api = {
     admin: adminApi,
@@ -38,6 +39,7 @@ const api = {
     question: questionApi,
     quiz: quizApi,
     report: reportApi,
+    search: searchApi,
     statistics: statisticsApi,
     vocabulary: vocabularyApi,
     sampleSentence: sampleSentenceApi

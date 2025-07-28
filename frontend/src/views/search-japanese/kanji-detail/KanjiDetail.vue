@@ -1,7 +1,7 @@
 <template>
   <DetailPage
     type="kanji"
-    :item="kanji"
+    :item="selectedKanji"
     :itemId="kanjiId"
     mainField="kanji"
     readingField="reading"
@@ -23,11 +23,11 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
-    const kanjiId = ref(parseInt(route.params.id));
+    const kanjiId = ref(route.params.id); // Keep as string for UUID
 
     // Function to fetch kanji data
     const fetchKanjiData = (id) => {
-      store.dispatch('search/getKanjiById', parseInt(id));
+      store.dispatch('search/getKanjiById', id);
     };
 
     // Initial fetch
@@ -38,7 +38,7 @@ export default {
       () => route.params.id,
       (newId) => {
         if (newId) {
-          kanjiId.value = parseInt(newId);
+          kanjiId.value = newId;
           fetchKanjiData(kanjiId.value);
         }
       }

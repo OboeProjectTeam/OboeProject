@@ -104,16 +104,16 @@
               </div>
             </div>
             <div class="user-profile" @click="toggleUserMenu">
-              <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+              <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                 alt="User Avatar" 
                 class="user-avatar" />
               <div v-if="showUserMenu" class="user-menu">
                 <div class="user-info">
-                  <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                  <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                     alt="User Avatar" 
                     class="menu-avatar" />
                   <div class="user-details">
-                    <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                    <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                     <span class="user-email">{{ currentUser?.email }}</span>
                   </div>
                 </div>
@@ -206,16 +206,16 @@
                 </div>
               </div>
               <div class="user-profile" @click="toggleUserMenu">
-                <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                   alt="User Avatar" 
                   class="user-avatar" />
                 <div v-if="showUserMenu" class="user-menu">
                   <div class="user-info">
-                    <img :src="currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || 'User')" 
+                    <img :src="currentUser?.avatarUrl || currentUser?.photoURL || 'https://ui-avatars.com/api/?name=' + (currentUser?.displayName || currentUser?.userName || 'User')" 
                       alt="User Avatar" 
                       class="menu-avatar" />
                     <div class="user-details">
-                      <span class="user-name">{{ currentUser?.displayName || 'User' }}</span>
+                      <span class="user-name">{{ currentUser?.displayName || currentUser?.userName || 'User' }}</span>
                       <span class="user-email">{{ currentUser?.email }}</span>
                     </div>
                   </div>
@@ -318,6 +318,7 @@ import MsButton from '@/components/common/button/MsButton.vue'
 import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
 import TheLogo from '@/components/layout/logo/TheLogo.vue'
 import api from '@/api'
+import WebSocketService from '@/services/websocket'
 
 const store = useStore()
 const router = useRouter()
@@ -341,18 +342,12 @@ const checkMobile = () => {
 
 const handleScroll = () => {
   if (!isMobile.value) return;
-  
   const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  
-  // Determine scroll direction
   if (currentScrollTop > state.lastScrollTop && currentScrollTop > 50) {
-    // Scrolling down & past threshold
     state.isHeaderExpanded = false;
   } else {
-    // Scrolling up or at top
     state.isHeaderExpanded = true;
   }
-  
   state.lastScrollTop = currentScrollTop;
 }
 
@@ -368,16 +363,23 @@ const handleClickOutside = (event) => {
     state.showNotifications = false
   }
 }
-
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
   window.addEventListener('scroll', handleScroll)
   document.addEventListener('click', handleClickOutside)
-  
-  // Load notifications for authenticated users
+
   if (isAuthenticated.value) {
     loadNotifications()
+    WebSocketService.connect(currentUser.value?.userId || currentUser.value?.id)
+
+    WebSocketService.onMessage((msg) => {
+      console.log("[ Message Received]", msg);
+    });
+
+    WebSocketService.onNotification((noti) => {
+      handleIncomingNotification(noti);
+    });
   }
 })
 
@@ -396,50 +398,52 @@ const notificationsLoading = ref(false)
 
 const unreadNotifications = computed(() => {
   const count = notifications.value.filter(n => !n.read).length
-  console.log('Unread notifications count:', count)
-  console.log('Total notifications:', notifications.value.length)
   return count
 })
 
-// Load notifications from API
+const handleIncomingNotification = (data) => {
+  // Chuyển key từ snake_case sang camelCase nếu cần
+  const id = data.notifiId || data.notifId || data.id;
+  const content = data.textNotification || data.text_notification || data.message;
+  const updateAt = data.updateAt || data.update_at || new Date().toISOString();
+  const read = data.read ?? false;
+
+  const newNotification = {
+    id,
+    content,
+    time: formatNotificationTime(updateAt),
+    read,
+    type: 'message'
+  };
+
+  notifications.value.unshift(newNotification);
+};
+
+
 const loadNotifications = async () => {
   try {
     notificationsLoading.value = true
-    console.log('Loading notifications...')
-    console.log('Is authenticated:', isAuthenticated.value)
     const response = await api.notification.getAll()
-    console.log('Notifications API response:', response)
-    
-    // Handle different response formats
     const notificationsData = Array.isArray(response) ? response : (response.content || response.data || response)
-    console.log('Raw notifications data:', notificationsData)
-    console.log('Is array?', Array.isArray(notificationsData))
-    
-    // Map notifications to expected format based on actual API response
     const mappedNotifications = (Array.isArray(notificationsData) ? notificationsData : []).map(notification => {
-      console.log('Mapping notification:', notification)
       return {
         id: notification.notifiId || notification.id,
         content: notification.textNotification || notification.content || notification.message,
         time: notification.updateAt ? formatNotificationTime(notification.updateAt) : 'Không rõ',
         read: notification.read || false,
-        type: 'comment', // Default type based on API content
-        user: null // No user data in current API response
+        type: 'comment',
+        user: null
       }
     })
-    
-    console.log('Mapped notifications:', mappedNotifications)
     notifications.value = mappedNotifications
   } catch (error) {
     console.error('Failed to load notifications:', error)
-    // Keep empty array on error
     notifications.value = []
   } finally {
     notificationsLoading.value = false
   }
 }
 
-// Format notification time
 const formatNotificationTime = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
@@ -447,7 +451,6 @@ const formatNotificationTime = (dateString) => {
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
-  
   if (diffMins < 1) return 'Vừa xong'
   if (diffMins < 60) return `${diffMins} phút trước`
   if (diffHours < 24) return `${diffHours} giờ trước`
@@ -490,26 +493,19 @@ const toggleNotifications = () => {
   if (state.showNotifications) {
     state.showUserMenu = false
     state.showCreateMenu = false
-    // Load notifications when opening
     loadNotifications()
   }
 }
 
 const markAllAsRead = async () => {
   try {
-    console.log('Marking all notifications as read...')
     await api.notification.markAllAsRead()
-    
-    // Update local state
     notifications.value = notifications.value.map(notification => ({
       ...notification,
       read: true
     }))
-    
-    console.log('All notifications marked as read')
   } catch (error) {
     console.error('Failed to mark notifications as read:', error)
-    // Show error message
     store.dispatch('message/showMessage', {
       type: 'error',
       text: 'Không thể đánh dấu thông báo đã đọc: ' + error.message
@@ -518,10 +514,7 @@ const markAllAsRead = async () => {
 }
 
 const handleMessagesClick = () => {
-  // Close user menu
   state.showUserMenu = false
-  
-  // Navigate to messages page (will load data automatically)
   router.push('/messages')
 }
 
@@ -534,7 +527,6 @@ const handleLogout = async () => {
   }
 };
 
-
 const setActive = (index) => {
   state.activeIndex = index
   store.commit('header/setActiveIndex', index)
@@ -543,14 +535,11 @@ const setActive = (index) => {
 
 const handleNotificationClick = (notification) => {
   notification.read = true
-  
   switch(notification.type) {
     case 'message':
       router.push('/messages')
       break
     case 'forum':
-      router.push('/forum')
-      break
     case 'comment':
       router.push('/forum')
       break
@@ -560,12 +549,12 @@ const handleNotificationClick = (notification) => {
     default:
       break
   }
-  
   state.showNotifications = false
 }
 
 const { activeIndex, placeholder, showUserMenu, showCreateMenu, showMobileMenu, showNotifications, isHeaderExpanded } = toRefs(state)
 </script>
+
 
 <style lang="scss" scoped>
 @use '@/components/layout/header/TheHeader.scss';
