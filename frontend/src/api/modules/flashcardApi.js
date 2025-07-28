@@ -28,6 +28,16 @@ const flashcardApi = {
     }
   },
 
+  // Lấy flashcard theo ID
+  async getById(id) {
+    try {
+      const res = await axios.get(`${PREFIX}/${id}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
   // Cập nhật flashcard
   async update(id, dto) {
     try {

@@ -231,11 +231,11 @@ const handleSubmit = async (event) => {
       tags: selectedTags.value.length > 0 ? selectedTags.value.join(', ') : '', // Convert array to comma-separated string
     };
 
-    console.log('Creating blog post:', blogDTO);
+
 
     // Call API to create blog post
     const response = await blogApi.create(blogDTO);
-    console.log('Blog creation response:', response);
+
 
     // Extract blog data from response
     // Response format: { message: "Đăng bài thành công!", data: BlogDTO }

@@ -355,6 +355,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
 import { TransitionGroup } from 'vue';
+import flashcardApi from '@/api/modules/flashcardApi';
 
 const store = useStore();
 const route = useRoute();
@@ -475,12 +476,114 @@ const formatCreatedDate = (timestamp) => {
   }
 };
 
+// Function to load flashcard data from API
+const loadFlashcardData = async (setId) => {
+  // First check if we already have data in store (from MyLibrary or ProfileDetail)
+  const existingItems = store.getters['flashcard/getLearningItems'];
+  if (existingItems && existingItems.length > 0) {
+
+    allItems.value = addIdsToItems(existingItems);
+    updateCounts();
+    return;
+  }
+
+  // If no setId provided and no store data, can't proceed
+  if (!setId) {
+
+    return;
+  }
+
+  try {
+
+
+    
+    const flashcardData = await flashcardApi.getById(setId);
+    
+
+
+
+
+
+
+
+
+    if (flashcardData?.cardItems && flashcardData.cardItems.length > 0) {
+
+
+    }
+
+    
+    // Convert API response to items format - matching MyLibrary.vue format
+    const items = flashcardData.cardItems?.map(item => ({
+      id: item.cardItemId || item.id || Math.random().toString(36).substr(2, 9),
+      type: 'word',
+      kanji: item.word || '',
+      kana: '',
+      meaning: item.meaning || '',
+      content: item.word || '',
+      backcontent: item.meaning || '',
+      front: item.word || '',
+      back: item.meaning || '',
+      status: 'learning'
+    })) || [];
+    
+
+
+
+    if (items.length > 0) {
+
+    }
+
+    
+    // Only clear and update store after successful API call
+
+    await store.dispatch('flashcard/setLearningItems', items);
+    allItems.value = addIdsToItems(items);
+    updateCounts();
+    
+    // Reset progress if tracking is enabled
+    if (trackProgress.value) {
+      learningStats.known = 0;
+      learningStats.learning = items.length;
+      learningStats.remaining = items.length;
+    }
+    
+    // Reset swiper to first slide
+    nextTick(() => {
+      if (swiperInstance.value) {
+        swiperInstance.value.slideTo(0);
+        swiperInstance.value.update();
+      }
+    });
+    
+  } catch (error) {
+    console.error('=== API ERROR DEBUG ===');
+    console.error('Error loading flashcard data:', error);
+    console.error('Error type:', typeof error);
+    console.error('Error message:', error.message);
+    console.error('Error response:', error.response);
+    console.error('Error response data:', error.response?.data);
+    console.error('Error response status:', error.response?.status);
+    console.error('Error stack:', error.stack);
+    console.error('=== END API ERROR DEBUG ===');
+    
+    // Keep existing data if API fails
+
+    const existingItems = store.getters['flashcard/getLearningItems'];
+
+    if (existingItems && existingItems.length > 0) {
+      allItems.value = addIdsToItems(existingItems);
+      updateCounts();
+    }
+  }
+};
+
 
 // Method to handle mode changes
 const setMode = async (mode) => {
 activeMode.value = mode;
 if (mode === 'match') {
-  console.log('Starting Match game...');
+
   try {
     // 1. Save current state of FlashcardLearn to localStorage
     const learnStateToSave = {
@@ -494,7 +597,7 @@ if (mode === 'match') {
       isAutoPlaying: isAutoPlaying.value,
     };
     localStorage.setItem('flashcardLearnStateBeforeMatch', JSON.stringify(learnStateToSave));
-    console.log('Saved FlashcardLearn state to localStorage for Match game:', learnStateToSave);
+
 
     // 2. Save current flashcards to store for the match game
     // Ensure currentFlashcards are up-to-date and have IDs
@@ -509,9 +612,9 @@ if (mode === 'match') {
       status: item.status || 'learning'
     }));
 
-    console.log('Saving flashcards to store for Match game:', currentFlashcards);
+
     await store.dispatch('flashcard/setLearningItems', currentFlashcards);
-    console.log('Successfully saved to store, now navigating to Match game...');
+
 
     // 3. Navigate
     await router.push({
@@ -521,7 +624,7 @@ if (mode === 'match') {
         source: route.query.source || ''
       }
     });
-    console.log('Navigation to Match game successful');
+
 
   } catch (err) {
     console.error('Error in starting Match game:', err);
@@ -540,7 +643,7 @@ selectedTestType.value = '';
 };
 
 const startTest = async () => {
-console.log('Starting test with type:', selectedTestType.value);
+
 if (!selectedTestType.value) {
   console.error('No test type selected');
   return;
@@ -560,7 +663,7 @@ try {
     // Add any other relevant states from tempSettings or other refs if needed
   };
   localStorage.setItem('flashcardLearnStateBeforeTest', JSON.stringify(learnStateToSave));
-  console.log('Saved FlashcardLearn state to localStorage:', learnStateToSave);
+
 
   // 2. Save current flashcards to store for the test
   const currentFlashcards = allItems.value.map(item => ({
@@ -574,9 +677,9 @@ try {
     status: item.status || 'learning'
   }));
 
-  console.log('Saving flashcards to store for test:', currentFlashcards);
+
   await store.dispatch('flashcard/setLearningItems', currentFlashcards);
-  console.log('Successfully saved to store, now navigating...');
+
 
   // 3. Navigate
   await router.push({
@@ -588,7 +691,7 @@ try {
     }
   });
 
-  console.log('Navigation successful');
+
   closeTestOptions();
 } catch (err) {
   console.error('Error in startTest:', err);
@@ -616,10 +719,10 @@ if (swiperInstance.value) {
 
 // Xử lý phím tắt
 const handleKeydown = (e) => {
-console.log('handleKeydown called with:', e.code);
+
 
 if (showSettings.value) {
-  console.log('Settings modal is open, ignoring keyboard shortcuts');
+
   return;
 }
 
@@ -627,21 +730,21 @@ if (showSettings.value) {
 if (['ArrowLeft', 'ArrowRight', 'ArrowUp'].includes(e.code)) {
   const swiper = cardRef.value?.swiper;
   if (!swiper) {
-    console.log('No swiper instance found for navigation');
+
     return;
   }
 
   switch (e.code) {
     case 'ArrowLeft':
-      console.log('Previous slide');
+
       swiper.slidePrev();
       break;
     case 'ArrowRight':
-      console.log('Next slide');
+
       swiper.slideNext();
       break;
     case 'ArrowUp':
-      console.log('Flip card');
+
       if (cardRef.value?.flipCard) {
         cardRef.value.flipCard(swiper.activeIndex);
       }
@@ -670,21 +773,21 @@ if (trackProgress.value) {
   switch (e.code) {
     case 'Minus':
     case 'NumpadSubtract':
-      console.log('Mark as learning');
+
       updateCardStatus('learning');
       break;
     case 'Equal':
     case 'NumpadAdd':
-      console.log('Mark as known');
+
       updateCardStatus('known');
       break;
   }
 } else {
-  console.log('Track progress is disabled');
+
 }
 };
 
-onMounted(() => {
+onMounted(async () => {
 // Attempt to restore state if returning from test, match, OR create flashcard
 const savedLearnStateFromTestString = localStorage.getItem('flashcardLearnStateBeforeTest');
 const savedLearnStateFromMatchString = localStorage.getItem('flashcardLearnStateBeforeMatch');
@@ -707,7 +810,7 @@ if (savedLearnStateFromTestString) {
 if (savedLearnStateString) {
   try {
     const savedState = JSON.parse(savedLearnStateString);
-    console.log(`Restoring FlashcardLearn state from localStorage (key: ${fromKey}):`, savedState);
+
 
     // Restore allItems and dependent states
     // Handle different field names: 'allItems' from test/match, 'items' from create flashcard
@@ -768,11 +871,9 @@ if (savedLearnStateString) {
     }
   }
 } else {
-  // Normal mount: load items from store or default initialization
-  const items = store.getters['flashcard/getLearningItems'];
-  console.log('Initial items from store (no restore state found):', items);
-  allItems.value = addIdsToItems(items);
-  updateCounts();
+  // Normal mount: load items from API or store
+  const setId = route.query.id || route.query.setId;
+  await loadFlashcardData(setId);
 }
 
 // Initialize slides (this will run after potential state restoration or initial load)
@@ -788,13 +889,13 @@ if (typeof window !== 'undefined') {
 });
 
 onUnmounted(() => {
-console.log('Component unmounting, cleaning up...');
+
 if (autoplayInterval.value) {
-  console.log('Clearing existing interval');
+
   clearInterval(autoplayInterval.value);
 }
 if (typeof window !== 'undefined') {
-  console.log('Removing event listeners...');
+
   document.removeEventListener('keydown', handleKeydown);
   document.removeEventListener('fullscreenchange', handleFullscreenChange);
   window.removeEventListener('resize', handleResize);
@@ -816,41 +917,41 @@ return allItems.value.filter(item => item.status === 'known');
 
 // Methods
 const onSwiper = (swiper) => {
-console.log('Swiper instance created');
+
 swiperInstance.value = swiper;
 };
 
 // Phương thức để tự động chuyển slide
 const startAutoplay = () => {
-console.log('Starting autoplay...');
+
 const swiper = swiperInstance.value;
 if (!swiper) {
-  console.log('No swiper instance found');
+
   return;
 }
 
 // Clear existing interval if any
 if (autoplayInterval.value) {
-  console.log('Clearing existing interval');
+
   clearInterval(autoplayInterval.value);
 }
 
 // Create new interval
-console.log('Creating new interval with speed:', autoplaySpeed.value);
+
 autoplayInterval.value = setInterval(() => {
-  console.log('Auto advancing slide...');
+
   if (swiper.isEnd) {
-    console.log('Reached end, going to first slide');
+
     swiper.slideTo(0);
   } else {
-    console.log('Moving to next slide');
+
     swiper.slideNext();
   }
 }, autoplaySpeed.value * 1000);
 };
 // Dừng autoplay
 const stopAutoplay = () => {
-console.log('Stopping autoplay...');
+
 if (autoplayInterval.value) {
   clearInterval(autoplayInterval.value);
   autoplayInterval.value = null;
@@ -859,10 +960,10 @@ if (autoplayInterval.value) {
 
 // Tạm dừng autoplay khi nhấn nút "Phát"
 const toggleAutoplay = () => {
-console.log('Toggle autoplay, current state:', isAutoPlaying.value);
+
 const swiper = swiperInstance.value;
 if (!swiper) {
-  console.log('No swiper instance found');
+
   return;
 }
 
@@ -873,7 +974,7 @@ if (isAutoPlaying.value) {
   startAutoplay();
   isAutoPlaying.value = true;
 }
-console.log('New autoplay state:', isAutoPlaying.value);
+
 };
 
 
@@ -881,9 +982,9 @@ console.log('New autoplay state:', isAutoPlaying.value);
 
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
-console.log('Autoplay speed changed to:', newSpeed);
+
 if (isAutoPlaying.value) {
-  console.log('Restarting autoplay with new speed');
+
   startAutoplay();
 }
 });
@@ -896,11 +997,11 @@ const handleShuffleClick = () => {
 };
 
 const shuffleCards = () => {
-  console.log('Shuffling cards...');
+
   
   // Shuffle the allItems array directly
   const shuffledItems = [...allItems.value].sort(() => Math.random() - 0.5);
-  console.log('Shuffled items:', shuffledItems);
+
   
   // Update both local state and store
   allItems.value = shuffledItems;
@@ -909,11 +1010,11 @@ const shuffleCards = () => {
   nextTick(() => {
     // Use the correct swiper instance reference
     if (swiperInstance.value) {
-      console.log('Updating swiper after shuffle');
+
       swiperInstance.value.slideTo(0, 0);
       swiperInstance.value.update();
     } else {
-      console.log('No swiper instance found');
+
     }
   });
 };
@@ -998,8 +1099,8 @@ if (!document.fullscreenElement) {
 };
 
 const onCardFlip = (index) => {
-console.log('Card flipped at index:', index);
-console.log('Current slide:', slides.value[index]);
+
+
 if (trackProgress.value) {
   progress.value.reviewed++;
 }
@@ -1016,7 +1117,7 @@ currentSlideIndex.value = swiper?.activeIndex || 0;
 
 // Reset functionality
 const resetCards = () => {
-console.log('=== Resetting Cards ===');
+
 console.log('Before reset:', {
   allItems: allItems.value,
   learning: displayLearningItems.value.length,
@@ -1065,7 +1166,7 @@ resetCards();
 
 // Thêm hàm reviewUnknownCards
 const reviewUnknownCards = () => {
-console.log('=== Reviewing Unknown Cards ===');
+
 
 // Lọc ra các thẻ chưa thuộc
 const unknownCards = allItems.value.filter(item => item.status !== 'known');
@@ -1145,12 +1246,12 @@ return items.map((item, index) => ({
 // The single updateCardStatus function
 const updateCardStatus = (status) => {
 if (!trackProgress.value) {
-  console.log('Track progress is disabled');
+
   return;
 }
 
 const currentIndex = swiperInstance.value?.activeIndex || 0;
-console.log('Updating card status:', { currentIndex, status });
+
 
 if (allItems.value[currentIndex]) {
   // Update the item's status
@@ -1194,7 +1295,7 @@ if (allItems.value[currentIndex]) {
 
 // Watch for store changes
 watch(() => store.getters['flashcard/getLearningItems'], (newItems) => {
-console.log('Store items updated:', newItems);
+
 allItems.value = addIdsToItems(newItems);
 updateCounts();
 }, { deep: true });
@@ -1202,17 +1303,17 @@ updateCounts();
 // Methods for term management
 const addNewTerm = () => {
 // TODO: Implement add new term functionality
-console.log('Add new term');
+
 };
 
 const editTerm = (slide, index) => {
 // TODO: Implement edit term functionality
-console.log('Edit term:', slide, index);
+
 };
 
 const deleteTerm = (index) => {
 // TODO: Implement delete term functionality
-console.log('Delete term at index:', index);
+
 };
 
 // Watch để cập nhật UI khi slides thay đổi
@@ -1235,7 +1336,7 @@ nextTick(() => {
 
 // Watch để debug các thay đổi
 watch([displayLearningItems, displayKnownItems], ([newLearning, newKnown], [oldLearning, oldKnown]) => {
-console.log('=== Lists Update Debug ===');
+
 console.log('Learning list changed:', {
   count: newLearning.length,
   oldCount: oldLearning?.length,
@@ -1254,16 +1355,16 @@ console.log('Known list changed:', {
   }))
 });
 
-console.log('Total items:', newLearning.length + newKnown.length);
-console.log('=== End Debug ===');
+
+
 }, { deep: true });
 
 // Navigation function
 const navigateToTermCreation = () => {
-  console.log('Navigating to CreateFlashcard from FlashcardLearn...');
-  console.log('Current allItems:', allItems.value);
-  console.log('Current deckTitle:', deckTitle.value);
-  console.log('Current deckDescription:', deckDescription.value);
+
+
+
+
 
   // Lưu trạng thái hiện tại vào store hoặc localStorage
   const currentState = {
@@ -1286,7 +1387,7 @@ const navigateToTermCreation = () => {
     fromLearningPage: true
   };
 
-  console.log('Saving state to localStorage:', currentState);
+
 
   // Dừng autoplay nếu đang chạy
   if (isAutoPlaying.value) {
@@ -1305,7 +1406,7 @@ const navigateToTermCreation = () => {
     description: deckDescription.value
   };
 
-  console.log('Navigating with query:', navigationQuery);
+
 
   router.push({
     name: 'CreateFlashcard',
@@ -1316,10 +1417,27 @@ const navigateToTermCreation = () => {
 // Watch for route changes to update data when returning from edit page
 watch(
   () => route.query,
-  (newQuery, oldQuery) => {
+  async (newQuery, oldQuery) => {
+
+
+
+    
+    // Check if setId changed (navigating between different flashcards)
+    const newSetId = newQuery.id || newQuery.setId;
+    const oldSetId = oldQuery?.id || oldQuery?.setId;
+    
+
+    
+    if (newSetId && newSetId !== oldSetId) {
+
+      await loadFlashcardData(newSetId);
+
+      return;
+    }
+    
     // Check if returning from CreateFlashcard with updated data
     if (newQuery.updated === 'true' && oldQuery?.updated !== 'true') {
-      console.log('Detected return from CreateFlashcard with updated data');
+
       
       // Clean the updated flag from query
       const cleanQuery = { ...newQuery };
@@ -1329,7 +1447,7 @@ watch(
       // Refresh data from store
       const storeItems = store.getters['flashcard/getLearningItems'];
       if (storeItems && storeItems.length > 0) {
-        console.log('Updating items from store after edit:', storeItems);
+
         allItems.value = addIdsToItems(storeItems);
         updateCounts();
         
@@ -1349,14 +1467,16 @@ watch(
         });
       }
     } else {
+
       // Normal route change handling
       const storeItems = store.getters['flashcard/getLearningItems'];
       if (storeItems && storeItems.length > 0) {
-        console.log('Updating items from store:', storeItems);
+
         allItems.value = addIdsToItems(storeItems);
         updateCounts();
       }
     }
+
   },
   { immediate: true, deep: true }
 );
@@ -1364,7 +1484,7 @@ watch(
 // Thêm hàm để cập nhật slides khi allItems thay đổi
 watch(allItems, (newItems) => {
 if (newItems.length > 0) {
-  console.log('Updating slides from allItems:', newItems);
+
   slides.value = newItems.map(item => {
     let frontContent, backContent, description, backDescription;
     let title = 'Từ vựng';

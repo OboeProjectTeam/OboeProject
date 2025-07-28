@@ -492,7 +492,7 @@ const deletePost = async (post) => {
   if (confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
     try {
       // Delete post logic here
-      console.log('Delete post:', post);
+
     } catch (error) {
       console.error('Error deleting post:', error);
     }
@@ -503,7 +503,7 @@ const banUser = async (user) => {
   if (confirm(`Bạn có chắc chắn muốn cấm người dùng ${user.name}?`)) {
     try {
       // Ban user logic here
-      console.log('Ban user:', user);
+
     } catch (error) {
       console.error('Error banning user:', error);
     }

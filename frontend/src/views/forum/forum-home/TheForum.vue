@@ -247,7 +247,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
         loading.value = true;
         error.value = null;
         
-        console.log('Fetching blogs...', { page, size, searchKeyword });
+
         
         let response;
         let blogs;
@@ -255,7 +255,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
         if (searchKeyword && searchKeyword.trim()) {
             // Use search API - returns array directly
             const searchResults = await blogApi.search(searchKeyword.trim());
-            console.log('Search API response:', searchResults);
+
             
             // Ensure searchResults is an array
             const resultsArray = Array.isArray(searchResults) ? searchResults : [];
@@ -275,7 +275,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
         } else {
             // Use getAll API - returns paginated response
             response = await blogApi.getAll({ page, size });
-            console.log('GetAll API response:', response);
+
             blogs = response.blogs || response.content || response || [];
             
             // Handle pagination info from getAll API
@@ -289,7 +289,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
             }
         }
         
-        console.log('Final blogs to display:', blogs);
+
         const mappedPosts = (Array.isArray(blogs) ? blogs : []).map(blog => ({
             id: blog.id,
             title: blog.title,

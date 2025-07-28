@@ -1,5 +1,6 @@
 import api from '@/api';
 import { isTokenExpired } from '@/api/modules/authApi';
+import WebSocketService from '@/services/websocket';
 
 const state = () => ({
   token: localStorage.getItem('token') || null,
@@ -53,7 +54,7 @@ const actions = {
   async signup(_, userData) {
     try {
       const result = await api.auth.signup(userData);
-      console.log('Đăng ký thành công:', result);
+
     } catch (error) {
       console.error('Lỗi khi đăng ký:', error);
       throw error;
@@ -104,6 +105,9 @@ const actions = {
   // Đăng xuất: gọi API và xóa thông tin local
   async logout({ commit }) {
     try {
+      // Disconnect WebSocket trước khi logout
+      WebSocketService.disconnect();
+      
       await api.auth.logout?.(); // Nếu có API logout thì gọi, không có thì bỏ qua
     } catch (e) {
       console.warn('Không gọi được logout API, vẫn xóa local.');
