@@ -105,7 +105,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             // Gửi token qua Cookie
             Cookie tokenCookie = new Cookie("JWT_TOKEN", token);
             tokenCookie.setHttpOnly(false); //  JS đọc
-            tokenCookie.setSecure(false); // true nếu dùng HTTPS
+            tokenCookie.setSecure(true); // true nếu dùng HTTPS
             tokenCookie.setPath("/");
             tokenCookie.setMaxAge(60 * 60); // 1 giờ
 
