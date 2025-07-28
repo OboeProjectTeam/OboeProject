@@ -112,10 +112,14 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             response.addCookie(tokenCookie);
             System.out.println("Cookie added: JWT_TOKEN");
 
-            // Redirect về frontend không chứa token
-           String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
-           System.out.println("Redirecting to: " + redirectUrl);
-           response.sendRedirect(redirectUrl);
+//             Redirect về frontend không chứa token
+//            String redirectUrl = domain + "/oauth2/redirect?provider=" + provider.name();
+//            response.sendRedirect(redirectUrl);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"token\": \"" + token + "\", \"message\": \"OAuth2 login successful\"}");
+            response.setStatus(HttpServletResponse.SC_OK);
+
 
         } catch (IllegalStateException e) {
             String errorMsg = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
