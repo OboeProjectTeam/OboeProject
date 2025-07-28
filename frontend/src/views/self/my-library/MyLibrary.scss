@@ -256,6 +256,14 @@
   }
 }
 
+.content-grid .empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .create-btn {
   display: inline-flex;
   align-items: center;

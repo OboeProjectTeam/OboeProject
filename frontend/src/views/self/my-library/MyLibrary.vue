@@ -327,21 +327,12 @@ const currentSort = ref(sortOptions[0])
 const loadUserFlashcards = async () => {
   try {
     studySetsLoading.value = true
-    console.log('Loading user flashcards...')
     const response = await api.flashcard.getUserFlashcards()
-    console.log('User flashcards loaded:', response)
     
     // Handle different response formats
     const flashcards = response.content || response.data || response
     
-         // Debug: Log a single flashcard to see structure
-     if (Array.isArray(flashcards) && flashcards.length > 0) {
-       console.log('First flashcard structure:', flashcards[0])
-       console.log('Description field:', flashcards[0].description)
-       console.log('User field:', flashcards[0].user)
-       console.log('Created field:', flashcards[0].created)
-     }
-    
+  
     // Map flashcards to study sets format
     const mappedSets = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
       id: flashcard.set_id,
@@ -360,11 +351,9 @@ const loadUserFlashcards = async () => {
       })) || []
     }))
     
-    console.log('Mapped sets with descriptions:', mappedSets.map(set => ({ id: set.id, title: set.title, description: set.description })))
     
     studySetsData.value = mappedSets
   } catch (error) {
-    console.error('Failed to load user flashcards:', error)
     studySetsData.value = []
   } finally {
     studySetsLoading.value = false
@@ -375,10 +364,7 @@ const loadUserFlashcards = async () => {
 const loadUserQuizzes = async () => {
   try {
     quizzesLoading.value = true
-    console.log('Loading user quizzes...')
     const response = await api.quiz.getUserQuizzes()
-    console.log('User quizzes loaded:', response)
-    
     // Handle different response formats
     const quizzes = response.content || response.data || response
     
@@ -393,7 +379,6 @@ const loadUserQuizzes = async () => {
     
     quizzesData.value = mappedQuizzes
   } catch (error) {
-    console.error('Failed to load user quizzes:', error)
     quizzesData.value = []
   } finally {
     quizzesLoading.value = false
@@ -404,20 +389,6 @@ const loadUserQuizzes = async () => {
 const loadUserFavorites = async () => {
   try {
     favoritesLoading.value = true
-    console.log('Loading user favorites...')
-    
-    // Temporarily disable favorites API calls since backend doesn't have this endpoint
-    // Load different types of favorites
-    // const [vocabularyRes, kanjiRes, grammarRes, sentencesRes] = await Promise.all([
-    //   api.favorite.getUserFavorites('vocabulary').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('kanji').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('grammar').catch(() => ({ data: [] })),
-    //   api.favorite.getUserFavorites('sentences').catch(() => ({ data: [] }))
-    // ])
-    
-    console.log('Favorites API not available, using empty data')
-    
-    // Set empty data for now until backend implements the API
     favoritesData.value = {
       vocabulary: [],
       kanji: [],
@@ -425,7 +396,6 @@ const loadUserFavorites = async () => {
       sentences: []
     }
   } catch (error) {
-    console.error('Failed to load user favorites:', error)
     favoritesData.value = { vocabulary: [], grammar: [], sentences: [], kanji: [] }
   } finally {
     favoritesLoading.value = false
@@ -497,8 +467,6 @@ const handleDeleteConfirm = async () => {
   
   try {
     if (deleteType.value === 'flashcard') {
-      console.log('Deleting flashcard set:', deleteId.value)
-      
       // Call API to delete flashcard
       await api.flashcard.delete(deleteId.value)
       
@@ -511,8 +479,6 @@ const handleDeleteConfirm = async () => {
         text: 'Xóa học liệu thành công!'
       })
     } else if (deleteType.value === 'quiz') {
-      console.log('Deleting quiz:', deleteId.value)
-      
       // Call API to delete quiz
       await api.quiz.delete(deleteId.value)
       
@@ -526,8 +492,6 @@ const handleDeleteConfirm = async () => {
       })
     }
   } catch (error) {
-    console.error('Error deleting item:', error)
-    
     // Show error message
     const itemType = deleteType.value === 'flashcard' ? 'học liệu' : 'bài kiểm tra'
     store.dispatch('message/showMessage', {
@@ -566,12 +530,7 @@ const deleteBlog = async (id) => {
 
 const removeFromFavorites = async (type, id) => {
   try {
-    // Temporarily disable API call since backend doesn't have this endpoint
-    // await api.favorite.deleteFavorite(id);
-    
-    console.log('Remove favorite API not available, removing from local data only')
-    
-    // Remove from local data
+
     if (favoritesData.value[type]) {
       favoritesData.value[type] = favoritesData.value[type].filter(item => item.id !== id);
     }
@@ -597,8 +556,6 @@ const formatDate = (timestamp) => {
 
 const startLearning = async (set) => {
   try {
-    console.log('Original set:', set)
-    
     // Chuyển đổi cards thành format phù hợp cho learning items
     const learningItems = set.cards.map(card => ({
       type: 'word',
@@ -606,8 +563,6 @@ const startLearning = async (set) => {
       kana: '',
       meaning: card.back
     }))
-    
-    console.log('Converted learning items:', learningItems)
     
     // Lưu vào store
     await store.dispatch('flashcard/setLearningItems', learningItems)
@@ -634,7 +589,6 @@ const startQuiz = async (quiz) => {
   try {
     const response = await api.question.getByQuiz(quiz.id)
     const questions = response.content || response.data || response
-
     if (!Array.isArray(questions) || questions.length === 0) {
       store.dispatch('message/showMessage', {
         type: 'error',
@@ -653,7 +607,6 @@ const startQuiz = async (quiz) => {
       content: q.questionName,
       backcontent: q.correctAnswer
     }))
-
     await store.dispatch('flashcard/setLearningItems', learningItems)
     router.push({
       path: '/flashcard/test',

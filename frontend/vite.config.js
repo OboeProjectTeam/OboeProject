@@ -5,6 +5,9 @@ import path from 'path'
 export default defineConfig({
   base: '/',
   plugins: [vue()],
+  define: {
+    global: 'globalThis',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src')
@@ -28,13 +31,13 @@ export default defineConfig({
         secure: true,
         configure: (proxy, options) => {
           proxy.on('error', (err, req, res) => {
-            console.log('Proxy error:', err);
+
           });
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
+
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+
           });
         },
       },
@@ -47,6 +50,12 @@ export default defineConfig({
         target: 'https://oboeru.me',
         changeOrigin: true,
         secure: true,
+      },
+      '/ws': {
+        target: 'https://oboeru.me',
+        changeOrigin: true,
+        secure: true,
+        ws: true, // Enable WebSocket proxying
       }
     }
   },

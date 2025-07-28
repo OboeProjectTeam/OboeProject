@@ -6,7 +6,7 @@ import { onMounted } from 'vue'
 const router = useRouter()
 const store = useStore()
 
-console.log(" Vào OAuth2Redirect.vue");
+
 
 onMounted(() => {
   setTimeout(async () => {
@@ -16,10 +16,10 @@ onMounted(() => {
     const token = params.get('token');
     const provider = params.get('provider');
 
-    console.log('Redirect hash:', hash);
-    console.log('Token length:', token ? token.length : 'null');
-    console.log('Token first 50 chars:', token ? token.substring(0, 50) + '...' : 'null');
-    console.log('Provider:', provider);
+
+
+
+
 
     if (token) {
       try {
@@ -27,14 +27,14 @@ onMounted(() => {
         if (token.includes('.')) {
           const payload = token.split('.')[1];
           const decodedPayload = JSON.parse(atob(payload));
-          console.log('JWT Payload:', decodedPayload);
+
         }
 
         localStorage.setItem('token', token);
-        console.log('Token saved to localStorage');
+
         
         await store.dispatch('auth/fetchCurrentUser', { token, provider });
-        console.log('fetchCurrentUser completed successfully');
+
         router.replace('/');
       } catch (e) {
         console.error('OAuth2 Redirect Error:', e);

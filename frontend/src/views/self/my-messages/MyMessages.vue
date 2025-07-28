@@ -139,6 +139,8 @@ import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import api from '@/api'
+import WebSocketService from '@/services/websocket'
+
 
 const selectedChat = ref(null)
 const newMessage = ref('')
@@ -216,8 +218,6 @@ const loadChatPartners = async () => {
     
          // Map API data to conversation format based on actual UserSummaryDTO
      const mappedConversations = (Array.isArray(partnersData) ? partnersData : []).map(partner => {
-       console.log('Mapping partner:', partner)
-       
        // Build full name from firstName and lastName
        const firstName = partner.firstName || ''
        const lastName = partner.lastName || ''
@@ -467,8 +467,6 @@ const closeSidebarMenu = () => {
 }
 
 const viewProfile = (user) => {
-  console.log('MyMessages: Opening profile for user:', user)
-  
   closeSidebarMenu()
   
   // Check if user has required data
@@ -493,8 +491,6 @@ const viewProfile = (user) => {
       fromSource: 'messages'
     }
   })
-  
-  console.log('MyMessages: Navigating to profile:', `/forum/u/${usernameForRoute}?userId=${user.id}`)
 }
 
 const deleteConversation = (user) => {
@@ -522,8 +518,6 @@ const blockUser = (user) => {
 }
 
 const openChatBox = (user) => {
-  console.log('MyMessages: Opening ChatBox for user:', user)
-  
   const userId = user.id
   if (!userId) {
     console.error('MyMessages: No userId found in user object:', user)
@@ -539,9 +533,6 @@ const openChatBox = (user) => {
     fullName: user.name,
     avatarUrlReceiver: user.avatarUrlReceiver
   }
-  
-  console.log('MyMessages: Emitting send-message event with user:', chatUser)
-  
   // Emit to App.vue to open global ChatBox
   emit('send-message', chatUser)
   
@@ -611,9 +602,51 @@ const updateHeaderHeight = () => {
   }
 }
 
+const handleIncomingRealtimeMessage = (message) => {
+  const chat = conversations.value.find(c => c.id === message.senderId || c.id === message.receiverId)
+
+  if (chat) {
+    const newMsg = {
+      id: message.messageId,
+      content: message.sentMessage,
+      time: formatMessageTime(message.sentDateTime),
+      isSent: false,
+      senderId: message.senderId,
+      receiverId: message.receiverId,
+      senderName: message.senderName
+    }
+
+    chat.lastMessage = message.sentMessage
+    chat.lastMessageTime = formatMessageTime(message.sentDateTime)
+
+    if (!chat.messages) chat.messages = []
+    chat.messages.push(newMsg)
+
+    // Nếu đang mở đúng chat thì scroll xuống cuối
+    if (selectedChat.value?.id === chat.id) {
+      scrollToBottom()
+    } else {
+      chat.unreadCount = (chat.unreadCount || 0) + 1
+    }
+  } else {
+    // Tin nhắn từ người mới → reload danh sách
+    loadChatPartners()
+  }
+}
 
 
 onMounted(async () => {
+  const userId = await getCurrentUserId()
+  if (userId) {
+    WebSocketService.connect(userId)
+
+    // Nghe tin nhắn mới realtime
+    WebSocketService.onMessage((data) => {
+      if (data.messageId && data.senderId) {
+        handleIncomingRealtimeMessage(data)
+      }
+    })
+  }
   // Get current user ID first
   await getCurrentUserId()
   

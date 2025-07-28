@@ -16,7 +16,7 @@ public class Quizzes {
     private String title;
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id") // Liên kết với User
     private User user;
 

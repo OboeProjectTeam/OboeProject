@@ -3,10 +3,10 @@
     type="sentence"
     :item="selectedSentence"
     :itemId="sentenceId"
-    mainField="sentence"
-    readingField="reading"
-    meaningField="translation"
-    notFoundMessage="Không tìm thấy câu ví dụ"
+    mainField="japaneseText"
+    readingField=""
+    meaningField="vietnameseMeaning"
+    notFoundMessage="Không tìm thấy câu mẫu"
   />
 </template>
 
@@ -24,11 +24,11 @@ export default {
   setup() {
     const store = useStore();
     const route = useRoute();
-    const sentenceId = ref(parseInt(route.params.id));
+    const sentenceId = ref(route.params.id); // Keep as string for UUID
 
     // Function to fetch sentence data
     const fetchSentenceData = (id) => {
-      store.dispatch('search/getSentenceById', parseInt(id));
+      store.dispatch('search/getSentenceById', id);
     };
 
     // Initial fetch
@@ -39,7 +39,7 @@ export default {
       () => route.params.id,
       (newId) => {
         if (newId) {
-          sentenceId.value = parseInt(newId);
+          sentenceId.value = newId;
           fetchSentenceData(sentenceId.value);
         }
       }

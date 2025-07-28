@@ -451,12 +451,12 @@ const fetchComments = async (postId, loadMore = false) => {
       loadingMoreComments.value = true;
     }
     
-    console.log('Fetching comments for post:', postId, 'page:', commentsPage.value);
+
     
     // Use commentApi to get comments for the blog post with pagination
     const response = await commentApi.getComments(postId, commentsPage.value, commentsSize.value);
-    console.log('Comments response:', response);
-    console.log('Response keys:', Object.keys(response || {}));
+
+
     console.log('Response structure:', {
       comments: response?.comments?.length || 0,
       totalPages: response?.totalPages,
@@ -526,7 +526,7 @@ const fetchComments = async (postId, loadMore = false) => {
     });
     
     hasMoreComments.value = hasMoreByPages || hasMoreByElements;
-    console.log('Final hasMoreComments:', hasMoreComments.value);
+
     
     // Update post stats with total comment count
     if (blogPost.value && totalElements !== undefined) {
@@ -552,7 +552,7 @@ const loadMoreComments = async () => {
   
   // Safety check: don't load if we already have all comments
   if (comments.value.length >= postStats.value.replies) {
-    console.log('All comments loaded, hiding load more button');
+
     hasMoreComments.value = false;
     return;
   }
@@ -588,11 +588,11 @@ const submitNewComment = async () => {
       content: newCommentContent.value.trim()
     };
 
-    console.log('Submitting comment:', commentData);
+
     
     // Call API to create comment
     const newComment = await commentApi.createComment(blogPost.value.id, commentData);
-    console.log('Comment created:', newComment);
+
     
     // Track newly created comment for highlighting
     newlyCreatedCommentId.value = newComment.commentId;
@@ -648,11 +648,11 @@ const submitReply = async (parentCommentId) => {
       content: replyText.trim()
     };
 
-    console.log('Submitting reply to comment:', parentCommentId, replyData);
+
     
     // Call API to create reply
     const newReply = await commentApi.replyComment(parentCommentId, replyData);
-    console.log('Reply created:', newReply);
+
     
     // Track newly created reply for highlighting  
     newlyCreatedReplyId.value = newReply.commentId;
@@ -743,21 +743,21 @@ const isPostOwner = computed(() => {
   if (!currentUser.value || !blogPost.value) return false;
   
   // Debug logs for post ownership
-  console.log('=== POST OWNERSHIP CHECK ===');
-  console.log('Current User:', currentUser.value);
-  console.log('Blog Post Author:', blogPost.value.author);
-  console.log('Current User keys:', Object.keys(currentUser.value));
+
+
+
+
   
   // Try different field combinations for current user ID
   const currentUserId = currentUser.value.userId || currentUser.value.user_id || currentUser.value.id;
   const postAuthorId = blogPost.value.author.id;
   
-  console.log('Post Ownership - Current User ID:', currentUserId);
-  console.log('Post Ownership - Post Author ID:', postAuthorId);
-  console.log('Post Ownership - ID Match:', currentUserId === postAuthorId);
+
+
+
   
   if (currentUserId && postAuthorId && currentUserId === postAuthorId) {
-    console.log('✅ Current user is POST OWNER');
+
     return true;
   }
   
@@ -765,15 +765,15 @@ const isPostOwner = computed(() => {
   const currentUsername = currentUser.value.username || currentUser.value.userName;
   const postAuthorUsername = blogPost.value.author.username;
   
-  console.log('Post Ownership - Username fallback:', currentUsername, 'vs', postAuthorUsername);
+
   
   if (currentUsername && postAuthorUsername && currentUsername === postAuthorUsername) {
-    console.log('✅ Current user is POST OWNER (username match)');
+
     return true;
   }
   
-  console.log('❌ Current user is NOT post owner');
-  console.log('=============================');
+
+
   return false;
 });
 
@@ -887,7 +887,7 @@ const handleSubmitReport = async () => {
     if (blogPost.value) {
       // Here you would send the report to your backend
       // For now, just show success message since we don't have report API
-      console.log('Report submitted for post:', blogPost.value.id, reportData.value);
+
       
       // Show success message
       store.dispatch('showMessage', {
@@ -969,27 +969,27 @@ const toggleUserCard = (event, user) => {
     const currentUserId = currentUser.userId || currentUser.user_id;
     const clickedUserId = user.id || user.userId || user.user_id;
     
-         console.log('=== TOGGLE USER CARD DEBUG ===');
-     console.log('Current User Full Object:', currentUser);
-     console.log('Current User keys:', Object.keys(currentUser));
-     console.log('Clicked User Full Object:', user);
-     console.log('Current User ID (extracted):', currentUserId);
-     console.log('Clicked User ID (extracted):', clickedUserId);
-     console.log('Alternative current user ID fields:');
-     console.log('  - currentUser.id:', currentUser.id);
-     console.log('  - currentUser.user_id:', currentUser.user_id);
-     console.log('  - currentUser.userId:', currentUser.userId);
-     console.log('  - currentUser.username:', currentUser.username);
-     console.log('  - currentUser.userName:', currentUser.userName);
-     console.log('Type of currentUserId:', typeof currentUserId);
-     console.log('Type of clickedUserId:', typeof clickedUserId);
-     console.log('Strict equality check:', currentUserId === clickedUserId);
-     console.log('Loose equality check:', currentUserId == clickedUserId);
-     console.log('==================================');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
          // Primary comparison: ID-based
      if (currentUserId && clickedUserId && currentUserId === clickedUserId) {
-       console.log('🛑 Cannot click on own avatar (ID match) - preventing popup');
+
        return; // Don't show popup for own avatar
      }
      
@@ -997,16 +997,16 @@ const toggleUserCard = (event, user) => {
      const currentUsername = currentUser.username || currentUser.userName;
      const clickedUsername = user.username || user.userName;
      
-     console.log('Fallback username comparison:');
-     console.log('  currentUsername:', currentUsername);
-     console.log('  clickedUsername:', clickedUsername);
+
+
+
      
      if (currentUsername && clickedUsername && currentUsername === clickedUsername) {
-       console.log('🛑 Cannot click on own avatar (username match) - preventing popup');
+
        return; // Don't show popup for own avatar
      }
      
-     console.log('✅ Different user - allowing popup');
+
   }
   
   if (activeUserCard.value && activeUserCard.value.username === user.username) {

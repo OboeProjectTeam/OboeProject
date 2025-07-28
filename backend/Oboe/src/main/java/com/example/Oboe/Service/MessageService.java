@@ -3,22 +3,22 @@
 
     import com.example.Oboe.DTOs.MessageDTO;
     import com.example.Oboe.DTOs.UserSummaryDTO;
-    import com.example.Oboe.Entity.Comment;
     import com.example.Oboe.Entity.Message;
     import com.example.Oboe.Entity.Notifications;
     import com.example.Oboe.Entity.User;
-    import com.example.Oboe.Repository.CommentRepository;
     import com.example.Oboe.Repository.MessageRepository;
     import com.example.Oboe.Repository.NotificationsRepository;
     import com.example.Oboe.Repository.UserRepository;
-    import org.slf4j.Logger;
-    import org.slf4j.LoggerFactory;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import com.fasterxml.jackson.databind.SerializationFeature;
+    import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
     import org.springframework.data.domain.PageRequest;
     import org.springframework.data.domain.Pageable;
-    import org.springframework.messaging.simp.SimpMessagingTemplate;
     import org.springframework.stereotype.Service;
+    import org.springframework.web.socket.TextMessage;
+    import org.springframework.web.socket.WebSocketSession;
 
-    import javax.management.Notification;
+    import java.io.IOException;
     import java.time.LocalDateTime;
     import java.time.ZoneId;
     import java.util.*;
@@ -32,13 +32,13 @@
         private final MessageRepository messageRepository;
         private final UserRepository userRepository;
         private final NotificationsRepository notificationsRepository;
-        private final SimpMessagingTemplate messagingTemplate;
-        public MessageService(MessageRepository messageRepository, UserRepository userRepository,NotificationsRepository notificationsRepository, SimpMessagingTemplate messagingTemplate) {
+
+        public MessageService(MessageRepository messageRepository, UserRepository userRepository,NotificationsRepository notificationsRepository) {
 
             this.messageRepository = messageRepository;
             this.userRepository = userRepository;
             this.notificationsRepository = notificationsRepository;
-            this.messagingTemplate = messagingTemplate;
+
         }
         public MessageDTO sendMessage(UUID senderId, MessageDTO messageDto) {
             // Lấy người gửi từ token
@@ -71,8 +71,28 @@
 
             // Gửi WebSocket đến client
             MessageDTO dto = toDTO(savedMessage);
-            messagingTemplate.convertAndSend("/receiver/" + receiver.getUser_id(), dto);
-            messagingTemplate.convertAndSend("/notification/" + receiver.getUser_id(), notification.getText_notification());
+
+            WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
+
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // ISO format
+                mapper.enable(SerializationFeature.INDENT_OUTPUT); // Pretty JSON
+
+                String MessageWebsocket = mapper.writeValueAsString(dto);
+                String notificationWebsocket = mapper.writeValueAsString(notification);
+
+
+                // nếu người dùng không đăng nhập thì ko conection với websocket thì vẫn gửi
+                if (receiverSession != null && receiverSession.isOpen()) {
+                    receiverSession.sendMessage(new TextMessage(MessageWebsocket));
+                    receiverSession.sendMessage(new TextMessage(notificationWebsocket));
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace(); // hoặc dùng log
+            }
 
             return dto;
         }
@@ -138,11 +158,6 @@
             dto.setAvatarUrlReceiver(message.getReceiver().getAvatarUrl());
             return dto;
         }
-
-
-
-
-
 
 
 

@@ -32,11 +32,11 @@ export default {
     const store = useStore();
     const route = useRoute();
     const router = useRouter();
-    const wordId = ref(parseInt(route.params.id));
+    const wordId = ref(route.params.id); // Keep as string for UUID
 
     // Function to fetch word data
     const fetchWordData = (id) => {
-      store.dispatch('search/getWordById', parseInt(id));
+      store.dispatch('search/getWordById', id);
     };
 
     // Initial fetch
@@ -47,7 +47,7 @@ export default {
       () => route.params.id,
       (newId) => {
         if (newId) {
-          wordId.value = parseInt(newId);
+          wordId.value = newId;
           fetchWordData(wordId.value);
         }
       }
@@ -55,12 +55,14 @@ export default {
 
     const selectedWord = computed(() => store.getters['search/selectedWord']);
     const relatedKanji = computed(() => {
-      return store.getters['search/getRelatedKanjiList'](selectedWord.value);
+      const word = selectedWord.value;
+      if (!word) return [];
+      return store.getters['search/getRelatedKanjiList'](word);
     });
 
     const navigateToKanjiDetail = (kanji) => {
-      store.dispatch('search/getKanjiByKanji', kanji.kanji);
-      router.push({ name: 'KanjiDetail', params: { kanji: kanji.kanji } });
+      // Navigate using kanji ID instead of character
+      router.push({ name: 'KanjiDetail', params: { id: kanji.kanjiId || kanji.id } });
     };
 
     return {

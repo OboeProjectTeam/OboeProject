@@ -222,6 +222,10 @@ public class BlogService {
 
         return dto;
     }
+    public boolean blogExists(UUID id) {
+        return blogRepository.existsById(id);
+    }
+
 
 
 }
