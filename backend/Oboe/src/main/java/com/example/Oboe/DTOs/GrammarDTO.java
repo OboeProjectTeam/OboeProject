@@ -9,6 +9,10 @@ public class GrammarDTO {
     private String structure;
     private String grammarType;
     private String VietnamesePronunciation;
+    private List<ReadingDTO> readings;
+
+
+
 
     // Getter & Setter
     public String getGrammarId() {
@@ -57,5 +61,12 @@ public class GrammarDTO {
 
     public void setVietnamesePronunciation(String vietnamesePronunciation) {
         VietnamesePronunciation = vietnamesePronunciation;
+    }
+    public List<ReadingDTO> getReadings() {
+        return readings;
+    }
+
+    public void setReadings(List<ReadingDTO> readings) {
+        this.readings = readings;
     }
 }

@@ -17,8 +17,10 @@ public interface ReadingRepository extends JpaRepository<Reading, UUID> {
     @Query("""
     SELECT r FROM Reading r 
     WHERE LOWER(r.readingText) LIKE LOWER(CONCAT('%', :keyword, '%'))
-""")
+    """)
     List<Reading> searchReadingsByText(@Param("keyword") String keyword);
+
+
 
 }
 
