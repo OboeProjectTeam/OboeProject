@@ -47,18 +47,18 @@ public class AdminController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-        try {
-            adminService.deleteUser(id);
-            return ResponseEntity.ok("Xoá người dùng thành công.");
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(404).body("Không tìm thấy người dùng.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
-        }
-    }
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+//        try {
+//            adminService.deleteUser(id);
+//            return ResponseEntity.ok("Xoá người dùng thành công.");
+//        } catch (UsernameNotFoundException e) {
+//            return ResponseEntity.status(404).body("Không tìm thấy người dùng.");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
+//        }
+//    }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/change-role/{id}")
