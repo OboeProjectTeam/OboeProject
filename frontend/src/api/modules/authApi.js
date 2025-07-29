@@ -98,6 +98,15 @@ const authApi = {
     }
   },
 
+  async loginWithFirebase(idToken) {
+    try {
+      const response = await axios.post('/api/auth/loginWithFirebase', { idToken });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
 };
 
 export default authApi;

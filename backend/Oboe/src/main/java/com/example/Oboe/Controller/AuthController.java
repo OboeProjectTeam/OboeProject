@@ -1,12 +1,15 @@
-    package com.example.Oboe.Controller;
+package com.example.Oboe.Controller;
 
     import com.example.Oboe.DTOs.LoginRequest;
     import com.example.Oboe.DTOs.PassWordChangeDTOs;
     import com.example.Oboe.DTOs.UserDTOs;
+    import com.example.Oboe.DTOs.FirebaseLoginRequest;
     import com.example.Oboe.Entity.AuthProvider;
     import com.example.Oboe.Entity.User;
     import com.example.Oboe.Service.UserService;
+    import com.example.Oboe.Service.FirebaseService;
     import com.example.Oboe.Util.JwtUtil;
+    import com.google.firebase.auth.FirebaseToken;
     import jakarta.validation.constraints.Email;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
@@ -31,13 +34,16 @@
         private final AuthenticationManager authenticationManager;
         private final PasswordEncoder passwordEncoder;
         private final JwtUtil jwtUtil;
+        private final FirebaseService firebaseService;
 
         @Autowired
-        public AuthController(UserService userService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        public AuthController(UserService userService, AuthenticationManager authenticationManager, 
+                            PasswordEncoder passwordEncoder, JwtUtil jwtUtil, FirebaseService firebaseService) {
             this.userService = userService;
             this.authenticationManager = authenticationManager;
             this.passwordEncoder = passwordEncoder;
             this.jwtUtil = jwtUtil;
+            this.firebaseService = firebaseService;
         }
 
 
@@ -234,6 +240,45 @@
             );
 
             return ResponseEntity.ok(response);
+        }
+
+        @PostMapping("/loginWithFirebase")
+        public ResponseEntity<?> loginWithFirebase(@RequestBody FirebaseLoginRequest request) {
+            try {
+                // Verify Firebase ID token
+                FirebaseToken decodedToken = firebaseService.verifyIdToken(request.getIdToken());
+                
+                // Process user (create or update)
+                User user = firebaseService.processFirebaseUser(decodedToken);
+                
+                // Create UserDetails for JWT generation
+                UserDetails userDetails = userService.loadUserByUsernameAndProvider(
+                    user.getUserName(), user.getAuthProvider());
+                
+                // Generate JWT token
+                String jwt = jwtUtil.generateToken(userDetails, user.getAuthProvider().name());
+                
+                // Prepare response
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Firebase login successful!");
+                response.put("token", jwt);
+                response.put("user", Map.of(
+                        "username", user.getUserName(),
+                        "firstName", user.getFirstName(),
+                        "lastName", user.getLastName(),
+                        "role", user.getRole().name(),
+                        "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                            ? user.getAvatarUrl()
+                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
+                ));
+
+                return ResponseEntity.ok(response);
+                
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Firebase authentication failed: " + e.getMessage());
+            }
         }
 
     }

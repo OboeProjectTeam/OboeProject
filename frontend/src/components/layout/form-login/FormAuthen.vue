@@ -74,15 +74,9 @@
         <span class="divider-text">Hoặc</span>
       </div>
 
-      <div v-if="!isRegister" class="social-login">
-        <button type="button" class="social-button google" @click="handleGoogleLogin">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-          <span>Đăng nhập với Google</span>
-        </button>
-        <button type="button" class="social-button facebook" @click="handleFacebookLogin">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" />
-          <span>Đăng nhập với Facebook</span>
-        </button>
+       <div v-if="!isRegister">
+        <div id="firebaseui-auth-container"></div>
+        <div id="loader">Loading...</div>
       </div>
     </div>
   </form>
@@ -104,6 +98,9 @@ import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { firebase, auth } from '@/firebase.js'
+import * as firebaseui from 'firebaseui'
+import 'firebaseui/dist/firebaseui.css'
 import api from '@/api'
 
 const props = defineProps({
@@ -133,12 +130,46 @@ const showDialog = (message, type = 'success') => {
   showPopup.value = true
 }
 
-const handleGoogleLogin = () => {
-  window.location.href = api.oauth.getGoogleAuthUrl()
-}
+const uiConfig = {
+  signInFlow: 'popup',
+  signInOptions: [
+    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+  ],
+  callbacks: {
+    signInSuccessWithAuthResult: async function (authResult) {
+      try {
+        const idToken = await authResult.user.getIdToken();
+        const response = await api.auth.loginWithFirebase(idToken);
+        const { token, user } = response.data;
 
-const handleFacebookLogin = () => {
-  window.location.href = api.oauth.getFacebookAuthUrl()
+        store.commit('auth/SET_TOKEN', token);
+        store.commit('auth/SET_USER', user);
+
+        router.push('/');
+      } catch (error) {
+        console.error('Đăng nhập Firebase thất bại:', error);
+        showDialog('Đăng nhập với Google/Facebook thất bại', 'error');
+      }
+      return false;
+    },
+    uiShown: function () {
+      document.getElementById('loader').style.display = 'none';
+      loginTranslate();
+    }
+  }
+}
+const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
+function loginTranslate() {
+  const googleBtn = document.querySelector('.firebaseui-idp-google .firebaseui-idp-text');
+  if (googleBtn) {
+    googleBtn.textContent = 'Đăng nhập với Google';
+  }
+
+  const facebookBtn = document.querySelector('.firebaseui-idp-facebook .firebaseui-idp-text');
+  if (facebookBtn) {
+    facebookBtn.textContent = 'Đăng nhập với Facebook';
+  }
 }
 const handlePopupConfirm = () => {
   showPopup.value = false
@@ -238,6 +269,9 @@ function runStartupTransitions() {
 onMounted(async () => {
   try {
     await nextTick()
+     if (!props.isRegister) {
+      ui.start('#firebaseui-auth-container', uiConfig)
+    }
     initAnimatedPlaceholders()
     setupInputFocusAnimations()
     runStartupTransitions()
