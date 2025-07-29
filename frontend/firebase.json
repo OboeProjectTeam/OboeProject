@@ -3,7 +3,7 @@
     "public": "dist",
     "rewrites": [
       {
-        "source": "/__/auth/**",
+        "source": "!/__/**", 
         "destination": "/__/auth/index.html"
       },
       {
