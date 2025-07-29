@@ -24,15 +24,15 @@ public class FavoritesController {
         this.favoritesService = favoritesService;
     }
 
-    @PostMapping
-    public ResponseEntity<FavoritesDTO> createFavorite( @Valid @RequestBody FavoritesDTO favoritesDTO, Authentication authentication) {
 
+    @PostMapping("/toggle")
+    public ResponseEntity<?> toggleFavorite(@RequestBody FavoritesDTO dto, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        UUID userid = userDetails.getUserID();
-        FavoritesDTO created = favoritesService.createFavorite(favoritesDTO, userid);
-        System.out.println(">>> Kanji ID: " + favoritesDTO.getKanjiId());
-        return ResponseEntity.ok(created);
+        UUID userId = userDetails.getUserID();
+        FavoritesDTO result = favoritesService.toggleFavorite(dto, userId);
+        return ResponseEntity.ok(result == null ? "Đã hủy yêu thích" : result);
     }
+
     @GetMapping("/user")
     public ResponseEntity<List<FavoritesDTO>> getUserFavorites(
             Authentication authentication,

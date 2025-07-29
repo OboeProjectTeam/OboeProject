@@ -34,6 +34,34 @@ public class FavoritesService {
         this.vocabularyRepository = vocabularyRepository;
         this.sampleSentenceRepository = sampleSentenceRepository;
     }
+    public FavoritesDTO toggleFavorite(FavoritesDTO dto, UUID userId) {
+        Favorites existing = null;
+        // Kiểm tra xem nội dung yêu thích là loại nào (Kanji, Grammar, Vocab, hoặc Sentence)
+        // Và tìm trong database xem người dùng đã từng thích mục đó chưa.
+        if (dto.getKanjiId() != null) {
+            // Nếu là Kanji tìm trong bảng favorites theo userId + kanjiId
+            existing = favoritesRepository.findFavoriteKanji(userId, dto.getKanjiId()).orElse(null);
+        } else if (dto.getGrammaId() != null) {
+            // Nếu là Grammar
+            existing = favoritesRepository.findFavoriteGramma(userId, dto.getGrammaId()).orElse(null);
+        } else if (dto.getVocabularyId() != null) {
+            // Nếu là  (Vocabulary)
+            existing = favoritesRepository.findFavoriteVocabulary(userId, dto.getVocabularyId()).orElse(null);
+        } else if (dto.getSampleSentenceId() != null) {
+            // Nếu là  (Sample Sentence)
+            existing = favoritesRepository.findFavoriteSentence(userId, dto.getSampleSentenceId()).orElse(null);
+        } else {
+            // Không truyền loại nội dung nào → lỗi
+            throw new RuntimeException("Phải cung cấp ít nhất 1 loại nội dung.");
+        }
+        // Nếu người dùng đã từng yêu thích nội dung này → xóa (bỏ yêu thích)
+        if (existing != null) {
+            favoritesRepository.delete(existing);
+            return null; // Trả null nghĩa là đã bỏ yêu thích
+        }
+        // Nếu chưa từng yêu thích → tạo mới mục yêu thích
+        return createFavorite(dto, userId);
+    }
 
 
     public FavoritesDTO createFavorite(FavoritesDTO dto, UUID userId) {
@@ -143,8 +171,7 @@ public class FavoritesService {
 
     public static FavoritesDTO toDTO(Favorites favorites) {
         if (favorites == null) return null;
-
-        return new FavoritesDTO(
+        FavoritesDTO dto = new FavoritesDTO(
                 favorites.getFavoritesID(),
                 favorites.getTitle(),
                 favorites.getContent(),
@@ -152,10 +179,24 @@ public class FavoritesService {
                 favorites.getUser() != null ? favorites.getUser().getUser_id() : null,
                 favorites.getGramma() != null ? favorites.getGramma().getGrammaID() : null,
                 favorites.getKanji() != null ? favorites.getKanji().getKanjiId() : null,
-                favorites.getFlashCards() != null ? favorites.getFlashCards().getSet_id() : null,
+                favorites.getSentence() != null ? favorites.getSentence().getSample_sentence_id() : null,
                 favorites.getVocabulary() != null ? favorites.getVocabulary().getVocalbId() : null
         );
+        // Xác định type
+        if (favorites.getKanji() != null) {
+            dto.setType("kanji");
+        } else if (favorites.getGramma() != null) {
+            dto.setType("grammar");
+        } else if (favorites.getVocabulary() != null) {
+            dto.setType("vocabulary");
+        } else if (favorites.getSentence() != null) {
+            dto.setType("samplesentence");
+        } else {
+            dto.setType("unknown");
+        }
+        return dto;
     }
+
 
 }
 
