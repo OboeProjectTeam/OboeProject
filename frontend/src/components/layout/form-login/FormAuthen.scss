@@ -535,6 +535,60 @@ h1 {
     }
 }
 
+/* Social Login Buttons */
+.social-login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.google-login-btn, .facebook-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    width: 100%;
+}
+
+.google-login-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+.google-login-btn:hover {
+    background-color: #357ae8;
+    transform: translateY(-1px);
+}
+
+.facebook-login-btn {
+    background-color: #1877f2;
+    color: white;
+}
+
+.facebook-login-btn:hover {
+    background-color: #166fe5;
+    transform: translateY(-1px);
+}
+
+.google-login-btn:disabled, .facebook-login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.google-login-btn i, .facebook-login-btn i {
+    font-size: 16px;
+}
+
 @keyframes dash {
     0% {
         stroke-dasharray: 1, 200;

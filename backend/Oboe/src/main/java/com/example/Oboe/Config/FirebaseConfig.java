@@ -17,27 +17,50 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
-                // Sử dụng default credentials từ environment hoặc service account key
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.getApplicationDefault())
-                        .build();
-
-                FirebaseApp.initializeApp(options);
-            }
-        } catch (IOException e) {
-            // Fallback: Khởi tạo Firebase mà không cần credentials cho development
-            // Trong production, bạn nên cung cấp service account key
-            try {
-                if (FirebaseApp.getApps().isEmpty()) {
+                System.out.println("=== Initializing Firebase ===");
+                
+                // Thử sử dụng service account key từ resources trước
+                try {
+                    ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
+                    if (resource.exists()) {
+                        System.out.println("Using service account key from resources");
+                        InputStream serviceAccount = resource.getInputStream();
+                        FirebaseOptions options = FirebaseOptions.builder()
+                                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                                .build();
+                        FirebaseApp.initializeApp(options);
+                        System.out.println("Firebase initialized with service account key");
+                        return;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Service account key not found in resources: " + e.getMessage());
+                }
+                
+                // Fallback: Sử dụng default credentials từ environment
+                try {
+                    System.out.println("Trying to use default credentials");
                     FirebaseOptions options = FirebaseOptions.builder()
-                            .setProjectId("oboe-28622") // Project ID từ Firebase config
+                            .setCredentials(GoogleCredentials.getApplicationDefault())
                             .build();
                     FirebaseApp.initializeApp(options);
+                    System.out.println("Firebase initialized with default credentials");
+                    return;
+                } catch (IOException e) {
+                    System.out.println("Default credentials not available: " + e.getMessage());
                 }
-            } catch (Exception ex) {
-                System.err.println("Không thể khởi tạo Firebase: " + ex.getMessage());
-                // Trong trường hợp này, Firebase authentication sẽ không hoạt động
+                
+                // Final fallback: Khởi tạo với project ID only (cho development)
+                System.out.println("Using project ID only for development");
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setProjectId("oboe-28622") // Project ID từ Firebase config
+                        .build();
+                FirebaseApp.initializeApp(options);
+                System.out.println("Firebase initialized with project ID only");
             }
+        } catch (Exception e) {
+            System.err.println("CRITICAL: Không thể khởi tạo Firebase: " + e.getMessage());
+            e.printStackTrace();
+            // Trong trường hợp này, Firebase authentication sẽ không hoạt động
         }
     }
 }

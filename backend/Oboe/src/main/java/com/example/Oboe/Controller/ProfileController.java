@@ -24,7 +24,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/profile")
-@CrossOrigin
 public class ProfileController {
 
     @Autowired

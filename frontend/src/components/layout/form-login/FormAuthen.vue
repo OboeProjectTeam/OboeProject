@@ -144,8 +144,6 @@ const uiConfig = {
       scopes: ['email']
     }
   ],
-  // Tắt redirect để chỉ sử dụng popup
-  signInSuccessUrl: null,
   callbacks: {
     signInSuccessWithAuthResult: async function (authResult) {
       try {
@@ -165,7 +163,7 @@ const uiConfig = {
         console.error('Đăng nhập Firebase thất bại:', error);
         showDialog('Đăng nhập với Google/Facebook thất bại: ' + (error.response?.data?.message || error.message), 'error');
       }
-      return false; // Tắt redirect tự động
+      return false; // Quan trọng: return false để tắt redirect tự động
     },
     signInFailure: function(error) {
       console.error('Firebase sign in failed:', error);
@@ -178,10 +176,7 @@ const uiConfig = {
       }
       loginTranslate();
     }
-  },
-  // Tắt tosUrl để tránh redirect
-  tosUrl: null,
-  privacyPolicyUrl: null
+  }
 }
 const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
 function loginTranslate() {

@@ -41,17 +41,6 @@ export default defineConfig({
           });
         },
       },
-      // OAuth2 proxy - commented out vì đã chuyển sang Firebase
-      // '/oauth2': {
-      //   target: 'https://oboeru.me',
-      //   changeOrigin: true,
-      //   secure: true,
-      // },
-      // '/login/oauth2': {
-      //   target: 'https://oboeru.me',
-      //   changeOrigin: true,
-      //   secure: true,
-      // },
       '/ws': {
         target: 'https://oboeru.me',
         changeOrigin: true,
