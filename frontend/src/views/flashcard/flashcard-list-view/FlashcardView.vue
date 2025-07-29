@@ -154,26 +154,42 @@ const activeTabLabel = computed(() => {
 const getMainText = (item) => {
   let text = '';
   switch (item.type) {
-    case 'word': return item.kanji || item.kana
-    case 'kanji': return item.kanji
-    case 'grammar': return item.pattern
-    case 'sentence': 
-      text = item.japanese || item.sentence || '';
+    case 'word':
+      // WordDetail uses 'words' as mainField
+      return item.words || item.kanji || item.kana || item.word || ''
+    case 'kanji':
+      // KanjiDetail uses 'characterName' as mainField
+      return item.characterName || item.kanji || item.character || ''
+    case 'grammar':
+      // GrammarDetail uses 'structure' as mainField
+      return item.structure || item.pattern || item.kana || ''
+    case 'sentence':
+      // SentenceDetail uses 'japaneseText' as mainField
+      text = item.japaneseText || item.japanese || item.sentence || '';
       return text.length > 20 ? text.substring(0, 20) + '...' : text
-    default: return ''
+    default:
+      return ''
   }
 }
 
 const getSubText = (item) => {
   let text = '';
   switch (item.type) {
-    case 'word': return item.meaning
-    case 'kanji': return item.meaning
-    case 'grammar': return item.meaning
+    case 'word':
+      // WordDetail uses 'meanning' as meaningField (note the typo in API)
+      return item.meanning || item.meaning || ''
+    case 'kanji':
+      // KanjiDetail uses 'meaning' as meaningField and 'vietnamesePronunciation' as readingField
+      return item.meaning || item.vietnamesePronunciation || item.reading || ''
+    case 'grammar':
+      // GrammarDetail uses 'explanation' as meaningField
+      return item.explanation || item.meaning || ''
     case 'sentence':
-      text = item.meaning || item.translation || '';
+      // SentenceDetail uses 'vietnameseMeaning' as meaningField
+      text = item.vietnameseMeaning || item.meaning || item.translation || '';
       return text.length > 25 ? text.substring(0, 25) + '...' : text
-    default: return ''
+    default:
+      return ''
   }
 }
 
@@ -201,4 +217,4 @@ const startLearning = () => {
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-list-view/FlashcardView.scss';
-</style> 
+</style>
