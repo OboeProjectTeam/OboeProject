@@ -190,6 +190,7 @@ const createQuizWithAI = async () => {
       path: '/flashcard/test',
       query: {
         type: 'multiple-choice',
+        aiGenerated: 'true',
         source: 'ai-generated',
         title: 'Bài kiểm tra được tạo bằng AI',
         description: `Bài kiểm tra gồm ${response.length} câu hỏi được tạo tự động bằng AI`
