@@ -9,7 +9,6 @@ import grammarApi from './modules/grammarApi';
 import kanjiApi from './modules/kanjiApi';
 import messageApi from './modules/messageApi';
 import notificationApi from './modules/notificationApi';
-import oauthApi from './modules/oauthApi';
 import profileApi from './modules/profileApi';
 import questionApi from './modules/questionApi';
 import quizApi from './modules/quizApi';
@@ -33,7 +32,6 @@ const api = {
     learningMaterial: learningMaterialApi,
     message: messageApi,
     notification: notificationApi,
-    oauth: oauthApi,
     payment: paymentApi,
     profile: profileApi,
     question: questionApi,

@@ -133,12 +133,23 @@ const showDialog = (message, type = 'success') => {
 const uiConfig = {
   signInFlow: 'popup',
   signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+    {
+      provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      customParameters: {
+        prompt: 'select_account'
+      }
+    },
+    {
+      provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+      scopes: ['email']
+    }
   ],
+  // Tắt redirect để chỉ sử dụng popup
+  signInSuccessUrl: null,
   callbacks: {
     signInSuccessWithAuthResult: async function (authResult) {
       try {
+        console.log('Firebase auth success:', authResult);
         const idToken = await authResult.user.getIdToken();
         const response = await api.auth.loginWithFirebase(idToken);
         const { token, user } = response.data;
@@ -146,18 +157,31 @@ const uiConfig = {
         store.commit('auth/SET_TOKEN', token);
         store.commit('auth/SET_USER', user);
 
-        router.push('/');
+        showDialog('Đăng nhập thành công!', 'success');
+        setTimeout(() => {
+          router.push('/');
+        }, 1000);
       } catch (error) {
         console.error('Đăng nhập Firebase thất bại:', error);
-        showDialog('Đăng nhập với Google/Facebook thất bại', 'error');
+        showDialog('Đăng nhập với Google/Facebook thất bại: ' + (error.response?.data?.message || error.message), 'error');
       }
-      return false;
+      return false; // Tắt redirect tự động
+    },
+    signInFailure: function(error) {
+      console.error('Firebase sign in failed:', error);
+      showDialog('Đăng nhập thất bại: ' + error.message, 'error');
     },
     uiShown: function () {
-      document.getElementById('loader').style.display = 'none';
+      const loader = document.getElementById('loader');
+      if (loader) {
+        loader.style.display = 'none';
+      }
       loginTranslate();
     }
-  }
+  },
+  // Tắt tosUrl để tránh redirect
+  tosUrl: null,
+  privacyPolicyUrl: null
 }
 const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
 function loginTranslate() {
