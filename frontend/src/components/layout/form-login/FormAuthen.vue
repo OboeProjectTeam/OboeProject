@@ -149,9 +149,14 @@ const uiConfig = {
       try {
         console.log('Firebase auth success:', authResult);
         const idToken = await authResult.user.getIdToken();
-        const response = await api.auth.loginWithFirebase(idToken);
-        const { token, user } = response.data;
+        const result = await api.auth.loginWithFirebase(idToken);
+        console.log("✅ Result from backend:", result);
 
+        if (!result || !result.token || !result.user) {
+          throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
+        }
+
+        const { token, user } = result;
         store.commit('auth/SET_TOKEN', token);
         store.commit('auth/SET_USER', user);
 
@@ -165,6 +170,7 @@ const uiConfig = {
       }
       return false; // Quan trọng: return false để tắt redirect tự động
     },
+
     signInFailure: function(error) {
       console.error('Firebase sign in failed:', error);
       showDialog('Đăng nhập thất bại: ' + error.message, 'error');

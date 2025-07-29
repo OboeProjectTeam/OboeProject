@@ -133,6 +133,7 @@
                         "lastName", user.getLastName(),
                         "role", user.getRole().name(),
                         "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
                         "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                             ? user.getAvatarUrl()
                             : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
@@ -232,6 +233,7 @@
                             "lastName", user.getLastName(),
                             "role", user.getRole().name(),
                             "displayName", user.getFirstName() + " " + user.getLastName(),
+                            "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
                             "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                                 ? user.getAvatarUrl()
                                 : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
@@ -243,10 +245,7 @@
 
         @PostMapping("/loginWithFirebase")
         public ResponseEntity<?> loginWithFirebase(@RequestBody FirebaseLoginRequest request) {
-            System.out.println("=== Firebase Login Request ===");
-            System.out.println("Request received: " + (request != null ? "Yes" : "No"));
-            System.out.println("ID Token present: " + (request != null && request.getIdToken() != null ? "Yes" : "No"));
-            
+           
             if (request == null || request.getIdToken() == null || request.getIdToken().trim().isEmpty()) {
                 System.out.println("ERROR: Missing or empty ID token");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -254,32 +253,11 @@
             }
             
             try {
-                System.out.println("Step 1: Verifying Firebase ID token...");
-                // Verify Firebase ID token
                 FirebaseToken decodedToken = firebaseService.verifyIdToken(request.getIdToken());
-                System.out.println("Step 1: SUCCESS - Token verified");
-                System.out.println("User email: " + decodedToken.getEmail());
-                System.out.println("User name: " + decodedToken.getName());
-                
-                System.out.println("Step 2: Processing Firebase user...");
-                // Process user (create or update)
                 User user = firebaseService.processFirebaseUser(decodedToken);
-                System.out.println("Step 2: SUCCESS - User processed");
-                System.out.println("User ID: " + user.getUser_id());
-                System.out.println("Username: " + user.getUserName());
-                System.out.println("Auth Provider: " + user.getAuthProvider());
-                
-                System.out.println("Step 3: Loading UserDetails...");
-                // Create UserDetails for JWT generation
                 UserDetails userDetails = userService.loadUserByUsernameAndProvider(
                     user.getUserName(), user.getAuthProvider());
-                System.out.println("Step 3: SUCCESS - UserDetails loaded");
-                
-                System.out.println("Step 4: Generating JWT token...");
-                // Generate JWT token
                 String jwt = jwtUtil.generateToken(userDetails, user.getAuthProvider().name());
-                System.out.println("Step 4: SUCCESS - JWT generated");
-                
                 // Prepare response
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "Firebase login successful!");
@@ -290,16 +268,15 @@
                         "lastName", user.getLastName(),
                         "role", user.getRole().name(),
                         "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
                         "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                             ? user.getAvatarUrl()
                             : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
                 ));
 
-                System.out.println("=== Firebase Login SUCCESS ===");
                 return ResponseEntity.ok(response);
                 
             } catch (FirebaseAuthException e) {
-                System.out.println("ERROR: Firebase Auth Exception - " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Invalid Firebase token: " + e.getMessage());
