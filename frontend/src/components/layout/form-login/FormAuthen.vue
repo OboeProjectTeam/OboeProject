@@ -124,14 +124,10 @@ const popupMessage = ref('')
 const popupTitle = ref('Thông báo')
 const success = ref (false)
 
-const showDialog = (message, type = 'success') => {
-  popupTitle.value = type === 'success' ? '🎉 Thành công' : '❗ Thất bại'
-  popupMessage.value = message
-  showPopup.value = true
-}
 
 const uiConfig = {
   signInFlow: 'popup',
+  signInSuccessUrl: '',
   signInOptions: [
     {
       provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
@@ -147,33 +143,22 @@ const uiConfig = {
   callbacks: {
     signInSuccessWithAuthResult: async function (authResult) {
       try {
-        console.log('Firebase auth success:', authResult);
         const idToken = await authResult.user.getIdToken();
         const result = await api.auth.loginWithFirebase(idToken);
-        console.log("✅ Result from backend:", result);
 
         if (!result || !result.token || !result.user) {
           throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
         }
+        console.log('Firebase login callback hit');
 
         const { token, user } = result;
         store.commit('auth/SET_TOKEN', token);
         store.commit('auth/SET_USER', user);
-
-        showDialog('Đăng nhập thành công!', 'success');
-        setTimeout(() => {
-          router.push('/');
-        }, 1000);
+        router.push('/');
       } catch (error) {
-        console.error('Đăng nhập Firebase thất bại:', error);
-        showDialog('Đăng nhập với Google/Facebook thất bại: ' + (error.response?.data?.message || error.message), 'error');
+        console.error(err);
       }
-      return false; // Quan trọng: return false để tắt redirect tự động
-    },
-
-    signInFailure: function(error) {
-      console.error('Firebase sign in failed:', error);
-      showDialog('Đăng nhập thất bại: ' + error.message, 'error');
+      return false;
     },
     uiShown: function () {
       const loader = document.getElementById('loader');
@@ -217,7 +202,6 @@ const submitForm = async () => {
         authProvider: 'EMAIL',
       })
 
-      showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
       resetForm()
       success.value = true 
 
@@ -230,7 +214,7 @@ const submitForm = async () => {
       router.push('/')
     }
   } catch (err) {
-    showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
+    console.log(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
   } finally {
     isLoading.value = false
   }
@@ -290,12 +274,31 @@ function runStartupTransitions() {
   setTimeout(() => document.body.classList.add('on-start'), 100)
   setTimeout(() => document.body.classList.add('document-loaded'), 1800)
 }
+function observeAndRemoveFirebaseSnackbar() {
+  const observer = new MutationObserver(() => {
+    const snackbar = document.querySelector('.mdl-snackbar, .firebaseui-snackbar, .firebaseui-container .mdl-snackbar__text');
+    if (snackbar && snackbar.parentNode) {
+      snackbar.parentNode.remove();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Dừng quan sát sau 5 giây để tránh leak
+  setTimeout(() => {
+    observer.disconnect();
+  }, 5000);
+}
 
 onMounted(async () => {
   try {
     await nextTick()
      if (!props.isRegister) {
       ui.start('#firebaseui-auth-container', uiConfig)
+      observeAndRemoveFirebaseSnackbar();
     }
     initAnimatedPlaceholders()
     setupInputFocusAnimations()

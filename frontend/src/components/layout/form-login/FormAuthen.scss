@@ -588,6 +588,20 @@ h1 {
 .google-login-btn i, .facebook-login-btn i {
     font-size: 16px;
 }
+// Ẩn toàn bộ phần bảng trắng callback
+.firebaseui-container .mdl-card.firebaseui-id-page-callback,
+.firebaseui-id-page-callback,
+.firebaseui-callback-indicator-container,
+.firebaseui-info-bar {
+  transition: all 1s ease-in-out;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  pointer-events: none;
+}
+
+
 
 @keyframes dash {
     0% {
