@@ -30,7 +30,16 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-
+     # 4. Inject biến môi trường Firebase
+    - name: Inject Firebase ENV (.env)
+      run: |
+        echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
+        echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
+        echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
+        echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
     # 4. Build frontend
     - name: Build frontend
       working-directory: frontend

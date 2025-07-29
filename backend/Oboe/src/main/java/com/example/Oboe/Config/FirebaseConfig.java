@@ -30,7 +30,7 @@ public class FirebaseConfig {
             try {
                 if (FirebaseApp.getApps().isEmpty()) {
                     FirebaseOptions options = FirebaseOptions.builder()
-                            .setProjectId("your-firebase-project-id") // Thay bằng project ID thực tế
+                            .setProjectId("oboe-28622") // Project ID từ Firebase config
                             .build();
                     FirebaseApp.initializeApp(options);
                 }
