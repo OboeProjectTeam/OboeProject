@@ -126,8 +126,8 @@ const success = ref (false)
 
 
 const uiConfig = {
-  signInFlow: 'redirect',
-  signInSuccessUrl: 'https://oboeru.me',
+  signInFlow: 'popup',
+  signInSuccessUrl: '',
   signInOptions: [
     {
       provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
