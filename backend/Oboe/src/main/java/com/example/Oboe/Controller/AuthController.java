@@ -1,5 +1,5 @@
-package com.example.Oboe.Controller;
-
+    package com.example.Oboe.Controller;
+    import com.google.firebase.auth.FirebaseAuthException;
     import com.example.Oboe.DTOs.LoginRequest;
     import com.example.Oboe.DTOs.PassWordChangeDTOs;
     import com.example.Oboe.DTOs.UserDTOs;
@@ -265,7 +265,7 @@ package com.example.Oboe.Controller;
                 // Process user (create or update)
                 User user = firebaseService.processFirebaseUser(decodedToken);
                 System.out.println("Step 2: SUCCESS - User processed");
-                System.out.println("User ID: " + user.getId());
+                System.out.println("User ID: " + user.getUser_id());
                 System.out.println("Username: " + user.getUserName());
                 System.out.println("Auth Provider: " + user.getAuthProvider());
                 
