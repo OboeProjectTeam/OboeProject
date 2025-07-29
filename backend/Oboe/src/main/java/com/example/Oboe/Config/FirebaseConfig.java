@@ -21,7 +21,7 @@ public class FirebaseConfig {
                 
                 // Thử sử dụng service account key từ resources trước
                 try {
-                    ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
+                    ClassPathResource resource = new ClassPathResource("firebase/serviceAccountKey.json");
                     if (resource.exists()) {
                         System.out.println("Using service account key from resources");
                         InputStream serviceAccount = resource.getInputStream();

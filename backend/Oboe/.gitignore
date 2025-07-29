@@ -32,3 +32,5 @@ build/
 
 ### VS Code ###
 .vscode/
+# Firebase secret key 
+**/firebase/serviceAccountKey.json
