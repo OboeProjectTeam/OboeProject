@@ -32,6 +32,16 @@ public class FavoritesController {
         FavoritesDTO result = favoritesService.toggleFavorite(dto, userId);
         return ResponseEntity.ok(result == null ? "Đã hủy yêu thích" : result);
     }
+    @GetMapping("/is-favorited")
+    public ResponseEntity<Boolean> isFavorited(
+            Authentication authentication,
+            @RequestParam String type,
+            @RequestParam UUID targetId) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        boolean isFavorited = favoritesService.isFavorited(userId, type.toLowerCase(), targetId);
+        return ResponseEntity.ok(isFavorited);
+    }
 
     @GetMapping("/user")
     public ResponseEntity<List<FavoritesDTO>> getUserFavorites(
@@ -61,4 +71,5 @@ public class FavoritesController {
         favoritesService.deleteFavorite(favoriteId, userId);
         return ResponseEntity.ok("Xóa mục yêu thích thành công!");
     }
+
 }

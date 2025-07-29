@@ -62,7 +62,15 @@ public class FavoritesService {
         // Nếu chưa từng yêu thích → tạo mới mục yêu thích
         return createFavorite(dto, userId);
     }
-
+    public boolean isFavorited(UUID userId, String type, UUID targetId) {
+        return switch (type) {
+            case "kanji" -> favoritesRepository.findFavoriteKanji(userId, targetId).isPresent();
+            case "grammar" -> favoritesRepository.findFavoriteGramma(userId, targetId).isPresent();
+            case "vocabulary" -> favoritesRepository.findFavoriteVocabulary(userId, targetId).isPresent();
+            case "samplesentence" -> favoritesRepository.findFavoriteSentence(userId, targetId).isPresent();
+            default -> throw new IllegalArgumentException("Loại nội dung không hợp lệ: " + type);
+        };
+    }
 
     public FavoritesDTO createFavorite(FavoritesDTO dto, UUID userId) {
         Favorites favorites = new Favorites();
