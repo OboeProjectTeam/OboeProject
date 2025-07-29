@@ -24,7 +24,7 @@ public class FavoritesController {
         this.favoritesService = favoritesService;
     }
 
-
+    // API để toggle (thêm hoặc hủy) yêu thích một nội dung (Kanji, Grammar, Vocabulary, SampleSentence)
     @PostMapping("/toggle")
     public ResponseEntity<?> toggleFavorite(@RequestBody FavoritesDTO dto, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -32,6 +32,10 @@ public class FavoritesController {
         FavoritesDTO result = favoritesService.toggleFavorite(dto, userId);
         return ResponseEntity.ok(result == null ? "Đã hủy yêu thích" : result);
     }
+
+    // API để kiểm tra một nội dung cụ thể đã được người dùng yêu thích hay chưa
+    // Truyền vào type (kanji | grammar | vocabulary | samplesentence) và targetId (UUID của nội dung)
+    // Trả về true nếu đã yêu thích, false nếu chưa
     @GetMapping("/is-favorited")
     public ResponseEntity<Boolean> isFavorited(
             Authentication authentication,
