@@ -1,17 +1,20 @@
 {
-    "hosting": {
-      "public": "dist", 
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ],
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ]
-    }
+  "hosting": {
+    "public": "dist",
+    "rewrites": [
+      {
+        "source": "/__/auth/**",
+        "destination": "/__/auth/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   }
-  
+}
