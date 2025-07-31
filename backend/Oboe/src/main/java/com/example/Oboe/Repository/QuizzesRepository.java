@@ -31,4 +31,5 @@ public interface QuizzesRepository extends JpaRepository<Quizzes, UUID> {
             "FROM Quizzes q WHERE LOWER(q.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<QuizSearchResultDTO> searchQuizzesByKeyword(@Param("keyword") String keyword);
 
+
 }

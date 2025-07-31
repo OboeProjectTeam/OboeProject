@@ -1,5 +1,6 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.DTOs.UserSearchResultDTO;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.User;
@@ -36,4 +37,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "GROUP BY u.user_id, u.userName")
     List<UserSearchResultDTO> searchUsersWithFlashcardCount(@Param("keyword") String keyword);
 
+    @Query("SELECT new com.example.Oboe.DTOs.UserDTOs(u.user_id, u.userName, u.avatarUrl) " +
+            "FROM User u WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<UserDTOs> searchUsersByKeyword(@Param("keyword") String keyword);
 }
