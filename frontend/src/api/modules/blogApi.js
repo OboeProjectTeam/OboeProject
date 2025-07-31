@@ -79,6 +79,14 @@ const blogApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  async getFeaturedComments() {
+    try {
+      const res = await axios.get(`${PREFIX}/featuredcomment`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
 };
 
