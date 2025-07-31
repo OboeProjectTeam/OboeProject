@@ -46,10 +46,8 @@ public class WebConfig {
     @Value("${app.domain}")
     private String domain;
 
-//     @Bean
-//     public CustomOAuth2SuccessHandler(UserService userService) {
-//         return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
-//     }
+
+
 
 
     @Bean
