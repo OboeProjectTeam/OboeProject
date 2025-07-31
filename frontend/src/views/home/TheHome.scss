@@ -181,20 +181,28 @@
     border-radius: 8px;
     padding: 1rem;
     background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px; // Đảm bảo chiều cao tối thiểu
     
     h4 {
       font-size: 1.1rem;
+      margin-bottom: 0.5rem;
     }
     
     p {
       color: #666;
       margin: 0.5rem 0 1rem;
+      flex-grow: 1; // Cho phép phần này mở rộng để đẩy button xuống dưới
     }
 
     .view-topic-btn {
       color: $primary-color;
       text-decoration: none;
       font-weight: 500;
+      margin-top: auto; // Đẩy button xuống cuối
+      align-self: flex-start; // Căn trái button
     }
   }
 

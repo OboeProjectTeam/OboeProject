@@ -64,10 +64,7 @@
                   <i class="fas fa-flag"></i>
                   Báo cáo bài viết
                 </button>
-                <button class="menu-item" @click="handleMenuItemClick('hide')">
-                  <i class="fas fa-eye-slash"></i>
-                  Ẩn bài viết
-                </button>
+                
               </template>
             </div>
           </div>
@@ -140,7 +137,6 @@
                 </div>
               </div>
             </div>
-
                          <!-- Reply Form (for main reply) -->
              <transition name="slide-fade">
                <div v-if="replyingTo === reply.id" class="nested-reply-form">
@@ -282,14 +278,6 @@
       @cancel="showLockConfirm = false"
     />
 
-    <ThePopup
-      v-if="showHideConfirm"
-      title="Ẩn bài viết"
-      message="Bạn có chắc chắn muốn ẩn bài viết này khỏi feed của bạn?"
-      confirmText="Ẩn"
-      @confirm="handleHidePost"
-      @cancel="showHideConfirm = false"
-    />
 
     <!-- Report Confirmation Popup -->
     <ThePopup
@@ -299,7 +287,21 @@
       confirmText="Gửi báo cáo"
       @confirm="handleSubmitReport"
       @cancel="showReportConfirm = false"
+      style="z-index: 10000;"
     />
+
+    <!-- Report Success Animation -->
+    <div v-if="showReportSuccessAnimation" class="report-success-animation">
+      <div class="success-content">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="success-text">
+          <h3>Báo cáo thành công!</h3>
+          <p>Cảm ơn bạn đã góp phần xây dựng cộng đồng tích cực</p>
+        </div>
+      </div>
+    </div>
 
     <!-- Report Dialog -->
     <div class="report-dialog" v-if="showReportDialog">
@@ -326,17 +328,6 @@
               <option value="other">Khác</option>
             </select>
           </div>
-
-          <div class="form-group" v-if="reportData.type === 'inappropriate'">
-            <label>Chi tiết nội dung không phù hợp</label>
-            <select v-model="reportData.subType">
-              <option value="adult">Nội dung người lớn</option>
-              <option value="offensive">Từ ngữ khiếm nhã</option>
-              <option value="sensitive">Nội dung nhạy cảm</option>
-              <option value="graphic">Hình ảnh phản cảm</option>
-            </select>
-          </div>
-
           <div class="form-group">
             <label>Mô tả chi tiết</label>
             <textarea 
@@ -370,6 +361,7 @@ import { useFloating, autoUpdate, offset } from '@floating-ui/vue';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
 import blogApi from '@/api/modules/blogApi';
 import commentApi from '@/api/modules/commentApi';
+import reportApi from '@/api/modules/reportApi';
 
 const router = useRouter();
 const route = useRoute();
@@ -433,7 +425,6 @@ const fetchBlogPost = async (postId) => {
     };
     
   } catch (err) {
-    console.error('Error fetching blog post:', err);
     error.value = err.message || 'Không thể tải bài viết';
     blogPost.value = null;
   } finally {
@@ -455,17 +446,6 @@ const fetchComments = async (postId, loadMore = false) => {
     
     // Use commentApi to get comments for the blog post with pagination
     const response = await commentApi.getComments(postId, commentsPage.value, commentsSize.value);
-
-
-    console.log('Response structure:', {
-      comments: response?.comments?.length || 0,
-      totalPages: response?.totalPages,
-      totalElements: response?.totalElements,
-      currentPage: response?.currentPage,
-      size: response?.size,
-      numberOfElements: response?.numberOfElements
-    });
-    
     // Helper function to map a single comment with its nested replies
     const mapComment = (comment) => ({
       id: comment.commentId,
@@ -502,28 +482,12 @@ const fetchComments = async (postId, loadMore = false) => {
       totalPages = Math.ceil(totalElements / commentsSize.value);
     }
     
-    console.log('Pagination info:', {
-      currentPage: commentsPage.value,
-      totalPages,
-      totalElements,
-      commentsLoaded: mappedComments.length,
-      totalCommentsInState: comments.value.length,
-      commentsSize: commentsSize.value
-    });
-    
     // Check if there are more comments to load
     // Method 1: Using totalPages
     const hasMoreByPages = commentsPage.value + 1 < totalPages;
     
     // Method 2: Using totalElements (fallback)
     const hasMoreByElements = comments.value.length < totalElements;
-    
-    console.log('hasMoreComments calculation:', {
-      hasMoreByPages,
-      hasMoreByElements,
-      currentCommentsCount: comments.value.length,
-      totalElements
-    });
     
     hasMoreComments.value = hasMoreByPages || hasMoreByElements;
 
@@ -534,7 +498,6 @@ const fetchComments = async (postId, loadMore = false) => {
     }
     
   } catch (err) {
-    console.error('Error fetching comments:', err);
     if (!loadMore) {
       comments.value = [];
     }
@@ -617,7 +580,6 @@ const submitNewComment = async () => {
     });
     
   } catch (err) {
-    console.error('Error submitting comment:', err);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Có lỗi xảy ra khi gửi bình luận: ' + err.message
@@ -676,7 +638,6 @@ const submitReply = async (parentCommentId) => {
     });
     
   } catch (err) {
-    console.error('Error submitting reply:', err);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Có lỗi xảy ra khi gửi trả lời: ' + err.message
@@ -811,6 +772,7 @@ const showLockConfirm = ref(false);
 const showHideConfirm = ref(false);
 const showReportDialog = ref(false);
 const showReportConfirm = ref(false);
+const showReportSuccessAnimation = ref(false);
 
 const reportData = ref({
   type: '',
@@ -859,6 +821,29 @@ const closeReportDialog = () => {
   };
 };
 
+// Helper function to get report title based on type
+const getReportTitle = (type) => {
+  const reportTitles = {
+    'spam': 'Spam / Quảng cáo',
+    'inappropriate': 'Nội dung không phù hợp',
+    'harassment': 'Quấy rối / Xúc phạm',
+    'copyright': 'Vi phạm bản quyền',
+    'violence': 'Bạo lực / Nguy hiểm',
+    'hate_speech': 'Phát ngôn thù ghét',
+    'fake_news': 'Thông tin sai lệch',
+    'other': 'Khác'
+  };
+  return reportTitles[type] || 'Báo cáo vi phạm';
+};
+
+// Function to show success animation
+const showReportSuccessAnimationFunc = () => {
+  showReportSuccessAnimation.value = true;
+  setTimeout(() => {
+    showReportSuccessAnimation.value = false;
+  }, 3000); // Hide animation after 3 seconds
+};
+
 const validateAndConfirm = () => {
   // Validate form
   if (!reportData.value.type || !reportData.value.reason) {
@@ -885,28 +870,25 @@ const validateAndConfirm = () => {
 const handleSubmitReport = async () => {
   try {
     if (blogPost.value) {
-      // Here you would send the report to your backend
-      // For now, just show success message since we don't have report API
-
-      
+      // Show success animation
+      showReportSuccessAnimationFunc();
       // Show success message
       store.dispatch('showMessage', {
         type: 'success',
         text: 'Cảm ơn bạn đã báo cáo. Chúng tôi sẽ xem xét và xử lý sớm nhất.'
       });
-      
-      // Close all report related dialogs
-      closeReportDialog();
+      // Close all report related dialogs after a short delay to show animation
+      setTimeout(() => {
+        closeReportDialog();
+      }, 1500);
     }
   } catch (error) {
-    console.error('Error submitting report:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.'
     });
   }
 };
-
 // Update action handlers to work with popups
 const handleDeletePost = async () => {
   try {
@@ -919,7 +901,6 @@ const handleDeletePost = async () => {
       router.push('/forum');
     }
   } catch (error) {
-    console.error('Error deleting post:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể xóa bài viết: ' + error.message
@@ -939,7 +920,6 @@ const handleToggleComments = async () => {
       });
     }
   } catch (error) {
-    console.error('Error toggling comments:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Có lỗi xảy ra khi cập nhật trạng thái bình luận'
@@ -948,10 +928,6 @@ const handleToggleComments = async () => {
   showLockConfirm.value = false;
 };
 
-const handleHidePost = () => {
-  alert('Đã ẩn bài viết này khỏi feed của bạn');
-  showHideConfirm.value = false;
-};
 
 const goBackToForum = () => {
   router.push('/forum');
@@ -1049,256 +1025,4 @@ const isRepliesShown = (replyId) => {
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-post-detail/ForumPostDetail.scss';
-
-// Additional styles for comments loading and empty states
-.comments-loading, .no-comments {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-  color: #6c757d;
-  
-  .spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #007bff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-right: 12px;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 16px;
-  }
-}
-
-.no-comments {
-  flex-direction: column;
-  
-  p {
-    font-style: italic;
-  }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-// Post content styling
-.post-content-text {
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  
-  p {
-    margin-bottom: 16px;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-}
-
-// Reply form styling
-.reply-title-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e1e5e9;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 12px;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-  }
-  
-  &:disabled {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-  }
-  
-  &::placeholder {
-    color: #6c757d;
-  }
-}
-
-.submit-reply-btn {
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  .fa-spinner {
-    margin-right: 8px;
-  }
-  
-  .fa-paper-plane {
-    margin-right: 8px;
-  }
-}
-
-// Reply textarea styling
-.reply-textarea {
-  &:disabled {
-    background-color: #f8f9fa;
-    color: #6c757d;
-    cursor: not-allowed;
-    resize: vertical;
-  }
-}
-
-// Login prompt styling
-.login-prompt {
-  background: #f8f9fa;
-  border: 2px dashed #dee2e6;
-  border-radius: 12px;
-  padding: 40px 20px;
-  text-align: center;
-  margin-top: 20px;
-  
-  p {
-    margin-bottom: 16px;
-    color: #6c757d;
-    font-size: 16px;
-  }
-  
-  .btn {
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-}
-
-// Replies header styling
-.replies-header {
-  .showing-count {
-    font-size: 14px;
-    font-weight: 400;
-    color: #6c757d;
-    margin-left: 8px;
-  }
-}
-
-// Load more comments styling
-.load-more-comments {
-  display: flex;
-  justify-content: center;
-  margin: 24px 0;
-  
-  .load-more-btn {
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    min-width: 200px;
-    
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    i {
-      margin-right: 8px;
-    }
-    
-    &:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
-    }
-  }
-}
-
-// Newly created comment/reply highlight
-.reply-item.newly-created {
-  background: linear-gradient(135deg, rgba(255, 107, 107, 0.12), rgba(255, 142, 142, 0.06));
-  border: 1px solid rgba(255, 107, 107, 0.25);
-  border-radius: 12px;
-  padding: 16px;
-  margin: 8px 0;
-  position: relative;
-  animation: highlightPulse 4s ease-in-out;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
-  transition: all 0.3s ease-out;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    bottom: -1px;
-    background: linear-gradient(45deg, rgba(255, 107, 107, 0.15), rgba(255, 142, 142, 0.08));
-    border-radius: 12px;
-    z-index: -1;
-    animation: glowPulse 3s ease-in-out infinite alternate;
-    opacity: 0.7;
-  }
-  
-  &::after {
-    content: '✨ Mới';
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
-    animation: newBadgePulse 2s ease-in-out infinite alternate;
-  }
-  
-  // Override the default reply-item padding since we're adding our own
-  .reply-content-wrapper {
-    margin-left: 0;
-    padding-right: 60px; // Make space for "Mới" badge
-  }
-}
-
-@keyframes highlightPulse {
-  0% {
-    background: rgba(255, 107, 107, 0.15);
-    transform: scale(1.01);
-  }
-  50% {
-    background: rgba(255, 107, 107, 0.08);
-    transform: scale(1);
-  }
-  100% {
-    background: rgba(255, 107, 107, 0.05);
-    transform: scale(1);
-  }
-}
-
-@keyframes glowPulse {
-  0% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 0.1;
-  }
-}
-
-@keyframes newBadgePulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
-  }
-  100% {
-    transform: scale(1.05);
-    box-shadow: 0 3px 8px rgba(255, 107, 107, 0.4);
-  }
-}
-</style> 
+</style>
