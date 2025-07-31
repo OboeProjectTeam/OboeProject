@@ -186,8 +186,9 @@ public class BlogService {
 
     // lấy 5 chủ đề nổi bật nhất
     public List<TopicPostProjection> getTop5TopicsWithMostPosts() {
-        return blogRepository.findTop5TopicsWithMostPosts();
+        return blogRepository.findTop3BlogsByCommentCount();
     }
+
 
 
     //  Chuyển đổi từ Entity sang DTO
