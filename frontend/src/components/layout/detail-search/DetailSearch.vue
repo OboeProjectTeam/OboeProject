@@ -177,7 +177,7 @@ export default defineComponent({
             case 'word':
               return fav.vocabularyId === currentId;
             case 'grammar':
-              return fav.grammarId === currentId;
+              return fav.grammaId === currentId; // Note: API uses 'grammaId' not 'grammarId'
             case 'kanji':
               return fav.kanjiId === currentId;
             case 'sentence':
@@ -206,8 +206,6 @@ export default defineComponent({
         console.error('No ID found in route params');
         return;
       }
-      
-      console.log('Toggle favorite with ID from URL:', currentId, 'type:', props.type);
       
       store.dispatch('user/toggleFavorite', { 
         type: props.type, // Use original type, not favoriteType

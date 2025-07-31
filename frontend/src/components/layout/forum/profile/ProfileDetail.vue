@@ -824,25 +824,15 @@ async function prevPage() {
   // Handle flashcard click - pass data directly like MyLibrary does
   async function handleFlashcardClick(activity) {
     try {
-
-
-      
       // Extract setId from the activity URL or use activity id
       const urlParams = new URLSearchParams(activity.url.split('?')[1]);
       const setId = urlParams.get('setId') || activity.id;
-      
-
-
-      
       if (!setId) {
         console.error('No setId found for flashcard');
         return;
       }
-      
       // Find the flashcard data from userFlashcards to get cardItems
       const flashcardData = userFlashcards.value.find(fc => fc.id === setId);
-
-      
       if (!flashcardData || !flashcardData.cardItems) {
         console.error('No flashcard data or cardItems found for setId:', setId);
         store.dispatch('message/showMessage', {
@@ -851,7 +841,6 @@ async function prevPage() {
         });
         return;
       }
-      
       // Convert cardItems to learning format like MyLibrary does
       const learningItems = flashcardData.cardItems.map(card => ({
         type: 'word',
@@ -859,12 +848,8 @@ async function prevPage() {
         kana: '',
         meaning: card.meaning || ''
       }));
-      
-
-      
       // Save to store like MyLibrary does
       await store.dispatch('flashcard/setLearningItems', learningItems);
-      
       // Navigate to flashcard learn page with query params
       const navigationQuery = {
         source: 'library',
@@ -875,16 +860,10 @@ async function prevPage() {
         creatorAvatar: urlParams.get('creatorAvatar') || props.user.avatarUrl || props.user.avatar || '',
         createdAt: urlParams.get('createdAt') || new Date().toISOString()
       };
-      
-
-      
       router.push({
         path: '/flashcard/learn',
         query: navigationQuery
       });
-      
-
-      
     } catch (error) {
       console.error('Error handling flashcard click:', error);
       store.dispatch('message/showMessage', {
@@ -893,12 +872,9 @@ async function prevPage() {
       });
     }
   }
-
 </script>
-
   <style lang="scss" scoped>
   @use '@/components/layout/forum/profile/ProfileDetail.scss';
-  
   .stats-loading, .activities-loading {
     text-align: center;
     padding: 20px;
