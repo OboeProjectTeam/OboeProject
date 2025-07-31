@@ -24,15 +24,29 @@ public class FavoritesController {
         this.favoritesService = favoritesService;
     }
 
-    @PostMapping
-    public ResponseEntity<FavoritesDTO> createFavorite( @Valid @RequestBody FavoritesDTO favoritesDTO, Authentication authentication) {
-
+    // API để toggle (thêm hoặc hủy) yêu thích một nội dung (Kanji, Grammar, Vocabulary, SampleSentence)
+    @PostMapping("/toggle")
+    public ResponseEntity<?> toggleFavorite(@RequestBody FavoritesDTO dto, Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        UUID userid = userDetails.getUserID();
-        FavoritesDTO created = favoritesService.createFavorite(favoritesDTO, userid);
-        System.out.println(">>> Kanji ID: " + favoritesDTO.getKanjiId());
-        return ResponseEntity.ok(created);
+        UUID userId = userDetails.getUserID();
+        FavoritesDTO result = favoritesService.toggleFavorite(dto, userId);
+        return ResponseEntity.ok(result == null ? "Đã hủy yêu thích" : result);
     }
+
+    // API để kiểm tra một nội dung cụ thể đã được người dùng yêu thích hay chưa
+    // Truyền vào type (kanji | grammar | vocabulary | samplesentence) và targetId (UUID của nội dung)
+    // Trả về true nếu đã yêu thích, false nếu chưa
+    @GetMapping("/is-favorited")
+    public ResponseEntity<Boolean> isFavorited(
+            Authentication authentication,
+            @RequestParam String type,
+            @RequestParam UUID targetId) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+        boolean isFavorited = favoritesService.isFavorited(userId, type.toLowerCase(), targetId);
+        return ResponseEntity.ok(isFavorited);
+    }
+
     @GetMapping("/user")
     public ResponseEntity<List<FavoritesDTO>> getUserFavorites(
             Authentication authentication,
@@ -61,4 +75,5 @@ public class FavoritesController {
         favoritesService.deleteFavorite(favoriteId, userId);
         return ResponseEntity.ok("Xóa mục yêu thích thành công!");
     }
+
 }

@@ -1,6 +1,6 @@
 package com.example.Oboe.Config;
 
-import com.example.Oboe.Config.CustomOAuth2SuccessHandler;
+// import com.example.Oboe.Config.CustomOAuth2SuccessHandler; // Commented out vì đã chuyển sang Firebase
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
@@ -46,10 +46,9 @@ public class WebConfig {
     @Value("${app.domain}")
     private String domain;
 
-    @Bean
-    public CustomOAuth2SuccessHandler customOAuth2SuccessHandler(UserService userService) {
-        return new CustomOAuth2SuccessHandler(userService, jwtUtil, domain);
-    }
+
+
+
 
     @Bean
     public HttpFirewall allowUrlEncodedDoubleSlashHttpFirewall() {
@@ -84,7 +83,6 @@ public class WebConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthencation jwtAuthenticationFilter,
                                                    UserService userService,
-                                                   CustomOAuth2SuccessHandler customOAuth2SuccessHandler,
                                                    CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -93,11 +91,10 @@ public class WebConfig {
                         .requestMatchers(
                                 "/api/auth/signup",
                                 "/api/auth/login",
+                                "/api/auth/loginWithFirebase", // Thêm endpoint Firebase
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
-                                "/oauth2/redirect",
                                 "/v3/api-docs/**",
-                                "/oauth2/**",
                                 "/api/search/**",
                                 "/api/search",
                                 "/ws/**",
@@ -113,22 +110,11 @@ public class WebConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
 
-                        // OAuth2 login
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
-
                         // WebSocket
                         .requestMatchers("/ws/**").permitAll()
 
                         // Tất cả các request còn lại yêu cầu đăng nhập
                         .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(customOAuth2SuccessHandler)
-                        .failureHandler((request, response, exception) -> {
-                            exception.printStackTrace();
-                            String error = URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
-                            response.sendRedirect(domain + "/login?error=" + error); // dùng domain luôn
-                        })
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
@@ -158,7 +144,6 @@ public class WebConfig {
                 "https://oboeru.me"       // production domain
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);

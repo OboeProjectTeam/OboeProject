@@ -414,10 +414,10 @@ const isCurrentUserCreator = computed(() => {
 });
 const isFollowing = ref(false);
 const creatorInfo = computed(() => {
-  const fromLibrary = route.query.source === 'library';
+  const source = route.query.source;
   
-  if (fromLibrary) {
-    // Use data from query params when coming from library
+  if (source && (source === 'library' || source === 'profile')) {
+    // Use data from query params when coming from library or profile
     const creatorName = route.query.creatorName || 'Người dùng';
     const displayName = isCurrentUserCreator.value ? 'Bạn' : creatorName;
     
@@ -438,16 +438,30 @@ const creatorInfo = computed(() => {
 
 // Computed title based on source
 const deckTitle = computed(() => {
-  const fromLibrary = route.query.source === 'library';
+  const source = route.query.source;
   const setTitle = route.query.title;
-  return fromLibrary ? setTitle : 'Kho Thẻ Tạm Thời';
+  
+  // Show title from query params for library, profile, and other sources
+  if (source && setTitle) {
+    return setTitle;
+  }
+  
+  // Default fallback only for temporary/create mode
+  return 'Kho Thẻ Tạm Thời';
 });
 
 // Computed description based on source
 const deckDescription = computed(() => {
-  const fromLibrary = route.query.source === 'library';
+  const source = route.query.source;
   const setDescription = route.query.description;
-  return fromLibrary ? setDescription : 'Mô tả flashcard ở đây';
+  
+  // Show description from query params for library, profile, and other sources
+  if (source && setDescription) {
+    return setDescription;
+  }
+  
+  // Default fallback only for temporary/create mode
+  return 'Mô tả flashcard ở đây';
 });
 
 // Helper function to format created date
@@ -681,13 +695,19 @@ try {
   await store.dispatch('flashcard/setLearningItems', currentFlashcards);
 
 
-  // 3. Navigate
+  // 3. Navigate with all necessary query parameters
   await router.push({
     path: '/flashcard/test',
     query: {
       type: selectedTestType.value,
       deckId: route.query.deckId || '',
-      source: route.query.source || ''
+      source: route.query.source || '',
+      title: route.query.title || '',
+      description: route.query.description || '',
+      creatorName: route.query.creatorName || '',
+      creatorAvatar: route.query.creatorAvatar || '',
+      createdAt: route.query.createdAt || '',
+      setId: route.query.setId || ''
     }
   });
 

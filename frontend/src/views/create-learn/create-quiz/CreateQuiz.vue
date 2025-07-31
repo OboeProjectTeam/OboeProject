@@ -3,7 +3,11 @@
     <div class="header-section">
       <div class="flex-jsb">
         <h1>Tạo Bài Kiểm Tra Mới</h1>
-        <button class="ai-btn">Tạo bằng AI</button>
+        <button @click="createQuizWithAI" class="ai-btn" :disabled="isGeneratingAI">
+          <i v-if="isGeneratingAI" class="fas fa-spinner fa-spin"></i>
+          <i v-else class="fas fa-magic"></i>
+          {{ isGeneratingAI ? 'Đang tạo...' : 'Tạo bằng AI' }}
+        </button>
       </div>
     </div>
     <div class="form-container">
@@ -67,14 +71,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import quizApi from '@/api/modules/quizApi'
 import questionApi from '@/api/modules/questionApi'
+import aiApi from '@/api/modules/aiApi'
 
 const router = useRouter()
 const store = useStore()
 
 const title = ref('')
 const description = ref('')
+const isGeneratingAI = ref(false)
 const questions = ref([
   {
     text: '',
@@ -150,6 +155,58 @@ const validateQuiz = () => {
   return true;
 }
 
+const createQuizWithAI = async () => {
+  try {
+    isGeneratingAI.value = true
+    
+    // Gọi API để tạo câu hỏi ngẫu nhiên bằng AI
+    const response = await aiApi.generateRandomQuestions()
+    
+    if (!Array.isArray(response) || response.length === 0) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: 'Không thể tạo câu hỏi bằng AI. Vui lòng thử lại.'
+      })
+      return
+    }
+
+    // Chuyển đổi dữ liệu từ API thành format phù hợp cho FlashcardTest
+    const learningItems = response.map(q => ({
+      type: 'question',
+      id: q.questionID,
+      front: q.questionName,
+      back: q.correctAnswer,
+      options: q.options,
+      content: q.questionName,
+      backcontent: q.correctAnswer
+    }))
+
+    // Lưu vào store
+    await store.dispatch('flashcard/setLearningItems', learningItems)
+    
+    // Chuyển hướng đến trang test với thông tin AI-generated
+    router.push({
+      path: '/flashcard/test',
+      query: {
+        type: 'multiple-choice',
+        aiGenerated: 'true',
+        source: 'ai-generated',
+        title: 'Bài kiểm tra được tạo bằng AI',
+        description: `Bài kiểm tra gồm ${response.length} câu hỏi được tạo tự động bằng AI`
+      }
+    })
+    
+  } catch (error) {
+    console.error('Error generating AI quiz:', error)
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Đã có lỗi xảy ra khi tạo bài kiểm tra bằng AI: ' + error.message
+    })
+  } finally {
+    isGeneratingAI.value = false
+  }
+}
+
 const saveQuiz = async () => {
   if (!validateQuiz()) return;
 
@@ -193,4 +250,4 @@ const saveQuiz = async () => {
 
 <style lang="scss" scoped>
 @use '@/views/create-learn/create-quiz/CreateQuiz.scss';
-</style> 
+</style>

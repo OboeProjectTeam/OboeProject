@@ -1,5 +1,6 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.DTOs.FlashCardDto;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Entity.User;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
@@ -38,5 +40,9 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
 
     @Query("DELETE FROM FlashCards f WHERE f.user.user_id = :userId")
     void deleteUser(@Param("userId") UUID userId);
+
+
+    @Query("SELECT f FROM FlashCards f WHERE f.set_id = :setId")
+    Optional<FlashCards> findById(@Param("setId") UUID setId);
 
 }

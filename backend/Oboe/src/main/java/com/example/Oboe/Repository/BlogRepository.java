@@ -36,13 +36,19 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
 
     // lấy chủ đề nổi bật sử dụng interface TopicPostProjection
     @Query(value = """
-        SELECT b.topics AS topic, COUNT(*) AS totalPosts
-        FROM blogs b
-        GROUP BY b.topics
-        ORDER BY totalPosts DESC
-        LIMIT 10
+    SELECT 
+        BIN_TO_UUID(b.blog_id) AS blogId,
+        b.title AS title,
+        COUNT(c.comment_id) AS commentCount
+    FROM blogs b
+    JOIN comments c ON b.blog_id = c.reference_id
+    GROUP BY b.blog_id, b.title
+    ORDER BY commentCount DESC
+    LIMIT 3
     """, nativeQuery = true)
-    List<TopicPostProjection> findTop5TopicsWithMostPosts();
+    List<TopicPostProjection> findTop3BlogsByCommentCount();
+
+
 
 
     @Query("SELECT COUNT(b) FROM Blog b WHERE b.user.user_id = :userId")

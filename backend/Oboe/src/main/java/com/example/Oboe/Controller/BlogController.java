@@ -114,11 +114,10 @@ public class BlogController {
     }
 
 
-    @GetMapping("/featured-topics")
-    public ResponseEntity<List<?>> getTopTopics() {
-        List<?> topTopics = blogService.getTop5TopicsWithMostPosts();
+    @GetMapping("/featuredcomment")
+    public ResponseEntity<List<TopicPostProjection>> getTopTopics() {
+        List<TopicPostProjection> topTopics = blogService.getTop5TopicsWithMostPosts();
         return ResponseEntity.ok(topTopics);
     }
-
 
 }

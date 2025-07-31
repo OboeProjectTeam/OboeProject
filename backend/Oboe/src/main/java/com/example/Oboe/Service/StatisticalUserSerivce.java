@@ -44,7 +44,7 @@ public class StatisticalUserSerivce {
      */
     public StatisticalUserDTOs countUserContent(UUID userId) {
         long blogCount = blogRepository.countBlogsByUserId(userId);
-        long commentCount = commentRepository.countCommentsByUserId(userId); //  lọc đúng chỉ comment blog
+        long commentCount = commentRepository.countCommentsByUserId(userId);
         long flashCardCount = flashCardRepository.countFlashCardByUserId(userId);
         return new StatisticalUserDTOs(blogCount, commentCount, flashCardCount);
     }

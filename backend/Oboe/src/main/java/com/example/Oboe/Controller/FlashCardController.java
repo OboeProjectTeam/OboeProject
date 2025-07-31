@@ -5,6 +5,7 @@
     import com.example.Oboe.Service.FlashCardService;
     import com.example.Oboe.Util.JwtUtil;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.security.core.annotation.AuthenticationPrincipal;
     import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,6 @@
             return ResponseEntity.ok().build();
         }
 
-
          @GetMapping("/latest")
          public ResponseEntity<?> getTop5LatestFlashCards(
                  @AuthenticationPrincipal(expression = "userID") UUID userId) {
@@ -78,6 +78,19 @@
         public ResponseEntity<?> getAllFlashCards() {
             return ResponseEntity.ok(flashCardService.getAllFlashCards());
         }
+
+        @GetMapping("/{id}")
+        public ResponseEntity<?> getFlashcardById(@PathVariable("id") UUID id) {
+            List<FlashCardDto> result = flashCardService.getFlashcardById(id);
+            if (result.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Flashcard không tồn tại với id: " + id);
+            }
+            return ResponseEntity.ok(result.get(0));
+        }
+
+
+
 
 
     }

@@ -535,6 +535,74 @@ h1 {
     }
 }
 
+/* Social Login Buttons */
+.social-login-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.google-login-btn, .facebook-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    width: 100%;
+}
+
+.google-login-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+.google-login-btn:hover {
+    background-color: #357ae8;
+    transform: translateY(-1px);
+}
+
+.facebook-login-btn {
+    background-color: #1877f2;
+    color: white;
+}
+
+.facebook-login-btn:hover {
+    background-color: #166fe5;
+    transform: translateY(-1px);
+}
+
+.google-login-btn:disabled, .facebook-login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.google-login-btn i, .facebook-login-btn i {
+    font-size: 16px;
+}
+// Ẩn toàn bộ phần bảng trắng callback
+.firebaseui-container .mdl-card.firebaseui-id-page-callback,
+.firebaseui-id-page-callback,
+.firebaseui-callback-indicator-container,
+.firebaseui-info-bar {
+  transition: all 1s ease-in-out;
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  pointer-events: none;
+}
+
+
+
 @keyframes dash {
     0% {
         stroke-dasharray: 1, 200;
@@ -575,58 +643,13 @@ h1 {
   font-weight: bold;
 }
 
-
-
-.social-login {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
+#firebaseui-auth-container .firebaseui-card-content {
+    padding: 0 !important;
   }
-  
-  .social-button {
-    width: 100%;
-    padding: 13px 16px;
-    border-radius: 4px;
-    border: none;
-    font-size: 14px;
-    font-weight: 500;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    transition: background-color 0.3s;
-  
-    img {
-      width: 18px;
-      height: 18px;
-      margin-right: 24px;
-    }
-  
-    span {
-      flex-grow: 1;
-      color: inherit;
-    }
-  
-    &.google {
-      background-color: #ffffff;
-      color: #757575;
-      border: 1px solid #757575;
-  
-      &:hover {
-        background-color: #f8f8f8;
-      }
-    }
-  
-    &.facebook {
-      background-color: #3B5998;
-      color: #ffffff;
-  
-      &:hover {
-        background-color: #365597;
-      }
-    }
-  }
+.firebaseui-list-item .firebaseui-idp-button, .firebaseui-tenant-button{
+    max-width: unset !important; 
+}
+
 
 @media screen and (max-width: 768px) {
     .form__login {

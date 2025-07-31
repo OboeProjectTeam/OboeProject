@@ -47,7 +47,7 @@ public class AIController {
 
     private String buildPrompt(CardItem cardItem) {
         return """
-            Tạo ra đúng 5 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
+            Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
 
             - Từ vựng: "%s"
             - Nghĩa tiếng Việt: "%s"
@@ -100,18 +100,25 @@ public class AIController {
         }
 
         prompt.append("""
-        Hãy trả kết quả theo định dạng:
-        {
-          "score": 85,
-          "results": [
-            {
-              "question": "Câu hỏi 1",
-              "correct": true,
-              "feedback": "Bạn trả lời đúng"
-            },
-            ...
-          ],
-          "comment": "Nhận xét tổng thể ở đây."
+                Hãy trả kết quả theo định dạng:
+                {
+                  "score": 85,
+                  "results": [
+                    {
+                      "question": "Câu hỏi 1",
+                      "correct": true,
+                      "feedback": "Bạn trả lời đúng"
+                    },
+                    ...
+                  ],
+                  "comment": "Hãy viết phần nhận xét tổng thể theo phong cách thân thiện, rõ ràng và mang tính hỗ trợ học tập. Nội dung cần có:
+                  1. Đánh giá trình độ hiện tại (ví dụ: bạn đang ở khoảng N5 hoặc đầu N4).
+                  2. Nhận xét các phần làm tốt (ví dụ: bạn làm tốt phần từ vựng chủ đề trường học).
+                  3. Phân tích các lỗi sai chính, ví dụ: sai mẫu ngữ pháp như ～ている hoặc hiểu sai nghĩa của từ đồng âm.
+                  4. Gợi ý cụ thể để cải thiện, ví dụ:
+                     - 'Bạn nên ôn lại mẫu ngữ pháp N5 như ～ませんか, ～ましょう bằng cách làm bài tập trong sách Minna no Nihongo Bài 5 đến Bài 8.'
+                     - 'Bạn có thể luyện nghe các đoạn hội thoại ngắn về chủ đề gia đình để cải thiện khả năng phản xạ.'
+                  5. Động viên hoặc khen ngợi, ví dụ: 'Tiến bộ rất tốt! Chỉ cần luyện tập thêm một chút là bạn có thể đạt N4. Hãy tiếp tục cố gắng nhé!'"
         }
         Không thêm dấu ``` hoặc định dạng markdown nào. Chỉ JSON thuần.
         """);

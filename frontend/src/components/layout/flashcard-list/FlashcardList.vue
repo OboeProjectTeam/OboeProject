@@ -204,13 +204,17 @@ const getMainText = (item) => {
   let text = '';
   switch (item.type) {
     case 'word':
-      return item.kanji || item.kana
+      // WordDetail uses 'words' as mainField
+      return item.words || item.kanji || item.kana || item.word || ''
     case 'kanji':
-      return item.kanji
+      // KanjiDetail uses 'characterName' as mainField
+      return item.characterName || item.kanji || item.character || ''
     case 'grammar':
-      return item.kana
+      // GrammarDetail uses 'structure' as mainField
+      return item.structure || item.kana || item.pattern || ''
     case 'sentence':
-      text = item.sentence || item.japanese || '';
+      // SentenceDetail uses 'japaneseText' as mainField
+      text = item.japaneseText || item.sentence || item.japanese || '';
       return text.length > 20 ? text.substring(0, 20) + '...' : text
     default:
       return ''
@@ -221,13 +225,17 @@ const getSubText = (item) => {
   let text = '';
   switch (item.type) {
     case 'word':
-      return item.meaning
+      // WordDetail uses 'meanning' as meaningField (note the typo in API)
+      return item.meanning || item.meaning || ''
     case 'kanji':
-      return item.reading
+      // KanjiDetail uses 'meaning' as meaningField and 'vietnamesePronunciation' as readingField
+      return item.meaning || item.vietnamesePronunciation || item.reading || ''
     case 'grammar':
-      return item.meaning
+      // GrammarDetail uses 'explanation' as meaningField
+      return item.explanation || item.meaning || ''
     case 'sentence':
-      text = item.translation || item.meaning || '';
+      // SentenceDetail uses 'vietnameseMeaning' as meaningField
+      text = item.vietnameseMeaning || item.translation || item.meaning || '';
       return text.length > 25 ? text.substring(0, 25) + '...' : text
     default:
       return ''
@@ -250,4 +258,4 @@ const totalItems = computed(() => flashcardItems.value.length)
 
 <style lang="scss" scoped>
 @use '@/components/layout/flashcard-list/FlashcardList.scss';
-</style> 
+</style>
