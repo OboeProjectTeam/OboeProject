@@ -1,12 +1,15 @@
     package com.example.Oboe.Controller;
-
+    import com.google.firebase.auth.FirebaseAuthException;
     import com.example.Oboe.DTOs.LoginRequest;
     import com.example.Oboe.DTOs.PassWordChangeDTOs;
     import com.example.Oboe.DTOs.UserDTOs;
+    import com.example.Oboe.DTOs.FirebaseLoginRequest;
     import com.example.Oboe.Entity.AuthProvider;
     import com.example.Oboe.Entity.User;
     import com.example.Oboe.Service.UserService;
+    import com.example.Oboe.Service.FirebaseService;
     import com.example.Oboe.Util.JwtUtil;
+    import com.google.firebase.auth.FirebaseToken;
     import jakarta.validation.constraints.Email;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
@@ -25,19 +28,21 @@
 
     @RestController
     @RequestMapping("/api/auth")
-    @CrossOrigin
     public class AuthController {
         private final UserService userService;
         private final AuthenticationManager authenticationManager;
         private final PasswordEncoder passwordEncoder;
         private final JwtUtil jwtUtil;
+        private final FirebaseService firebaseService;
 
         @Autowired
-        public AuthController(UserService userService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        public AuthController(UserService userService, AuthenticationManager authenticationManager, 
+                            PasswordEncoder passwordEncoder, JwtUtil jwtUtil, FirebaseService firebaseService) {
             this.userService = userService;
             this.authenticationManager = authenticationManager;
             this.passwordEncoder = passwordEncoder;
             this.jwtUtil = jwtUtil;
+            this.firebaseService = firebaseService;
         }
 
 
@@ -128,6 +133,7 @@
                         "lastName", user.getLastName(),
                         "role", user.getRole().name(),
                         "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
                         "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                             ? user.getAvatarUrl()
                             : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
@@ -227,6 +233,7 @@
                             "lastName", user.getLastName(),
                             "role", user.getRole().name(),
                             "displayName", user.getFirstName() + " " + user.getLastName(),
+                            "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
                             "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
                                 ? user.getAvatarUrl()
                                 : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
@@ -234,6 +241,51 @@
             );
 
             return ResponseEntity.ok(response);
+        }
+
+        @PostMapping("/loginWithFirebase")
+        public ResponseEntity<?> loginWithFirebase(@RequestBody FirebaseLoginRequest request) {
+           
+            if (request == null || request.getIdToken() == null || request.getIdToken().trim().isEmpty()) {
+                System.out.println("ERROR: Missing or empty ID token");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Missing or empty Firebase ID token");
+            }
+            
+            try {
+                FirebaseToken decodedToken = firebaseService.verifyIdToken(request.getIdToken());
+                User user = firebaseService.processFirebaseUser(decodedToken);
+                UserDetails userDetails = userService.loadUserByUsernameAndProvider(
+                    user.getUserName(), user.getAuthProvider());
+                String jwt = jwtUtil.generateToken(userDetails, user.getAuthProvider().name());
+                // Prepare response
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Firebase login successful!");
+                response.put("token", jwt);
+                response.put("user", Map.of(
+                        "username", user.getUserName(),
+                        "firstName", user.getFirstName(),
+                        "lastName", user.getLastName(),
+                        "role", user.getRole().name(),
+                        "displayName", user.getFirstName() + " " + user.getLastName(),
+                        "avatarUrl", user.getAvatarUrl(), // Thêm avatarUrl
+                        "photoURL", user.getAvatarUrl() != null && !user.getAvatarUrl().isBlank()
+                            ? user.getAvatarUrl()
+                            : "https://ui-avatars.com/api/?name=" + user.getFirstName() + "+" + user.getLastName()
+                ));
+
+                return ResponseEntity.ok(response);
+                
+            } catch (FirebaseAuthException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Invalid Firebase token: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("ERROR: General Exception - " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Firebase authentication failed: " + e.getMessage());
+            }
         }
 
     }

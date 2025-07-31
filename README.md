@@ -17,7 +17,7 @@ Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết 
   - Trang cá nhân người dùng
 
 - **Tính năng nâng cao**
-  - Xác thực đa phương thức (Email, Google, Facebook)
+  - Xác thực đa phương thức (Email, Firebase Authentication)
   - Hệ thống thanh toán tích hợp
   - Quản lý tài khoản và phân quyền
   - Trang quản trị cho admin
@@ -42,7 +42,7 @@ Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết 
 - Spring Data JPA
 - MySQL Database
 - AWS S3 cho lưu trữ file
-- OAuth2 cho xác thực
+- Firebase Authentication cho xác thực
 
 ### DevOps
 - Docker cho containerization
@@ -137,4 +137,4 @@ API documentation is available at `/swagger-ui.html` when running the backend se
 
 ## Contact
 
-Project Link: [https://oboeru.me/](https://oboeru.me/) 
+Project Link: [https://oboeru.me/](https://oboeru.me/)

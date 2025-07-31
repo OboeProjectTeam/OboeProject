@@ -24,7 +24,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/profile")
-@CrossOrigin
 public class ProfileController {
 
     @Autowired
@@ -68,7 +67,8 @@ public class ProfileController {
     public ResponseEntity<Map<String, Object>> getUserActivity(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @PathVariable UUID userId) {
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "all") String type) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ActivityDTO> activityPage = statisticalUserSerivce.getUserActivities(userId, pageable);
         //tạo một đối tượng Map, trong đó (Key (khóa) là String (: "content", "page", "totalElements",...).

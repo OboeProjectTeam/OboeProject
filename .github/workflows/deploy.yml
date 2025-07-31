@@ -30,15 +30,24 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-
-    # 4. Build frontend
+     # 4. Inject biến môi trường Firebase
+    - name: Inject Firebase ENV (.env)
+      run: |
+        echo "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env
+        echo "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env
+        echo "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env
+        echo "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env
+        echo "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env
+    # 5. Build frontend
     - name: Build frontend
       working-directory: frontend
       run: |
         npm install --prefer-offline --frozen-lockfile
         npm run build
 
-    # 5. Clean old frontend dist on server
+    # 6. Clean old frontend dist on server
     - name: Clean dist folder on server
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -51,7 +60,7 @@ jobs:
           sudo chmod -R 755 /var/www/OboeProject/frontend/dist/
           echo "Old dist cleaned."
 
-    # 6. Upload frontend to server
+    # 7. Upload frontend to server
     - name: Upload frontend dist to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -63,7 +72,7 @@ jobs:
         strip_components: 2
         overwrite: true
 
-    # 7. Restart frontend (PM2)
+    # 8. Restart frontend (PM2)
     - name: Restart frontend via SSH (PM2)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -77,11 +86,11 @@ jobs:
             pm2 start /var/www/OboeProject/frontend/dist --name oboe-frontend
           fi
 
-    # 8. Cấp quyền chạy cho mvnw
+    # 9. Cấp quyền chạy cho mvnw
     - name: Make mvnw executable
       run: chmod +x backend/Oboe/mvnw
 
-    # 9. Kiểm tra ddl-auto có cấu hình nguy hiểm không
+    # 10. Kiểm tra ddl-auto có cấu hình nguy hiểm không
     - name: Check ddl-auto safety
       run: |
         if grep -E 'ddl-auto\s*=\s*(update|create|create-drop)' backend/Oboe/src/main/resources/application.properties; then
@@ -91,19 +100,23 @@ jobs:
           echo "ddl-auto hợp lệ (none hoặc validate)"
         fi
 
-    # 10. Setup Java
+    # 11. Setup Java
     - name: Setup Java 21
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '21'
-
-    # 11. Build backend (Spring Boot)
+     # 12. Tạo Firebase service account key từ GitHub Secret
+    - name: Create Firebase service account key
+      run: |
+        mkdir -p backend/Oboe/src/main/resources/firebase
+        echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > backend/Oboe/src/main/resources/firebase/serviceAccountKey.json
+    # 13. Build backend (Spring Boot)
     - name: Build backend with Maven
       working-directory: backend/Oboe
       run: ./mvnw clean package -DskipTests
 
-    # 12. Clean old backend jar on server
+    # 14. Clean old backend jar on server 
     - name: Clean old backend jar on server
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -113,7 +126,7 @@ jobs:
         script: |
           rm -f /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Old JAR deleted."
-    # 13. Upload backend jar
+    # 15. Upload backend jar
     - name: Upload backend jar to server
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -124,7 +137,7 @@ jobs:
         target: "/var/www/OboeProject/backend/"
         overwrite: true
         strip_components: 3
-    # 14. Run Spring Boot with Environment Variables
+    # 16. Run Spring Boot with Environment Variables
     - name: Run Spring Boot with Environment Variables
       uses: appleboy/ssh-action@v1.0.0
       with:

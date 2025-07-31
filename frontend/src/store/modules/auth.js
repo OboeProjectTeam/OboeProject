@@ -30,7 +30,7 @@ const mutations = {
 };
 
 const actions = {
-      // Xử lý login OAuth2: nhận token và fetch user
+      // Xử lý login Firebase: nhận token và fetch user
   async fetchCurrentUser({ commit }, { token }) {
     commit('SET_TOKEN', token);
 

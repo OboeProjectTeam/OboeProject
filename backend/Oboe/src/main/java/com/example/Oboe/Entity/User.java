@@ -31,7 +31,7 @@ public class User {
 
     @JsonIgnore
     @Size(min = 8, message = "Mật khẩu ít nhất 8 ký tự!")
-    @Column(nullable = true) // Cho phép null cho tài khoản OAuth2
+    @Column(nullable = true) // Cho phép null cho tài khoản Firebase/Social login
     private String passWord;
 
     @Column(nullable = false)

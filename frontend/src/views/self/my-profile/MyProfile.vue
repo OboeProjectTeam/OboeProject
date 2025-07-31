@@ -26,8 +26,11 @@ const activeTab = computed(() => route.query.tab || 'activities');
 
 function handleProfileSave(updatedUser) {
   user.value = updatedUser;
-  // Trong ứng dụng thực tế, gửi API update tại đây
-
+  // Cập nhật store với dữ liệu mới
+  store.commit('auth/SET_USER', {
+    ...store.getters['auth/currentUser'],
+    ...updatedUser
+  });
 }
 
 watch(() => route.query.newPost, async (newPost) => {
@@ -52,16 +55,19 @@ onMounted(async () => {
     const profile = await api.profile.getProfile();
     user.value = {
       username: profile.userName,
+      userName: profile.userName, // Add this for consistency
       fullName: (profile.lastName || '') + ' ' + (profile.firstName || ''),
       avatar: profile.avatarUrl,
+      avatarUrl: profile.avatarUrl, // Add this for consistency
       title: profile.accountType,
       email: profile.userName,
-      day_of_birth: profile.day_of_birth,
-      address: profile.address,
+      day_of_birth: profile.day_of_birth || '', // Ensure it's never null
+      address: profile.address || '', // Ensure it's never null
       bio: profile.bio || '',
       website: profile.website || '',
       websiteUrl: profile.website || '',
       location: profile.location || '',
+      phone: profile.phone || '', // Add phone field
       stats: {
         joined: profile.create_at?.split('T')[0] || '',
         topics: "",

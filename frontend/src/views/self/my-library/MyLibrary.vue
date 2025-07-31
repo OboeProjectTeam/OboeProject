@@ -131,8 +131,8 @@
         <div v-if="activeFavoriteTab === 'vocabulary'" class="favorite-list">
           <div v-for="word in favorites.vocabulary" :key="word.id" class="favorite-item">
             <div class="item-content" @click="goToDetail('vocabulary', word)">
-              <strong>{{ word.kanji }}</strong>
-              <span>{{ word.meaning }}</span>
+              <strong>{{ word.title }}</strong>
+              <span>{{ word.content }}</span>
             </div>
             <button @click="removeFromFavorites('vocabulary', word.id)" class="remove-btn">
               <i class="fas fa-times"></i>
@@ -148,8 +148,8 @@
         <div v-if="activeFavoriteTab === 'kanji'" class="favorite-list">
           <div v-for="kanji in favorites.kanji" :key="kanji.id" class="favorite-item">
             <div class="item-content" @click="goToDetail('kanji', kanji)">
-              <strong>{{ kanji.kanji }}</strong>
-              <span>{{ kanji.kanjiname }}</span>
+              <strong>{{ kanji.title }}</strong>
+              <span>{{ kanji.content }}</span>
             </div>
             <button @click="removeFromFavorites('kanji', kanji.id)" class="remove-btn">
               <i class="fas fa-times"></i>
@@ -165,8 +165,8 @@
         <div v-if="activeFavoriteTab === 'grammar'" class="favorite-list">
           <div v-for="item in favorites.grammar" :key="item.id" class="favorite-item">
             <div class="item-content" @click="goToDetail('grammar', item)">
-              <strong>{{ item.kana }}</strong>
-              <span>{{ item.meaning }}</span>
+              <strong>{{ item.title }}</strong>
+              <span>{{ item.content }}</span>
             </div>
             <button @click="removeFromFavorites('grammar', item.id)" class="remove-btn">
               <i class="fas fa-times"></i>
@@ -183,8 +183,8 @@
         <div v-if="activeFavoriteTab === 'sentences'" class="favorite-list">
           <div v-for="sentence in favorites.sentences" :key="sentence.id" class="favorite-item">
             <div class="item-content" @click="goToDetail('sentences', sentence)">
-              <strong>{{ sentence.sentence }}</strong>
-              <span>{{ sentence.translation }}</span>
+              <strong>{{ sentence.title }}</strong>
+              <span>{{ sentence.content }}</span>
             </div>
             <button @click="removeFromFavorites('sentences', sentence.id)" class="remove-btn">
               <i class="fas fa-times"></i>
@@ -389,13 +389,48 @@ const loadUserQuizzes = async () => {
 const loadUserFavorites = async () => {
   try {
     favoritesLoading.value = true
+    
+    // Gọi API cho từng loại yêu thích
+    const [vocabularyRes, kanjiRes, grammarRes, sentencesRes] = await Promise.all([
+      api.favorite.getUserFavorites('vocabulary'),
+      api.favorite.getUserFavorites('kanji'), 
+      api.favorite.getUserFavorites('grammar'),
+      api.favorite.getUserFavorites('samplesentence')
+    ])
+    
+    // Map dữ liệu từ API response
     favoritesData.value = {
-      vocabulary: [],
-      kanji: [],
-      grammar: [],
-      sentences: []
+      vocabulary: (vocabularyRes.data || vocabularyRes || []).map(item => ({
+        id: item.vocabularyId,
+        title: item.title,
+        content: item.content,
+        favoritesAt: item.favoritesAt,
+        type: 'vocabulary'
+      })),
+      kanji: (kanjiRes.data || kanjiRes || []).map(item => ({
+        id: item.kanjiId,
+        title: item.title,
+        content: item.content,
+        favoritesAt: item.favoritesAt,
+        type: 'kanji'
+      })),
+      grammar: (grammarRes.data || grammarRes || []).map(item => ({
+        id: item.grammaId,
+        title: item.title,
+        content: item.content,
+        favoritesAt: item.favoritesAt,
+        type: 'grammar'
+      })),
+      sentences: (sentencesRes.data || sentencesRes || []).map(item => ({
+        id: item.sampleSentenceId,
+        title: item.title,
+        content: item.content,
+        favoritesAt: item.favoritesAt,
+        type: 'sentence'
+      }))
     }
   } catch (error) {
+    console.error('Error loading favorites:', error)
     favoritesData.value = { vocabulary: [], grammar: [], sentences: [], kanji: [] }
   } finally {
     favoritesLoading.value = false
@@ -530,12 +565,26 @@ const deleteBlog = async (id) => {
 
 const removeFromFavorites = async (type, id) => {
   try {
-
-    if (favoritesData.value[type]) {
-      favoritesData.value[type] = favoritesData.value[type].filter(item => item.id !== id);
-    }
+    // Use the new toggleFavorite API
+    await store.dispatch('user/toggleFavorite', { 
+      type: type === 'sentences' ? 'sentence' : type, // Convert 'sentences' to 'sentence' for API
+      itemId: id 
+    });
+    
+    // Reload favorites data to ensure UI is up to date
+    await loadUserFavorites();
+    
+    // Show success message
+    store.dispatch('message/showMessage', {
+      type: 'success',
+      text: 'Đã xóa khỏi danh sách yêu thích!'
+    });
   } catch (error) {
     console.error('Error removing from favorites:', error);
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Không thể xóa khỏi danh sách yêu thích: ' + error.message
+    });
   }
 }
 
@@ -676,4 +725,4 @@ export default {
 
 <style lang="scss" scoped>
 @use '@/views/self/my-library/MyLibrary.scss';
-</style> 
+</style>

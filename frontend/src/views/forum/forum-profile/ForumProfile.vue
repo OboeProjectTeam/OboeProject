@@ -137,10 +137,15 @@ const formatDate = (dateString) => {
 
 // Handle send message event
 const handleSendMessage = (userData) => {
-  // Navigate to messages with the selected user
+  // Navigate to messages with the selected user data
   router.push({
     name: 'messages',
-    query: { user: userData.userName || userData.username }
+    query: { 
+      userId: userData.user_id || userData.userId || userData.id,
+      userName: userData.userName || userData.username,
+      fullName: userData.fullName || userData.userName || userData.username,
+      avatarUrlReceiver: userData.avatarUrl || userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName || userData.userName || userData.username)}&background=random`
+    }
   });
 };
 

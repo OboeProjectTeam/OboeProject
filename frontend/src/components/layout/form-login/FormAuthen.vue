@@ -74,15 +74,9 @@
         <span class="divider-text">Hoặc</span>
       </div>
 
-      <div v-if="!isRegister" class="social-login">
-        <button type="button" class="social-button google" @click="handleGoogleLogin">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
-          <span>Đăng nhập với Google</span>
-        </button>
-        <button type="button" class="social-button facebook" @click="handleFacebookLogin">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" />
-          <span>Đăng nhập với Facebook</span>
-        </button>
+       <div v-if="!isRegister">
+        <div id="firebaseui-auth-container"></div>
+        <div id="loader">Loading...</div>
       </div>
     </div>
   </form>
@@ -104,6 +98,9 @@ import '@/components/layout/form-login/FormAuthen.scss'
 import MCheckbox from '@/components/common/checkbox/MCheckbox.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { firebase, auth } from '@/firebase.js'
+import * as firebaseui from 'firebaseui'
+import 'firebaseui/dist/firebaseui.css'
 import api from '@/api'
 
 const props = defineProps({
@@ -127,18 +124,62 @@ const popupMessage = ref('')
 const popupTitle = ref('Thông báo')
 const success = ref (false)
 
-const showDialog = (message, type = 'success') => {
-  popupTitle.value = type === 'success' ? '🎉 Thành công' : '❗ Thất bại'
-  popupMessage.value = message
-  showPopup.value = true
-}
 
-const handleGoogleLogin = () => {
-  window.location.href = api.oauth.getGoogleAuthUrl()
-}
+const uiConfig = {
+  signInFlow: 'popup',
+  signInSuccessUrl: '',
+  signInOptions: [
+    {
+      provider: firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+      customParameters: {
+        prompt: 'select_account'
+      }
+    },
+    {
+      provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+      scopes: ['email']
+    }
+  ],
+  callbacks: {
+    signInSuccessWithAuthResult: async function (authResult) {
+      try {
+        const idToken = await authResult.user.getIdToken();
+        const result = await api.auth.loginWithFirebase(idToken);
 
-const handleFacebookLogin = () => {
-  window.location.href = api.oauth.getFacebookAuthUrl()
+        if (!result || !result.token || !result.user) {
+          throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
+        }
+        console.log('Firebase login callback hit');
+
+        const { token, user } = result;
+        store.commit('auth/SET_TOKEN', token);
+        store.commit('auth/SET_USER', user);
+        router.push('/');
+      } catch (error) {
+        console.error(err);
+      }
+      return false;
+    },
+    uiShown: function () {
+      const loader = document.getElementById('loader');
+      if (loader) {
+        loader.style.display = 'none';
+      }
+      loginTranslate();
+    }
+  }
+}
+const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
+function loginTranslate() {
+  const googleBtn = document.querySelector('.firebaseui-idp-google .firebaseui-idp-text');
+  if (googleBtn) {
+    googleBtn.textContent = 'Đăng nhập với Google';
+  }
+
+  const facebookBtn = document.querySelector('.firebaseui-idp-facebook .firebaseui-idp-text');
+  if (facebookBtn) {
+    facebookBtn.textContent = 'Đăng nhập với Facebook';
+  }
 }
 const handlePopupConfirm = () => {
   showPopup.value = false
@@ -161,7 +202,6 @@ const submitForm = async () => {
         authProvider: 'EMAIL',
       })
 
-      showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
       resetForm()
       success.value = true 
 
@@ -174,7 +214,7 @@ const submitForm = async () => {
       router.push('/')
     }
   } catch (err) {
-    showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
+    console.log(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
   } finally {
     isLoading.value = false
   }
@@ -234,10 +274,32 @@ function runStartupTransitions() {
   setTimeout(() => document.body.classList.add('on-start'), 100)
   setTimeout(() => document.body.classList.add('document-loaded'), 1800)
 }
+function observeAndRemoveFirebaseSnackbar() {
+  const observer = new MutationObserver(() => {
+    const snackbar = document.querySelector('.mdl-snackbar, .firebaseui-snackbar, .firebaseui-container .mdl-snackbar__text');
+    if (snackbar && snackbar.parentNode) {
+      snackbar.parentNode.remove();
+    }
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Dừng quan sát sau 5 giây để tránh leak
+  setTimeout(() => {
+    observer.disconnect();
+  }, 5000);
+}
 
 onMounted(async () => {
   try {
     await nextTick()
+     if (!props.isRegister) {
+      ui.start('#firebaseui-auth-container', uiConfig)
+      observeAndRemoveFirebaseSnackbar();
+    }
     initAnimatedPlaceholders()
     setupInputFocusAnimations()
     runStartupTransitions()

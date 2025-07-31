@@ -111,7 +111,6 @@
       flex: 0 0 220px; // width cố định
       min-width: 220px;
       max-width: 220px;
-      height: 140px; // hoặc chiều cao bạn muốn
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -238,4 +237,7 @@
       }
     }
   }
+}
+.home-page .content-card.large .card-info p {
+  height: 70px;
 }
