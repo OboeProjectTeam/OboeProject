@@ -40,8 +40,9 @@ public class StatisticalUserController {
     public ResponseEntity<Map<String, Object>> getUserActivity(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Authentication authentication) {
-
+            Authentication authentication,
+            @RequestParam(defaultValue = "all") String type
+    ) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         UUID userId = userDetails.getUserID();
 

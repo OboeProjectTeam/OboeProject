@@ -60,6 +60,12 @@ public class FlashCardService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created"));
         return flashCardRepository.findByUser(userId, pageable);
     }
+    public List<FlashCardDto> getFlashcardById(UUID flashcardId) {
+        return flashCardRepository.findById(flashcardId)
+                .map(card -> List.of(convertToDto(card)))
+                .orElse(List.of());
+    }
+
 
     public Page<FlashCards> searchFlashCardsByTerm(UUID userId, String term, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created"));
@@ -99,6 +105,7 @@ public class FlashCardService {
                 .toList();
     }
 
+
     public List<FlashCards> getAllFlashCards() {
         return flashCardRepository.findAll();
     }
@@ -134,6 +141,15 @@ public class FlashCardService {
         dto.setTerm(flashCards.getTerm());
         dto.setDescription(flashCards.getDescription());
         dto.setFlashcardID(flashCards.getSet_id());
+        List<CardItemDto> itemDtos = flashCards.getCardItems().stream()
+                .map(item -> {
+                    CardItemDto itemDto = new CardItemDto();
+                    itemDto.setWord(item.getWord());
+                    itemDto.setMeaning(item.getMeaning());
+                    return itemDto;
+                })
+                .toList();
+        dto.setCardItems(itemDtos);
         return dto;
     }
 
