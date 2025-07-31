@@ -1,10 +1,7 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
-import com.example.Oboe.DTOs.BlogDTO;
-import com.example.Oboe.DTOs.QuizDTO;
-import com.example.Oboe.DTOs.QuizResultDTO;
-import com.example.Oboe.DTOs.QuizSubmissionDTO;
+import com.example.Oboe.DTOs.*;
 import com.example.Oboe.Service.QuizzesService;
 import com.example.Oboe.Service.UserAnswerService;
 import jakarta.validation.Valid;
@@ -21,6 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/quizzes")
+
 public class QuizController {
 
     @Autowired
@@ -92,6 +90,13 @@ public class QuizController {
         return ResponseEntity.ok(resultDTO);
     }
 
+    @Autowired
+    private QuizzesService quizService; // phải là biến, không gọi class trực tiếp
 
+    @GetMapping("/search") // <--- endpoint bạn định nghĩa
+    public ResponseEntity<List<QuizSearchResultDTO>> searchQuizzes(@RequestParam("keyword") String keyword) {
+        List<QuizSearchResultDTO> result = quizzesService.searchQuizzes(keyword);
+        return ResponseEntity.ok(result);
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.DTOs.QuizSearchResultDTO;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import com.example.Oboe.Entity.Quizzes;
@@ -25,4 +26,9 @@ public interface QuizzesRepository extends JpaRepository<Quizzes, UUID> {
 
     @Query(value = "SELECT * FROM quizzes ORDER BY RAND() LIMIT 3", nativeQuery = true)
     List<Quizzes> findRandomQuizzes();
+
+    @Query("SELECT new com.example.Oboe.DTOs.QuizSearchResultDTO(q.quizzesID, q.title, SIZE(q.questions), q.user.userName, q.user.avatarUrl) " +
+            "FROM Quizzes q WHERE LOWER(q.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<QuizSearchResultDTO> searchQuizzesByKeyword(@Param("keyword") String keyword);
+
 }
