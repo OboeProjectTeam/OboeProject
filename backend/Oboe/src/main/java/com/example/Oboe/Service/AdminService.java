@@ -123,7 +123,7 @@ public class AdminService {
 
         commentRepository.deleteUser(id);
 
-        blogRepository.deleteUser(id);
+        blogRepository.deleteBlogsbyUser(id);
 
 
         userRepository.delete(user);

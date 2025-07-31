@@ -2,9 +2,11 @@ package com.example.Oboe.Service;
 
 
 import com.example.Oboe.DTOs.ReportDtos;
+import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Report;
 import com.example.Oboe.Entity.ReportStatus;
 import com.example.Oboe.Entity.User;
+import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.ReportRepository;
 import com.example.Oboe.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,10 @@ public class ReportService {
     @Autowired
     private ReportRepository reportRepository;
 
-    // 1. Tạo báo cáo
+    @Autowired
+    private BlogRepository blogRepository;
+
+    // Tạo báo cáo
     public Report createReport(ReportDtos reportDtos, UUID userId) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) return null;
@@ -35,16 +40,24 @@ public class ReportService {
         report.setReport_at(LocalDate.now());
         report.setStatus(ReportStatus.PENDING);
 
+        // Nếu có blogId thì đây là report blog
+        if (reportDtos.getBlogId() != null) {
+            Blog blog = blogRepository.findById(reportDtos.getBlogId()).orElse(null);
+            if (blog != null) {
+                report.setBlog(blog);
+            }
+        }
+
         return reportRepository.save(report);
     }
 
 
-    // 2. Lấy toàn bộ báo cáo
+    // Lấy toàn bộ báo cáo
     public List<Report> getAllReports() {
         return reportRepository.findAll();
     }
 
-    // 3. Cập nhật trạng thái
+    // Cập nhật trạng thái
     public boolean updateStatus(UUID reportId, ReportStatus status) {
         Report report = reportRepository.findById(reportId).orElse(null);
         if (report == null) return false;
@@ -52,13 +65,16 @@ public class ReportService {
         reportRepository.save(report);
         return true;
     }
-
-    // 4. Lấy báo cáo theo user
+    // Lấy báo cáo theo blog
+    public List<Report> getReportsByBlogId(UUID blogId) {
+        return reportRepository.findByBlogId(blogId);
+    }
+    // Lấy báo cáo theo user
     public List<Report> getReportsByUserId(UUID userId) {
         return reportRepository.findByUserId(userId);
     }
 
-    // 5. Xoá báo cáo
+    // Xoá báo cáo
     public boolean deleteReport(UUID reportId) {
         if (!reportRepository.existsById(reportId)) return false;
         reportRepository.deleteById(reportId);

@@ -1,8 +1,11 @@
 package com.example.Oboe.DTOs;
 
+import java.util.UUID;
+
 public class ReportDtos {
     private String title;
     private String content;
+    private UUID blogId;
 
     public String getTitle() {
         return title;
@@ -18,5 +21,13 @@ public class ReportDtos {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public UUID getBlogId() {
+        return blogId;
+    }
+
+    public void setBlogId(UUID blogId) {
+        this.blogId = blogId;
     }
 }

@@ -17,6 +17,13 @@ public class Payment {
     private String amount;
     private String status;
     private LocalDate paymentDate = LocalDate.now();
+    @Column(name = "transaction_id")
+    private String transactionId;
+
+    @Column(name = "payment_method")
+    private String paymentMethod;
+    @Column(name = "order_code")
+    private Long orderCode;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
@@ -29,6 +36,30 @@ public class Payment {
         this.amount = amount;
         this.status = status;
         this.user = user;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public Long getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(Long orderCode) {
+        this.orderCode = orderCode;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 
     public UUID getPaymentID() {
