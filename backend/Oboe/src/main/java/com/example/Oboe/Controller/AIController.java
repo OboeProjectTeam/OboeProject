@@ -132,4 +132,38 @@ public class AIController {
         }
     }
 
+    @PostMapping("/translate")
+    public Map<String, String> translateJapaneseToVietnamese(@RequestBody Map<String, String> request) {
+        String input = request.get("text");
+        String prompt = """
+        Bạn là giáo viên dạy tiếng Nhật. Bạn hãy đưa ra câu trả lời một cách trôi chảy liền mạch. Vào đầu câu trả lơời sẽ có chào bạn..
+        Dịch câu tiếng Nhật sau sang tiếng Việt. Nếu là câu hỏi thì hãy dịch sao cho người học dễ hiểu.
+        Nếu câu có cấu trúc ngữ pháp đặc biệt, hãy giải thích ngắn gọn ý nghĩa mẫu ngữ pháp đó. Giải thích đầy đủ về:
+        - Nghĩa của từng từ trong câu
+        - Cấu trúc ngữ pháp được sử dụng
+        - Ngữ cảnh phù hợp để dùng câu này
+        - Sắc thái, mức độ lịch sự (nếu có)
+        - Những lưu ý khi sử dụng câu này trong giao tiếp hàng ngày.
+        - Viết cho tôi dưới 100 ký tự và hãy trả lời luôn
+
+        Câu: %s
+
+        Hãy trả kết quả dạng văn bản thuần, không cần định dạng markdown, không thêm bất kỳ văn bản thừa nào.
+        """.formatted(input);
+
+        try {
+            String response = geminiService.generateTextFromPrompt(prompt);
+
+            // Trả về kết quả dưới dạng JSON với key "explanation"
+            Map<String, String> result = new HashMap<>();
+            result.put("explanation", response);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Lỗi khi dịch flashcard: " + e.getMessage());
+            return error;
+        }
+    }
+
 }
