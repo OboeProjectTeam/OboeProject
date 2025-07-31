@@ -15,9 +15,11 @@ const questionApi = {
   },
 
   // Lấy danh sách câu hỏi theo quiz ID
-  async getByQuiz(quizId) {
+  async getByQuiz(quizId, size = 100) {
     try {
-      const res = await axios.get(`${PREFIX}/by-quiz/${quizId}`);
+      const res = await axios.get(`${PREFIX}/by-quiz/${quizId}`, {
+        params: { size }
+      });
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));

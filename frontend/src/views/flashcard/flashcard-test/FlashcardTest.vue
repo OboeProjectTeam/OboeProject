@@ -102,7 +102,7 @@
         <i class="fas" :class="isLastQuestion ? 'fa-check' : 'fa-arrow-right'"></i>
       </button>
       
-      <button v-else class="primary-button" @click="nextQuestion" :disabled="isLastQuestion && !isReviewing">
+      <button v-else class="primary-button" @click="nextQuestion" :disabled="(isLastQuestion && !isReviewing) || isShowingAnswer">
         {{ (isLastQuestion && isReviewing) ? 'Xem kết quả' : 'Câu tiếp theo' }}
         <i class="fas" :class="(isLastQuestion && isReviewing) ? 'fa-poll' : 'fa-arrow-right'"></i>
       </button>
@@ -120,8 +120,7 @@
         <div class="results-stats">
           <div class="stat-item">
             <div class="stat-label">Điểm số</div>
-            <div class="stat-value" v-if="!isAIGenerated || !aiEvaluationResult">{{ score }}/{{ totalQuestions }}</div>
-            <div class="stat-value" v-else>{{ aiEvaluationResult.score }}%</div>
+            <div class="stat-value" >{{ score }}/{{ totalQuestions }}</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">Thời gian</div>
@@ -136,8 +135,21 @@
 
         <!-- AI Evaluation Loading -->
         <div v-if="isEvaluatingAI" class="ai-evaluation-loading">
-          <div class="loading-spinner"></div>
-          <p>Đang đánh giá kết quả bằng AI...</p>
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div class="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="loading-text">
+            <h3><i class="fas fa-robot"></i> AI đang phân tích kết quả của bạn</h3>
+            <p class="loading-message">Vui lòng chờ trong giây lát...</p>
+            <div class="progress-bar-loading">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
         </div>
 
         <!-- AI Comment Section -->
@@ -181,6 +193,19 @@
               Làm lại kiểm tra 
             </button>
           </div>
+          <!-- Button thêm vào thư viện chỉ hiển thị cho AI-generated quiz -->
+          <div v-if="isAIGenerated" class="results-actions-row">
+            <button 
+              class="secondary-button" 
+              @click="addToLibrary"
+              :disabled="isAddingToLibrary || isAddedToLibrary"
+            >
+              <i v-if="isAddingToLibrary" class="fas fa-spinner fa-spin"></i>
+              <i v-else-if="isAddedToLibrary" class="fas fa-check"></i>
+              <i v-else class="fas fa-plus"></i>
+              {{ isAddingToLibrary ? 'Đang thêm...' : (isAddedToLibrary ? 'Đã thêm vào thư viện' : 'Thêm vào thư viện của bạn') }}
+            </button>
+          </div>
           <button class="primary-button full-width-button" @click="returnToLearn">
             <i class="fas fa-graduation-cap"></i>
             Học Lại
@@ -193,11 +218,12 @@
 
 <script setup>
 import { ImagePaths } from '@/assets/img/imagePaths';
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, computed, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ExitTestButton from '@/components/layout/button-exit/ExitTestButton.vue';
 import aiApi from '@/api/modules/aiApi';
+import questionApi from '@/api/modules/questionApi';
 
 const route = useRoute();
 const router = useRouter();
@@ -216,35 +242,15 @@ const totalTime = ref(0);
 const timer = ref(null);
 const answers = ref([]);
 const isReviewing = ref(false);
+const isShowingAnswer = ref(false); // Thêm state để track việc hiển thị đáp án
 
 // AI evaluation state
 const isAIGenerated = ref(false);
 const aiEvaluationResult = ref(null);
 const isEvaluatingAI = ref(false);
+const isAddingToLibrary = ref(false);
+const isAddedToLibrary = ref(false); // Track if quiz has been added to library
 
-// Helper functions
-const generateOptions = (correctAnswer, flashcards) => {
-  const options = new Set();
-  while (options.size < 3) {
-    const randomCard = flashcards[Math.floor(Math.random() * flashcards.length)];
-    if (randomCard.backcontent !== correctAnswer) {
-      options.add(randomCard.backcontent);
-    }
-  }
-  return Array.from(options);
-};
-
-const generateWrongAnswer = (correctAnswer, flashcards) => {
-  const wrongAnswers = flashcards
-    .filter(f => (f.back || f.meaning || f.backcontent) !== correctAnswer)
-    .map(f => f.back || f.meaning || f.backcontent);
-
-  if (wrongAnswers.length === 0) {
-    return 'No answer available';
-  }
-
-  return wrongAnswers[Math.floor(Math.random() * wrongAnswers.length)];
-};
 
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60);
@@ -449,6 +455,7 @@ const initializeTest = () => {
   showResults.value = false;
   showFinalResults.value = false;
   answers.value = [];
+  isShowingAnswer.value = false; // Reset trạng thái hiển thị đáp án
 
   // Initialize timer
   timeRemaining.value = questions.value.length * 30;
@@ -606,25 +613,25 @@ const submitAnswer = () => {
       return;
   }
 
-  console.log('Answer submitted:', {
-    type: testType.value,
-    isCorrect,
-    userAnswer: answers.value[answers.value.length - 1].userAnswer,
-    correctAnswer: answers.value[answers.value.length - 1].correctAnswer
-  });
 
   showResults.value = true;
 
   if (isLastQuestion.value) {
     submitTest();
   } else {
+    // Disable button và hiển thị đáp án trong 2 giây trước khi chuyển câu
+    isShowingAnswer.value = true;
     setTimeout(() => {
       nextQuestion();
-    }, 1500);
+      isShowingAnswer.value = false; // Enable lại button sau khi chuyển câu
+    }, 2000);
   }
 };
 
 const nextQuestion = () => {
+  // Reset isShowingAnswer khi chuyển câu
+  isShowingAnswer.value = false;
+  
   if (isReviewing.value && isLastQuestion.value) {
     showFinalResults.value = true;
     return;
@@ -659,12 +666,14 @@ const submitTest = async () => {
   clearInterval(timer.value);
   totalTime.value = totalQuestions.value * 30 - timeRemaining.value;
   
+  // Hiển thị modal kết quả trước
+  showFinalResults.value = true;
+  
   // Nếu là bài kiểm tra AI, gọi API đánh giá
   if (isAIGenerated.value && testType.value === 'multiple-choice') {
     await evaluateWithAI();
   }
   
-  showFinalResults.value = true;
   if (!isReviewing.value) {
     saveTestToHistory();
   }
@@ -687,13 +696,9 @@ const evaluateWithAI = async () => {
       })
     };
     
-    console.log('Sending evaluation data:', evaluationData);
-    
     // Gọi API đánh giá
     const result = await aiApi.evaluateUserAnswers(evaluationData);
     aiEvaluationResult.value = result;
-    
-    console.log('AI evaluation result:', result);
     
   } catch (error) {
     console.error('Failed to evaluate with AI:', error);
@@ -745,18 +750,85 @@ const returnToLearn = () => {
   // FlashcardLearn component will handle restoring its state from localStorage
 };
 
-// NEW Functions for Exit Confirmation
-const requestExitToLearn = () => {
-  // This function is now handled by the child component
-  // We keep confirmExitToLearn as the action to be taken
-};
-
 const confirmExitToLearn = () => {
   router.push({ name: 'flashcardLearn' });
 };
 
-const cancelExitToLearn = () => {
-    // This function is now handled by the child component
+// Function để thêm AI quiz vào thư viện
+const addToLibrary = async () => {
+  try {
+    isAddingToLibrary.value = true;
+    
+    // Kiểm tra authentication
+    const isAuthenticated = store.getters['auth/isAuthenticated'];
+    
+    if (!isAuthenticated) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: 'Bạn cần đăng nhập để thêm vào thư viện!'
+      });
+      return;
+    }
+    
+    // Tạo dữ liệu quiz từ questions hiện tại
+    const quizData = {
+      title: route.query.title || 'Bài kiểm tra AI',
+      description: route.query.description || `Bài kiểm tra gồm ${questions.value.length} câu hỏi được tạo bằng AI`
+    };
+    
+    // Gọi API tạo quiz
+    const response = await store.dispatch('quiz/createQuiz', quizData);
+    
+    if (!response || !response.quizzesID) {
+      throw new Error('Không thể tạo quiz - response không hợp lệ');
+    }
+    
+    // Tạo danh sách câu hỏi cho quiz (backend nhận List<QuestionDTO>)
+    const questionsList = questions.value.map((q, index) => {
+      let correctAnswer;
+      if (Array.isArray(q.options) && typeof q.correctAnswer === 'number') {
+        correctAnswer = q.options[q.correctAnswer];
+      } else {
+        correctAnswer = q.correctAnswer;
+      }
+      
+      return {
+        questionName: q.question,
+        correctAnswer: correctAnswer,
+        options: q.options || [],
+        quizId: response.quizzesID
+      };
+    });
+    
+    // Gọi API tạo tất cả câu hỏi (backend nhận List<QuestionDTO>)
+    const questionsResponse = await questionApi.create(questionsList);
+    
+    // Kiểm tra response từ backend
+    let successCount = questionsList.length;
+    if (questionsResponse && questionsResponse.data) {
+      successCount = questionsResponse.data.length;
+    } else if (questionsResponse && questionsResponse['số lượng câu hỏi đã thêm']) {
+      successCount = questionsResponse['số lượng câu hỏi đã thêm'];
+    }
+    
+    // Hiển thị thông báo thành công
+    store.dispatch('message/showMessage', {
+      type: 'success',
+      text: `Đã thêm bài kiểm tra với ${successCount} câu hỏi vào thư viện của bạn!`
+    });
+    
+    // Đánh dấu đã thêm vào thư viện thành công
+    isAddedToLibrary.value = true;
+    
+  } catch (error) {
+    console.error('Error adding quiz to library:', error);
+    store.dispatch('message/showMessage', {
+      type: 'error',
+      text: 'Đã có lỗi xảy ra khi thêm vào thư viện: ' + (error.response?.data?.message || error.message)
+    });
+  } finally {
+    isAddingToLibrary.value = false;
+  }
 };
 
 // Lifecycle hooks
