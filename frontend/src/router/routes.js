@@ -40,7 +40,6 @@ import JapanNews from '@/views/footer-services/japan-news/JapanNews.vue';
 import TheContact from '@/views/footer-services/contact/TheContact.vue';
 import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
 import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
-import OAuth2Redirect from '@/views/auth/oauth2/OAuth2Redirect.vue';
 
 const routes = [
   {
@@ -312,11 +311,6 @@ const routes = [
         component: TheContact
       },
     ]
-  },
-  {
-    path: "/oauth2/redirect",
-    name: "OAuth2redirect",
-    component: OAuth2Redirect,
   }
 ]
 

@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import CommentSection from '@/components/layout/comment/CommentSection.vue';
@@ -169,8 +169,23 @@ export default defineComponent({
     });
 
     const isFavorite = computed(() => {
-        if (!props.item) return false;
-        return store.getters['user/isFavorite'](favoriteType.value, props.item);
+        const currentId = route.params.id;
+        if (!currentId) return false;
+        
+        return store.state.user.favoriteItems.some(fav => {
+          switch (props.type) {
+            case 'word':
+              return fav.vocabularyId === currentId;
+            case 'grammar':
+              return fav.grammarId === currentId;
+            case 'kanji':
+              return fav.kanjiId === currentId;
+            case 'sentence':
+              return fav.sampleSentenceId === currentId;
+            default:
+              return false;
+          }
+        });
     });
     
     const isInFlashcards = computed(() => 
@@ -185,10 +200,18 @@ export default defineComponent({
     };
 
     const toggleFavorite = () => {
-      if (!props.item) return;
+      // Get ID from route params instead of item object
+      const currentId = route.params.id;
+      if (!currentId) {
+        console.error('No ID found in route params');
+        return;
+      }
+      
+      console.log('Toggle favorite with ID from URL:', currentId, 'type:', props.type);
+      
       store.dispatch('user/toggleFavorite', { 
-        type: favoriteType.value, 
-        item: props.item 
+        type: props.type, // Use original type, not favoriteType
+        itemId: currentId // Pass ID directly from URL
       });
     };
 
@@ -207,6 +230,11 @@ export default defineComponent({
         });
       }
     };
+
+    // Load favorites when component mounts
+    onMounted(() => {
+      store.dispatch('user/fetchFavorites');
+    });
 
     return {
       onRelatedItemClick,

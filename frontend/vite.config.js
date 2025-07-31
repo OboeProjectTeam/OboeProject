@@ -41,16 +41,6 @@ export default defineConfig({
           });
         },
       },
-      '/oauth2': {
-        target: 'https://oboeru.me',
-        changeOrigin: true,
-        secure: true,
-      },
-      '/login/oauth2': {
-        target: 'https://oboeru.me',
-        changeOrigin: true,
-        secure: true,
-      },
       '/ws': {
         target: 'https://oboeru.me',
         changeOrigin: true,

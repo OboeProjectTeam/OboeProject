@@ -120,7 +120,8 @@
         <div class="results-stats">
           <div class="stat-item">
             <div class="stat-label">Điểm số</div>
-            <div class="stat-value">{{ score }}/{{ totalQuestions }}</div>
+            <div class="stat-value" v-if="!isAIGenerated || !aiEvaluationResult">{{ score }}/{{ totalQuestions }}</div>
+            <div class="stat-value" v-else>{{ aiEvaluationResult.score }}%</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">Thời gian</div>
@@ -128,7 +129,44 @@
           </div>
           <div class="stat-item">
             <div class="stat-label">Độ chính xác</div>
-            <div class="stat-value">{{ accuracy }}%</div>
+            <div class="stat-value" v-if="!isAIGenerated || !aiEvaluationResult">{{ accuracy }}%</div>
+            <div class="stat-value" v-else>{{ Math.round((aiEvaluationResult.results.filter(r => r.correct).length / aiEvaluationResult.results.length) * 100) }}%</div>
+          </div>
+        </div>
+
+        <!-- AI Evaluation Loading -->
+        <div v-if="isEvaluatingAI" class="ai-evaluation-loading">
+          <div class="loading-spinner"></div>
+          <p>Đang đánh giá kết quả bằng AI...</p>
+        </div>
+
+        <!-- AI Comment Section -->
+        <div v-if="isAIGenerated && aiEvaluationResult && aiEvaluationResult.comment" class="ai-comment-section">
+          <h3><i class="fas fa-robot"></i> Lời khuyên từ AI</h3>
+          <div class="ai-comment-content">
+            <p>{{ aiEvaluationResult.comment }}</p>
+          </div>
+        </div>
+  
+        <!-- AI Detailed Results -->
+        <div v-if="isAIGenerated && aiEvaluationResult && aiEvaluationResult.results" class="ai-detailed-results">
+          <h4><i class="fas fa-list"></i> Chi tiết từng câu hỏi</h4>
+          <div class="ai-results-list">
+            <div 
+              v-for="(result, index) in aiEvaluationResult.results" 
+              :key="index"
+              class="ai-result-item"
+              :class="{ correct: result.correct, incorrect: !result.correct }"
+            >
+              <div class="result-header">
+                <span class="question-number">Câu {{ index + 1 }}</span>
+                <span class="result-status">
+                  <i :class="result.correct ? 'fas fa-check' : 'fas fa-times'"></i>
+                  {{ result.correct ? 'Đúng' : 'Sai' }}
+                </span>
+              </div>
+              <div class="result-feedback">{{ result.feedback }}</div>
+            </div>
           </div>
         </div>
 
@@ -159,6 +197,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ExitTestButton from '@/components/layout/button-exit/ExitTestButton.vue';
+import aiApi from '@/api/modules/aiApi';
 
 const route = useRoute();
 const router = useRouter();
@@ -177,6 +216,11 @@ const totalTime = ref(0);
 const timer = ref(null);
 const answers = ref([]);
 const isReviewing = ref(false);
+
+// AI evaluation state
+const isAIGenerated = ref(false);
+const aiEvaluationResult = ref(null);
+const isEvaluatingAI = ref(false);
 
 // Helper functions
 const generateOptions = (correctAnswer, flashcards) => {
@@ -472,6 +516,8 @@ watch(() => route.query, (newQuery, oldQuery) => {
     });
   } else if (newQuery.type) {
     testType.value = newQuery.type;
+    // Kiểm tra xem có phải bài kiểm tra AI không
+    isAIGenerated.value = newQuery.aiGenerated === 'true';
     nextTick(() => {
       initializeTest();
     });
@@ -609,12 +655,51 @@ const previousQuestion = () => {
   }
 };
 
-const submitTest = () => {
+const submitTest = async () => {
   clearInterval(timer.value);
   totalTime.value = totalQuestions.value * 30 - timeRemaining.value;
+  
+  // Nếu là bài kiểm tra AI, gọi API đánh giá
+  if (isAIGenerated.value && testType.value === 'multiple-choice') {
+    await evaluateWithAI();
+  }
+  
   showFinalResults.value = true;
   if (!isReviewing.value) {
     saveTestToHistory();
+  }
+};
+
+const evaluateWithAI = async () => {
+  try {
+    isEvaluatingAI.value = true;
+    
+    // Chuẩn bị dữ liệu cho API
+    const evaluationData = {
+      answers: answers.value.map((answer, index) => {
+        const question = questions.value[index];
+        return {
+          questionName: answer.question,
+          correctAnswer: answer.correctAnswer,
+          options: question.options || [],
+          userAnswer: answer.userAnswer
+        };
+      })
+    };
+    
+    console.log('Sending evaluation data:', evaluationData);
+    
+    // Gọi API đánh giá
+    const result = await aiApi.evaluateUserAnswers(evaluationData);
+    aiEvaluationResult.value = result;
+    
+    console.log('AI evaluation result:', result);
+    
+  } catch (error) {
+    console.error('Failed to evaluate with AI:', error);
+    // Vẫn hiển thị kết quả thông thường nếu AI evaluation thất bại
+  } finally {
+    isEvaluatingAI.value = false;
   }
 };
 

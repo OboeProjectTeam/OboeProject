@@ -8,7 +8,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/search")
-@CrossOrigin("*")
 public class SearchController {
 
     @Autowired
