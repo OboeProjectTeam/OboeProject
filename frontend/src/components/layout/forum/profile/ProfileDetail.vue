@@ -50,28 +50,32 @@
     <div class="personal-info-widget bd-form">
       <h3>Thông tin cá nhân</h3>
       <ul class="personal-info-list">
-        <!-- Basic info shown for all users -->
-        <li v-if="editableUser.day_of_birth">
+        <!-- Date of birth - editable for own profile -->
+        <li v-if="editableUser.day_of_birth || props.isMyProfile">
           <i class="fas fa-birthday-cake"></i>
-          <span>{{ formatDate(editableUser.day_of_birth) }}</span>
+          <span v-if="!isEditing || !props.isMyProfile">{{ formatDate(editableUser.day_of_birth) || 'Chưa cập nhật' }}</span>
+          <input v-else type="date" v-model="editableUser.day_of_birth" class="form-control">
         </li>
+        
+        <!-- Email - always shown, not editable -->
         <li v-if="editableUser.userName">
           <i class="fas fa-envelope"></i>
           <span>{{ editableUser.userName }}</span>
         </li>
-        <li v-if="editableUser.address">
+        
+        <!-- Address - editable for own profile -->
+        <li v-if="editableUser.address || props.isMyProfile">
           <i class="fas fa-map-marker-alt"></i>
-          <span>{{ editableUser.address }}</span>
+          <span v-if="!isEditing || !props.isMyProfile">{{ editableUser.address || 'Chưa cập nhật' }}</span>
+          <input v-else type="text" v-model="editableUser.address" placeholder="Địa chỉ" class="form-control" maxlength="100">
         </li>
         
-        <!-- Editable fields for own profile only -->
-        <template v-if="props.isMyProfile">
-          <li v-for="field in editableFields" :key="field.key">
-            <i :class="field.icon"></i>
-            <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
-            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
-          </li>
-        </template>
+        <!-- Phone - shown for all users, editable for own profile -->
+        <li v-if="editableUser.phone || props.isMyProfile">
+          <i class="fas fa-phone"></i>
+          <span v-if="!isEditing || !props.isMyProfile">{{ editableUser.phone || 'Chưa cập nhật' }}</span>
+          <input v-else type="text" v-model="editableUser.phone" placeholder="Số điện thoại" class="form-control" maxlength="20">
+        </li>
       </ul>
     </div>
 
@@ -241,8 +245,9 @@ const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
   });
 
 // Only additional fields that can be edited (phone for now, since day_of_birth, email, address are already shown above)
+// Additional editable fields for own profile only (currently empty since phone is handled separately)
 const editableFields = [
-  { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
+  // Future additional fields can be added here
 ];
 
 // Format date helper for display
@@ -316,11 +321,31 @@ async function handleAvatarChange(event) {
 
 async function saveProfile() {
   try {
-    // Since avatar is uploaded separately, we only need to save other profile data
-    const userData = { ...editableUser.value };
+    // Prepare the data for API call - only send the fields that the backend expects
+    const userData = {
+      firstName: editableUser.value.fullName ? editableUser.value.fullName.split(' ').slice(1).join(' ') : '',
+      lastName: editableUser.value.fullName ? editableUser.value.fullName.split(' ')[0] : '',
+      address: editableUser.value.address || '',
+      day_of_birth: editableUser.value.day_of_birth || null,
+      bio: editableUser.value.bio || '',
+      website: editableUser.value.website || '',
+      phone: editableUser.value.phone || ''
+    };
     
     // Call API to update profile
-    await store.dispatch('updateProfile', userData);
+    const updatedUser = await store.dispatch('auth/updateProfile', userData);
+    
+    // Update the local editableUser with the response
+    if (updatedUser) {
+      editableUser.value = {
+        ...editableUser.value,
+        ...updatedUser,
+        fullName: (updatedUser.lastName || '') + ' ' + (updatedUser.firstName || ''),
+      };
+    }
+    
+    // Emit the updated user to parent component
+    emit('save-profile', editableUser.value);
     
     // Show success message
     store.dispatch('showMessage', {
@@ -330,6 +355,7 @@ async function saveProfile() {
     
     isEditing.value = false;
   } catch (error) {
+    console.error('Error updating profile:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể cập nhật hồ sơ: ' + error.message
@@ -622,29 +648,29 @@ async function prevPage() {
     emit('send-message', chatUser)
   }
 
-  // Handle flashcard click - call API to get detailed data like MyLibrary does
+  // Handle flashcard click - call API to get detailed data and navigate to FlashcardLearn
   async function handleFlashcardClick(activity) {
     try {
       console.log('=== FLASHCARD CLICK DEBUG ===');
       console.log('Activity:', activity);
       
-      // Extract setId from the activity URL or use activity id
-      let setId = null;
+      // Extract flashcard ID from the activity URL or use activity id
+      let flashcardId = null;
       
       if (activity.url && activity.url.includes('?')) {
         const urlParams = new URLSearchParams(activity.url.split('?')[1]);
-        setId = urlParams.get('setId');
-        console.log('SetId from URL params:', setId);
+        flashcardId = urlParams.get('setId') || urlParams.get('id');
+        console.log('FlashcardId from URL params:', flashcardId);
       }
       
-      // Fallback to activity id if no setId in URL
-      if (!setId) {
-        setId = activity.id;
-        console.log('Using activity.id as setId:', setId);
+      // Fallback to activity id if no flashcardId in URL
+      if (!flashcardId) {
+        flashcardId = activity.id;
+        console.log('Using activity.id as flashcardId:', flashcardId);
       }
       
-      if (!setId) {
-        console.error('No setId found for flashcard');
+      if (!flashcardId) {
+        console.error('No flashcardId found for flashcard');
         store.dispatch('showMessage', {
           type: 'error',
           text: 'Không thể xác định ID của học liệu'
@@ -652,11 +678,11 @@ async function prevPage() {
         return;
       }
       
-      console.log('Final setId to use:', setId);
+      console.log('Final flashcardId to use:', flashcardId);
       
       // Call API to get detailed flashcard data
-      console.log('Calling flashcardApi.getById with setId:', setId);
-      const flashcardData = await flashcardApi.getById(setId);
+      console.log('Calling flashcardApi.getById with flashcardId:', flashcardId);
+      const flashcardData = await flashcardApi.getById(flashcardId);
       console.log('API response:', flashcardData);
       
       if (!flashcardData || !flashcardData.cardItems || flashcardData.cardItems.length === 0) {
@@ -670,33 +696,33 @@ async function prevPage() {
       
       console.log('CardItems found:', flashcardData.cardItems.length);
       
-      // Convert API response to learning items format like MyLibrary does
+      // Convert API response to learning items format for FlashcardLearn
       const learningItems = flashcardData.cardItems.map(item => ({
         type: 'word',
-        kanji: item.word || item.front || '',
+        kanji: item.word || '',
         kana: '',
-        meaning: item.meaning || item.back || '',
-        content: item.word || item.front || '',
-        backcontent: item.meaning || item.back || '',
-        front: item.word || item.front || '',
-        back: item.meaning || item.back || ''
+        meaning: item.meaning || '',
+        content: item.word || '',
+        backcontent: item.meaning || '',
+        front: item.word || '',
+        back: item.meaning || ''
       }));
       
       console.log('Learning items prepared:', learningItems.length);
       
-      // Save to store
+      // Save to store for FlashcardLearn to use
       await store.dispatch('flashcard/setLearningItems', learningItems);
       console.log('Learning items saved to store');
       
-      // Navigate to FlashcardLearn with query parameters like MyLibrary
+      // Navigate to FlashcardLearn with query parameters
       const navigationQuery = {
         source: 'profile',
-        title: flashcardData.title || activity.title || 'Flashcard',
+        title: flashcardData.term || activity.title || 'Flashcard',
         description: flashcardData.description || `Học liệu gồm ${flashcardData.cardItems.length} thuật ngữ`,
-        setId: setId,
-        creatorName: flashcardData.creatorName || props.user.userName || 'Người dùng',
-        creatorAvatar: flashcardData.creatorAvatar || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
-        createdAt: flashcardData.createdAt || flashcardData.created || new Date().toISOString()
+        setId: flashcardData.flashcardID || flashcardId,
+        creatorName: props.user.userName || 'Người dùng',
+        creatorAvatar: props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
+        createdAt: new Date().toISOString()
       };
       
       console.log('Navigation query:', navigationQuery);

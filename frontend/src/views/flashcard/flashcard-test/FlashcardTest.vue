@@ -295,13 +295,37 @@ const initializeTest = () => {
   
   if (!flashcards || flashcards.length === 0) {
     console.error('No flashcards found in store');
-    router.push({ name: 'flashcardLearn' });
+    router.push({ 
+      name: 'flashcardLearn',
+      query: {
+        source: route.query.source || '',
+        title: route.query.title || '',
+        description: route.query.description || '',
+        creatorName: route.query.creatorName || '',
+        creatorAvatar: route.query.creatorAvatar || '',
+        createdAt: route.query.createdAt || '',
+        setId: route.query.setId || '',
+        deckId: route.query.deckId || ''
+      }
+    });
     return;
   }
 
   if (!testType.value) {
     console.error('No test type specified');
-    router.push({ name: 'flashcardLearn' });
+    router.push({ 
+      name: 'flashcardLearn',
+      query: {
+        source: route.query.source || '',
+        title: route.query.title || '',
+        description: route.query.description || '',
+        creatorName: route.query.creatorName || '',
+        creatorAvatar: route.query.creatorAvatar || '',
+        createdAt: route.query.createdAt || '',
+        setId: route.query.setId || '',
+        deckId: route.query.deckId || ''
+      }
+    });
     return;
   }
 
@@ -442,7 +466,19 @@ const initializeTest = () => {
 
   if (questions.value.length === 0) {
     console.error('No valid questions could be generated');
-    router.push({ name: 'flashcardLearn' });
+    router.push({ 
+      name: 'flashcardLearn',
+      query: {
+        source: route.query.source || '',
+        title: route.query.title || '',
+        description: route.query.description || '',
+        creatorName: route.query.creatorName || '',
+        creatorAvatar: route.query.creatorAvatar || '',
+        createdAt: route.query.createdAt || '',
+        setId: route.query.setId || '',
+        deckId: route.query.deckId || ''
+      }
+    });
     return;
   }
 
@@ -746,12 +782,39 @@ const returnToLearn = () => {
   if (timer.value) {
     clearInterval(timer.value);
   }
-  router.push({ name: 'flashcardLearn' }); // Or use path: '/flashcard/learn'
+  
+  // Preserve all query parameters when returning to FlashcardLearn
+  router.push({ 
+    name: 'flashcardLearn',
+    query: {
+      source: route.query.source || '',
+      title: route.query.title || '',
+      description: route.query.description || '',
+      creatorName: route.query.creatorName || '',
+      creatorAvatar: route.query.creatorAvatar || '',
+      createdAt: route.query.createdAt || '',
+      setId: route.query.setId || '',
+      deckId: route.query.deckId || ''
+    }
+  });
   // FlashcardLearn component will handle restoring its state from localStorage
 };
 
 const confirmExitToLearn = () => {
-  router.push({ name: 'flashcardLearn' });
+  // Preserve all query parameters when exiting to FlashcardLearn
+  router.push({ 
+    name: 'flashcardLearn',
+    query: {
+      source: route.query.source || '',
+      title: route.query.title || '',
+      description: route.query.description || '',
+      creatorName: route.query.creatorName || '',
+      creatorAvatar: route.query.creatorAvatar || '',
+      createdAt: route.query.createdAt || '',
+      setId: route.query.setId || '',
+      deckId: route.query.deckId || ''
+    }
+  });
 };
 
 // Function để thêm AI quiz vào thư viện
