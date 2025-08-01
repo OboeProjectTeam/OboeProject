@@ -95,6 +95,7 @@ public class WebConfig {
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
                                 "/api/search/**",
+                                "/api/ai-reply/**",
                                 "/api/search",
                                 "/ws/**",
                                 "/ws-raw"

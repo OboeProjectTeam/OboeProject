@@ -45,4 +45,5 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
     @Query("SELECT f FROM FlashCards f WHERE f.set_id = :setId")
     Optional<FlashCards> findById(@Param("setId") UUID setId);
 
+
 }

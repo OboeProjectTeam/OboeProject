@@ -1,5 +1,6 @@
 package com.example.Oboe.Controller;
 
+import com.example.Oboe.DTOs.AIBlogReplyDTO;
 import com.example.Oboe.Entity.AIBlogReply;
 import com.example.Oboe.Entity.AICommentReply;
 import com.example.Oboe.Entity.Blog;
@@ -70,6 +71,26 @@ public class AIReplyController {
 
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/blogget/{blogId}")
+    public ResponseEntity<?> getAIBlogReplyByBlogId(@PathVariable UUID blogId) {
+        AIBlogReply aiBlogReply = aiBlogReplyRepository.findByBlog_BlogId(blogId);
+        if (aiBlogReply == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "AI reply not found for blog ID: " + blogId);
+            return ResponseEntity.status(404).body(error);
+        }
+
+        // Map entity sang DTO
+        AIBlogReplyDTO dto = new AIBlogReplyDTO();
+        dto.setId(aiBlogReply.getId());
+        dto.setBlogId(aiBlogReply.getBlog().getBlogId());
+        dto.setContent(aiBlogReply.getContent());
+        dto.setCreatedAt(aiBlogReply.getCreatedAt());
+
+        return ResponseEntity.ok(dto);
+    }
+
 
     @PostMapping("/comment/{commentId}")
     public ResponseEntity<?> replyToComment(@PathVariable UUID commentId) {
