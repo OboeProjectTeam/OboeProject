@@ -54,6 +54,7 @@
             message.setSender(sender);
             message.setReceiver(receiver);
             message.setSent_message(messageDto.getSentMessage());
+
             ZoneId zoneVN = ZoneId.of("Asia/Ho_Chi_Minh");
             LocalDateTime localDateTimeVN = LocalDateTime.now(zoneVN);
             message.setSent_at(localDateTimeVN);
@@ -67,6 +68,10 @@
             notification.setRead(false);
             notification.setUpdate_at(localDateTimeVN);
 
+            // Gán targetId & targetType cho thông báo
+            notification.setTargetId(savedMessage.getReceiverId());
+            notification.setTargetType("Message");
+
             notificationsRepository.save(notification);
 
             // Gửi WebSocket đến client
@@ -75,17 +80,14 @@
             WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
 
             try {
-                // Chuẩn bị Jackson mapper
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
                 mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
                 mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-                // Chuyển DTO và notification thành JSON string
                 String messageWebsocket = mapper.writeValueAsString(dto);
                 String notificationWebsocket = mapper.writeValueAsString(notification);
 
-                // Gửi WebSocket nếu session còn mở
                 if (receiverSession != null && receiverSession.isOpen()) {
                     receiverSession.sendMessage(new TextMessage(messageWebsocket));
                     receiverSession.sendMessage(new TextMessage(notificationWebsocket));
@@ -93,13 +95,13 @@
                     System.out.println("Người nhận không online hoặc đã đóng WebSocket.");
                 }
             } catch (IOException e) {
-                System.out.println(" Lỗi khi gửi WebSocket: " + e.getMessage());
-
-                // Nếu lỗi khi gửi, loại bỏ session cũ
+                System.out.println("Lỗi khi gửi WebSocket: " + e.getMessage());
                 SessionManager.removeSession(receiver.getUser_id());
             }
+
             return dto;
         }
+
 
 
 

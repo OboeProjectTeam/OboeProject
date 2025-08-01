@@ -29,7 +29,7 @@ public interface QuizzesRepository extends JpaRepository<Quizzes, UUID> {
 
     @Query("SELECT new com.example.Oboe.DTOs.QuizSearchResultDTO(q.quizzesID, q.title, SIZE(q.questions), q.user.userName, q.user.avatarUrl) " +
             "FROM Quizzes q WHERE LOWER(q.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
-    List<QuizSearchResultDTO> searchQuizzesByKeyword(@Param("keyword") String keyword);
+    Page<QuizSearchResultDTO> searchQuizzesByKeyword(@Param("keyword") String keyword,Pageable pageable);
 
 
 }

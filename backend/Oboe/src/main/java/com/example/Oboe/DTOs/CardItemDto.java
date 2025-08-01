@@ -9,4 +9,12 @@ public class CardItemDto {
 
     public String getMeaning() { return meaning; }
     public void setMeaning(String meaning) { this.meaning = meaning; }
+
+    public CardItemDto(String word, String meaning) {
+        this.word = word;
+        this.meaning = meaning;
+    }
+    public CardItemDto(){
+
+    }
 }

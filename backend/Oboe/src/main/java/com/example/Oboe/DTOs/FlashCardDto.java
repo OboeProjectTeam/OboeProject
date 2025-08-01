@@ -11,6 +11,7 @@ public class FlashCardDto {
     private List<CardItemDto> cardItems;
 
 
+
     public void setFlashcardID(UUID flashcardID) {
         this.flashcardID = flashcardID;
     }

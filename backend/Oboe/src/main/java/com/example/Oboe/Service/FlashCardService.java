@@ -153,9 +153,7 @@ public class FlashCardService {
         dto.setCardItems(itemDtos);
         return dto;
     }
-    public List<FlashcardSearchResultDTO> searchFlashcards(String keyword) {
-        return flashCardRepository.searchFlashcardsByKeyword(keyword);
-    }
+
 
 
 

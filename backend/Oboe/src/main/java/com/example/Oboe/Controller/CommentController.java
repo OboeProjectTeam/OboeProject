@@ -110,5 +110,8 @@ public class CommentController {
 
         return ResponseEntity.ok(response);
     }
-
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<CommentDTOs> getCommentById(@PathVariable UUID id) {
+        return ResponseEntity.ok(commentService.getcommentbyID(id));
+    }
 }
