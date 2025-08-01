@@ -107,4 +107,9 @@ public class SearchController {
     ) {
         return searchService.searchByType(keyword, type);
     }
+    // Gợi ý tất cả loại (nếu không phân loại)
+    @GetMapping("/suggest")
+    public List<Map<String, String>> suggest(@RequestParam("keyword") String keyword) {
+        return searchService.suggestAllTypes(keyword);
+    }
 }

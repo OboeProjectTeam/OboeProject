@@ -38,5 +38,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "GROUP BY u.user_id, u.userName, u.avatarUrl")
     Page<UserSearchResultDTO> searchUsersWithFlashcardCount(@Param("keyword") String keyword, Pageable pageable);
-
 }
