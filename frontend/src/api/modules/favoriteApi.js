@@ -4,15 +4,17 @@ import { handleApiError } from '@/api/apiUtils';
 const PREFIX = '/api/favorites';
 
 const favoriteApi = {
-  async createFavorite(favoritesDTO) {
+  // Toggle yêu thích (thêm hoặc hủy)
+  async toggleFavorite(favoritesDTO) {
     try {
-      const res = await axios.post(`${PREFIX}`, favoritesDTO);
+      const res = await axios.post(`${PREFIX}/toggle`, favoritesDTO);
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
   },
 
+  // Lấy danh sách mục yêu thích của người dùng (theo type nếu có)
   async getUserFavorites(type = '') {
     try {
       const res = await axios.get(`${PREFIX}/user`, {
@@ -24,14 +26,6 @@ const favoriteApi = {
     }
   },
 
-  async deleteFavorite(favoriteId) {
-    try {
-      const res = await axios.delete(`${PREFIX}/${favoriteId}`);
-      return res.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
 };
 
 export default favoriteApi;

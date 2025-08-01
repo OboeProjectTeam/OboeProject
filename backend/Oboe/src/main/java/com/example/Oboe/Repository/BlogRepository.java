@@ -55,8 +55,15 @@ public interface BlogRepository extends JpaRepository<Blog, UUID> {
     long countBlogsByUserId(@Param("userId") UUID userId);
 
     @Query("DELETE FROM Blog b WHERE b.user.user_id = :userId")
-    void deleteUser(@Param("userId") UUID userId);
+    void deleteBlogsbyUser(@Param("userId") UUID userId);
 
+    // Tổng số blog
+    @Query("SELECT COUNT(b) FROM Blog b")
+    Long countAllPosts();
+
+    // Số blog trong tháng hiện tại
+    @Query("SELECT COUNT(b) FROM Blog b WHERE FUNCTION('MONTH', b.createdAt) = FUNCTION('MONTH', CURRENT_DATE)")
+    Long countPostsThisMonth();
 
 
 

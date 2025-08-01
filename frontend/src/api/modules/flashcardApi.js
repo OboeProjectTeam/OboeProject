@@ -34,7 +34,8 @@ const flashcardApi = {
       const res = await axios.get(`${PREFIX}/${id}`);
       return res.data;
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.error('flashcardApi.getById error:', error);
+      throw error;
     }
   },
 
@@ -68,7 +69,27 @@ const flashcardApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Lấy 5 flashcard mới nhất của user
+  async getTop5Latest() {
+    try {
+      const res = await axios.get(`${PREFIX}/latest`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  // Lấy toàn bộ flashcard
+  async getAll() {
+    try {
+      const res = await axios.get(`${PREFIX}/all`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
+
+
 };
 
 export default flashcardApi;

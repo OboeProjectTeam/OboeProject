@@ -50,28 +50,32 @@
     <div class="personal-info-widget bd-form">
       <h3>Thông tin cá nhân</h3>
       <ul class="personal-info-list">
-        <!-- Basic info shown for all users -->
-        <li v-if="editableUser.day_of_birth">
+        <!-- Date of birth - editable for own profile -->
+        <li v-if="editableUser.day_of_birth || props.isMyProfile">
           <i class="fas fa-birthday-cake"></i>
-          <span>{{ formatDate(editableUser.day_of_birth) }}</span>
+          <span v-if="!isEditing || !props.isMyProfile">{{ formatDate(editableUser.day_of_birth) || 'Chưa cập nhật' }}</span>
+          <input v-else type="date" v-model="editableUser.day_of_birth" class="form-control">
         </li>
+        
+        <!-- Email - always shown, not editable -->
         <li v-if="editableUser.userName">
           <i class="fas fa-envelope"></i>
           <span>{{ editableUser.userName }}</span>
         </li>
-        <li v-if="editableUser.address">
+        
+        <!-- Address - editable for own profile -->
+        <li v-if="editableUser.address || props.isMyProfile">
           <i class="fas fa-map-marker-alt"></i>
-          <span>{{ editableUser.address }}</span>
+          <span v-if="!isEditing || !props.isMyProfile">{{ editableUser.address || 'Chưa cập nhật' }}</span>
+          <input v-else type="text" v-model="editableUser.address" placeholder="Địa chỉ" class="form-control" maxlength="100">
         </li>
         
-        <!-- Editable fields for own profile only -->
-        <template v-if="props.isMyProfile">
-          <li v-for="field in editableFields" :key="field.key">
-            <i :class="field.icon"></i>
-            <span v-if="!isEditing">{{ editableUser[field.key] || 'Chưa cập nhật' }}</span>
-            <input v-else :type="field.type" v-model="editableUser[field.key]" :placeholder="field.placeholder" class="form-control" :maxlength="field.maxlength">
-          </li>
-        </template>
+        <!-- Phone - shown for all users, editable for own profile -->
+        <li v-if="editableUser.phone || props.isMyProfile">
+          <i class="fas fa-phone"></i>
+          <span v-if="!isEditing || !props.isMyProfile">{{ editableUser.phone || 'Chưa cập nhật' }}</span>
+          <input v-else type="text" v-model="editableUser.phone" placeholder="Số điện thoại" class="form-control" maxlength="20">
+        </li>
       </ul>
     </div>
 
@@ -130,7 +134,7 @@
               <div class="activity-icon">
                 <i v-if="activity.type === 'post'" class="fas fa-file-alt" title="Chủ đề mới"></i>
                 <i v-if="activity.type === 'reply'" class="fas fa-reply" title="Bình luận mới"></i>
-                <i v-if="activity.type === 'flashcard'" class="fas fa-book" title="Học liệu"></i>
+                <i v-if="activity.type === 'material'" class="fas fa-book" title="Học liệu"></i>
               </div>
             <div class="activity-content">
               <div v-if="activity.type === 'post'">
@@ -146,7 +150,7 @@
                 <div class="activity-snippet">"{{ activity.content_snippet }}"</div>
                  <div class="activity-meta">vào lúc {{ activity.timestamp }}</div>
               </div>
-              <div v-if="activity.type === 'quiz'">
+              <div v-if="activity.type === 'material'">
                 <div class="activity-title">
                    <a @click.prevent="handleFlashcardClick(activity)" style="cursor: pointer; text-decoration: none; display: block; padding: 5px;">Đã tạo Học Liệu {{ activity.title }}</a>
                 </div>
@@ -154,7 +158,7 @@
               </div>
             </div>
           </li>
-                        <li v-if="paginatedActivities.length === 0" class="activity-item">
+            <li v-if="paginatedActivities.length === 0" class="activity-item">
                 <p v-if="currentTab === 'all'">Không có hoạt động nào để hiển thị.</p>
                 <p v-else-if="currentTab === 'post'">Chưa có bài viết nào được tạo.</p>
                 <p v-else-if="currentTab === 'reply'">Chưa có bình luận nào.</p>
@@ -185,6 +189,7 @@
   import flashcardApi from '@/api/modules/flashcardApi';
   import statisticsApi from '@/api/modules/statisticsApi';
   import profileApi from '@/api/modules/profileApi';
+  import { handleApiError } from '@/api/apiUtils';
 
   const props = defineProps({
   user: {
@@ -208,20 +213,41 @@ const editableUser = ref(JSON.parse(JSON.stringify(props.user)));
 
 
   const avatarPreview = ref(null);
-  const userBlogs = ref([]);
-  const userComments = ref([]);
-  const userFlashcards = ref([]);
-  const userStats = ref(null);
-  const statsLoading = ref(false);
-  const userActivities = ref([]);
+  
+  // Reactive variables
+  const currentTab = ref('all');
+  const currentPage = ref(1);
+  const itemsPerPage = ref(10);
+  const totalElements = ref(0);
+  const totalPages = ref(0);
+  
+  // Loading states
   const activitiesLoading = ref(false);
   const blogsLoading = ref(false);
   const commentsLoading = ref(false);
   const flashcardsLoading = ref(false);
+  const statsLoading = ref(false);
+  
+  // Data arrays - store all data and separate by type
+  const allActivities = ref([]);
+  const userActivities = ref([]);
+  const userBlogs = ref([]);
+  const userComments = ref([]);
+  const userFlashcards = ref([]);
+  const userStats = ref(null);
+  
+  // Pagination for each tab
+  const tabPagination = ref({
+    all: { page: 1, totalPages: 0, totalElements: 0 },
+    post: { page: 1, totalPages: 0, totalElements: 0 },
+    reply: { page: 1, totalPages: 0, totalElements: 0 },
+    material: { page: 1, totalPages: 0, totalElements: 0 }
+  });
 
 // Only additional fields that can be edited (phone for now, since day_of_birth, email, address are already shown above)
+// Additional editable fields for own profile only (currently empty since phone is handled separately)
 const editableFields = [
-  { key: 'phone', icon: 'fas fa-phone', placeholder: 'Số điện thoại', type: 'text', maxlength: 20 },
+  // Future additional fields can be added here
 ];
 
 // Format date helper for display
@@ -295,11 +321,31 @@ async function handleAvatarChange(event) {
 
 async function saveProfile() {
   try {
-    // Since avatar is uploaded separately, we only need to save other profile data
-    const userData = { ...editableUser.value };
+    // Prepare the data for API call - only send the fields that the backend expects
+    const userData = {
+      firstName: editableUser.value.fullName ? editableUser.value.fullName.split(' ').slice(1).join(' ') : '',
+      lastName: editableUser.value.fullName ? editableUser.value.fullName.split(' ')[0] : '',
+      address: editableUser.value.address || '',
+      day_of_birth: editableUser.value.day_of_birth || null,
+      bio: editableUser.value.bio || '',
+      website: editableUser.value.website || '',
+      phone: editableUser.value.phone || ''
+    };
     
     // Call API to update profile
-    await store.dispatch('updateProfile', userData);
+    const updatedUser = await store.dispatch('auth/updateProfile', userData);
+    
+    // Update the local editableUser with the response
+    if (updatedUser) {
+      editableUser.value = {
+        ...editableUser.value,
+        ...updatedUser,
+        fullName: (updatedUser.lastName || '') + ' ' + (updatedUser.firstName || ''),
+      };
+    }
+    
+    // Emit the updated user to parent component
+    emit('save-profile', editableUser.value);
     
     // Show success message
     store.dispatch('showMessage', {
@@ -309,6 +355,7 @@ async function saveProfile() {
     
     isEditing.value = false;
   } catch (error) {
+    console.error('Error updating profile:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể cập nhật hồ sơ: ' + error.message
@@ -322,71 +369,40 @@ function cancelEditing() {
   avatarPreview.value = null;
 }
 
-const currentTab = ref('all');
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const totalElements = ref(0);
-const totalPages = ref(0);
+
 
   async function handleTabClick(tab) {
     currentTab.value = tab;
-    currentPage.value = 1; // Reset to first page when switching tabs
     
-    if (tab === 'all') {
-      await loadUserActivities(0, itemsPerPage.value);
-    } else if (props.isMyProfile) {
-      // For own profile, load specific data for each tab
-      if (tab === 'post') {
-        await loadUserBlogs(0, itemsPerPage.value);
-      } else if (tab === 'reply') {
-        await loadUserComments(0, itemsPerPage.value);
-      } else if (tab === 'material') {
-        await loadUserFlashcards(0, itemsPerPage.value);
-      }
-    } else {
-      // For other users' profiles, always load activities and filter in computed
-      await loadUserActivities(0, itemsPerPage.value);
+    // Update current page from tab-specific pagination
+    currentPage.value = tabPagination.value[tab].page;
+    totalElements.value = tabPagination.value[tab].totalElements;
+    totalPages.value = tabPagination.value[tab].totalPages;
+    
+    // If no data loaded yet, load all activities
+    if (allActivities.value.length === 0) {
+      await loadAllActivities();
     }
   }
 
   const filteredActivities = computed(() => {
+    const currentTabData = tabPagination.value[currentTab.value];
+    const startIndex = (currentTabData.page - 1) * itemsPerPage.value;
+    const endIndex = startIndex + itemsPerPage.value;
+    
     if (currentTab.value === 'all') {
-      return userActivities.value;
+      return allActivities.value.slice(startIndex, endIndex);
+    } else if (currentTab.value === 'post') {
+      const posts = allActivities.value.filter(activity => activity.type === 'post');
+      return posts.slice(startIndex, endIndex);
+    } else if (currentTab.value === 'reply') {
+      const replies = allActivities.value.filter(activity => activity.type === 'reply');
+      return replies.slice(startIndex, endIndex);
+    } else if (currentTab.value === 'material') {
+      const materials = allActivities.value.filter(activity => activity.type === 'material');
+      return materials.slice(startIndex, endIndex);
     }
-
-    if (currentTab.value === 'post') {
-      // For own profile, use userBlogs; for others, filter from userActivities
-      if (props.isMyProfile) {
-        return userBlogs.value;
-      } else {
-        return userActivities.value.filter(activity => activity.type === 'post');
-      }
-    }
-
-    if (currentTab.value === 'reply') {
-      // For own profile, use userComments; for others, filter from userActivities
-      if (props.isMyProfile) {
-        return userComments.value;
-      } else {
-        return userActivities.value.filter(activity => activity.type === 'reply');
-      }
-    }
-
-    if (currentTab.value === 'material') {
-      // For own profile, use userFlashcards; for others, filter from userActivities
-      if (props.isMyProfile) {
-        return userFlashcards.value;
-      } else {
-        return userActivities.value.filter(activity => activity.type === 'quiz');
-      }
-    }
-
-    // For other tabs, use fallback data
-    if (!props.user || !props.user.activities) {
-      return [];
-    }
-
-    return props.user.activities.filter(activity => activity.type === currentTab.value);
+    return [];
   });
 
 // Use server-side pagination data
@@ -395,54 +411,183 @@ const paginatedActivities = computed(() => {
 });
 
 async function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    const page = currentPage.value - 1; // Convert to 0-based index
-    
-    if (currentTab.value === 'all') {
-      await loadUserActivities(page, itemsPerPage.value);
-    } else if (props.isMyProfile) {
-      // For own profile, load specific data for each tab
-      if (currentTab.value === 'post') {
-        await loadUserBlogs(page, itemsPerPage.value);
-      } else if (currentTab.value === 'reply') {
-        await loadUserComments(page, itemsPerPage.value);
-      } else if (currentTab.value === 'material') {
-        await loadUserFlashcards(page, itemsPerPage.value);
-      }
-    } else {
-      // For other users' profiles, always load activities and filter in computed
-      await loadUserActivities(page, itemsPerPage.value);
-    }
+  const currentTabData = tabPagination.value[currentTab.value];
+  if (currentTabData.page < currentTabData.totalPages) {
+    tabPagination.value[currentTab.value].page++;
+    currentPage.value = tabPagination.value[currentTab.value].page;
   }
 }
 
 async function prevPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    const page = currentPage.value - 1; // Convert to 0-based index
-    
-    if (currentTab.value === 'all') {
-      await loadUserActivities(page, itemsPerPage.value);
-    } else if (props.isMyProfile) {
-      // For own profile, load specific data for each tab
-      if (currentTab.value === 'post') {
-        await loadUserBlogs(page, itemsPerPage.value);
-      } else if (currentTab.value === 'reply') {
-        await loadUserComments(page, itemsPerPage.value);
-      } else if (currentTab.value === 'material') {
-        await loadUserFlashcards(page, itemsPerPage.value);
-      }
-    } else {
-      // For other users' profiles, always load activities and filter in computed
-      await loadUserActivities(page, itemsPerPage.value);
-    }
+  const currentTabData = tabPagination.value[currentTab.value];
+  if (currentTabData.page > 1) {
+    tabPagination.value[currentTab.value].page--;
+    currentPage.value = tabPagination.value[currentTab.value].page;
   }
 }
 
   watch(currentTab, () => {
     currentPage.value = 1;
   });
+
+  // Load all user activities at once and categorize them
+  async function loadAllActivities() {
+    try {
+      activitiesLoading.value = true;
+      
+      let allData = [];
+      let currentPage = 0;
+      let hasMoreData = true;
+      
+      // Load all pages of data
+      while (hasMoreData) {
+        let response;
+        if (props.isMyProfile) {
+          // For current user, use statistics API
+          response = await statisticsApi.getUserActivity(currentPage, 50); // Larger page size
+        } else {
+          // For other users, use profile API with user ID
+          const userId = props.user.user_id || props.user.userId;
+          if (!userId) {
+            throw new Error('User ID not found');
+          }
+          response = await profileApi.getUserActivities(userId, currentPage, 50);
+        }
+        
+        if (response.content && response.content.length > 0) {
+          allData = [...allData, ...response.content];
+          currentPage++;
+          hasMoreData = currentPage < response.totalPages;
+        } else {
+          hasMoreData = false;
+        }
+      }
+      
+      // Map all activities to the expected format
+      const mappedActivities = await Promise.all(allData.map(async (item) => {
+        const { type, data } = item;
+        
+        // Handle different activity types
+        if (type === 'blog') {
+          return {
+            type: 'post',
+            id: data.id,
+            title: data.title,
+            postTitle: data.title,
+            content_snippet: data.content ? data.content.substring(0, 150) + '...' : '',
+            topic: data.topics || data.tags || 'Chủ đề',
+            timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
+            url: `/forum/post/${data.id}`
+          };
+        } else if (type === 'comment') {
+          // For comments, try to get the actual blog title
+          let blogTitle = data.title || data.blogTitle || data.postTitle || 'Bài viết';
+          
+          // If we have a referenceId, try to fetch the blog title
+          const postId = data.referenceId || data.blogId || data.postId;
+          if (postId) {
+            try {
+              const blogResponse = await blogApi.getById(postId);
+              blogTitle = blogResponse.title || blogTitle;
+            } catch (error) {
+              console.warn(`Failed to fetch blog title for postId ${postId}:`, error);
+              // Keep the original title if API call fails
+            }
+          }
+          
+          return {
+            type: 'reply',
+            id: data.commentId,
+            title: `Đã bình luận trong "${blogTitle}"`,
+            postTitle: blogTitle,
+            content_snippet: data.content ? data.content.substring(0, 150) + '...' : '',
+            topic: 'Bình luận',
+            timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
+            url: `/forum/post/${postId}#comment-${data.commentId}`
+          };
+          
+        } else if (type === 'flashcard') {
+          // Construct URL with query parameters for FlashcardLearn
+          const queryParams = new URLSearchParams({
+            source: 'library',
+            title: data.term || data.title || 'Flashcard',
+            description: data.description || `Bộ thẻ học`,
+            setId: data.flashcardID || data.quizzesID || data.id,
+            creatorName: data.creatorName || data.userName || props.user.userName || 'Người dùng',
+            creatorAvatar: data.creatorAvatar || data.avatarUrl || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
+            createdAt: data.createdAt || new Date().toISOString()
+          });
+          
+          const flashcardUrl = `/flashcard/learn?${queryParams.toString()}`;
+          
+          return {
+            type: 'material',
+            id: data.flashcardID || data.quizzesID,
+            title: data.term,
+            postTitle: data.term,
+            content_snippet: data.description ? data.description.substring(0, 150) + '...' : '',
+            topic: 'Học liệu',
+            timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
+            url: flashcardUrl,
+            // Preserve cardItems for handleFlashcardClick
+            cardItems: data.cardItems || []
+          };
+        } else {
+          // Fallback for unknown types
+          return {
+            type: type,
+            id: data.id || data.commentId || data.quizzesID,
+            title: data.title || 'Hoạt động',
+            postTitle: data.title || 'Hoạt động',
+            content_snippet: data.description || data.content ? (data.description || data.content).substring(0, 150) + '...' : '',
+            topic: 'Hoạt động',
+            timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
+            url: '#'
+          };
+        }
+      }));
+      
+      // Store all activities
+      allActivities.value = mappedActivities;
+      
+      // Calculate pagination for each tab
+      const posts = mappedActivities.filter(activity => activity.type === 'post');
+      const replies = mappedActivities.filter(activity => activity.type === 'reply');
+      const materials = mappedActivities.filter(activity => activity.type === 'material');
+      
+      // Update tab pagination
+      tabPagination.value.all.totalElements = mappedActivities.length;
+      tabPagination.value.all.totalPages = Math.ceil(mappedActivities.length / itemsPerPage.value);
+      
+      tabPagination.value.post.totalElements = posts.length;
+      tabPagination.value.post.totalPages = Math.ceil(posts.length / itemsPerPage.value);
+      
+      tabPagination.value.reply.totalElements = replies.length;
+      tabPagination.value.reply.totalPages = Math.ceil(replies.length / itemsPerPage.value);
+      
+      tabPagination.value.material.totalElements = materials.length;
+      tabPagination.value.material.totalPages = Math.ceil(materials.length / itemsPerPage.value);
+      
+      // Update current tab pagination info
+      const currentTabData = tabPagination.value[currentTab.value];
+      totalElements.value = currentTabData.totalElements;
+      totalPages.value = currentTabData.totalPages;
+      
+    } catch (error) {
+      console.error('Failed to load all activities:', error);
+      store.dispatch('showMessage', {
+        type: 'error',
+        text: 'Không thể tải hoạt động: ' + error.message
+      });
+      allActivities.value = [];
+      // Reset all pagination
+      Object.keys(tabPagination.value).forEach(tab => {
+        tabPagination.value[tab] = { page: 1, totalPages: 0, totalElements: 0 };
+      });
+    } finally {
+      activitiesLoading.value = false;
+    }
+  }
 
   // Load user statistics
   async function loadUserStats() {
@@ -461,302 +606,6 @@ async function prevPage() {
     }
   }
 
-  // Load user activities
-  async function loadUserActivities(page = 0, size = 10) {
-    try {
-      activitiesLoading.value = true;
-
-      
-      let response;
-      if (props.isMyProfile) {
-        // For current user, use statistics API
-        response = await statisticsApi.getUserActivity(page, size);
-      } else {
-        // For other users, use profile API with user ID
-        const userId = props.user.user_id || props.user.userId;
-        if (!userId) {
-          throw new Error('User ID not found');
-        }
-        response = await profileApi.getUserActivities(userId, page, size);
-      }
-      
-
-
-      
-      // Update pagination info from API response
-      totalElements.value = response.totalElements || 0;
-      totalPages.value = response.totalPages || 0;
-      
-      // Map activities to the expected format based on new API structure
-      const activities = response.content.map(item => {
-        const { type, data } = item;
-
-        
-        // Handle different activity types
-        if (type === 'blog') {
-          return {
-            type: 'post',
-            id: data.id,
-            title: data.title,
-            postTitle: data.title,
-            content_snippet: data.content ? data.content.substring(0, 150) + '...' : '',
-            topic: data.topics || data.tags || 'Chủ đề',
-            timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
-            url: `/forum/post/${data.id}`
-          };
-        } else if (type === 'comment') {
-
-
-
-
-
-          return {
-            type: 'reply',
-            id: data.commentId,
-            title: data.title || 'Bình luận',
-            postTitle: data.title || 'Bình luận',
-            content_snippet: data.content ? data.content.substring(0, 150) + '...' : '',
-            topic: 'Bình luận',
-            timestamp: new Date(data.createdAt).toLocaleString('vi-VN'),
-            url: `/forum/post/${data.referenceId}`
-          };
-          
-        } else if (type === 'flashcard') {
-          // Construct URL with query parameters for FlashcardLearn
-          const queryParams = new URLSearchParams({
-            source: 'library',
-            title: data.term || data.title || 'Flashcard',
-            description: data.description || `Bộ thẻ học`,
-            setId: data.quizzesID || data.id,
-            creatorName: data.creatorName || data.userName || props.user.userName || 'Người dùng',
-            creatorAvatar: data.creatorAvatar || data.avatarUrl || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
-            createdAt: data.createdAt || new Date().toISOString()
-          });
-          
-          const flashcardUrl = `/flashcard/learn?${queryParams.toString()}`;
-
-
-
-
-
-          
-          return {
-            type: 'quiz',
-            id: data.quizzesID,
-            title: data.term,
-            postTitle: data.term,
-            content_snippet: data.description ? data.description.substring(0, 150) + '...' : '',
-            topic: 'Bài kiểm tra',
-            timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
-            url: flashcardUrl
-          };
-        } else {
-          // Fallback for unknown types
-          return {
-            type: type,
-            id: data.id || data.commentId || data.quizzesID,
-            title: data.title || 'Hoạt động',
-            postTitle: data.title || 'Hoạt động',
-            content_snippet: data.description || data.content ? (data.description || data.content).substring(0, 150) + '...' : '',
-            topic: 'Hoạt động',
-            timestamp: data.createdAt ? new Date(data.createdAt).toLocaleString('vi-VN') : 'Không rõ',
-            url: '#'
-          };
-        }
-      });
-      
-      userActivities.value = activities;
-    } catch (error) {
-      console.error('Failed to load user activities:', error);
-      store.dispatch('showMessage', {
-        type: 'error',
-        text: 'Không thể tải hoạt động: ' + error.message
-      });
-      userActivities.value = [];
-      totalElements.value = 0;
-      totalPages.value = 0;
-    } finally {
-      activitiesLoading.value = false;
-    }
-  }
-
-  // Load user blogs
-  async function loadUserBlogs(page = 0, size = 10) {
-    // Only load detailed blogs for own profile - other users' blogs are shown in activities
-    if (!props.isMyProfile) return;
-    
-    try {
-      blogsLoading.value = true;
-
-      const response = await blogApi.getUserBlogs(page, size);
-
-      
-      // Update pagination info from API response
-      totalElements.value = response.totalElements || 0;
-      totalPages.value = response.totalPages || 0;
-      
-      // Handle different response formats
-      const blogs = response.content || response.data || response;
-      
-      // Map blogs to the expected format
-      const mappedBlogs = (Array.isArray(blogs) ? blogs : []).map(blog => ({
-        type: 'post',
-        id: blog.blogId || blog.id,
-        title: blog.title,
-        postTitle: blog.title,
-        content_snippet: blog.content ? blog.content.substring(0, 150) + '...' : '',
-        topic: blog.topics || blog.category || 'Chủ đề',
-        timestamp: new Date(blog.createdAt).toLocaleString('vi-VN'),
-        url: `/forum/post/${blog.blogId || blog.id}`
-      }));
-      
-      userBlogs.value = mappedBlogs;
-    } catch (error) {
-      console.error('Failed to load user blogs:', error);
-      store.dispatch('showMessage', {
-        type: 'error',
-        text: 'Không thể tải bài viết: ' + error.message
-      });
-      userBlogs.value = [];
-      totalElements.value = 0;
-      totalPages.value = 0;
-    } finally {
-      blogsLoading.value = false;
-    }
-  }
-
-  // Load user comments
-  async function loadUserComments(page = 0, size = 10) {
-    // Only load detailed comments for own profile - other users' comments are shown in activities
-    if (!props.isMyProfile) return;
-    
-    try {
-      commentsLoading.value = true;
-
-      const response = await commentApi.getUserComments(page, size);
-
-      
-      // Update pagination info from API response
-      totalElements.value = response.totalElements || 0;
-      totalPages.value = response.totalPages || 0;
-      
-      // Handle different response formats
-      const comments = response.content || response.data || response;
-      
-      // Map comments and fetch blog titles
-      const mappedComments = await Promise.all(
-        (Array.isArray(comments) ? comments : []).map(async (comment) => {
-          let blogTitle = comment.title || comment.blogTitle || comment.postTitle || 'Bài viết';
-          
-          // Try to fetch the actual blog title using blogApi.getById
-          const postId = comment.referenceId || comment.blogId || comment.postId;
-          if (postId) {
-            try {
-
-              const blogResponse = await blogApi.getById(postId);
-              blogTitle = blogResponse.title || blogTitle;
-
-            } catch (error) {
-              console.warn(`Failed to fetch blog title for postId ${postId}:`, error);
-              // Keep the original title if API call fails
-            }
-          }
-          
-          return {
-            type: 'reply',
-            id: comment.commentId || comment.id,
-            postTitle: ` ${blogTitle}`,
-            content_snippet: comment.content ? comment.content.substring(0, 150) + '...' : '',
-            topic: 'Bình luận',
-            timestamp: new Date(comment.createdAt).toLocaleString('vi-VN'),
-            url: `/forum/post/${postId}#comment-${comment.commentId || comment.id}`
-          };
-        })
-      );
-      
-      userComments.value = mappedComments;
-    } catch (error) {
-      console.error('Failed to load user comments:', error);
-      store.dispatch('showMessage', {
-        type: 'error',
-        text: 'Không thể tải bình luận: ' + error.message
-      });
-      userComments.value = [];
-      totalElements.value = 0;
-      totalPages.value = 0;
-    } finally {
-      commentsLoading.value = false;
-    }
-  }
-
-  // Load user flashcards
-  async function loadUserFlashcards(page = 0, size = 10) {
-    // Only load detailed flashcards for own profile - other users' flashcards are shown in activities
-    if (!props.isMyProfile) return;
-    
-    try {
-      flashcardsLoading.value = true;
-
-      const response = await flashcardApi.getUserFlashcards(page, size);
-
-      
-      // Update pagination info from API response
-      totalElements.value = response.totalElements || 0;
-      totalPages.value = response.totalPages || 0;
-      
-      // Handle different response formats
-      const flashcards = response.content || response.data || response;
-      
-      // Map flashcards to the expected format - PRESERVE cardItems like MyLibrary does
-      const mappedFlashcards = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => {
-        // Construct URL with query parameters for FlashcardLearn
-        const queryParams = new URLSearchParams({
-          source: 'library',
-          title: flashcard.title || flashcard.term || 'Flashcard',
-          description: flashcard.description || `Bộ thẻ chứa ${flashcard.cardCount || 0} thẻ học`,
-          setId: flashcard.set_id || flashcard.flashcardId || flashcard.id,
-          creatorName: flashcard.creatorName || flashcard.userName || props.user.userName || 'Người dùng',
-          creatorAvatar: flashcard.creatorAvatar || flashcard.avatarUrl || props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
-          createdAt: flashcard.createdAt || flashcard.created || new Date().toISOString()
-        });
-        
-        const flashcardUrl = `/flashcard/learn?${queryParams.toString()}`;
-
-
-
-
-
-
-        
-        return {
-          type: 'quiz',
-          id: flashcard.set_id || flashcard.flashcardId || flashcard.id,
-          title: flashcard.title || flashcard.term || 'Flashcard',
-          postTitle: flashcard.title || flashcard.term || 'Flashcard',
-          content_snippet: flashcard.description ? flashcard.description.substring(0, 150) + '...' : `${flashcard.cardCount || 0} thẻ học`,
-          topic: flashcard.category || flashcard.subject || 'Học liệu',
-          timestamp: new Date(flashcard.createdAt || flashcard.created).toLocaleString('vi-VN'),
-          url: flashcardUrl,
-          // IMPORTANT: Preserve cardItems for handleFlashcardClick
-          cardItems: flashcard.cardItems || []
-        };
-      });
-      
-      userFlashcards.value = mappedFlashcards;
-    } catch (error) {
-      console.error('Failed to load user flashcards:', error);
-      store.dispatch('showMessage', {
-        type: 'error',
-        text: 'Không thể tải flashcards: ' + error.message
-      });
-      userFlashcards.value = [];
-      totalElements.value = 0;
-      totalPages.value = 0;
-    } finally {
-      flashcardsLoading.value = false;
-    }
-  }
-
   // Load data when component mounts and when user changes
   onMounted(() => {
     // Load stats only for own profile
@@ -764,22 +613,8 @@ async function prevPage() {
       loadUserStats();
     }
     
-    // Load data based on current tab
-    if (currentTab.value === 'all') {
-      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
-    } else if (props.isMyProfile) {
-      // For own profile, load specific data for each tab
-      if (currentTab.value === 'post') {
-        loadUserBlogs(currentPage.value - 1, itemsPerPage.value);
-      } else if (currentTab.value === 'reply') {
-        loadUserComments(currentPage.value - 1, itemsPerPage.value);
-      } else if (currentTab.value === 'material') {
-        loadUserFlashcards(currentPage.value - 1, itemsPerPage.value);
-      }
-    } else {
-      // For other users' profiles, always load activities and filter in computed
-      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
-    }
+    // Load all activities
+    loadAllActivities();
   });
 
   watch(() => props.user, () => {
@@ -788,22 +623,14 @@ async function prevPage() {
       loadUserStats();
     }
     
-    // Load data based on current tab
-    if (currentTab.value === 'all') {
-      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
-    } else if (props.isMyProfile) {
-      // For own profile, load specific data for each tab
-      if (currentTab.value === 'post') {
-        loadUserBlogs(currentPage.value - 1, itemsPerPage.value);
-      } else if (currentTab.value === 'reply') {
-        loadUserComments(currentPage.value - 1, itemsPerPage.value);
-      } else if (currentTab.value === 'material') {
-        loadUserFlashcards(currentPage.value - 1, itemsPerPage.value);
-      }
-    } else {
-      // For other users' profiles, always load activities and filter in computed
-      loadUserActivities(currentPage.value - 1, itemsPerPage.value);
-    }
+    // Reset pagination and reload all activities
+    Object.keys(tabPagination.value).forEach(tab => {
+      tabPagination.value[tab] = { page: 1, totalPages: 0, totalElements: 0 };
+    });
+    currentPage.value = 1;
+    
+    // Load all activities
+    loadAllActivities();
   });
 
   function handleSendMessage() {
@@ -821,84 +648,114 @@ async function prevPage() {
     emit('send-message', chatUser)
   }
 
-  // Handle flashcard click - pass data directly like MyLibrary does
+  // Handle flashcard click - call API to get detailed data and navigate to FlashcardLearn
   async function handleFlashcardClick(activity) {
     try {
-
-
+      console.log('=== FLASHCARD CLICK DEBUG ===');
+      console.log('Activity:', activity);
       
-      // Extract setId from the activity URL or use activity id
-      const urlParams = new URLSearchParams(activity.url.split('?')[1]);
-      const setId = urlParams.get('setId') || activity.id;
+      // Extract flashcard ID from the activity URL or use activity id
+      let flashcardId = null;
       
-
-
-      
-      if (!setId) {
-        console.error('No setId found for flashcard');
-        return;
+      if (activity.url && activity.url.includes('?')) {
+        const urlParams = new URLSearchParams(activity.url.split('?')[1]);
+        flashcardId = urlParams.get('setId') || urlParams.get('id');
+        console.log('FlashcardId from URL params:', flashcardId);
       }
       
-      // Find the flashcard data from userFlashcards to get cardItems
-      const flashcardData = userFlashcards.value.find(fc => fc.id === setId);
-
+      // Fallback to activity id if no flashcardId in URL
+      if (!flashcardId) {
+        flashcardId = activity.id;
+        console.log('Using activity.id as flashcardId:', flashcardId);
+      }
       
-      if (!flashcardData || !flashcardData.cardItems) {
-        console.error('No flashcard data or cardItems found for setId:', setId);
-        store.dispatch('message/showMessage', {
+      if (!flashcardId) {
+        console.error('No flashcardId found for flashcard');
+        store.dispatch('showMessage', {
           type: 'error',
-          text: 'Không tìm thấy dữ liệu học liệu'
+          text: 'Không thể xác định ID của học liệu'
         });
         return;
       }
       
-      // Convert cardItems to learning format like MyLibrary does
-      const learningItems = flashcardData.cardItems.map(card => ({
+      console.log('Final flashcardId to use:', flashcardId);
+      
+      // Call API to get detailed flashcard data
+      console.log('Calling flashcardApi.getById with flashcardId:', flashcardId);
+      const flashcardData = await flashcardApi.getById(flashcardId);
+      console.log('API response:', flashcardData);
+      
+      if (!flashcardData || !flashcardData.cardItems || flashcardData.cardItems.length === 0) {
+        console.error('No cardItems in flashcard data:', flashcardData);
+        store.dispatch('showMessage', {
+          type: 'error',
+          text: 'Học liệu không có nội dung'
+        });
+        return;
+      }
+      
+      console.log('CardItems found:', flashcardData.cardItems.length);
+      
+      // Convert API response to learning items format for FlashcardLearn
+      const learningItems = flashcardData.cardItems.map(item => ({
         type: 'word',
-        kanji: card.word || '',
+        kanji: item.word || '',
         kana: '',
-        meaning: card.meaning || ''
+        meaning: item.meaning || '',
+        content: item.word || '',
+        backcontent: item.meaning || '',
+        front: item.word || '',
+        back: item.meaning || ''
       }));
       
-
+      console.log('Learning items prepared:', learningItems.length);
       
-      // Save to store like MyLibrary does
+      // Save to store for FlashcardLearn to use
       await store.dispatch('flashcard/setLearningItems', learningItems);
+      console.log('Learning items saved to store');
       
-      // Navigate to flashcard learn page with query params
+      // Navigate to FlashcardLearn with query parameters
       const navigationQuery = {
-        source: 'library',
-        title: urlParams.get('title') || activity.title,
-        description: urlParams.get('description') || activity.content_snippet || `Học liệu`,
-        setId: setId,
-        creatorName: urlParams.get('creatorName') || props.user.userName || 'Người dùng',
-        creatorAvatar: urlParams.get('creatorAvatar') || props.user.avatarUrl || props.user.avatar || '',
-        createdAt: urlParams.get('createdAt') || new Date().toISOString()
+        source: 'profile',
+        title: flashcardData.term || activity.title || 'Flashcard',
+        description: flashcardData.description || `Học liệu gồm ${flashcardData.cardItems.length} thuật ngữ`,
+        setId: flashcardData.flashcardID || flashcardId,
+        creatorName: props.user.userName || 'Người dùng',
+        creatorAvatar: props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
+        createdAt: new Date().toISOString()
       };
       
-
+      console.log('Navigation query:', navigationQuery);
       
       router.push({
         path: '/flashcard/learn',
         query: navigationQuery
       });
       
-
+      console.log('=== END FLASHCARD CLICK DEBUG ===');
       
     } catch (error) {
-      console.error('Error handling flashcard click:', error);
-      store.dispatch('message/showMessage', {
+      console.error('=== FLASHCARD CLICK ERROR DEBUG ===');
+      console.error('Error loading flashcard data:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response status:', error.response?.status);
+      console.error('=== END FLASHCARD CLICK ERROR DEBUG ===');
+      
+      // Use handleApiError to get proper error message
+      const errorMessage = handleApiError(error);
+      
+      store.dispatch('showMessage', {
         type: 'error',
-        text: 'Không thể tải học liệu: ' + error.message
+        text: errorMessage
       });
     }
   }
-
 </script>
-
   <style lang="scss" scoped>
   @use '@/components/layout/forum/profile/ProfileDetail.scss';
-  
   .stats-loading, .activities-loading {
     text-align: center;
     padding: 20px;

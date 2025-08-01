@@ -129,7 +129,7 @@
                         </span>
                         <h3 class="post-title">{{ post.title }}</h3>
                         <p class="post-meta">
-                            bởi <a href="#" class="author-name">{{ post.author.name }}</a>
+                            bởi <a class="author-name">{{ post.author.name }}</a>
                             <span class="post-time">{{ formatTimeAgo(post.time) }}</span>
                         </p>
                     </div>

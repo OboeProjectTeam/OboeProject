@@ -110,7 +110,7 @@ html, body {
 }
 
 .main-content {
-  margin-top: 140px;
+  margin-top: 130px;
   padding: 20px;
   flex: 1;
   width: 100%;

@@ -108,10 +108,8 @@
     padding-bottom: 8px;
 
     .content-card {
-      flex: 0 0 220px; // width cố định
-      min-width: 220px;
-      max-width: 220px;
-      height: 140px; // hoặc chiều cao bạn muốn
+      flex: 1; // Tự động điều chỉnh width để chia đều
+      min-width: 0; // Cho phép shrink
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -121,6 +119,28 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       padding: 1rem;
       transition: box-shadow 0.2s;
+      
+      h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+      }
+      
+      .description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+      }
+      
+      .card-meta {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+      }
+      
+      .learn-now-btn {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+      }
     }
   }
 
@@ -182,20 +202,28 @@
     border-radius: 8px;
     padding: 1rem;
     background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px; // Đảm bảo chiều cao tối thiểu
     
     h4 {
       font-size: 1.1rem;
+      margin-bottom: 0.5rem;
     }
     
     p {
       color: #666;
       margin: 0.5rem 0 1rem;
+      flex-grow: 1; // Cho phép phần này mở rộng để đẩy button xuống dưới
     }
 
     .view-topic-btn {
       color: $primary-color;
       text-decoration: none;
       font-weight: 500;
+      margin-top: auto; // Đẩy button xuống cuối
+      align-self: flex-start; // Căn trái button
     }
   }
 
@@ -238,4 +266,7 @@
       }
     }
   }
+}
+.home-page .content-card.large .card-info p {
+  height: 70px;
 }

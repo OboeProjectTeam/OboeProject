@@ -71,7 +71,6 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import quizApi from '@/api/modules/quizApi'
 import questionApi from '@/api/modules/questionApi'
 import aiApi from '@/api/modules/aiApi'
 

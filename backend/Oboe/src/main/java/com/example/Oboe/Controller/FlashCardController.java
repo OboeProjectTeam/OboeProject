@@ -1,6 +1,7 @@
     package com.example.Oboe.Controller;
 
     import com.example.Oboe.DTOs.FlashCardDto;
+    import com.example.Oboe.DTOs.FlashcardSearchResultDTO;
     import com.example.Oboe.Entity.FlashCards;
     import com.example.Oboe.Service.FlashCardService;
     import com.example.Oboe.Util.JwtUtil;
@@ -88,7 +89,11 @@
             }
             return ResponseEntity.ok(result.get(0));
         }
-
+        @GetMapping("/search")
+        public ResponseEntity<List<FlashcardSearchResultDTO>> searchFlashcards(@RequestParam String keyword) {
+            List<FlashcardSearchResultDTO> results = flashCardService.searchFlashcards(keyword);
+            return ResponseEntity.ok(results);
+        }
 
 
 

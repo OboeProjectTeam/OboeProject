@@ -3,8 +3,8 @@ package com.example.Oboe.Service;
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.PassWordChangeDTOs;
 import com.example.Oboe.DTOs.UserDTOs;
-import com.example.Oboe.DTOs.UserProfileDTO;
 import com.example.Oboe.DTOs.UserProfileDTOwithStatistical;
+import com.example.Oboe.DTOs.*;
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Role;
@@ -168,10 +168,10 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Xóa comment của user
-        commentRepository.deleteUser(userId);
+        commentRepository.deleteUserbyComment(userId);
 
         // Xóa blog của user
-        blogRepository.deleteUser(userId);
+        blogRepository.deleteBlogsbyUser(userId);
 
         // Xóa flashcard của user
         flashCardRepository.deleteUser(userId);
@@ -364,6 +364,9 @@ public class UserService implements UserDetailsService {
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+    public List<UserSearchResultDTO> searchUsers(String keyword) {
+        return userRepository.searchUsersWithFlashcardCount(keyword);
     }
 
 }
