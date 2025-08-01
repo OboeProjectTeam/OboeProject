@@ -142,6 +142,7 @@ import { useRouter } from 'vue-router';
 import flashcardApi from '@/api/modules/flashcardApi';
 import learningMaterialApi from '@/api/modules/learningMaterialApi';
 import blogApi from '@/api/modules/blogApi';
+import searchApi from '@/api/modules/searchApi';
 
 const store = useStore();
 const router = useRouter();
@@ -237,9 +238,29 @@ const loadFeaturedTopics = async () => {
   }
 };
 
-const performSearch = () => {
+const performSearch = async () => {
   if (!searchQuery.value.trim()) return;
-  router.push({ path: '/search', query: { q: searchQuery.value } });
+  
+  try {
+    // Gọi API search_home để lấy tất cả dữ liệu (flashcards, quizzes, users)
+    const searchResults = await searchApi.search_home(searchQuery.value.trim());
+    
+    // Chuyển hướng đến trang search với dữ liệu qua params
+    router.push({ 
+      name: 'SearchResults',
+      params: { 
+        query: searchQuery.value.trim(),
+        searchResults: searchResults
+      }
+    });
+  } catch (error) {
+    console.error('Error performing search:', error);
+    // Nếu API lỗi, vẫn chuyển hướng đến trang search để xử lý
+    router.push({ 
+      name: 'SearchResults',
+      params: { query: searchQuery.value.trim() }
+    });
+  }
 };
 
 const startLearning = async (set) => {

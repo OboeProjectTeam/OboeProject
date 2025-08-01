@@ -26,6 +26,16 @@ const searchApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  async search_home(keyword, type, page = 0, size = 20) {
+    try {
+      const response = await axios.get(`${PREFIX}/searchkeyword`, {
+        params: { keyword, type, page, size }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
 };
 
