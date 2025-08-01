@@ -127,7 +127,7 @@ public class MomoService {
                     userRepository.save(user);
 
                     Payment payment = new Payment();
-                    payment.setAmount(amount);
+                    payment.setAmount(Integer.parseInt(amount));
                     payment.setStatus("SUCCESS");
                     payment.setUser(user);
                     paymentRepository.save(payment);
