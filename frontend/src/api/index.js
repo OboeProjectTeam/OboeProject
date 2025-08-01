@@ -19,8 +19,14 @@ import paymentApi from './modules/paymentApi';
 import statisticsApi from './modules/statisticsApi';
 import learningMaterialApi from './modules/learningMaterialApi';
 import searchApi from './modules/searchApi';
+import aiApi from './modules/aiApi';
+import aiReplyApi from './modules/aiRepApi';
+import userApi from './modules/userApi';
 
 const api = {
+    user: userApi,
+    ai: aiApi,
+    aiReply: aiReplyApi,
     admin: adminApi,
     auth: authApi,
     blog: blogApi,
@@ -40,7 +46,7 @@ const api = {
     search: searchApi,
     statistics: statisticsApi,
     vocabulary: vocabularyApi,
-    sampleSentence: sampleSentenceApi
+    sampleSentence: sampleSentenceApi,
   };
   
   export default api;

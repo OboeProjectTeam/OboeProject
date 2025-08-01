@@ -109,6 +109,7 @@
 
     .content-card {
       flex: 1; // Tự động điều chỉnh width để chia đều
+      max-width: 346px !important;
       min-width: 0; // Cho phép shrink
       box-sizing: border-box;
       display: flex;
