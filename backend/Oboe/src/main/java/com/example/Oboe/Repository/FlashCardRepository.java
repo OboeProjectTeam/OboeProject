@@ -48,13 +48,13 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
 
     @Query(
             value = "SELECT new com.example.Oboe.DTOs.FlashcardSearchResultDTO(" +
-                    "f.set_id, f.description, f.user.userName, COUNT(c), f.user.avatarUrl) " +
+                    "f.set_id, f.term, f.user.userName, COUNT(c), f.user.avatarUrl) " +
                     "FROM FlashCards f LEFT JOIN f.cardItems c " +
-                    "WHERE LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+                    "WHERE LOWER(f.term) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
                     "GROUP BY f.set_id, f.description, f.user.userName, f.user.avatarUrl",
             countQuery = "SELECT COUNT(DISTINCT f.set_id) " +
                     "FROM FlashCards f " +
-                    "WHERE LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%'))"
+                    "WHERE LOWER(f.term) LIKE LOWER(CONCAT('%', :keyword, '%'))"
     )
     Page<FlashcardSearchResultDTO> searchFlashcardsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
