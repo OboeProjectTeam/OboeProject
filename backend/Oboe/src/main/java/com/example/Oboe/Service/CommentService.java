@@ -159,6 +159,7 @@ public class CommentService {
         CommentDTOs commentDTO = toDTO(saved);
 
         //  Nếu là comment blog → tạo thông báo và gửi WebSocket
+        // Nếu là comment blog → tạo thông báo và gửi WebSocket
         if (isBlog && receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
             // Tạo thông báo
             Notifications notification = new Notifications();
@@ -166,6 +167,8 @@ public class CommentService {
             notification.setText_notification("Bạn vừa nhận được một bình luận mới từ " + sender.getUserName());
             notification.setRead(false);
             notification.setUpdate_at(vietnamTime);
+            notification.setTargetId(saved.getreferenceId());          // ID của comment
+            notification.setTargetType("BLog");            // Kiểu: "Comment"
 
             Notifications savedNoti = notificationsRepository.save(notification);
 
@@ -191,7 +194,6 @@ public class CommentService {
                 }
             }
         }
-
         return commentDTO;
     }
 
@@ -203,7 +205,7 @@ public class CommentService {
         User sender = userService.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Người dùng không hợp lệ"));
 
-        //  Lấy comment cha (parent comment)
+        // Lấy comment cha (parent comment)
         Comment parent = commentRepository.findById(parentCommentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bình luận cha"));
 
@@ -211,7 +213,7 @@ public class CommentService {
         ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
         LocalDateTime vietnamTime = LocalDateTime.now(vietnamZone);
 
-        //  Tạo comment con (reply)
+        // Tạo comment con (reply)
         Comment reply = new Comment();
         reply.setTitle(dto.getTitle());
         reply.setContent(dto.getContent());
@@ -226,21 +228,22 @@ public class CommentService {
         // Lấy người nhận (receiver) là người viết comment cha
         User receiver = parent.getUser();
 
-        //  Nếu người nhận khác người gửi → tạo và lưu thông báo
+        // Nếu người nhận khác người gửi → tạo và lưu thông báo
         if (receiver != null && !receiver.getUser_id().equals(sender.getUser_id())) {
             Notifications notification = new Notifications();
             notification.setUser(receiver); // Gửi tới người nhận
             notification.setText_notification("Bạn vừa nhận được một phản hồi từ " + sender.getUserName());
             notification.setRead(false);
-            notification.setUpdate_at(LocalDateTime.now());
+            notification.setUpdate_at(vietnamTime);
+            notification.setTargetId(parent.getreferenceId());
+            notification.setTargetType("BLog");
 
-            Notifications savedNoti = notificationsRepository.save(notification); // lưu thông báo vào DB
+            Notifications savedNoti = notificationsRepository.save(notification);
 
-            //  Gửi WebSocket nếu người nhận đang online
+            // Gửi WebSocket nếu người nhận đang online
             WebSocketSession receiverSession = SessionManager.getSession(receiver.getUser_id());
             if (receiverSession != null && receiverSession.isOpen()) {
                 try {
-                    // Chuyển đổi dữ liệu thành JSON
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.registerModule(new JavaTimeModule());
                     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -251,22 +254,23 @@ public class CommentService {
                     // JSON của thông báo
                     String notificationJson = mapper.writeValueAsString(savedNoti);
 
-                    // Gửi cả bình luận và thông báo qua WebSocket
                     receiverSession.sendMessage(new TextMessage(replyJson));
                     receiverSession.sendMessage(new TextMessage(notificationJson));
-
                 } catch (IOException e) {
-                    e.printStackTrace(); // In ra thông tin lỗi
+                    e.printStackTrace();
                 }
             }
         }
 
-        //  Trả về DTO của comment con
         return toDTO(savedReply);
     }
-
-
-
+    public CommentDTOs getcommentbyID(UUID commentId) {
+        Comment comment = getCommentEntityById(commentId);
+        if (comment == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bình luận với ID đã cho");
+        }
+        return toDTO(comment);
+    }
     //  Cập nhật comment (chỉ người tạo mới được sửa)
     public CommentDTOs updateComment(UUID commentId, UUID userId, CommentDTOs dto) {
         Comment comment = getCommentEntityById(commentId);
