@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface QuizzesRepository extends JpaRepository<Quizzes, UUID> {
@@ -31,5 +32,6 @@ public interface QuizzesRepository extends JpaRepository<Quizzes, UUID> {
             "FROM Quizzes q WHERE LOWER(q.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<QuizSearchResultDTO> searchQuizzesByKeyword(@Param("keyword") String keyword);
 
+    Optional<Quizzes> findById(UUID id);
 
 }

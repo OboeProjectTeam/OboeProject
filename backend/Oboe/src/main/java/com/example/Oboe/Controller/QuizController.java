@@ -30,6 +30,14 @@ public class QuizController {
     public List<QuizDTO> getAll() {
         return quizzesService.getAll();
     }
+    // get quizby id cả question
+    @GetMapping("/user/{id}")
+    public ResponseEntity<QuizWithQuestionsDTO> getQuizById(@PathVariable UUID id) {
+        QuizWithQuestionsDTO quizDTO = quizService.getQuizById(id);
+        return ResponseEntity.ok(quizDTO);
+    }
+
+
     @GetMapping("/{id}")
     public QuizDTO getById(@PathVariable UUID id) {
         return quizzesService.getById(id);
@@ -77,6 +85,8 @@ public class QuizController {
         return ResponseEntity.ok(response);
     }
 
+
+
     @PostMapping("/{quizId}/submit-answers")
     public ResponseEntity<?> submitAnswers(
             @PathVariable UUID quizId,
@@ -89,6 +99,8 @@ public class QuizController {
         QuizResultDTO resultDTO = userAnswerService.saveUserAnswer(submission.getAnswers(), userId, quizId);
         return ResponseEntity.ok(resultDTO);
     }
+
+
 
     @Autowired
     private QuizzesService quizService; // phải là biến, không gọi class trực tiếp
