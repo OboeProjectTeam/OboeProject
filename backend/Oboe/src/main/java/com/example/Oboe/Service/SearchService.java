@@ -104,24 +104,5 @@ public class SearchService {
         return suggestions;
     }
 
-    // Tìm người dùng, quiz, flashcard (cho /api/searchAll?keyword=...)
-    public SearchResultDTO suggestAllTypesWithUserQuizFlashcard(String keyword) {
-        List<UserDTOs> users = userRepository.searchUsersByKeyword(keyword);
-        List<QuizSearchResultDTO> quizzes = quizzesRepository.searchQuizzesByKeyword(keyword);
 
-        // Repository trả về dạng FlashcardSearchResultDTO
-        List<FlashcardSearchResultDTO> flashcardSearchResults = flashCardRepository.searchFlashcardsByKeyword(keyword);
-
-        // Chuyển đổi sang FlashCardDto
-        List<FlashCardDto> flashcards = flashcardSearchResults.stream().map(result -> {
-            FlashCardDto dto = new FlashCardDto();
-            dto.setFlashcardID(result.getFlashcardId());
-            dto.setDescription(result.getTitle()); // title → description
-            dto.setTerm(""); // Không có trong DTO, để rỗng
-            dto.setCardItems(null); // Không cần load chi tiết thẻ khi chỉ tìm kiếm
-            return dto;
-        }).toList();
-
-        return new SearchResultDTO(users, quizzes, flashcards);
-    }
 }

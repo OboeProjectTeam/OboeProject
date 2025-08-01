@@ -91,12 +91,8 @@ public class QuizController {
     }
 
     @Autowired
-    private QuizzesService quizService; // phải là biến, không gọi class trực tiếp
+    private QuizzesService quizService;
 
-    @GetMapping("/search") // <--- endpoint bạn định nghĩa
-    public ResponseEntity<List<QuizSearchResultDTO>> searchQuizzes(@RequestParam("keyword") String keyword) {
-        List<QuizSearchResultDTO> result = quizzesService.searchQuizzes(keyword);
-        return ResponseEntity.ok(result);
-    }
+
 
 }

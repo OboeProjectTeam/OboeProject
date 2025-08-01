@@ -89,11 +89,7 @@
             }
             return ResponseEntity.ok(result.get(0));
         }
-        @GetMapping("/search")
-        public ResponseEntity<List<FlashcardSearchResultDTO>> searchFlashcards(@RequestParam String keyword) {
-            List<FlashcardSearchResultDTO> results = flashCardService.searchFlashcards(keyword);
-            return ResponseEntity.ok(results);
-        }
+
 
 
 
