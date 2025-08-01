@@ -365,8 +365,6 @@ public class UserService implements UserDetailsService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
-    public List<UserSearchResultDTO> searchUsers(String keyword) {
-        return userRepository.searchUsersWithFlashcardCount(keyword);
-    }
+
 
 }
