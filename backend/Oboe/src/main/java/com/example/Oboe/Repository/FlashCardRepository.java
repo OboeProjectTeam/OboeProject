@@ -1,6 +1,7 @@
 package com.example.Oboe.Repository;
 
 import com.example.Oboe.DTOs.FlashCardDto;
+import com.example.Oboe.DTOs.FlashcardSearchResultDTO;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Entity.User;
@@ -44,5 +45,11 @@ public interface FlashCardRepository extends JpaRepository<FlashCards, UUID> {
 
     @Query("SELECT f FROM FlashCards f WHERE f.set_id = :setId")
     Optional<FlashCards> findById(@Param("setId") UUID setId);
+
+    @Query("SELECT new com.example.Oboe.DTOs.FlashcardSearchResultDTO(f.set_id, f.description, f.user.userName, COUNT(c)) " +
+            "FROM FlashCards f LEFT JOIN f.cardItems c " +
+            "WHERE LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "GROUP BY f.set_id, f.description, f.user.userName")
+    List<FlashcardSearchResultDTO> searchFlashcardsByKeyword(@Param("keyword") String keyword);
 
 }

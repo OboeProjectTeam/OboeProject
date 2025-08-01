@@ -39,4 +39,5 @@ public class LearningMaterialController {
         List<LearningMaterialDTO> materials = learningMaterialService.getSuggestedMaterialsRandomFromDB();
         return ResponseEntity.ok(materials);
     }
+
 }
