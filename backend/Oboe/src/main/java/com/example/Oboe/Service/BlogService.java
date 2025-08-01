@@ -227,6 +227,14 @@ public class BlogService {
         return blogRepository.existsById(id);
     }
 
+    public boolean deleteBlogAsAdmin(UUID blogId) {
+        Optional<Blog> blogOpt = blogRepository.findById(blogId);
+        if (blogOpt.isEmpty()) return false;
+
+        Blog blog = blogOpt.get();
+        blogRepository.delete(blog);
+        return true;
+    }
 
 
 }

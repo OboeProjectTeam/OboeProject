@@ -1,6 +1,6 @@
 package com.example.Oboe.Config;
 
-
+// import com.example.Oboe.Config.CustomOAuth2SuccessHandler; // Commented out vì đã chuyển sang Firebase
 import com.example.Oboe.Service.UserService;
 import com.example.Oboe.Util.JwtAuthencation;
 import com.example.Oboe.Util.JwtUtil;
@@ -45,6 +45,9 @@ public class WebConfig {
 
     @Value("${app.domain}")
     private String domain;
+
+
+
 
 
     @Bean
