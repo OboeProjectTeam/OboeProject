@@ -105,10 +105,26 @@
           <h2>Chủ đề nổi bật</h2>
           <router-link to="/forum" class="view-all-link">Xem tất cả</router-link>
         </div>
-        <div class="forum-grid">
+        
+        <!-- Loading state -->
+        <div v-if="recommendedTopicsLoading" class="forum-grid">
+          <div v-for="i in 3" :key="i" class="forum-topic-card loading">
+            <div class="loading-placeholder"></div>
+            <div class="loading-placeholder small"></div>
+            <div class="loading-placeholder button"></div>
+          </div>
+        </div>
+        
+        <!-- No data state -->
+        <div v-else-if="recommendedTopics.length === 0" class="no-data-state">
+          <p>Chưa có chủ đề nổi bật nào</p>
+        </div>
+        
+        <!-- Featured topics list -->
+        <div v-else class="forum-grid">
           <div v-for="topic in recommendedTopics" :key="topic.id" class="forum-topic-card">
             <h4>{{ topic.title }}</h4>
-            <p>{{ topic.postCount }} bài viết</p>
+            <p>{{ topic.postCount }} bình luận</p>
             <router-link :to="`/forum/post/${topic.id}`" class="view-topic-btn">
               Xem chủ đề <i class="fas fa-arrow-right"></i>
             </router-link>
@@ -125,6 +141,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import flashcardApi from '@/api/modules/flashcardApi';
 import learningMaterialApi from '@/api/modules/learningMaterialApi';
+import blogApi from '@/api/modules/blogApi';
 
 const store = useStore();
 const router = useRouter();
@@ -139,13 +156,9 @@ const recentSetsLoading = ref(false);
 const recommendedSets = ref([]);
 const recommendedSetsLoading = ref(false);
 
-// --- Mock Data for other sections ---
-const recommendedTopics = ref([
-  { id: 201, title: 'Kinh nghiệm sống ở Tokyo?', postCount: 15 },
-  { id: 202, title: 'Cách học Kanji hiệu quả', postCount: 42 },
-  { id: 203, title: 'Tìm bạn học chung N3-N2', postCount: 88 },
-]);
-// --- End Mock Data ---
+// Featured topics - will be loaded from API
+const recommendedTopics = ref([]);
+const recommendedTopicsLoading = ref(false);
 
 // Load recent flashcards from API
 const loadRecentSets = async () => {
@@ -198,6 +211,29 @@ const loadRecommendedSets = async () => {
     recommendedSets.value = [];
   } finally {
     recommendedSetsLoading.value = false;
+  }
+};
+
+// Load featured topics from API
+const loadFeaturedTopics = async () => {
+  try {
+    recommendedTopicsLoading.value = true;
+    const response = await blogApi.getFeaturedComments();
+    
+    if (response && Array.isArray(response)) {
+      recommendedTopics.value = response.map(item => ({
+        id: item.blogId,
+        title: item.title,
+        postCount: item.commentCount
+      }));
+    } else {
+      recommendedTopics.value = [];
+    }
+  } catch (error) {
+    console.error('Error loading featured topics:', error);
+    recommendedTopics.value = [];
+  } finally {
+    recommendedTopicsLoading.value = false;
   }
 };
 
@@ -305,6 +341,7 @@ const startQuiz = (quiz) => {
 onMounted(() => {
   loadRecentSets();
   loadRecommendedSets();
+  loadFeaturedTopics();
 });
 
 </script>
@@ -343,6 +380,13 @@ onMounted(() => {
   border-radius: 12px;
   padding: 1.5rem;
   min-width: 280px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.forum-topic-card.loading {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

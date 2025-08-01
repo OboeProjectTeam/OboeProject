@@ -3,6 +3,7 @@ package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.BlogDTO;
 import com.example.Oboe.DTOs.CardItemDto;
 import com.example.Oboe.DTOs.FlashCardDto;
+import com.example.Oboe.DTOs.FlashcardSearchResultDTO;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.CardItem;
 import com.example.Oboe.Entity.FlashCards;
@@ -152,15 +153,6 @@ public class FlashCardService {
         dto.setCardItems(itemDtos);
         return dto;
     }
-
-
-
-
-
-
-
-
-
 
 
 

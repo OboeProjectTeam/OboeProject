@@ -1,6 +1,7 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.QuizDTO;
+import com.example.Oboe.DTOs.QuizSearchResultDTO;
 import com.example.Oboe.Entity.Quizzes;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
@@ -112,5 +113,7 @@ public class QuizzesService {
         }
         return dto;
     }
+
+
 
 }

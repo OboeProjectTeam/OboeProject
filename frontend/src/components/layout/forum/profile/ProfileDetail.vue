@@ -321,31 +321,11 @@ async function handleAvatarChange(event) {
 
 async function saveProfile() {
   try {
-    // Prepare the data for API call - only send the fields that the backend expects
-    const userData = {
-      firstName: editableUser.value.fullName ? editableUser.value.fullName.split(' ').slice(1).join(' ') : '',
-      lastName: editableUser.value.fullName ? editableUser.value.fullName.split(' ')[0] : '',
-      address: editableUser.value.address || '',
-      day_of_birth: editableUser.value.day_of_birth || null,
-      bio: editableUser.value.bio || '',
-      website: editableUser.value.website || '',
-      phone: editableUser.value.phone || ''
-    };
+    // Since avatar is uploaded separately, we only need to save other profile data
+    const userData = { ...editableUser.value };
     
     // Call API to update profile
-    const updatedUser = await store.dispatch('auth/updateProfile', userData);
-    
-    // Update the local editableUser with the response
-    if (updatedUser) {
-      editableUser.value = {
-        ...editableUser.value,
-        ...updatedUser,
-        fullName: (updatedUser.lastName || '') + ' ' + (updatedUser.firstName || ''),
-      };
-    }
-    
-    // Emit the updated user to parent component
-    emit('save-profile', editableUser.value);
+    await store.dispatch('updateProfile', userData);
     
     // Show success message
     store.dispatch('showMessage', {
@@ -355,7 +335,6 @@ async function saveProfile() {
     
     isEditing.value = false;
   } catch (error) {
-    console.error('Error updating profile:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Không thể cập nhật hồ sơ: ' + error.message

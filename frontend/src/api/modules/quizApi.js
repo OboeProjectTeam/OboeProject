@@ -86,6 +86,18 @@ const quizApi = {
       console.error('QuizAPI: Error submitting answers:', error);
       throw new Error(handleApiError(error));
     }
+  },
+  // Tìm kiếm quiz theo từ khóa
+  async search(keyword) {
+    try {
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { keyword }
+      });
+      return res.data;
+    } catch (error) {
+      console.error('QuizAPI: Error searching quizzes:', error);
+      throw new Error(handleApiError(error));
+    }
   }
 };
 

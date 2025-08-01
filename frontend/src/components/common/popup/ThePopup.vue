@@ -2,7 +2,8 @@
     <div class="confirm-dialog-backdrop" @click.self="onCancel">
       <div class="confirm-dialog">
         <div class="confirm-title">{{ title }}</div>
-        <div class="confirm-message">{{ message }}</div>
+        <div class="confirm-message" :class="{ 'html-content': useHtml }" v-if="!useHtml">{{ message }}</div>
+        <div class="confirm-message html-content" v-if="useHtml" v-html="message"></div>
         <div class="confirm-actions">
           <button
             v-if="showCancel"
@@ -22,7 +23,8 @@
     title: { type: String, default: 'Xác nhận' },
     message: { type: String, required: true },
     confirmText: { type: String, default: 'Xác nhận' },
-    showCancel: { type: Boolean, default: true }
+    showCancel: { type: Boolean, default: true },
+    useHtml: { type: Boolean, default: false }
   })
   const emit = defineEmits(['confirm', 'cancel'])
   
@@ -50,6 +52,7 @@
     border-radius: 10px;
     min-width: 320px;
     max-width: 90vw;
+    width: 600px;
     padding: 24px 20px 18px 20px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
     display: flex;
@@ -64,6 +67,13 @@
   .confirm-message {
     font-size: 1rem;
     color: #444;
+    line-height: 1.5;
+  }
+  .confirm-message.html-content {
+    white-space: pre-line;
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
   }
   .confirm-actions {
     display: flex;

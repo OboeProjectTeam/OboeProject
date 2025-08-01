@@ -1,5 +1,6 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.DTOs.*;
 import com.example.Oboe.Entity.*;
 import com.example.Oboe.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,16 @@ public class SearchService {
     @Autowired
     private SampleSentenceRepository sampleSentenceRepository;
 
-    // Gợi ý tất cả các loại (dành cho /suggest)
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private QuizzesRepository quizzesRepository;
+
+    @Autowired
+    private FlashCardRepository flashCardRepository;
+
+    // Gợi ý tất cả các loại học liệu (cho /suggest)
     public List<Map<String, String>> suggestAllTypes(String keyword) {
         List<Map<String, String>> suggestions = new ArrayList<>();
 
@@ -34,7 +44,7 @@ public class SearchService {
         return suggestions;
     }
 
-    // Tìm kiếm theo keyword và type cụ thể (dành cho /api/search?keyword=...&type=...)
+    // Tìm theo type cụ thể (học liệu)
     public List<Map<String, String>> searchByType(String keyword, String type) {
         List<Map<String, String>> suggestions = new ArrayList<>();
 
@@ -93,4 +103,6 @@ public class SearchService {
 
         return suggestions;
     }
+
+
 }

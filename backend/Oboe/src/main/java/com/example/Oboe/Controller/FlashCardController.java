@@ -1,6 +1,7 @@
     package com.example.Oboe.Controller;
 
     import com.example.Oboe.DTOs.FlashCardDto;
+    import com.example.Oboe.DTOs.FlashcardSearchResultDTO;
     import com.example.Oboe.Entity.FlashCards;
     import com.example.Oboe.Service.FlashCardService;
     import com.example.Oboe.Util.JwtUtil;

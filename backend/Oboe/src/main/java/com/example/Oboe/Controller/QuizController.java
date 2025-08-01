@@ -1,10 +1,7 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
-import com.example.Oboe.DTOs.BlogDTO;
-import com.example.Oboe.DTOs.QuizDTO;
-import com.example.Oboe.DTOs.QuizResultDTO;
-import com.example.Oboe.DTOs.QuizSubmissionDTO;
+import com.example.Oboe.DTOs.*;
 import com.example.Oboe.Service.QuizzesService;
 import com.example.Oboe.Service.UserAnswerService;
 import jakarta.validation.Valid;
@@ -21,6 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/quizzes")
+
 public class QuizController {
 
     @Autowired
@@ -91,6 +89,9 @@ public class QuizController {
         QuizResultDTO resultDTO = userAnswerService.saveUserAnswer(submission.getAnswers(), userId, quizId);
         return ResponseEntity.ok(resultDTO);
     }
+
+    @Autowired
+    private QuizzesService quizService;
 
 
 

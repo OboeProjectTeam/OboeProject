@@ -46,6 +46,8 @@ public class Blog {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference("user-blogs") // Tương ứng với @JsonManagedReference trong User
     private User user;
+    @OneToMany(mappedBy = "blog", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Report> reports = new ArrayList<>();
 
     // Constructor mặc định
     public Blog() {
