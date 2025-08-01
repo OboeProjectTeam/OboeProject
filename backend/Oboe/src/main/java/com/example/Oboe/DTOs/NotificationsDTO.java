@@ -11,18 +11,20 @@ public class NotificationsDTO {
     private boolean isRead;
     private LocalDateTime updateAt;
 
-
-
-    private UUID contentId;
+    private UUID targetId;       // target của thông báo (bài viết, nhóm,...)
+    private String targetType;   // loại: "Post", "Comment", "Team"...
 
     public NotificationsDTO() {}
 
-    public NotificationsDTO(UUID notifiId, UUID userID, String textNotification, boolean isRead, LocalDateTime updateAt) {
+    public NotificationsDTO(UUID notifiId, UUID userID, String textNotification, boolean isRead,
+                            LocalDateTime updateAt, UUID targetId, String targetType) {
         this.notifiId = notifiId;
         this.userID = userID;
         this.textNotification = textNotification;
         this.isRead = isRead;
         this.updateAt = updateAt;
+        this.targetId = targetId;
+        this.targetType = targetType;
     }
 
     public UUID getNotifiId() {
@@ -65,4 +67,19 @@ public class NotificationsDTO {
         this.updateAt = updateAt;
     }
 
+    public UUID getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(UUID targetId) {
+        this.targetId = targetId;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
+    }
 }

@@ -8,11 +8,8 @@ import com.example.Oboe.Repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,23 +20,24 @@ public class NotificationsService {
     private final UserRepository userRepository;
     private final NotificationsRepository notificationsRepository;
 
-    public NotificationsService( UserRepository userRepository,NotificationsRepository notificationsRepository) {
-
-      this.userRepository = userRepository;
-      this.notificationsRepository = notificationsRepository;
+    public NotificationsService(UserRepository userRepository, NotificationsRepository notificationsRepository) {
+        this.userRepository = userRepository;
+        this.notificationsRepository = notificationsRepository;
     }
-    public List<NotificationsDTO> getAllNotification(UUID userId){
 
+    public List<NotificationsDTO> getAllNotification(UUID userId) {
         Pageable top30 = PageRequest.of(0, 30); // chỉ lấy 30 thông báo mới nhất
-        List<Notifications> notifications = notificationsRepository.findConversation(userId,top30);
+        List<Notifications> notifications = notificationsRepository.findConversation(userId, top30);
         return notifications.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public int markAllNotificationsAsRead(UUID userId) {
         return notificationsRepository.markAllAsRead(userId);
     }
+
     @Transactional
     public boolean markNotificationAsRead(UUID notificationId) {
         Notifications read = notificationsRepository.findById(notificationId).orElse(null);
@@ -50,15 +48,16 @@ public class NotificationsService {
         }
         return false;
     }
-    public NotificationsDTO convertToDTO(Notifications notifications) {
 
+    public NotificationsDTO convertToDTO(Notifications notifications) {
         return new NotificationsDTO(
                 notifications.getNotifiId(),
                 notifications.getUser().getUser_id(),
                 notifications.getText_notification(),
                 notifications.isRead(),
-                notifications.getUpdate_at()
+                notifications.getUpdate_at(),
+                notifications.getTargetId(),     // ← thêm mới
+                notifications.getTargetType()    // ← thêm mới
         );
     }
-
 }
