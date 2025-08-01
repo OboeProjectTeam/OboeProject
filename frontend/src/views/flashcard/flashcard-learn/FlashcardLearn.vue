@@ -48,6 +48,7 @@
           @swiper="onSwiper" 
           @card-flipped="onCardFlip"
           @slideChange="onSlideChange" 
+          @translate-request="handleTranslateRequest"
           :width="isFullscreen ? 900 : undefined"
           :height="isFullscreen ? 500 : undefined"
         />
@@ -345,15 +346,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Translation Popup -->
+    <ThePopup
+      v-if="showTranslationPopup"
+      title="Oboe Sensei - Dịch tiếng Nhật"
+      :message="translationResult"
+      confirmText="Đóng"
+      :showCancel="false"
+      :useHtml="true"
+      @confirm="closeTranslationPopup"
+      @cancel="closeTranslationPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ImagePaths } from '@/assets/img/imagePaths';
-import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
+import ThePopup from '@/components/common/popup/ThePopup.vue';
+import { translateJapaneseToVietnamese } from '@/api/modules/aiApi.js';
 import { TransitionGroup } from 'vue';
 import flashcardApi from '@/api/modules/flashcardApi';
 
@@ -367,6 +382,9 @@ const isAutoPlaying = ref(false);
 const showSettings = ref(false);
 const autoplaySpeed = ref(3);
 const isFullscreen = ref(false);
+const showTranslationPopup = ref(false);
+const translationResult = ref('');
+const isTranslating = ref(false);
 const trackProgress = ref(false);
 const reverseCards = ref(false);
 const showShortcuts = ref(false);
@@ -1087,6 +1105,52 @@ if (!document.fullscreenElement) {
   document.exitFullscreen();
 }
 };
+
+// Xử lý yêu cầu dịch từ TheCard
+  const handleTranslateRequest = async (text) => {
+    if (!text || isTranslating.value) return;
+    
+    // Hiển thị popup ngay lập tức với loading state
+    translationResult.value = `<div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Oboe Sensei đang dịch...</p>
+    </div>`;
+    showTranslationPopup.value = true;
+    isTranslating.value = true;
+    
+    try {
+      const response = await translateJapaneseToVietnamese(text);
+      
+      // Format nội dung dịch để hiển thị đẹp hơn
+      const explanation = response.explanation || 'Không thể dịch văn bản này.';
+      translationResult.value = `
+          <div class="original-text">
+            <h4>📝 Văn bản gốc:</h4>
+            <p class="japanese-text">${text}</p>
+          </div>
+          <div class="translation-result">
+            <h4>🎯 Dịch và giải thích:</h4>
+            <div class="explanation-text">${explanation}</div>
+          </div>
+      `;
+    } catch (error) {
+      console.error('Lỗi khi dịch:', error);
+      translationResult.value = `
+        <div class="error-content">
+          <div class="error-icon">❌</div>
+          <p>Có lỗi xảy ra khi dịch. Vui lòng thử lại.</p>
+        </div>
+      `;
+    } finally {
+      isTranslating.value = false;
+    }
+  };
+
+// Đóng popup dịch
+const closeTranslationPopup = () => {
+  showTranslationPopup.value = false;
+  translationResult.value = '';
+};
 const onCardFlip = (index) => {
 if (trackProgress.value) {
   progress.value.reviewed++;
@@ -1516,4 +1580,254 @@ try {
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-learn/FlashcardLearn.scss';
+
+/* CSS cho popup dịch - Thiết kế mới với tông màu đỏ */
+:deep(.confirm-dialog) {
+  background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+  border: 2px solid #b90449;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(185, 4, 73, 0.15), 0 0 0 1px rgba(185, 4, 73, 0.1);
+  animation: popupSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+:deep(.confirm-dialog::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b90449 0%, #e91e63 50%, #b90449 100%);
+}
+
+:deep(.confirm-title) {
+  color: #b90449;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+:deep(.confirm-title::before) {
+  content: '🤖';
+  font-size: 1.8rem;
+}
+
+:deep(.confirm-message) {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  margin: 0;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);
+  max-height: 450px;
+  overflow-y: auto;
+}
+:deep(.btn-primary) {
+  background: linear-gradient(135deg, #b90449 0%, #e91e63 100%);
+  border: none;
+  padding: 14px 35px;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 30px;
+  color: white;
+  box-shadow: 0 8px 25px rgba(185, 4, 73, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.btn-primary::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+:deep(.btn-primary:hover) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(185, 4, 73, 0.4);
+}
+
+:deep(.btn-primary:hover::before) {
+  left: 100%;
+}
+
+/* Loading animation - Thiết kế mới */
+:deep(.loading-container) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+:deep(.loading-spinner) {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f8f9fa;
+  border-top: 4px solid #b90449;
+  border-right: 4px solid #e91e63;
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+:deep(.loading-spinner::after) {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #b90449;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+:deep(.loading-container p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+:deep(.original-text), :deep(.translation-result){
+  margin: 0 10px;
+}
+/* Translation content styling - Đơn giản */
+:deep(.translation-content) {
+  max-height: none;
+  overflow: visible;
+}
+
+:deep(.original-text), :deep(.translation-result) {
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+:deep(.original-text) {
+  background: #fff5f5;
+  border-left-color: #b90449;
+  padding: 5px 10px;
+}
+
+:deep(.translation-result) {
+  background: #f8fff8;
+  border-left-color: #4caf50;
+  margin-bottom: 0;
+}
+
+:deep(.original-text h4), :deep(.translation-result h4) {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+:deep(.japanese-text) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b90449;
+  margin: 0;
+  line-height: 1.3;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+:deep(.explanation-text) {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+/* Error content styling - Thiết kế mới */
+:deep(.error-content) {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+:deep(.error-icon) {
+  font-size: 60px;
+  margin-bottom: 20px;
+  animation: shake 0.5s ease-in-out;
+}
+
+:deep(.error-content p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(-30px) rotate(-5deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :deep(.confirm-dialog) {
+    width: 95vw;
+    max-width: none;
+    margin: 10px;
+    border-radius: 15px;
+  }
+  
+  :deep(.japanese-text) {
+    font-size: 13px;
+  }
+  
+  :deep(.explanation-text) {
+    font-size: 13px;
+  }
+  
+  :deep(.original-text h4), :deep(.translation-result h4) {
+    font-size: 11px;
+  }
+  
+  :deep(.confirm-title) {
+    font-size: 1.3rem;
+  }
+}
 </style>

@@ -119,24 +119,24 @@ html, body {
   margin-left: auto;
   margin-right: auto;
 
-  // @media (min-width: $breakpoint-xl) {
-  //   padding: 20px 40px;
-  // }
+  @media (min-width: $breakpoint-xl) {
+    padding: 20px 40px;
+  }
 
-  // @media (max-width: $breakpoint-lg) {
-  //   margin-top: 160px;
-  //   padding: 20px 30px;
-  // }
+  @media (max-width: $breakpoint-lg) {
+    margin-top: 160px;
+    padding: 20px 30px;
+  }
 
-  // @media (max-width: $breakpoint-md) {
-  //   margin-top: 160px;
-  //   padding: 15px 20px;
-  // }
+  @media (max-width: $breakpoint-md) {
+    margin-top: 160px;
+    padding: 15px 20px;
+  }
 
-  // @media (max-width: $breakpoint-sm) {
-  //   margin-top: 160px;
-  //   padding: 15px;
-  // }
+  @media (max-width: $breakpoint-sm) {
+    margin-top: 160px;
+    padding: 15px;
+  }
 }
 
 /* Ensure chat box appears above other elements */
