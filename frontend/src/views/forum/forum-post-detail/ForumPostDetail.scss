@@ -1092,6 +1092,229 @@
   }
 }
 
+// AI Sensei Reply Box Styling
+.ai-sensei-section {
+  margin: 30px 0;
+  
+  @include mobile-only {
+    margin: 20px 0;
+  }
+}
+
+.ai-sensei-card {
+  background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(229, 62, 62, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+  }
+  
+  @include mobile-only {
+    border-radius: 12px;
+  }
+}
+
+.ai-sensei-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 25px 15px;
+  // background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  @include mobile-only {
+    padding: 15px 20px 12px;
+  }
+}
+
+.ai-sensei-avatar {
+  margin-right: 15px;
+  
+  .sensei-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: white;
+    
+    @include mobile-only {
+      width: 40px;
+      height: 40px;
+      border-width: 2px;
+    }
+  }
+}
+
+.ai-sensei-info {
+  flex: 1;
+  
+  .sensei-name {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    
+    i {
+      margin-right: 8px;
+      color: #ffd700;
+      animation: robotPulse 2s ease-in-out infinite;
+    }
+    
+    @include mobile-only {
+      font-size: 1.1rem;
+      margin: 0 0 3px 0;
+    }
+  }
+  
+  .sensei-badge {
+    background: rgba(255, 215, 0, 0.9);
+    color: #333;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
+    
+    @include mobile-only {
+      padding: 3px 10px;
+      font-size: 0.7rem;
+    }
+  }
+}
+
+.ai-sensei-content {
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  
+  @include mobile-only {
+    padding: 20px;
+  }
+}
+
+.ai-sensei-reply {
+  margin-bottom: 15px;
+  
+  p {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #2d3748;
+    
+    @include mobile-only {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+.ai-sensei-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #718096;
+  
+  i {
+    margin-right: 6px;
+    color: #a0aec0;
+  }
+  
+  @include mobile-only {
+    font-size: 0.85rem;
+  }
+}
+
+.ai-sensei-loading {
+  padding: 30px;
+  text-align: center;
+  color: white;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    
+    @include mobile-only {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @include mobile-only {
+    padding: 25px;
+  }
+}
+
+.ai-sensei-error {
+  padding: 25px;
+  text-align: center;
+  color: #fed7d7;
+  background: rgba(254, 215, 215, 0.1);
+  
+  i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #fc8181;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+    
+    @include mobile-only {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @include mobile-only {
+    padding: 20px;
+  }
+}
+
+@keyframes robotPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes successSlideIn {
   from {
     transform: translateY(-50px) scale(0.8);

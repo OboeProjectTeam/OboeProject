@@ -53,10 +53,10 @@
       </div>
 
       <div class="list-footer">
-        <router-link to="/flashcard" class="view-all-btn" @click="toggleList">
+        <button class="view-all-btn" @click="goToFlashcardLearn">
           <i class="fas fa-external-link-alt"></i>
           Đi tới trang Flashcard
-        </router-link>
+        </button>
       </div>
     </div>
   </div>
@@ -65,8 +65,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 
 const store = useStore()
+const router = useRouter()
 const isOpen = ref(false)
 const activeTab = ref('word')
 const isDragging = ref(false)
@@ -254,6 +256,81 @@ const tabsWithCount = computed(() => {
 })
 
 const totalItems = computed(() => flashcardItems.value.length)
+
+// Hàm chuyển hướng đến FlashcardLearn với dữ liệu đã format
+const goToFlashcardLearn = async () => {
+  // Format dữ liệu từ FlashcardList sang format phù hợp với FlashcardLearn
+  const formattedItems = flashcardItems.value.map(item => {
+    const baseItem = {
+      id: item.id || Math.random().toString(36).substr(2, 9),
+      type: item.type,
+      status: 'learning'
+    };
+    
+    switch (item.type) {
+      case 'word':
+        return {
+          ...baseItem,
+          // FlashcardLearn sử dụng: item.front, item.kanji, item.kana, item.back, item.meaning
+          front: item.words || item.kanji || item.kana || item.word || '',
+          kanji: item.kanji || item.words || '',
+          kana: item.kana || item.reading || '',
+          back: item.meanning || item.meaning || '',
+          meaning: item.meanning || item.meaning || ''
+        };
+        
+      case 'kanji':
+        return {
+          ...baseItem,
+          // FlashcardLearn sử dụng: item.kanji, item.kanjiname, item.kunyomi
+          kanji: item.characterName || item.kanji || item.character || '',
+          kanjiname: item.meaning || item.vietnamesePronunciation || '',
+          kunyomi: item.reading || item.vietnamesePronunciation || '',
+          meaning: item.meaning || ''
+        };
+        
+      case 'grammar':
+        return {
+          ...baseItem,
+          // FlashcardLearn sử dụng: item.kana, item.romaji, item.meaning
+          kana: item.structure || item.kana || item.pattern || '',
+          romaji: item.romaji || '',
+          meaning: item.explanation || item.meaning || ''
+        };
+        
+      case 'sentence':
+        return {
+          ...baseItem,
+          // FlashcardLearn sử dụng: item.sentence, item.translation
+          sentence: item.japaneseText || item.sentence || item.japanese || '',
+          translation: item.vietnameseMeaning || item.translation || item.meaning || ''
+        };
+      
+      default:
+        return {
+          ...baseItem,
+          front: item.front || item.kanji || item.content || '',
+          back: item.back || item.meaning || item.backcontent || '',
+          kanji: item.kanji || '',
+          meaning: item.meaning || ''
+        };
+    }
+  });
+  
+  // Lưu dữ liệu đã format vào store
+  await store.dispatch('flashcard/setLearningItems', formattedItems);
+  
+  // Đóng list và chuyển hướng
+  toggleList();
+  router.push({
+    name: 'flashcardLearn',
+    query: {
+      source: 'flashcard-list',
+      title: 'Danh sách Flashcard',
+      description: `${totalItems.value} thẻ từ danh sách của bạn`
+    }
+  });
+}
 </script>
 
 <style lang="scss" scoped>

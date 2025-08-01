@@ -25,6 +25,11 @@ public class Report {
     @JsonBackReference
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "blog_id", nullable = true) // Cho phép null nếu không report blog
+    @JsonBackReference
+
+    private Blog blog;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReportStatus status = ReportStatus.PENDING;
@@ -76,5 +81,13 @@ public class Report {
 
     public void setStatus(ReportStatus status) {
         this.status = status;
+    }
+
+    public Blog getBlog() {
+        return blog;
+    }
+
+    public void setBlog(Blog blog) {
+        this.blog = blog;
     }
 }

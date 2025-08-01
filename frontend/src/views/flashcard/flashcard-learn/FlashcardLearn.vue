@@ -28,29 +28,17 @@
 
       <!-- Card ở giữa -->
       <div class="card-section">
-        <TheCard 
-          ref="cardRef" 
-          :slides="slides" 
-    
-          :pagination="{
-            type: 'fraction',
-            clickable: true,
-            formatFractionCurrent: (number) => number,
-            formatFractionTotal: (number) => number
-          }" 
-          :canFlip="true" 
-          :speed="300" 
-          :keyboard="{
+        <TheCard ref="cardRef" :slides="slides" :pagination="{
+          type: 'fraction',
+          clickable: true,
+          formatFractionCurrent: (number) => number,
+          formatFractionTotal: (number) => number
+        }" :canFlip="true" :speed="300" :keyboard="{
             enabled: true,
             onlyInViewport: true
-          }" 
-          :class="{ 'fullscreen-card': isFullscreen }" 
-          @swiper="onSwiper" 
-          @card-flipped="onCardFlip"
-          @slideChange="onSlideChange" 
-          :width="isFullscreen ? 900 : undefined"
-          :height="isFullscreen ? 500 : undefined"
-        />
+          }" :class="{ 'fullscreen-card': isFullscreen }" @swiper="onSwiper" @card-flipped="onCardFlip"
+          @slideChange="onSlideChange" @translate-request="handleTranslateRequest"
+          :width="isFullscreen ? 900 : undefined" :height="isFullscreen ? 500 : undefined" />
       </div>
 
       <!-- Control bar bên phải -->
@@ -258,7 +246,7 @@
       <div class="modal-overlay"></div>
       <div class="results-content">
         <div class="results-header">
-          <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />                 
+          <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />
           <h2>{{ learningStats.known === slides.length ?
             'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
             'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
@@ -345,17 +333,23 @@
         </div>
       </div>
     </div>
+
+    <!-- Translation Popup -->
+    <ThePopup v-if="showTranslationPopup" title="Oboe Sensei - Dịch tiếng Nhật" :message="translationResult"
+      confirmText="Đóng" :showCancel="false" :useHtml="true" @confirm="closeTranslationPopup"
+      @cancel="closeTranslationPopup" />
   </div>
 </template>
 
 <script setup>
 import { ImagePaths } from '@/assets/img/imagePaths';
-import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
+import ThePopup from '@/components/common/popup/ThePopup.vue';
+import api from '@/api';
 import { TransitionGroup } from 'vue';
-import flashcardApi from '@/api/modules/flashcardApi';
 
 const store = useStore();
 const route = useRoute();
@@ -367,6 +361,9 @@ const isAutoPlaying = ref(false);
 const showSettings = ref(false);
 const autoplaySpeed = ref(3);
 const isFullscreen = ref(false);
+const showTranslationPopup = ref(false);
+const translationResult = ref('');
+const isTranslating = ref(false);
 const trackProgress = ref(false);
 const reverseCards = ref(false);
 const showShortcuts = ref(false);
@@ -376,16 +373,16 @@ const selectedTestType = ref('');
 
 // Lưu trữ tạm thời các giá trị cài đặt
 const tempSettings = reactive({
-autoplaySpeed: 3,
-trackProgress: false,
-reverseCards: false
+  autoplaySpeed: 3,
+  trackProgress: false,
+  reverseCards: false
 });
 
 // Theo dõi tiến độ học
 const progress = ref({
-total: 0,
-reviewed: 0,
-correct: 0
+  total: 0,
+  reviewed: 0,
+  correct: 0
 });
 
 // Thêm state cho animation
@@ -396,31 +393,31 @@ const currentSlideIndex = ref(0);
 // Thêm state cho kết quả
 const showResults = ref(false);
 const learningStats = reactive({
-known: 0,
-learning: 0,
-remaining: 0
+  known: 0,
+  learning: 0,
+  remaining: 0
 });
 
 // Add these new refs for creator info
 const isCurrentUserCreator = computed(() => {
   const currentUser = store.getters['auth/getCurrentUser'];
   const creatorName = route.query.creatorName;
-  
+
   // Check if current user is the creator
-  return currentUser && creatorName && 
-    (currentUser.userName === creatorName || 
-     currentUser.firstName === creatorName ||
-     `${currentUser.firstName} ${currentUser.lastName}`.trim() === creatorName);
+  return currentUser && creatorName &&
+    (currentUser.userName === creatorName ||
+      currentUser.firstName === creatorName ||
+      `${currentUser.firstName} ${currentUser.lastName}`.trim() === creatorName);
 });
 const isFollowing = ref(false);
 const creatorInfo = computed(() => {
   const source = route.query.source;
-  
+
   if (source && (source === 'library' || source === 'profile')) {
     // Use data from query params when coming from library or profile
     const creatorName = route.query.creatorName || 'Người dùng';
     const displayName = isCurrentUserCreator.value ? 'Bạn' : creatorName;
-    
+
     return {
       avatar: route.query.creatorAvatar || ImagePaths.avatar.default,
       name: displayName,
@@ -440,12 +437,12 @@ const creatorInfo = computed(() => {
 const deckTitle = computed(() => {
   const source = route.query.source;
   const setTitle = route.query.title;
-  
+
   // Show title from query params for library, profile, and other sources
   if (source && setTitle) {
     return setTitle;
   }
-  
+
   // Default fallback only for temporary/create mode
   return 'Kho Thẻ Tạm Thời';
 });
@@ -454,12 +451,12 @@ const deckTitle = computed(() => {
 const deckDescription = computed(() => {
   const source = route.query.source;
   const setDescription = route.query.description;
-  
+
   // Show description from query params for library, profile, and other sources
   if (source && setDescription) {
     return setDescription;
   }
-  
+
   // Default fallback only for temporary/create mode
   return 'Mô tả flashcard ở đây';
 });
@@ -467,7 +464,7 @@ const deckDescription = computed(() => {
 // Helper function to format created date
 const formatCreatedDate = (timestamp) => {
   if (!timestamp) return 'Mới tạo';
-  
+
   try {
     const date = new Date(timestamp);
     const now = new Date();
@@ -475,7 +472,7 @@ const formatCreatedDate = (timestamp) => {
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
     const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-    
+
     if (diffInDays > 0) {
       return `${diffInDays} ngày trước`;
     } else if (diffInHours > 0) {
@@ -508,25 +505,9 @@ const loadFlashcardData = async (setId) => {
   }
 
   try {
-
-
-    
-    const flashcardData = await flashcardApi.getById(setId);
-    
-
-
-
-
-
-
-
-
+    const flashcardData = await api.flashcard.getById(setId);
     if (flashcardData?.cardItems && flashcardData.cardItems.length > 0) {
-
-
     }
-
-    
     // Convert API response to items format - matching MyLibrary.vue format
     const items = flashcardData.cardItems?.map(item => ({
       id: item.cardItemId || item.id || Math.random().toString(36).substr(2, 9),
@@ -540,28 +521,17 @@ const loadFlashcardData = async (setId) => {
       back: item.meaning || '',
       status: 'learning'
     })) || [];
-    
-
-
-
     if (items.length > 0) {
-
     }
-
-    
-    // Only clear and update store after successful API call
-
     await store.dispatch('flashcard/setLearningItems', items);
     allItems.value = addIdsToItems(items);
     updateCounts();
-    
     // Reset progress if tracking is enabled
     if (trackProgress.value) {
       learningStats.known = 0;
       learningStats.learning = items.length;
       learningStats.remaining = items.length;
     }
-    
     // Reset swiper to first slide
     nextTick(() => {
       if (swiperInstance.value) {
@@ -569,357 +539,318 @@ const loadFlashcardData = async (setId) => {
         swiperInstance.value.update();
       }
     });
-    
   } catch (error) {
-    console.error('=== API ERROR DEBUG ===');
-    console.error('Error loading flashcard data:', error);
-    console.error('Error type:', typeof error);
-    console.error('Error message:', error.message);
-    console.error('Error response:', error.response);
-    console.error('Error response data:', error.response?.data);
-    console.error('Error response status:', error.response?.status);
-    console.error('Error stack:', error.stack);
-    console.error('=== END API ERROR DEBUG ===');
-    
-    // Keep existing data if API fails
-
     const existingItems = store.getters['flashcard/getLearningItems'];
-
     if (existingItems && existingItems.length > 0) {
       allItems.value = addIdsToItems(existingItems);
       updateCounts();
     }
   }
 };
-
-
 // Method to handle mode changes
 const setMode = async (mode) => {
-activeMode.value = mode;
-if (mode === 'match') {
+  activeMode.value = mode;
+  if (mode === 'match') {
+    try {
+      // 1. Save current state of FlashcardLearn to localStorage
+      const learnStateToSave = {
+        allItems: JSON.parse(JSON.stringify(allItems.value)), // Deep clone
+        learningStats: JSON.parse(JSON.stringify(learningStats)), // Deep clone
+        activeMode: 'flashcard', // Default to flashcard mode when returning
+        currentSlideIndex: swiperInstance.value?.activeIndex || 0,
+        autoplaySpeed: autoplaySpeed.value,
+        trackProgress: trackProgress.value,
+        reverseCards: reverseCards.value,
+        isAutoPlaying: isAutoPlaying.value,
+      };
+      localStorage.setItem('flashcardLearnStateBeforeMatch', JSON.stringify(learnStateToSave));
+      // 2. Save current flashcards to store for the match game
+      // Ensure currentFlashcards are up-to-date and have IDs
+      const currentFlashcards = allItems.value.map(item => ({
+        id: item.id, // Ensure ID is passed
+        front: item.content || '',
+        back: item.backcontent || '',
+        content: item.content || '', // Duplicate for potential different uses in components
+        backcontent: item.backcontent || '',
+        meaning: item.backcontent || '',
+        type: item.type || 'word',
+        status: item.status || 'learning'
+      }));
+      await store.dispatch('flashcard/setLearningItems', currentFlashcards);
+      // 3. Navigate
+      await router.push({
+        name: 'FlashcardMatch',
+        query: { // Pass similar queries as test, if needed in the future
+          deckId: route.query.deckId || '',
+          source: route.query.source || ''
+        }
+      });
 
+    } catch (err) {
+      console.error('Error in starting Match game:', err);
+    }
+  }
+};
+
+const openTestOptions = () => {
+  showTestOptions.value = true;
+  selectedTestType.value = '';
+};
+const closeTestOptions = () => {
+  showTestOptions.value = false;
+  selectedTestType.value = '';
+};
+const startTest = async () => {
+  if (!selectedTestType.value) {
+    console.error('No test type selected');
+    return;
+  }
   try {
     // 1. Save current state of FlashcardLearn to localStorage
     const learnStateToSave = {
       allItems: JSON.parse(JSON.stringify(allItems.value)), // Deep clone
       learningStats: JSON.parse(JSON.stringify(learningStats)), // Deep clone
-      activeMode: 'flashcard', // Default to flashcard mode when returning
+      activeMode: activeMode.value,
       currentSlideIndex: swiperInstance.value?.activeIndex || 0,
       autoplaySpeed: autoplaySpeed.value,
       trackProgress: trackProgress.value,
       reverseCards: reverseCards.value,
       isAutoPlaying: isAutoPlaying.value,
+      // Add any other relevant states from tempSettings or other refs if needed
     };
-    localStorage.setItem('flashcardLearnStateBeforeMatch', JSON.stringify(learnStateToSave));
-
-
-    // 2. Save current flashcards to store for the match game
-    // Ensure currentFlashcards are up-to-date and have IDs
+    localStorage.setItem('flashcardLearnStateBeforeTest', JSON.stringify(learnStateToSave));
+    // 2. Save current flashcards to store for the test
     const currentFlashcards = allItems.value.map(item => ({
-      id: item.id, // Ensure ID is passed
+      id: item.id, // Ensure ID is passed for correct answer matching
       front: item.content || '',
       back: item.backcontent || '',
-      content: item.content || '', // Duplicate for potential different uses in components
+      content: item.content || '',
       backcontent: item.backcontent || '',
-      meaning: item.backcontent || '',
-      type: item.type || 'word',
+      meaning: item.backcontent || '', // Assuming backcontent is meaning for 'word' type
+      type: item.type || 'word', // Pass item type if available
       status: item.status || 'learning'
     }));
-
-
     await store.dispatch('flashcard/setLearningItems', currentFlashcards);
-
-
-    // 3. Navigate
+    // 3. Navigate with all necessary query parameters
     await router.push({
-      name: 'FlashcardMatch',
-      query: { // Pass similar queries as test, if needed in the future
+      path: '/flashcard/test',
+      query: {
+        type: selectedTestType.value,
         deckId: route.query.deckId || '',
-        source: route.query.source || ''
+        source: route.query.source || '',
+        title: route.query.title || '',
+        description: route.query.description || '',
+        creatorName: route.query.creatorName || '',
+        creatorAvatar: route.query.creatorAvatar || '',
+        createdAt: route.query.createdAt || '',
+        setId: route.query.setId || ''
       }
     });
-
-
+    closeTestOptions();
   } catch (err) {
-    console.error('Error in starting Match game:', err);
+    console.error('Error in startTest:', err);
   }
-}
 };
-
-const openTestOptions = () => {
-showTestOptions.value = true;
-selectedTestType.value = '';
-};
-
-const closeTestOptions = () => {
-showTestOptions.value = false;
-selectedTestType.value = '';
-};
-
-const startTest = async () => {
-
-if (!selectedTestType.value) {
-  console.error('No test type selected');
-  return;
-}
-
-try {
-  // 1. Save current state of FlashcardLearn to localStorage
-  const learnStateToSave = {
-    allItems: JSON.parse(JSON.stringify(allItems.value)), // Deep clone
-    learningStats: JSON.parse(JSON.stringify(learningStats)), // Deep clone
-    activeMode: activeMode.value,
-    currentSlideIndex: swiperInstance.value?.activeIndex || 0,
-    autoplaySpeed: autoplaySpeed.value,
-    trackProgress: trackProgress.value,
-    reverseCards: reverseCards.value,
-    isAutoPlaying: isAutoPlaying.value,
-    // Add any other relevant states from tempSettings or other refs if needed
-  };
-  localStorage.setItem('flashcardLearnStateBeforeTest', JSON.stringify(learnStateToSave));
-
-
-  // 2. Save current flashcards to store for the test
-  const currentFlashcards = allItems.value.map(item => ({
-    id: item.id, // Ensure ID is passed for correct answer matching
-    front: item.content || '',
-    back: item.backcontent || '',
-    content: item.content || '',
-    backcontent: item.backcontent || '',
-    meaning: item.backcontent || '', // Assuming backcontent is meaning for 'word' type
-    type: item.type || 'word', // Pass item type if available
-    status: item.status || 'learning'
-  }));
-
-
-  await store.dispatch('flashcard/setLearningItems', currentFlashcards);
-
-
-  // 3. Navigate with all necessary query parameters
-  await router.push({
-    path: '/flashcard/test',
-    query: {
-      type: selectedTestType.value,
-      deckId: route.query.deckId || '',
-      source: route.query.source || '',
-      title: route.query.title || '',
-      description: route.query.description || '',
-      creatorName: route.query.creatorName || '',
-      creatorAvatar: route.query.creatorAvatar || '',
-      createdAt: route.query.createdAt || '',
-      setId: route.query.setId || ''
-    }
-  });
-
-
-  closeTestOptions();
-} catch (err) {
-  console.error('Error in startTest:', err);
-}
-};
-
 // Xử lý sự kiện thay đổi kích thước màn hình
 const handleResize = () => {
-if (typeof window !== 'undefined') {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  if (swiperInstance.value) {
-    swiperInstance.value.update();
+  if (typeof window !== 'undefined') {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    if (swiperInstance.value) {
+      swiperInstance.value.update();
+    }
   }
-}
 };
 
 // Xử lý sự kiện thay đổi trạng thái fullscreen
 const handleFullscreenChange = () => {
-isFullscreen.value = document?.fullscreenElement !== null;
-if (swiperInstance.value) {
-  swiperInstance.value.update();
-}
+  isFullscreen.value = document?.fullscreenElement !== null;
+  if (swiperInstance.value) {
+    swiperInstance.value.update();
+  }
 };
 
 // Xử lý phím tắt
 const handleKeydown = (e) => {
 
 
-if (showSettings.value) {
-
-  return;
-}
-
-// Xử lý các phím điều hướng (cần swiper)
-if (['ArrowLeft', 'ArrowRight', 'ArrowUp'].includes(e.code)) {
-  const swiper = cardRef.value?.swiper;
-  if (!swiper) {
+  if (showSettings.value) {
 
     return;
   }
+  // Xử lý các phím điều hướng (cần swiper)
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp'].includes(e.code)) {
+    const swiper = cardRef.value?.swiper;
+    if (!swiper) {
 
-  switch (e.code) {
-    case 'ArrowLeft':
+      return;
+    }
+    switch (e.code) {
+      case 'ArrowLeft':
 
-      swiper.slidePrev();
-      break;
-    case 'ArrowRight':
+        swiper.slidePrev();
+        break;
+      case 'ArrowRight':
 
-      swiper.slideNext();
-      break;
-    case 'ArrowUp':
+        swiper.slideNext();
+        break;
+      case 'ArrowUp':
 
-      if (cardRef.value?.flipCard) {
-        cardRef.value.flipCard(swiper.activeIndex);
-      }
-      break;
-  }
-  return;
-}
-
-// Xử lý phím + và - (không cần swiper)
-if (trackProgress.value) {
-  console.log('Processing progress key:', {
-    code: e.code,
-    trackProgress: trackProgress.value
-  });
-
-  // Thêm hiệu ứng nhấn nút
-  const button = e.code.includes('Minus') || e.code.includes('Subtract')
-    ? document.querySelector('.progress-btn.learning')
-    : document.querySelector('.progress-btn.known');
-
-  if (button) {
-    button.classList.add('pressed');
-    setTimeout(() => button.classList.remove('pressed'), 200);
+        if (cardRef.value?.flipCard) {
+          cardRef.value.flipCard(swiper.activeIndex);
+        }
+        break;
+    }
+    return;
   }
 
-  switch (e.code) {
-    case 'Minus':
-    case 'NumpadSubtract':
+  // Xử lý phím + và - (không cần swiper)
+  if (trackProgress.value) {
+    console.log('Processing progress key:', {
+      code: e.code,
+      trackProgress: trackProgress.value
+    });
 
-      updateCardStatus('learning');
-      break;
-    case 'Equal':
-    case 'NumpadAdd':
+    // Thêm hiệu ứng nhấn nút
+    const button = e.code.includes('Minus') || e.code.includes('Subtract')
+      ? document.querySelector('.progress-btn.learning')
+      : document.querySelector('.progress-btn.known');
 
-      updateCardStatus('known');
-      break;
+    if (button) {
+      button.classList.add('pressed');
+      setTimeout(() => button.classList.remove('pressed'), 200);
+    }
+
+    switch (e.code) {
+      case 'Minus':
+      case 'NumpadSubtract':
+
+        updateCardStatus('learning');
+        break;
+      case 'Equal':
+      case 'NumpadAdd':
+
+        updateCardStatus('known');
+        break;
+    }
+  } else {
+
   }
-} else {
-
-}
 };
 
 onMounted(async () => {
-// Attempt to restore state if returning from test, match, OR create flashcard
-const savedLearnStateFromTestString = localStorage.getItem('flashcardLearnStateBeforeTest');
-const savedLearnStateFromMatchString = localStorage.getItem('flashcardLearnStateBeforeMatch');
-const savedLearnStateFromCreateString = localStorage.getItem('flashcardLearnState');
+  // Attempt to restore state if returning from test, match, OR create flashcard
+  const savedLearnStateFromTestString = localStorage.getItem('flashcardLearnStateBeforeTest');
+  const savedLearnStateFromMatchString = localStorage.getItem('flashcardLearnStateBeforeMatch');
+  const savedLearnStateFromCreateString = localStorage.getItem('flashcardLearnState');
 
-let savedLearnStateString = null;
-let fromKey = '';
+  let savedLearnStateString = null;
+  let fromKey = '';
 
-if (savedLearnStateFromTestString) {
-  savedLearnStateString = savedLearnStateFromTestString;
-  fromKey = 'flashcardLearnStateBeforeTest';
-} else if (savedLearnStateFromMatchString) {
-  savedLearnStateString = savedLearnStateFromMatchString;
-  fromKey = 'flashcardLearnStateBeforeMatch';
-} else if (savedLearnStateFromCreateString) {
-  savedLearnStateString = savedLearnStateFromCreateString;
-  fromKey = 'flashcardLearnState';
-}
-
-if (savedLearnStateString) {
-  try {
-    const savedState = JSON.parse(savedLearnStateString);
-
-
-    // Restore allItems and dependent states
-    // Handle different field names: 'allItems' from test/match, 'items' from create flashcard
-    const itemsToRestore = savedState.allItems || savedState.items || [];
-    allItems.value = addIdsToItems(itemsToRestore); // Ensure IDs are re-added if not saved or structure changed
-
-    // Restore learningStats
-    if (savedState.learningStats) {
-      learningStats.known = savedState.learningStats.known || 0;
-      learningStats.learning = savedState.learningStats.learning || 0;
-      learningStats.remaining = savedState.learningStats.remaining || 0;
-    }
-    updateCounts(); // Recalculate based on restored allItems and their statuses
-
-    // Restore settings
-    // Handle different structure: direct fields from test/match, 'settings' object from create flashcard
-    if (savedState.settings) {
-      // From create flashcard
-      activeMode.value = savedState.settings.activeMode || 'flashcard';
-      autoplaySpeed.value = savedState.settings.autoplaySpeed || 3;
-      trackProgress.value = savedState.settings.trackProgress || false;
-      reverseCards.value = savedState.settings.reverseCards || false;
-      isAutoPlaying.value = savedState.settings.isAutoPlaying || false;
-    } else {
-      // From test/match (direct fields)
-      activeMode.value = savedState.activeMode || 'flashcard';
-      autoplaySpeed.value = savedState.autoplaySpeed || 3;
-      trackProgress.value = savedState.trackProgress || false;
-      reverseCards.value = savedState.reverseCards || false;
-      isAutoPlaying.value = savedState.isAutoPlaying || false;
-    }
-
-    // Update tempSettings to reflect restored main settings
-    tempSettings.autoplaySpeed = autoplaySpeed.value;
-    tempSettings.trackProgress = trackProgress.value;
-    tempSettings.reverseCards = reverseCards.value;
-
-    // Restore swiper position and autoplay
-    // slides.value should update automatically via watch(allItems, ...)
-    // Wait for slides to update and swiper to be ready
-    nextTick(() => {
-      if (swiperInstance.value) {
-        // Handle different structure for currentSlideIndex
-        const slideIndex = savedState.settings?.currentSlideIndex || savedState.currentSlideIndex || 0;
-        swiperInstance.value.slideTo(slideIndex, 0); // No animation
-        swiperInstance.value.update(); // Ensure swiper reflects changes
-        if (isAutoPlaying.value) {
-          startAutoplay(); // Restart autoplay if it was active
-        }
-      }
-    });
-
-  } catch (error) {
-    console.error('Error restoring FlashcardLearn state:', error);
-  } finally {
-    if (fromKey) {
-      localStorage.removeItem(fromKey); // Clean up the used key
-    }
+  if (savedLearnStateFromTestString) {
+    savedLearnStateString = savedLearnStateFromTestString;
+    fromKey = 'flashcardLearnStateBeforeTest';
+  } else if (savedLearnStateFromMatchString) {
+    savedLearnStateString = savedLearnStateFromMatchString;
+    fromKey = 'flashcardLearnStateBeforeMatch';
+  } else if (savedLearnStateFromCreateString) {
+    savedLearnStateString = savedLearnStateFromCreateString;
+    fromKey = 'flashcardLearnState';
   }
-} else {
-  // Normal mount: load items from API or store
-  const setId = route.query.id || route.query.setId;
-  await loadFlashcardData(setId);
-}
 
-// Initialize slides (this will run after potential state restoration or initial load)
-// The watch on allItems should handle updating slides.value correctly.
-// If not, explicit call to update slides might be needed here or ensure watch on allItems is robust.
+  if (savedLearnStateString) {
+    try {
+      const savedState = JSON.parse(savedLearnStateString);
 
-// Add event listeners
-if (typeof window !== 'undefined') {
-  document.addEventListener('keydown', handleKeydown);
-  document.addEventListener('fullscreenchange', handleFullscreenChange);
-  window.addEventListener('resize', handleResize);
-}
+
+      // Restore allItems and dependent states
+      // Handle different field names: 'allItems' from test/match, 'items' from create flashcard
+      const itemsToRestore = savedState.allItems || savedState.items || [];
+      allItems.value = addIdsToItems(itemsToRestore); // Ensure IDs are re-added if not saved or structure changed
+
+      // Restore learningStats
+      if (savedState.learningStats) {
+        learningStats.known = savedState.learningStats.known || 0;
+        learningStats.learning = savedState.learningStats.learning || 0;
+        learningStats.remaining = savedState.learningStats.remaining || 0;
+      }
+      updateCounts(); // Recalculate based on restored allItems and their statuses
+
+      // Restore settings
+      // Handle different structure: direct fields from test/match, 'settings' object from create flashcard
+      if (savedState.settings) {
+        // From create flashcard
+        activeMode.value = savedState.settings.activeMode || 'flashcard';
+        autoplaySpeed.value = savedState.settings.autoplaySpeed || 3;
+        trackProgress.value = savedState.settings.trackProgress || false;
+        reverseCards.value = savedState.settings.reverseCards || false;
+        isAutoPlaying.value = savedState.settings.isAutoPlaying || false;
+      } else {
+        // From test/match (direct fields)
+        activeMode.value = savedState.activeMode || 'flashcard';
+        autoplaySpeed.value = savedState.autoplaySpeed || 3;
+        trackProgress.value = savedState.trackProgress || false;
+        reverseCards.value = savedState.reverseCards || false;
+        isAutoPlaying.value = savedState.isAutoPlaying || false;
+      }
+
+      // Update tempSettings to reflect restored main settings
+      tempSettings.autoplaySpeed = autoplaySpeed.value;
+      tempSettings.trackProgress = trackProgress.value;
+      tempSettings.reverseCards = reverseCards.value;
+
+      // Restore swiper position and autoplay
+      // slides.value should update automatically via watch(allItems, ...)
+      // Wait for slides to update and swiper to be ready
+      nextTick(() => {
+        if (swiperInstance.value) {
+          // Handle different structure for currentSlideIndex
+          const slideIndex = savedState.settings?.currentSlideIndex || savedState.currentSlideIndex || 0;
+          swiperInstance.value.slideTo(slideIndex, 0); // No animation
+          swiperInstance.value.update(); // Ensure swiper reflects changes
+          if (isAutoPlaying.value) {
+            startAutoplay(); // Restart autoplay if it was active
+          }
+        }
+      });
+
+    } catch (error) {
+      console.error('Error restoring FlashcardLearn state:', error);
+    } finally {
+      if (fromKey) {
+        localStorage.removeItem(fromKey); // Clean up the used key
+      }
+    }
+  } else {
+    // Normal mount: load items from API or store
+    const setId = route.query.id || route.query.setId;
+    await loadFlashcardData(setId);
+  }
+
+  // Initialize slides (this will run after potential state restoration or initial load)
+  // The watch on allItems should handle updating slides.value correctly.
+  // If not, explicit call to update slides might be needed here or ensure watch on allItems is robust.
+
+  // Add event listeners
+  if (typeof window !== 'undefined') {
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    window.addEventListener('resize', handleResize);
+  }
 });
 
 onUnmounted(() => {
 
-if (autoplayInterval.value) {
+  if (autoplayInterval.value) {
 
-  clearInterval(autoplayInterval.value);
-}
-if (typeof window !== 'undefined') {
+    clearInterval(autoplayInterval.value);
+  }
+  if (typeof window !== 'undefined') {
 
-  document.removeEventListener('keydown', handleKeydown);
-  document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  window.removeEventListener('resize', handleResize);
-}
+    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    window.removeEventListener('resize', handleResize);
+  }
 });
 
 // Lấy danh sách items từ store và chuyển đổi thành format slides
@@ -928,105 +859,86 @@ const allItems = ref([]);
 
 // Computed properties for filtered and processed items
 const displayLearningItems = computed(() => {
-return allItems.value.filter(item => !item.status || item.status === 'learning');
+  return allItems.value.filter(item => !item.status || item.status === 'learning');
 });
-
 const displayKnownItems = computed(() => {
-return allItems.value.filter(item => item.status === 'known');
+  return allItems.value.filter(item => item.status === 'known');
 });
 
 // Methods
 const onSwiper = (swiper) => {
 
-swiperInstance.value = swiper;
+  swiperInstance.value = swiper;
 };
-
 // Phương thức để tự động chuyển slide
 const startAutoplay = () => {
 
-const swiper = swiperInstance.value;
-if (!swiper) {
+  const swiper = swiperInstance.value;
+  if (!swiper) {
 
-  return;
-}
-
-// Clear existing interval if any
-if (autoplayInterval.value) {
-
-  clearInterval(autoplayInterval.value);
-}
-
-// Create new interval
-
-autoplayInterval.value = setInterval(() => {
-
-  if (swiper.isEnd) {
-
-    swiper.slideTo(0);
-  } else {
-
-    swiper.slideNext();
+    return;
   }
-}, autoplaySpeed.value * 1000);
+  // Clear existing interval if any
+  if (autoplayInterval.value) {
+
+    clearInterval(autoplayInterval.value);
+  }
+  // Create new interval
+
+  autoplayInterval.value = setInterval(() => {
+
+    if (swiper.isEnd) {
+
+      swiper.slideTo(0);
+    } else {
+
+      swiper.slideNext();
+    }
+  }, autoplaySpeed.value * 1000);
 };
 // Dừng autoplay
 const stopAutoplay = () => {
 
-if (autoplayInterval.value) {
-  clearInterval(autoplayInterval.value);
-  autoplayInterval.value = null;
-}
+  if (autoplayInterval.value) {
+    clearInterval(autoplayInterval.value);
+    autoplayInterval.value = null;
+  }
 };
-
 // Tạm dừng autoplay khi nhấn nút "Phát"
 const toggleAutoplay = () => {
+  const swiper = swiperInstance.value;
+  if (!swiper) {
 
-const swiper = swiperInstance.value;
-if (!swiper) {
+    return;
+  }
 
-  return;
-}
-
-if (isAutoPlaying.value) {
-  stopAutoplay();
-  isAutoPlaying.value = false;
-} else {
-  startAutoplay();
-  isAutoPlaying.value = true;
-}
+  if (isAutoPlaying.value) {
+    stopAutoplay();
+    isAutoPlaying.value = false;
+  } else {
+    startAutoplay();
+    isAutoPlaying.value = true;
+  }
 
 };
-
-
-
-
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
-
-if (isAutoPlaying.value) {
-
-  startAutoplay();
-}
+  if (isAutoPlaying.value) {
+    startAutoplay();
+  }
 });
-
 // Handle shuffle button click
 const handleShuffleClick = () => {
   if (!trackProgress.value) {
     shuffleCards();
   }
 };
-
 const shuffleCards = () => {
-
-  
   // Shuffle the allItems array directly
   const shuffledItems = [...allItems.value].sort(() => Math.random() - 0.5);
-
-  
   // Update both local state and store
   allItems.value = shuffledItems;
   store.commit('flashcard/setLearningItems', shuffledItems);
-
   nextTick(() => {
     // Use the correct swiper instance reference
     if (swiperInstance.value) {
@@ -1038,354 +950,347 @@ const shuffleCards = () => {
     }
   });
 };
-
 // Hàm mở modal cài đặt
 const openSettings = () => {
-// Dừng autoplay khi vào cài đặt
-if (isAutoPlaying.value) {
-  stopAutoplay();
-  isAutoPlaying.value = false; // Đảm bảo nút "Phát" chuyển thành "Tạm dừng"
-}
-// Sao chép giá trị hiện tại vào tempSettings
-tempSettings.autoplaySpeed = autoplaySpeed.value;
-tempSettings.trackProgress = trackProgress.value;
-tempSettings.reverseCards = reverseCards.value;
-showSettings.value = true;
-};
-
-// Hàm hủy thay đổi cài đặt
-const cancelSettings = () => {
-showSettings.value = false;
-showShortcuts.value = false;
-};
-
-// Hàm áp dụng cài đặt
-const applySettings = () => {
-// Áp dụng các giá trị từ tempSettings
-autoplaySpeed.value = tempSettings.autoplaySpeed;
-
-// Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
-if (tempSettings.trackProgress && !trackProgress.value) {
+  // Dừng autoplay khi vào cài đặt
   if (isAutoPlaying.value) {
     stopAutoplay();
-    isAutoPlaying.value = false; // Đảm bảo autoplay dừng khi chọn "Theo dõi tiến độ"
+    isAutoPlaying.value = false; // Đảm bảo nút "Phát" chuyển thành "Tạm dừng"
   }
-}
-
-trackProgress.value = tempSettings.trackProgress;
-
-// Xử lý đảo mặt thẻ nếu có thay đổi
-if (reverseCards.value !== tempSettings.reverseCards) {
-  reverseCards.value = tempSettings.reverseCards;
-  if (swiperInstance.value) {
-    const currentSlides = [...slides.value];
-    currentSlides.forEach(slide => {
-      const temp = {
-        content: slide.content,
-        description: slide.description,
-        backcontent: slide.backcontent,
-        backdescription: slide.backdescription
-      };
-      slide.content = temp.backcontent;
-      slide.description = temp.backdescription;
-      slide.backcontent = temp.content;
-      slide.backdescription = temp.description;
-    });
-
-    nextTick(() => {
-      swiperInstance.value.update();
-    });
-  }
-}
-
-// Cập nhật autoplay nếu đang phát
-if (isAutoPlaying.value && swiperInstance.value) {
-  swiperInstance.value.autoplay.stop();
-  swiperInstance.value.params.autoplay.delay = autoplaySpeed.value * 1000;
-  swiperInstance.value.autoplay.start();
-}
-
-showSettings.value = false;
-showShortcuts.value = false;
+  // Sao chép giá trị hiện tại vào tempSettings
+  tempSettings.autoplaySpeed = autoplaySpeed.value;
+  tempSettings.trackProgress = trackProgress.value;
+  tempSettings.reverseCards = reverseCards.value;
+  showSettings.value = true;
 };
-
-
+// Hàm hủy thay đổi cài đặt
+const cancelSettings = () => {
+  showSettings.value = false;
+  showShortcuts.value = false;
+};
+// Hàm áp dụng cài đặt
+const applySettings = () => {
+  // Áp dụng các giá trị từ tempSettings
+  autoplaySpeed.value = tempSettings.autoplaySpeed;
+  // Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
+  if (tempSettings.trackProgress && !trackProgress.value) {
+    if (isAutoPlaying.value) {
+      stopAutoplay();
+      isAutoPlaying.value = false; // Đảm bảo autoplay dừng khi chọn "Theo dõi tiến độ"
+    }
+  }
+  trackProgress.value = tempSettings.trackProgress;
+  // Xử lý đảo mặt thẻ nếu có thay đổi
+  if (reverseCards.value !== tempSettings.reverseCards) {
+    reverseCards.value = tempSettings.reverseCards;
+    if (swiperInstance.value) {
+      const currentSlides = [...slides.value];
+      currentSlides.forEach(slide => {
+        const temp = {
+          content: slide.content,
+          description: slide.description,
+          backcontent: slide.backcontent,
+          backdescription: slide.backdescription
+        };
+        slide.content = temp.backcontent;
+        slide.description = temp.backdescription;
+        slide.backcontent = temp.content;
+        slide.backdescription = temp.description;
+      });
+      nextTick(() => {
+        swiperInstance.value.update();
+      });
+    }
+  }
+  // Cập nhật autoplay nếu đang phát
+  if (isAutoPlaying.value && swiperInstance.value) {
+    swiperInstance.value.autoplay.stop();
+    swiperInstance.value.params.autoplay.delay = autoplaySpeed.value * 1000;
+    swiperInstance.value.autoplay.start();
+  }
+  showSettings.value = false;
+  showShortcuts.value = false;
+};
 const toggleFullscreen = () => {
-if (!document.fullscreenElement) {
-  document.documentElement.requestFullscreen();
-} else if (document.exitFullscreen) {
-  document.exitFullscreen();
-}
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
 };
 
+// Xử lý yêu cầu dịch từ TheCard
+const handleTranslateRequest = async (text) => {
+  if (!text || isTranslating.value) return;
+
+  // Hiển thị popup ngay lập tức với loading state
+  translationResult.value = `<div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Oboe Sensei đang dịch...</p>
+    </div>`;
+  showTranslationPopup.value = true;
+  isTranslating.value = true;
+
+  try {
+    const response = await api.ai.translateJapaneseToVietnamese(text);
+
+    // Format nội dung dịch để hiển thị đẹp hơn
+    const explanation = response.explanation || 'Không thể dịch văn bản này.';
+    translationResult.value = `
+          <div class="original-text">
+            <h4>📝 Văn bản gốc:</h4>
+            <p class="japanese-text">${text}</p>
+          </div>
+          <div class="translation-result">
+            <h4>🎯 Dịch và giải thích:</h4>
+            <div class="explanation-text">${explanation}</div>
+          </div>
+      `;
+  } catch (error) {
+    console.error('Lỗi khi dịch:', error);
+    translationResult.value = `
+        <div class="error-content">
+          <div class="error-icon">❌</div>
+          <p>Có lỗi xảy ra khi dịch. Vui lòng thử lại.</p>
+        </div>
+      `;
+  } finally {
+    isTranslating.value = false;
+  }
+};
+
+// Đóng popup dịch
+const closeTranslationPopup = () => {
+  showTranslationPopup.value = false;
+  translationResult.value = '';
+};
 const onCardFlip = (index) => {
-
-
-if (trackProgress.value) {
-  progress.value.reviewed++;
-}
+  if (trackProgress.value) {
+    progress.value.reviewed++;
+  }
 };
-
 const onSlideChange = () => {
-const swiper = swiperInstance.value;
-if (swiper?.pagination) {
-  swiper.pagination.render();
-  swiper.pagination.update();
-}
-currentSlideIndex.value = swiper?.activeIndex || 0;
+  const swiper = swiperInstance.value;
+  if (swiper?.pagination) {
+    swiper.pagination.render();
+    swiper.pagination.update();
+  }
+  currentSlideIndex.value = swiper?.activeIndex || 0;
 };
-
 // Reset functionality
 const resetCards = () => {
+  console.log('Before reset:', {
+    allItems: allItems.value,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length
+  });
+  // Reset status của tất cả các items về 'learning'
+  const resetItems = allItems.value.map(item => ({
+    ...item,
+    status: 'learning'
+  }));
+  // Cập nhật store và local state
+  store.commit('flashcard/setLearningItems', resetItems);
+  allItems.value = resetItems;
+  // Reset các số liệu thống kê
+  learningStats.known = 0;
+  learningStats.learning = resetItems.length;
+  learningStats.remaining = resetItems.length;
+  // Cập nhật counts
+  updateCounts();
+  // Đóng modal kết quả
+  showResults.value = false;
+  // Quay về thẻ đầu tiên
+  nextTick(() => {
+    if (swiperInstance.value) {
+      swiperInstance.value.slideTo(0);
+    }
+  });
 
-console.log('Before reset:', {
-  allItems: allItems.value,
-  learning: displayLearningItems.value.length,
-  known: displayKnownItems.value.length
-});
-
-// Reset status của tất cả các items về 'learning'
-const resetItems = allItems.value.map(item => ({
-  ...item,
-  status: 'learning'
-}));
-
-// Cập nhật store và local state
-store.commit('flashcard/setLearningItems', resetItems);
-allItems.value = resetItems;
-
-// Reset các số liệu thống kê
-learningStats.known = 0;
-learningStats.learning = resetItems.length;
-learningStats.remaining = resetItems.length;
-
-// Cập nhật counts
-updateCounts();
-
-// Đóng modal kết quả
-showResults.value = false;
-
-// Quay về thẻ đầu tiên
-nextTick(() => {
-  if (swiperInstance.value) {
-    swiperInstance.value.slideTo(0);
-  }
-});
-
-console.log('After reset:', {
-  allItems: resetItems,
-  learning: displayLearningItems.value.length,
-  known: displayKnownItems.value.length,
-  stats: learningStats
-});
+  console.log('After reset:', {
+    allItems: resetItems,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length,
+    stats: learningStats
+  });
 };
 
 const handleReset = () => {
-resetCards();
+  resetCards();
 };
 
 // Thêm hàm reviewUnknownCards
 const reviewUnknownCards = () => {
+  // Lọc ra các thẻ chưa thuộc
+  const unknownCards = allItems.value.filter(item => item.status !== 'known');
 
-
-// Lọc ra các thẻ chưa thuộc
-const unknownCards = allItems.value.filter(item => item.status !== 'known');
-
-// Reset trạng thái của các thẻ chưa thuộc về 'learning'
-const updatedItems = allItems.value.map(item => {
-  if (item.status !== 'known') {
-    return { ...item, status: 'learning' };
-  }
-  return item;
-});
-
-// Cập nhật store và local state
-store.commit('flashcard/setLearningItems', updatedItems);
-allItems.value = updatedItems;
-
-// Cập nhật counts
-updateCounts();
-
-// Đóng modal kết quả
-showResults.value = false;
-
-// Quay về thẻ đầu tiên
-nextTick(() => {
-  if (swiperInstance.value) {
-    swiperInstance.value.slideTo(0);
-  }
-});
-
-console.log('After review setup:', {
-  unknownCount: unknownCards.length,
-  learning: displayLearningItems.value.length,
-  known: displayKnownItems.value.length,
-  stats: learningStats
-});
-};
-
-// Watch cho trackProgress để reset trạng thái khi tắt theo dõi
-watch(trackProgress, (newValue) => {
-if (!newValue) {
-  // Reset các trạng thái khi tắt theo dõi tiến độ
-  slides.value.forEach(slide => {
-    slide.status = null;
-  });
-  learningStats.known = 0;
-  learningStats.learning = 0;
-  learningStats.remaining = slides.value.length;
-  showStatusAnimation.value = false;
-  showResults.value = false;
-}
-});
-
-// Update counts
-const updateCounts = () => {
-learningStats.learning = displayLearningItems.value.length;
-learningStats.known = displayKnownItems.value.length;
-learningStats.remaining = allItems.value.length - learningStats.known;
-};
-
-// Helpers for getting item content
-const getItemContent = (item) => {
-return item.content || item.kanji || '';
-};
-
-const getItemDefinition = (item) => {
-return item.backcontent || item.meaning || '';
-};
-
-// Add unique IDs to items
-const addIdsToItems = (items) => {
-return items.map((item, index) => ({
-  ...item,
-  id: `item-${index}-${item.content || item.kanji || Date.now()}`
-}));
-};
-
-// The single updateCardStatus function
-const updateCardStatus = (status) => {
-if (!trackProgress.value) {
-
-  return;
-}
-
-const currentIndex = swiperInstance.value?.activeIndex || 0;
-
-
-if (allItems.value[currentIndex]) {
-  // Update the item's status
-  allItems.value = allItems.value.map((item, index) => {
-    if (index === currentIndex) {
-      return { ...item, status };
+  // Reset trạng thái của các thẻ chưa thuộc về 'learning'
+  const updatedItems = allItems.value.map(item => {
+    if (item.status !== 'known') {
+      return { ...item, status: 'learning' };
     }
     return item;
   });
 
-  // Update store
-  store.commit('flashcard/setLearningItems', allItems.value);
+  // Cập nhật store và local state
+  store.commit('flashcard/setLearningItems', updatedItems);
+  allItems.value = updatedItems;
 
-  // Update counts
+  // Cập nhật counts
   updateCounts();
 
-  console.log('After update:', {
-    allItems: allItems.value,
-    learning: displayLearningItems.value,
-    known: displayKnownItems.value,
-    learningCount: learningStats.learning,
-    knownCount: learningStats.known
+  // Đóng modal kết quả
+  showResults.value = false;
+
+  // Quay về thẻ đầu tiên
+  nextTick(() => {
+    if (swiperInstance.value) {
+      swiperInstance.value.slideTo(0);
+    }
   });
 
-  // Animation and UI updates
-  currentStatus.value = status;
-  showStatusAnimation.value = true;
-  setTimeout(() => {
-    showStatusAnimation.value = false;
-  }, 1000);
+  console.log('After review setup:', {
+    unknownCount: unknownCards.length,
+    learning: displayLearningItems.value.length,
+    known: displayKnownItems.value.length,
+    stats: learningStats
+  });
+};
 
-  // Check if last slide
-  const isLastSlide = currentIndex === allItems.value.length - 1;
-  if (isLastSlide) {
-    showResults.value = true;
-  } else {
-    swiperInstance.value?.slideNext();
+// Watch cho trackProgress để reset trạng thái khi tắt theo dõi
+watch(trackProgress, (newValue) => {
+  if (!newValue) {
+    // Reset các trạng thái khi tắt theo dõi tiến độ
+    slides.value.forEach(slide => {
+      slide.status = null;
+    });
+    learningStats.known = 0;
+    learningStats.learning = 0;
+    learningStats.remaining = slides.value.length;
+    showStatusAnimation.value = false;
+    showResults.value = false;
   }
-}
+});
+// Update counts
+const updateCounts = () => {
+  learningStats.learning = displayLearningItems.value.length;
+  learningStats.known = displayKnownItems.value.length;
+  learningStats.remaining = allItems.value.length - learningStats.known;
+};
+// Helpers for getting item content
+const getItemContent = (item) => {
+  return item.content || item.kanji || '';
+};
+const getItemDefinition = (item) => {
+  return item.backcontent || item.meaning || '';
+};
+// Add unique IDs to items
+const addIdsToItems = (items) => {
+  return items.map((item, index) => ({
+    ...item,
+    id: `item-${index}-${item.content || item.kanji || Date.now()}`
+  }));
+};
+// The single updateCardStatus function
+const updateCardStatus = (status) => {
+  if (!trackProgress.value) {
+
+    return;
+  }
+
+  const currentIndex = swiperInstance.value?.activeIndex || 0;
+
+  if (allItems.value[currentIndex]) {
+    // Update the item's status
+    allItems.value = allItems.value.map((item, index) => {
+      if (index === currentIndex) {
+        return { ...item, status };
+      }
+      return item;
+    });
+
+    // Update store
+    store.commit('flashcard/setLearningItems', allItems.value);
+    // Update counts
+    updateCounts();
+    console.log('After update:', {
+      allItems: allItems.value,
+      learning: displayLearningItems.value,
+      known: displayKnownItems.value,
+      learningCount: learningStats.learning,
+      knownCount: learningStats.known
+    });
+
+    // Animation and UI updates
+    currentStatus.value = status;
+    showStatusAnimation.value = true;
+    setTimeout(() => {
+      showStatusAnimation.value = false;
+    }, 1000);
+
+    // Check if last slide
+    const isLastSlide = currentIndex === allItems.value.length - 1;
+    if (isLastSlide) {
+      showResults.value = true;
+    } else {
+      swiperInstance.value?.slideNext();
+    }
+  }
 };
 
 // Watch for store changes
 watch(() => store.getters['flashcard/getLearningItems'], (newItems) => {
 
-allItems.value = addIdsToItems(newItems);
-updateCounts();
+  allItems.value = addIdsToItems(newItems);
+  updateCounts();
 }, { deep: true });
 
-// Methods for term management
-const addNewTerm = () => {
-// TODO: Implement add new term functionality
-
-};
-
 const editTerm = (slide, index) => {
-// TODO: Implement edit term functionality
-
+  // TODO: Implement edit term functionality
 };
-
 const deleteTerm = (index) => {
-// TODO: Implement delete term functionality
-
 };
-
 // Watch để cập nhật UI khi slides thay đổi
 watch(slides, () => {
-nextTick(() => {
-  // Force re-render của các list
-  const container = document.querySelector('.terms-container');
-  if (container) {
-    container.style.opacity = '0.99';
-    setTimeout(() => {
-      // Re-check container existence, as component might have unmounted
-      const currentContainer = document.querySelector('.terms-container');
-      if (currentContainer) {
-        currentContainer.style.opacity = '1';
-      }
-    }, 0);
-  }
-});
+  nextTick(() => {
+    // Force re-render của các list
+    const container = document.querySelector('.terms-container');
+    if (container) {
+      container.style.opacity = '0.99';
+      setTimeout(() => {
+        // Re-check container existence, as component might have unmounted
+        const currentContainer = document.querySelector('.terms-container');
+        if (currentContainer) {
+          currentContainer.style.opacity = '1';
+        }
+      }, 0);
+    }
+  });
 }, { deep: true });
 
 // Watch để debug các thay đổi
 watch([displayLearningItems, displayKnownItems], ([newLearning, newKnown], [oldLearning, oldKnown]) => {
 
-console.log('Learning list changed:', {
-  count: newLearning.length,
-  oldCount: oldLearning?.length,
-  items: newLearning.map(item => ({
-    content: item.content,
-    status: item.status
-  }))
-});
+  console.log('Learning list changed:', {
+    count: newLearning.length,
+    oldCount: oldLearning?.length,
+    items: newLearning.map(item => ({
+      content: item.content,
+      status: item.status
+    }))
+  });
 
-console.log('Known list changed:', {
-  count: newKnown.length,
-  oldCount: oldKnown?.length,
-  items: newKnown.map(item => ({
-    content: item.content,
-    status: item.status
-  }))
-});
-
-
-
+  console.log('Known list changed:', {
+    count: newKnown.length,
+    oldCount: oldKnown?.length,
+    items: newKnown.map(item => ({
+      content: item.content,
+      status: item.status
+    }))
+  });
 }, { deep: true });
-
 // Navigation function
 const navigateToTermCreation = () => {
-
-
-
-
-
   // Lưu trạng thái hiện tại vào store hoặc localStorage
   const currentState = {
     items: allItems.value,
@@ -1406,14 +1311,10 @@ const navigateToTermCreation = () => {
     },
     fromLearningPage: true
   };
-
-
-
   // Dừng autoplay nếu đang chạy
   if (isAutoPlaying.value) {
     stopAutoplay();
   }
-
   // Lưu state vào localStorage
   localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
 
@@ -1425,59 +1326,48 @@ const navigateToTermCreation = () => {
     title: deckTitle.value,
     description: deckDescription.value
   };
-
-
-
   router.push({
     name: 'CreateFlashcard',
     query: navigationQuery
   });
 };
-
 // Watch for route changes to update data when returning from edit page
 watch(
   () => route.query,
   async (newQuery, oldQuery) => {
-
-
-
-    
     // Check if setId changed (navigating between different flashcards)
     const newSetId = newQuery.id || newQuery.setId;
     const oldSetId = oldQuery?.id || oldQuery?.setId;
-    
-
-    
     if (newSetId && newSetId !== oldSetId) {
 
       await loadFlashcardData(newSetId);
 
       return;
     }
-    
+
     // Check if returning from CreateFlashcard with updated data
     if (newQuery.updated === 'true' && oldQuery?.updated !== 'true') {
 
-      
+
       // Clean the updated flag from query
       const cleanQuery = { ...newQuery };
       delete cleanQuery.updated;
       router.replace({ query: cleanQuery });
-      
+
       // Refresh data from store
       const storeItems = store.getters['flashcard/getLearningItems'];
       if (storeItems && storeItems.length > 0) {
 
         allItems.value = addIdsToItems(storeItems);
         updateCounts();
-        
+
         // Reset progress tracking if was enabled
         if (trackProgress.value) {
           learningStats.known = 0;
           learningStats.learning = allItems.value.length;
           learningStats.remaining = allItems.value.length;
         }
-        
+
         // Update swiper
         nextTick(() => {
           if (swiperInstance.value) {
@@ -1503,104 +1393,393 @@ watch(
 
 // Thêm hàm để cập nhật slides khi allItems thay đổi
 watch(allItems, (newItems) => {
-if (newItems.length > 0) {
+  if (newItems.length > 0) {
 
-  slides.value = newItems.map(item => {
-    let frontContent, backContent, description, backDescription;
-    let title = 'Từ vựng';
+    slides.value = newItems.map(item => {
+      let frontContent, backContent, description, backDescription;
+      let title = 'Từ vựng';
 
-    switch (item.type) {
-      case 'kanji':
-        title = 'Hán tự';
-        frontContent = item.kanji || '';
-        description = '';
-        backContent = item.kanjiname || '';
-        backDescription = item.kunyomi || '';
-        break;
+      switch (item.type) {
+        case 'kanji':
+          title = 'Hán tự';
+          frontContent = item.kanji || '';
+          description = '';
+          backContent = item.kanjiname || '';
+          backDescription = item.kunyomi || '';
+          break;
 
-      case 'grammar':
-        title = 'Ngữ pháp';
-        frontContent = item.kana || '';
-        description = item.romaji || '';
-        backContent = item.meaning || '';
-        backDescription = '';
-        break;
+        case 'grammar':
+          title = 'Ngữ pháp';
+          frontContent = item.kana || '';
+          description = item.romaji || '';
+          backContent = item.meaning || '';
+          backDescription = '';
+          break;
 
-      case 'sentence':
-        title = 'Mẫu câu';
-        frontContent = item.sentence || '';
-        description = '';
-        backContent = item.translation || '';
-        backDescription = '';
-        break;
+        case 'sentence':
+          title = 'Mẫu câu';
+          frontContent = item.sentence || '';
+          description = '';
+          backContent = item.translation || '';
+          backDescription = '';
+          break;
 
-      case 'word':
-      default:
-        frontContent = item.front || item.kanji || '';
-        description = item.kana || '';
-        backContent = item.back || item.meaning || '';
-        backDescription = '';
-    }
+        case 'word':
+        default:
+          frontContent = item.front || item.kanji || '';
+          description = item.kana || '';
+          backContent = item.back || item.meaning || '';
+          backDescription = '';
+      }
 
-    return {
-      id: item.id,
-      title,
-      content: frontContent,
-      description: description,
-      backcontent: backContent,
-      backdescription: backDescription,
-      bgColor: '#ffffff',
-      progressColor: '$primary-color',
-      status: item.status || 'learning'
-    };
-  });
+      return {
+        id: item.id,
+        title,
+        content: frontContent,
+        description: description,
+        backcontent: backContent,
+        backdescription: backDescription,
+        bgColor: '#ffffff',
+        progressColor: '$primary-color',
+        status: item.status || 'learning'
+      };
+    });
 
-  // Cập nhật swiper nếu cần
-  nextTick(() => {
-    if (swiperInstance.value) {
-      swiperInstance.value.update();
-    }
-  });
-}
+    // Cập nhật swiper nếu cần
+    nextTick(() => {
+      if (swiperInstance.value) {
+        swiperInstance.value.update();
+      }
+    });
+  }
 }, { deep: true });
 
 // Sửa lại hàm saveFlashcard trong CreateFlashcard để cập nhật store
 const saveFlashcard = async () => {
-if (!validateForm()) {
-  return;
-}
-
-try {
-  const flashcardData = {
-    title: title.value.trim(),
-    description: description.value.trim(),
-    cards: cards.value.filter(card => card.front.trim() && card.back.trim()).map(card => ({
-      ...card,
-      type: 'word',
-      status: 'learning'
-    })),
-    cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
-  };
-
-  // Cập nhật store với các thẻ mới
-  await store.dispatch('flashcard/setLearningItems', flashcardData.cards);
-
-  // Clean up storage
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem('flashcardLearnState');
-
-  // Navigate based on source
-  if (fromLearningPage.value) {
-    goBackToLearning();
-  } else {
-    router.push('/library');
+  if (!validateForm()) {
+    return;
   }
-} catch (error) {
-  console.error('Error saving flashcard:', error);
-}
+
+  try {
+    const flashcardData = {
+      title: title.value.trim(),
+      description: description.value.trim(),
+      cards: cards.value.filter(card => card.front.trim() && card.back.trim()).map(card => ({
+        ...card,
+        type: 'word',
+        status: 'learning'
+      })),
+      cardCount: cards.value.filter(card => card.front.trim() && card.back.trim()).length
+    };
+
+    // Cập nhật store với các thẻ mới
+    await store.dispatch('flashcard/setLearningItems', flashcardData.cards);
+
+    // Clean up storage
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('flashcardLearnState');
+
+    // Navigate based on source
+    if (fromLearningPage.value) {
+      goBackToLearning();
+    } else {
+      router.push('/library');
+    }
+  } catch (error) {
+    console.error('Error saving flashcard:', error);
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-learn/FlashcardLearn.scss';
+
+/* CSS cho popup dịch - Thiết kế mới với tông màu đỏ */
+:deep(.confirm-dialog) {
+  background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+  border: 2px solid #b90449;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(185, 4, 73, 0.15), 0 0 0 1px rgba(185, 4, 73, 0.1);
+  animation: popupSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+:deep(.confirm-dialog::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b90449 0%, #e91e63 50%, #b90449 100%);
+}
+
+:deep(.confirm-title) {
+  color: #b90449;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+:deep(.confirm-title::before) {
+  content: '🤖';
+  font-size: 1.8rem;
+}
+
+:deep(.confirm-message) {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  margin: 0;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.03);
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+:deep(.btn-primary) {
+  background: linear-gradient(135deg, #b90449 0%, #e91e63 100%);
+  border: none;
+  padding: 14px 35px;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 30px;
+  color: white;
+  box-shadow: 0 8px 25px rgba(185, 4, 73, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.btn-primary::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+:deep(.btn-primary:hover) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(185, 4, 73, 0.4);
+}
+
+:deep(.btn-primary:hover::before) {
+  left: 100%;
+}
+
+/* Loading animation - Thiết kế mới */
+:deep(.loading-container) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+:deep(.loading-spinner) {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f8f9fa;
+  border-top: 4px solid #b90449;
+  border-right: 4px solid #e91e63;
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+:deep(.loading-spinner::after) {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #b90449;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+:deep(.loading-container p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+
+:deep(.original-text),
+:deep(.translation-result) {
+  margin: 0 10px;
+}
+
+/* Translation content styling - Đơn giản */
+:deep(.translation-content) {
+  max-height: none;
+  overflow: visible;
+}
+
+:deep(.original-text),
+:deep(.translation-result) {
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+:deep(.original-text) {
+  background: #fff5f5;
+  border-left-color: #b90449;
+  padding: 5px 10px;
+}
+
+:deep(.translation-result) {
+  background: #f8fff8;
+  border-left-color: #4caf50;
+  margin-bottom: 0;
+}
+
+:deep(.original-text h4),
+:deep(.translation-result h4) {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+:deep(.japanese-text) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b90449;
+  margin: 0;
+  line-height: 1.3;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+:deep(.explanation-text) {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+/* Error content styling - Thiết kế mới */
+:deep(.error-content) {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+:deep(.error-icon) {
+  font-size: 60px;
+  margin-bottom: 20px;
+  animation: shake 0.5s ease-in-out;
+}
+
+:deep(.error-content p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(-30px) rotate(-5deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeInOut {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :deep(.confirm-dialog) {
+    width: 95vw;
+    max-width: none;
+    margin: 10px;
+    border-radius: 15px;
+  }
+
+  :deep(.japanese-text) {
+    font-size: 13px;
+  }
+
+  :deep(.explanation-text) {
+    font-size: 13px;
+  }
+
+  :deep(.original-text h4),
+  :deep(.translation-result h4) {
+    font-size: 11px;
+  }
+
+  :deep(.confirm-title) {
+    font-size: 1.3rem;
+  }
+}
 </style>

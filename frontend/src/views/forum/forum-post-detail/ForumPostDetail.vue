@@ -82,6 +82,47 @@
         </div>
       </div>
 
+      <!-- AI Sensei Reply Box -->
+      <div class="ai-sensei-section" v-if="aiSenseiReply || aiSenseiLoading || aiSenseiError">
+        <div class="ai-sensei-card">
+          <div class="ai-sensei-header">
+            <div class="ai-sensei-avatar">
+               <img :src="ImagePaths.avatar.sensei" alt="Oboe Sensei" class="sensei-avatar">
+            </div>
+            <div class="ai-sensei-info">
+              <h3 class="sensei-name">
+                <i class="fas fa-robot"></i>
+                Oboe Sensei
+              </h3>
+              <span class="sensei-badge">AI Giáo viên</span>
+            </div>
+          </div>
+          
+          <!-- Loading State -->
+          <div v-if="aiSenseiLoading" class="ai-sensei-loading">
+            <div class="spinner"></div>
+            <p>Oboe Sensei đang suy nghĩ...</p>
+          </div>
+          
+          <!-- Error State -->
+          <div v-else-if="aiSenseiError" class="ai-sensei-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>{{ aiSenseiError }}</p>
+          </div>
+          
+          <!-- Reply Content -->
+          <div v-else-if="aiSenseiReply" class="ai-sensei-content">
+            <div class="ai-sensei-reply">
+              <p>{{ aiSenseiReply.reply }}</p>
+            </div>
+            <div class="ai-sensei-meta">
+              <i class="fas fa-clock"></i>
+              <span>{{ formatTimeAgo(new Date(aiSenseiReply.commentAt)) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
              <!-- Replies Section -->
        <div class="replies-section">
          <h2 class="replies-header">
@@ -353,6 +394,7 @@
 </template>
 
 <script setup>
+import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
@@ -362,6 +404,7 @@ import ThePopup from '@/components/common/popup/ThePopup.vue';
 import blogApi from '@/api/modules/blogApi';
 import commentApi from '@/api/modules/commentApi';
 import reportApi from '@/api/modules/reportApi';
+import aiRepApi from '@/api/modules/aiRepApi';
 
 const router = useRouter();
 const route = useRoute();
@@ -397,6 +440,11 @@ const isSubmittingReply = ref({});
 const newlyCreatedCommentId = ref(null);
 const newlyCreatedReplyId = ref(null);
 
+// AI Sensei reply state
+const aiSenseiReply = ref(null);
+const aiSenseiLoading = ref(false);
+const aiSenseiError = ref(null);
+
 // API Functions
 const fetchBlogPost = async (postId) => {
   try {
@@ -429,6 +477,28 @@ const fetchBlogPost = async (postId) => {
     blogPost.value = null;
   } finally {
     isLoading.value = false;
+  }
+};
+
+// Fetch AI Sensei reply
+const fetchAiSenseiReply = async (blogId) => {
+  try {
+    aiSenseiLoading.value = true;
+    aiSenseiError.value = null;
+    
+    const response = await aiRepApi.replyToBlog(blogId);
+    
+    aiSenseiReply.value = {
+      reply: response.reply,
+      commentAt: response.commentAt,
+      blogId: response.blogId
+    };
+    
+  } catch (err) {
+    aiSenseiError.value = err.message || 'Không thể tải phản hồi từ Oboe Sensei';
+    aiSenseiReply.value = null;
+  } finally {
+    aiSenseiLoading.value = false;
   }
 };
 
@@ -748,9 +818,12 @@ onMounted(async () => {
     newlyCreatedCommentId.value = null;
     newlyCreatedReplyId.value = null;
     
+    // Load blog post first
     await fetchBlogPost(route.params.id);
-    // Load comments after blog post is loaded
+    
+    // Only fetch AI reply and comments if blog post loaded successfully
     if (blogPost.value) {
+      await fetchAiSenseiReply(route.params.id);
       await fetchComments(route.params.id, false);
     }
   }

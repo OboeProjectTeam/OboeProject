@@ -33,7 +33,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u FROM User u WHERE u.user_id IN :ids")
     List<User> findByUserIdIn(@Param("ids") List<UUID> ids);
 
-    @Query("SELECT new com.example.Oboe.DTOs.UserSearchResultDTO(u.user_id, u.userName, u.avatarUrl, COUNT(f)) " +
+@Query("SELECT new com.example.Oboe.DTOs.UserSearchResultDTO(u.user_id, u.userName, u.avatarUrl, COUNT(f)) " +
             "FROM User u LEFT JOIN FlashCards f ON f.user.user_id = u.user_id " +
             "WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "GROUP BY u.user_id, u.userName, u.avatarUrl")

@@ -32,6 +32,15 @@ const aiApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Dịch tiếng Nhật sang tiếng Việt (có giải thích)
+  async translateJapaneseToVietnamese(text) {
+    try {
+      const res = await axios.post(`${PREFIX}/translate`, { text });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
 };
 

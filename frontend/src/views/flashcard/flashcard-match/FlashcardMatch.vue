@@ -16,16 +16,11 @@
 
     <div class="match-grid" :class="gridLayoutClass">
       <template v-for="loopItem in gridItems" :key="loopItem.id">
-        <div
-          v-if="loopItem"
-          class="match-cell"
-          :class="{
-            selected: loopItem.id === selectedCell1?.id || loopItem.id === selectedCell2?.id,
-            matched: loopItem.isMatched,
-            error: loopItem.isError
-          }"
-          @click="handleCellClick(loopItem)"
-        >
+        <div v-if="loopItem" class="match-cell" :class="{
+          selected: loopItem.id === selectedCell1?.id || loopItem.id === selectedCell2?.id,
+          matched: loopItem.isMatched,
+          error: loopItem.isError
+        }" @click="handleCellClick(loopItem)">
           <div class="cell-content">
             {{ loopItem.content }}
           </div>
@@ -77,12 +72,12 @@ const formattedTime = computed(() => {
 const gridLayoutClass = computed(() => {
   const itemCount = gridItems.value.length;
   if (itemCount === 0) return '';
-  
+
   // Check if we're on mobile
   if (window.innerWidth <= 768) {
     return 'grid-cols-2';
   }
-  
+
   // Desktop layout
   if (itemCount <= 4) return 'grid-cols-2';
   if (itemCount <= 6) return 'grid-cols-3';
@@ -107,7 +102,7 @@ const initializeGame = () => {
   isGameWon.value = false;
   selectedCell1.value = null;
   selectedCell2.value = null;
-  
+
   const storedFlashcards = store.getters['flashcard/getLearningItems'];
   if (!storedFlashcards || storedFlashcards.length === 0) {
     console.error("No flashcards found for Match Game.");
@@ -126,7 +121,7 @@ const initializeGame = () => {
   } else {
     cardsForGame = [...allFlashcards.value];
   }
-  
+
   if (cardsForGame.length === 0) {
     console.error("Not enough cards to start the game after filtering.");
     // Handle this case, e.g., show a message or prevent game start
@@ -138,8 +133,8 @@ const initializeGame = () => {
   let tempGridItems = [];
   cardsForGame.forEach((card, index) => {
     const originalCardId = card.id || `card-${index}`;
-    const frontContent = card.front || card.content || `Front ${index+1}`;
-    const backContent = card.back || card.backcontent || card.meaning || `Back ${index+1}`;
+    const frontContent = card.front || card.content || `Front ${index + 1}`;
+    const backContent = card.back || card.backcontent || card.meaning || `Back ${index + 1}`;
 
     tempGridItems.push({
       id: `${originalCardId}_front`,
@@ -161,7 +156,7 @@ const initializeGame = () => {
 
   gridItems.value = tempGridItems.sort(() => Math.random() - 0.5);
 
-  
+
   startGameTimer();
 };
 
@@ -186,7 +181,7 @@ const handleCellClick = (clickedItem) => {
 
       selectedCell1.value.isMatched = true;
       selectedCell2.value.isMatched = true;
-      
+
       // Make them disappear after a short delay for effect
       setTimeout(() => {
         selectedCell1.value = null;
@@ -246,4 +241,4 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-match/FlashcardMatch.scss';
-</style> 
+</style>

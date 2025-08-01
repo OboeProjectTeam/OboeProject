@@ -1,6 +1,5 @@
 package com.example.Oboe.Repository;
 
-import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,7 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
     Optional<Comment> findTopByReferenceIdOrderByCreatedAtDesc(UUID referenceId);
 
     @Query("DELETE FROM Comment c WHERE c.user.user_id = :userId")
-    void deleteUser(@Param("userId") UUID userId);
+    void deleteUserbyComment(@Param("userId") UUID userId);
 
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.user.user_id = :userId")
     long countCommentsByUserId(@Param("userId") UUID userId);

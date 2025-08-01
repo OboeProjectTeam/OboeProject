@@ -26,7 +26,7 @@
           </div>
           <p class="card-description webkit-box webkit-line-3">{{ slide.description }}</p>
           <div class="flex see-more">
-            <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Hỏi AI</button>
+            <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Oboe Sensei</button>
           </div>
         </div>
         <div class="card-content flex" :class="{ 'back': true, 'visible': showBackIndex === index }">
@@ -41,7 +41,7 @@
               </template>
             </slot>
           </div>
-          <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p>
+          <!-- <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p> -->
           <div class="flex see-more">
             <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Hỏi AI</button>
           </div>
@@ -104,6 +104,8 @@ const { slides, width, height, pagination, autoplay, canFlip, buttonFontSize, ti
   }
 });
 
+const emit = defineEmits(['translate-request']);
+
 const swiperRef = ref(null);
 const flippedIndex = ref(null);
 const showBackIndex = ref(null);
@@ -118,10 +120,10 @@ function onSwiper(swiper) {
 }
 
 
-// Xử lý khi bấm nút "Xem thêm"
+// Xử lý khi bấm nút "Oboe Sensei" - emit event để parent component xử lý
 function onSeeMore(slide) {
-
-  // ví dụ: mở modal, hoặc navigate đến route chi tiết
+  // Emit event với nội dung cần dịch
+  emit('translate-request', slide.content || slide.backcontent || '');
 }
 
 // Kiểm tra một nội dung có phải hình ảnh không
