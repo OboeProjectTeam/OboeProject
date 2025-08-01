@@ -7,7 +7,6 @@ import WordDetail from '@/views/search-japanese/word-detail/WordDetail.vue'
 import KanjiDetail from '@/views/search-japanese/kanji-detail/KanjiDetail.vue'
 import GrammarDetail from '@/views/search-japanese/grammar-detail/GrammarDetail.vue'
 import SentenceDetail from '@/views/search-japanese/sentence-detail/SentenceDetail.vue'
-import FlashcardView from '@/views/flashcard/flashcard-list-view/FlashcardView.vue'
 import FlashcardLearn from '@/views/flashcard/flashcard-learn/FlashcardLearn.vue'
 import CreateFlashcard from '@/views/create-learn/create-flashcard/CreateFlashcard.vue'
 import CreateQuiz from '@/views/create-learn/create-quiz/CreateQuiz.vue'
@@ -151,14 +150,6 @@ const routes = [
     path: '/sentence/:id',
     name: 'SentenceDetail',
     component: SentenceDetail
-  },
-  {
-    path: '/flashcard',
-    name: 'flashcard',
-    component: FlashcardView,
-    meta: {
-      requiresAuth: true
-    }
   },
   {
     path: '/flashcard/learn',

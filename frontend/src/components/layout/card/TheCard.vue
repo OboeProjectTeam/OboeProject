@@ -41,7 +41,7 @@
               </template>
             </slot>
           </div>
-          <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p>
+          <!-- <p class="card-description webkit-box webkit-line-3">{{ slide.backdescription }}</p> -->
           <div class="flex see-more">
             <button class="cta-button" @click.stop="onSeeMore(slide)" :style="{ fontSize: buttonFontSize, padding: buttonPadding }">Hỏi AI</button>
           </div>

@@ -930,7 +930,6 @@ const allItems = ref([]);
 const displayLearningItems = computed(() => {
 return allItems.value.filter(item => !item.status || item.status === 'learning');
 });
-
 const displayKnownItems = computed(() => {
 return allItems.value.filter(item => item.status === 'known');
 });
@@ -940,7 +939,6 @@ const onSwiper = (swiper) => {
 
 swiperInstance.value = swiper;
 };
-
 // Phương thức để tự động chuyển slide
 const startAutoplay = () => {
 
@@ -949,13 +947,11 @@ if (!swiper) {
 
   return;
 }
-
 // Clear existing interval if any
 if (autoplayInterval.value) {
 
   clearInterval(autoplayInterval.value);
 }
-
 // Create new interval
 
 autoplayInterval.value = setInterval(() => {
@@ -977,10 +973,8 @@ if (autoplayInterval.value) {
   autoplayInterval.value = null;
 }
 };
-
 // Tạm dừng autoplay khi nhấn nút "Phát"
 const toggleAutoplay = () => {
-
 const swiper = swiperInstance.value;
 if (!swiper) {
 
@@ -996,37 +990,24 @@ if (isAutoPlaying.value) {
 }
 
 };
-
-
-
-
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
-
 if (isAutoPlaying.value) {
-
   startAutoplay();
 }
 });
-
 // Handle shuffle button click
 const handleShuffleClick = () => {
   if (!trackProgress.value) {
     shuffleCards();
   }
 };
-
 const shuffleCards = () => {
-
-  
   // Shuffle the allItems array directly
   const shuffledItems = [...allItems.value].sort(() => Math.random() - 0.5);
-
-  
   // Update both local state and store
   allItems.value = shuffledItems;
   store.commit('flashcard/setLearningItems', shuffledItems);
-
   nextTick(() => {
     // Use the correct swiper instance reference
     if (swiperInstance.value) {
@@ -1038,7 +1019,6 @@ const shuffleCards = () => {
     }
   });
 };
-
 // Hàm mở modal cài đặt
 const openSettings = () => {
 // Dừng autoplay khi vào cài đặt
@@ -1052,18 +1032,15 @@ tempSettings.trackProgress = trackProgress.value;
 tempSettings.reverseCards = reverseCards.value;
 showSettings.value = true;
 };
-
 // Hàm hủy thay đổi cài đặt
 const cancelSettings = () => {
 showSettings.value = false;
 showShortcuts.value = false;
 };
-
 // Hàm áp dụng cài đặt
 const applySettings = () => {
 // Áp dụng các giá trị từ tempSettings
 autoplaySpeed.value = tempSettings.autoplaySpeed;
-
 // Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
 if (tempSettings.trackProgress && !trackProgress.value) {
   if (isAutoPlaying.value) {
@@ -1071,9 +1048,7 @@ if (tempSettings.trackProgress && !trackProgress.value) {
     isAutoPlaying.value = false; // Đảm bảo autoplay dừng khi chọn "Theo dõi tiến độ"
   }
 }
-
 trackProgress.value = tempSettings.trackProgress;
-
 // Xử lý đảo mặt thẻ nếu có thay đổi
 if (reverseCards.value !== tempSettings.reverseCards) {
   reverseCards.value = tempSettings.reverseCards;
@@ -1091,25 +1066,20 @@ if (reverseCards.value !== tempSettings.reverseCards) {
       slide.backcontent = temp.content;
       slide.backdescription = temp.description;
     });
-
     nextTick(() => {
       swiperInstance.value.update();
     });
   }
 }
-
 // Cập nhật autoplay nếu đang phát
 if (isAutoPlaying.value && swiperInstance.value) {
   swiperInstance.value.autoplay.stop();
   swiperInstance.value.params.autoplay.delay = autoplaySpeed.value * 1000;
   swiperInstance.value.autoplay.start();
 }
-
 showSettings.value = false;
 showShortcuts.value = false;
 };
-
-
 const toggleFullscreen = () => {
 if (!document.fullscreenElement) {
   document.documentElement.requestFullscreen();
@@ -1117,15 +1087,11 @@ if (!document.fullscreenElement) {
   document.exitFullscreen();
 }
 };
-
 const onCardFlip = (index) => {
-
-
 if (trackProgress.value) {
   progress.value.reviewed++;
 }
 };
-
 const onSlideChange = () => {
 const swiper = swiperInstance.value;
 if (swiper?.pagination) {
@@ -1134,37 +1100,29 @@ if (swiper?.pagination) {
 }
 currentSlideIndex.value = swiper?.activeIndex || 0;
 };
-
 // Reset functionality
 const resetCards = () => {
-
 console.log('Before reset:', {
   allItems: allItems.value,
   learning: displayLearningItems.value.length,
   known: displayKnownItems.value.length
 });
-
 // Reset status của tất cả các items về 'learning'
 const resetItems = allItems.value.map(item => ({
   ...item,
   status: 'learning'
 }));
-
 // Cập nhật store và local state
 store.commit('flashcard/setLearningItems', resetItems);
 allItems.value = resetItems;
-
 // Reset các số liệu thống kê
 learningStats.known = 0;
 learningStats.learning = resetItems.length;
 learningStats.remaining = resetItems.length;
-
 // Cập nhật counts
 updateCounts();
-
 // Đóng modal kết quả
 showResults.value = false;
-
 // Quay về thẻ đầu tiên
 nextTick(() => {
   if (swiperInstance.value) {
@@ -1186,8 +1144,6 @@ resetCards();
 
 // Thêm hàm reviewUnknownCards
 const reviewUnknownCards = () => {
-
-
 // Lọc ra các thẻ chưa thuộc
 const unknownCards = allItems.value.filter(item => item.status !== 'known');
 
@@ -1238,23 +1194,19 @@ if (!newValue) {
   showResults.value = false;
 }
 });
-
 // Update counts
 const updateCounts = () => {
 learningStats.learning = displayLearningItems.value.length;
 learningStats.known = displayKnownItems.value.length;
 learningStats.remaining = allItems.value.length - learningStats.known;
 };
-
 // Helpers for getting item content
 const getItemContent = (item) => {
 return item.content || item.kanji || '';
 };
-
 const getItemDefinition = (item) => {
 return item.backcontent || item.meaning || '';
 };
-
 // Add unique IDs to items
 const addIdsToItems = (items) => {
 return items.map((item, index) => ({
@@ -1262,7 +1214,6 @@ return items.map((item, index) => ({
   id: `item-${index}-${item.content || item.kanji || Date.now()}`
 }));
 };
-
 // The single updateCardStatus function
 const updateCardStatus = (status) => {
 if (!trackProgress.value) {
@@ -1271,7 +1222,6 @@ if (!trackProgress.value) {
 }
 
 const currentIndex = swiperInstance.value?.activeIndex || 0;
-
 
 if (allItems.value[currentIndex]) {
   // Update the item's status
@@ -1284,10 +1234,8 @@ if (allItems.value[currentIndex]) {
 
   // Update store
   store.commit('flashcard/setLearningItems', allItems.value);
-
   // Update counts
   updateCounts();
-
   console.log('After update:', {
     allItems: allItems.value,
     learning: displayLearningItems.value,
@@ -1320,22 +1268,11 @@ allItems.value = addIdsToItems(newItems);
 updateCounts();
 }, { deep: true });
 
-// Methods for term management
-const addNewTerm = () => {
-// TODO: Implement add new term functionality
-
-};
-
 const editTerm = (slide, index) => {
 // TODO: Implement edit term functionality
-
 };
-
 const deleteTerm = (index) => {
-// TODO: Implement delete term functionality
-
 };
-
 // Watch để cập nhật UI khi slides thay đổi
 watch(slides, () => {
 nextTick(() => {
@@ -1374,18 +1311,9 @@ console.log('Known list changed:', {
     status: item.status
   }))
 });
-
-
-
 }, { deep: true });
-
 // Navigation function
 const navigateToTermCreation = () => {
-
-
-
-
-
   // Lưu trạng thái hiện tại vào store hoặc localStorage
   const currentState = {
     items: allItems.value,
@@ -1406,14 +1334,10 @@ const navigateToTermCreation = () => {
     },
     fromLearningPage: true
   };
-
-
-
   // Dừng autoplay nếu đang chạy
   if (isAutoPlaying.value) {
     stopAutoplay();
   }
-
   // Lưu state vào localStorage
   localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
 
@@ -1425,29 +1349,18 @@ const navigateToTermCreation = () => {
     title: deckTitle.value,
     description: deckDescription.value
   };
-
-
-
   router.push({
     name: 'CreateFlashcard',
     query: navigationQuery
   });
 };
-
 // Watch for route changes to update data when returning from edit page
 watch(
   () => route.query,
   async (newQuery, oldQuery) => {
-
-
-
-    
     // Check if setId changed (navigating between different flashcards)
     const newSetId = newQuery.id || newQuery.setId;
     const oldSetId = oldQuery?.id || oldQuery?.setId;
-    
-
-    
     if (newSetId && newSetId !== oldSetId) {
 
       await loadFlashcardData(newSetId);
