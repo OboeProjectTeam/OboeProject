@@ -26,7 +26,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUserNameAndAuthProvider(String userName, AuthProvider authProvider);
 
-    List<User> findAllByUserName(String userName);
+    @Query("SELECT u FROM User u WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<User> searchUsers(@Param("keyword") String keyword);
+
+
 
     @Query("SELECT u FROM User u WHERE u.user_id IN :ids")
     List<User> findByUserIdIn(@Param("ids") List<UUID> ids);
