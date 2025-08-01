@@ -1,11 +1,13 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.Config.CustomUserDetails;
+import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.DTOs.ReportDtos;
 import com.example.Oboe.Entity.Report;
 import com.example.Oboe.Entity.ReportStatus;
 import com.example.Oboe.Service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
@@ -53,4 +55,28 @@ public class ReportController {
         boolean deleted = reportService.deleteReport(reportId);
         return deleted ? "Đã xoá" : "Không tìm thấy báo cáo";
     }
+        @GetMapping("/search")
+        public List<BlogReportDTO> searchBlogReports(
+                @RequestParam(required = false) String title,
+                @RequestParam(required = false) String type,
+                @RequestParam(required = false) ReportStatus status
+        )
+        {
+            return reportService.searchBlogReports(title, type, status);
+        }
+    @GetMapping("/all-blog-reports")
+    public List<BlogReportDTO> getAllBlogReports() {
+        return reportService.getAllBlogReports();
+    }
+    @PutMapping("/approve/{reportId}")
+    public ResponseEntity<String> approveReport(@PathVariable UUID reportId) {
+        reportService.approveReport(reportId);
+        return ResponseEntity.ok("Report approved successfully");
+    }
+    @PutMapping("/rejected/{reportId}")
+    public ResponseEntity<String>rejectedReport(@PathVariable UUID reportId){
+        reportService.rejectedReport(reportId);
+        return ResponseEntity.ok("Report rejected successfull");
+    }
+
 }

@@ -119,5 +119,14 @@ public class BlogController {
         List<TopicPostProjection> topTopics = blogService.getTop5TopicsWithMostPosts();
         return ResponseEntity.ok(topTopics);
     }
+    @DeleteMapping("/admin/delete-blog/{blogId}")
+    public ResponseEntity<?> deleteBlogByAdmin(@PathVariable UUID blogId) {
+        boolean deleted = blogService.deleteBlogAsAdmin(blogId);
+        if (deleted) {
+            return ResponseEntity.ok("Blog và các báo cáo liên quan đã bị xóa");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Blog không tồn tại");
+        }
+    }
 
 }

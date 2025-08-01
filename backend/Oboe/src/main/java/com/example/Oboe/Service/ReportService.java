@@ -1,6 +1,7 @@
 package com.example.Oboe.Service;
 
 
+import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.DTOs.ReportDtos;
 import com.example.Oboe.Entity.Blog;
 import com.example.Oboe.Entity.Report;
@@ -9,6 +10,7 @@ import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.ReportRepository;
 import com.example.Oboe.Repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,7 @@ public class ReportService {
 
     @Autowired
     private ReportRepository reportRepository;
+
 
     @Autowired
     private BlogRepository blogRepository;
@@ -79,5 +82,19 @@ public class ReportService {
         if (!reportRepository.existsById(reportId)) return false;
         reportRepository.deleteById(reportId);
         return true;
+    }
+    public List<BlogReportDTO> searchBlogReports(String title, String type, ReportStatus status) {
+        return reportRepository.searchBlogReports(title, type, status);
+    }
+    public List<BlogReportDTO> getAllBlogReports() {
+        return reportRepository.findAllBlogReports();
+    }
+    @Transactional
+    public void approveReport(UUID reportId) {
+        reportRepository.updateReportStatus(reportId, ReportStatus.APPROVED);
+    }
+    @Transactional
+    public void rejectedReport(UUID reportId) {
+        reportRepository.updateReportStatus(reportId, ReportStatus.REJECTED);
     }
 }

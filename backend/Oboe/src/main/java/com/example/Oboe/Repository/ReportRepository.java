@@ -1,7 +1,10 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.Entity.Report;
+import com.example.Oboe.Entity.ReportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -31,4 +34,58 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
 
     @Query("SELECT COUNT(r) FROM Report r WHERE r.blog IS NULL AND r.status = 'PENDING'")
     Long countPendingFeedbackReports();
+
+    @Query("""
+    SELECT new com.example.Oboe.DTOs.BlogReportDTO(
+        r.reportID,
+        b.title,
+        b.content,
+        u.userName,
+        u.authProvider,
+        u.avatarUrl,
+        r.title,
+        r.content,
+        r.status,
+        r.report_at,
+        b.blogId,
+        (SELECT COUNT(r2) FROM Report r2 WHERE r2.user.user_id = u.user_id)
+    )
+    FROM Report r
+    JOIN r.blog b
+    JOIN r.user u
+    WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
+      AND (:type IS NULL OR LOWER(r.title) LIKE LOWER(CONCAT('%', :type, '%')))
+      AND (:status IS NULL OR r.status = :status)
+    ORDER BY r.report_at DESC
+""")
+    List<BlogReportDTO> searchBlogReports(
+            @Param("title") String title,
+            @Param("type") String type,
+            @Param("status") ReportStatus status
+    );
+    @Query("""
+    SELECT new com.example.Oboe.DTOs.BlogReportDTO(
+        r.reportID,
+        b.title,
+        b.content,
+        u.userName,
+        u.authProvider,
+        u.avatarUrl,
+        r.title,
+        r.content,
+        r.status,
+        r.report_at,
+        b.blogId,
+        (SELECT COUNT(r2) FROM Report r2 WHERE r2.user.user_id = u.user_id)
+    )
+    FROM Report r
+    JOIN r.blog b
+    JOIN r.user u
+    ORDER BY r.report_at DESC
+""")
+    List<BlogReportDTO> findAllBlogReports();
+    @Modifying
+    @Query("UPDATE Report r SET r.status = :status WHERE r.reportID = :reportId")
+    void updateReportStatus(@Param("reportId") UUID reportId, @Param("status") ReportStatus status);
+
 }

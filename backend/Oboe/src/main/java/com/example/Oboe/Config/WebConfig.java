@@ -94,6 +94,7 @@ public class WebConfig {
                                 "/api/auth/loginWithFirebase", // Thêm endpoint Firebase
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
+                                "/api/feedbacks",
                                 "/v3/api-docs/**",
                                 "/api/search/**",
                                 "/api/search",

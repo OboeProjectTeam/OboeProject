@@ -166,7 +166,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Xóa comment của user
-        commentRepository.deleteUser(userId);
+        commentRepository.deleteUserbyComment(userId);
 
         // Xóa blog của user
         blogRepository.deleteBlogsbyUser(userId);

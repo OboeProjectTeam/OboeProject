@@ -121,7 +121,7 @@ public class AdminService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
 
-        commentRepository.deleteUser(id);
+        commentRepository.deleteUserbyComment(id);
 
         blogRepository.deleteBlogsbyUser(id);
 

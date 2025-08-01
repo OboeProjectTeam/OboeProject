@@ -1,13 +1,14 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.FeedbackRepository;
 import com.example.Oboe.Repository.ReportRepository;
 import com.example.Oboe.Repository.UserRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -16,13 +17,16 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
     private final BlogRepository blogRepository;
+    private final FeedbackRepository feedbackRepository;
 
     public DashboardService(UserRepository userRepository,
                             ReportRepository reportRepository,
-                            BlogRepository blogRepository) {
+                            BlogRepository blogRepository,
+                            FeedbackRepository feedbackRepository) {
         this.userRepository = userRepository;
         this.reportRepository = reportRepository;
         this.blogRepository = blogRepository;
+        this.feedbackRepository = feedbackRepository;
     }
 
     public Map<String, Object> getDashboardData() {
@@ -42,14 +46,23 @@ public class DashboardService {
                 "count", reportRepository.countPendingBlogReports(),
                 "status", "Chờ xử lý"
         ));
+
+
         summary.put("feedback", Map.of(
-                "count", reportRepository.countPendingFeedbackReports(),
-                "status", "Chờ xử lý"
+                "count", feedbackRepository.countAllFeedbacks(),
+                "status", "Đã ghi nhận"
         ));
+
+        // Trước đây dùng report để thống kê feedback:
+        // summary.put("feedback", Map.of(
+        //     "count", reportRepository.countPendingFeedbackReports(),
+        //     "status", "Chờ xử lý"
+        // ));
 
         // Hoạt động gần đây
         List<Map<String, String>> activities = new ArrayList<>();
 
+        // Người dùng mới
         var latestUsers = userRepository.findLatestRegisteredUser();
         if (!latestUsers.isEmpty()) {
             Object[] u = latestUsers.get(0);
@@ -60,8 +73,8 @@ public class DashboardService {
             ));
         }
 
-        // Báo cáo gần nhất
-        var latestReports = reportRepository.findLatestReport(); // bạn cần có method này trả về List<Report>
+        // Báo cáo mới
+        var latestReports = reportRepository.findLatestReport();
         if (!latestReports.isEmpty()) {
             var r = latestReports.get(0);
             String message;
@@ -80,12 +93,23 @@ public class DashboardService {
             ));
         }
 
+
+        var latestFeedbackList = feedbackRepository.findTop1ByOrderByCreatedAtDesc(PageRequest.of(0,1));
+        if (!latestFeedbackList.isEmpty()) {
+            var feedback = latestFeedbackList.get(0);
+            activities.add(Map.of(
+                    "type", "Phản hồi mới",
+                    "message", "Phản hồi: \"" + feedback.getContent() + "\"",
+                    "time", convertToTimeAgo(feedback.getCreatedAt())
+            ));
+        }
+
+
         result.put("summary", summary);
         result.put("recent_activities", activities);
 
         return result;
     }
-
 
     private String convertToTimeAgo(LocalDateTime time) {
         Duration duration = Duration.between(time, LocalDateTime.now());
@@ -94,3 +118,4 @@ public class DashboardService {
         return duration.toDays() + " ngày trước";
     }
 }
+
