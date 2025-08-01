@@ -1,6 +1,7 @@
 package com.example.Oboe.Controller;
 
 import com.example.Oboe.DTOs.UserDTOs;
+import com.example.Oboe.DTOs.UserProfileDTO;
 import com.example.Oboe.Entity.Role;
 import com.example.Oboe.Entity.Status;
 import com.example.Oboe.Entity.User;
@@ -91,9 +92,10 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+    public ResponseEntity<List<UserProfileDTO>> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUserProfiles());
     }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}")

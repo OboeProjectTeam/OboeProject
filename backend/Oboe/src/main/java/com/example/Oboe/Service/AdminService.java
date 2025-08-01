@@ -1,6 +1,7 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.UserDTOs;
+import com.example.Oboe.DTOs.UserProfileDTO;
 import com.example.Oboe.Entity.*;
 import com.example.Oboe.Repository.BlogRepository;
 import com.example.Oboe.Repository.CommentRepository;
@@ -167,14 +168,19 @@ public class AdminService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với id: " + id));
     }
-
+    public List<UserProfileDTO> getAllUserProfiles() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserProfileDTO::new)
+                .toList();
+    }
     // Tìm kiếm theo từ khóa
     public List<User> searchUsers(String keyword) {
-        return userRepository.findAllByUserName(keyword);
+        return userRepository.searchUsers(keyword);
     }
 
     public List<User> findByUserName(String userName) {
-        return userRepository.findAllByUserName(userName);
+        return userRepository.searchUsers(userName);
     }
 
 

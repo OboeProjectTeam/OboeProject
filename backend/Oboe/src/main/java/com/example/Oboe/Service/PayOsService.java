@@ -1,7 +1,6 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.Config.PayOsConfig;
-import com.example.Oboe.DTOs.CustomWebhookDTO;
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.Payment;
 import com.example.Oboe.Entity.User;
@@ -15,7 +14,7 @@ import vn.payos.type.PaymentData;
 import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,97 +35,78 @@ public class PayOsService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Tạo link thanh toán cho người dùng cụ thể.
-     */
     public CheckoutResponseData createPayment(int amount, String itemName, UUID userId) throws Exception {
-        // Số tiền cố định
         int fixedAmount = 99000;
 
-        // Tạo thông tin sản phẩm
         ItemData item = ItemData.builder()
                 .name(itemName)
                 .quantity(1)
                 .price(fixedAmount)
                 .build();
 
-        // Tạo orderCode duy nhất bằng timestamp
         long tempOrderCode = System.currentTimeMillis();
 
-        // Gói dữ liệu thanh toán
         PaymentData paymentData = PaymentData.builder()
                 .orderCode(tempOrderCode)
                 .amount(fixedAmount)
-                .description("Pay Oboeru" + tempOrderCode)
+                .description("Pay Oboeru " + tempOrderCode)
                 .returnUrl(config.getReturnUrl())
                 .cancelUrl(config.getCancelUrl())
-                .item(item)
+                .items(List.of(item))
                 .build();
 
-        // Gọi API PayOS tạo link thanh toán
+
         CheckoutResponseData response = payOS.createPaymentLink(paymentData);
+
+        // Lưu đơn vào DB
+        Payment payment = new Payment();
+        payment.setOrderCode(tempOrderCode);
+        payment.setAmount(fixedAmount);
+        payment.setUser(userRepository.findById(userId).orElse(null));
+        payment.setStatus("PENDING");
+        paymentRepository.save(payment);
 
         return response;
     }
 
-
-
-    /**
-     * Xử lý webhook từ PayOS sau khi thanh toán.
-     */
     public WebhookData handleWebhook(Webhook webhookBody) throws Exception {
         WebhookData data = payOS.verifyPaymentWebhookData(webhookBody);
 
         long orderCode = data.getOrderCode();
-        String status = data.getTransactionDateTime();
+        String code = data.getCode(); // Mã trạng thái
 
-        Payment payment = paymentRepository.findByTransactionId(String.valueOf(orderCode));
+        Payment payment = paymentRepository.findByOrderCode(orderCode);
         if (payment != null) {
-            payment.setStatus(status.toUpperCase());
-            paymentRepository.save(payment);
+            String status;
 
-            if ("SUCCESS".equalsIgnoreCase(status)) {
+            if ("00".equals(code)) {
+                status = "SUCCESS";
+
+                // Nâng cấp tài khoản
                 User user = payment.getUser();
                 user.setAccountType(AccountType.PREMIUM);
                 userRepository.save(user);
-                System.out.println(" Người dùng " + user.getUserName() + " đã được nâng cấp lên PREMIUM.");
+            } else if ("09".equals(code)) {
+                status = "CANCELLED";
+            } else {
+                status = "FAILED";
             }
+
+            payment.setStatus(status);
+            paymentRepository.save(payment);
         }
 
         return data;
     }
 
 
-    /**
-     * Hủy đơn thanh toán nếu cần.
-     */
+
+
     public void cancelPayment(long orderCode, String reason) throws Exception {
         payOS.cancelPaymentLink(orderCode, reason);
     }
 
-    /**
-     * Lấy thông tin thanh toán đã tạo link.
-     */
     public Object getPaymentInfo(long orderCode) throws Exception {
         return payOS.getPaymentLinkInformation(orderCode);
-    }
-    public void handleWebhook(CustomWebhookDTO webhookBody) {
-        System.out.println("== Webhook PayOS ==");
-        System.out.println("Code: " + webhookBody.getCode());
-        System.out.println("OrderCode: " + webhookBody.getOrderCode());
-        System.out.println("Amount: " + webhookBody.getAmount());
-        System.out.println("Desc: " + webhookBody.getDesc());
-        System.out.println("TransactionStatus: " + webhookBody.getTransactionStatus());
-        System.out.println("Checksum (bỏ qua): " + webhookBody.getChecksum());
-
-        Payment payment = paymentRepository.findByOrderCode(webhookBody.getOrderCode());
-
-        if (payment != null) {
-            payment.setStatus(webhookBody.getTransactionStatus());
-            paymentRepository.save(payment);
-            System.out.println("Đã cập nhật trạng thái đơn hàng.");
-        } else {
-            System.out.println("Không tìm thấy đơn hàng với orderCode: " + webhookBody.getOrderCode());
-        }
     }
 }
