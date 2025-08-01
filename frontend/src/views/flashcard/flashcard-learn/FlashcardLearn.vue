@@ -1,5 +1,36 @@
 <template>
   <div class="flashcard-learn" :class="{ 'is-fullscreen': isFullscreen }">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <!-- Dynamic breadcrumb based on source -->
+      <template v-if="route.query.source === 'search'">
+        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <span class="breadcrumb-separator">></span>
+        <router-link :to="route.query.searchQuery ? `/search?q=${encodeURIComponent(route.query.searchQuery)}` : '/search'" class="breadcrumb-link">Tìm kiếm</router-link>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Học liệu</span>
+      </template>
+      <template v-else-if="route.query.source === 'library'">
+        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <span class="breadcrumb-separator">></span>
+        <router-link to="/library" class="breadcrumb-link">Thư viện</router-link>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Học liệu</span>
+      </template>
+      <template v-else-if="route.query.source === 'profile'">
+        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <span class="breadcrumb-separator">></span>
+        <router-link :to="`/forum/u/${route.query.creatorName}`" class="breadcrumb-link">Hồ sơ</router-link>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Học liệu</span>
+      </template>
+      <template v-else>
+        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">Học liệu</span>
+      </template>
+    </div>
+
     <div class="deck-header">
       <div>
         <h2 class="deck-title">

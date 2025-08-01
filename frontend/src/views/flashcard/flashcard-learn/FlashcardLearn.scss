@@ -1,4 +1,36 @@
 @use '@/assets/css/index.scss' as *;
+
+// Breadcrumb styles
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #666;
+
+  .breadcrumb-link {
+    color: $primary-color;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 600;
+    &:hover {
+      color: $hover-btn-color;
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-separator {
+    color: #999;
+    margin: 0 4px;
+  }
+
+  .breadcrumb-current {
+    color: #333;
+    font-weight: 500;
+  }
+}
+
 .flashcard-learn {
   max-width: 1000px;
   margin: 0 auto;
