@@ -4,6 +4,7 @@ import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.PassWordChangeDTOs;
 import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.DTOs.UserProfileDTOwithStatistical;
+import com.example.Oboe.DTOs.*;
 import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Role;
@@ -16,6 +17,7 @@ import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -362,6 +364,9 @@ public class UserService implements UserDetailsService {
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+    public List<UserSearchResultDTO> searchUsers(String keyword) {
+        return userRepository.searchUsersWithFlashcardCount(keyword);
     }
 
 }

@@ -48,6 +48,7 @@
           @swiper="onSwiper" 
           @card-flipped="onCardFlip"
           @slideChange="onSlideChange" 
+          @translate-request="handleTranslateRequest"
           :width="isFullscreen ? 900 : undefined"
           :height="isFullscreen ? 500 : undefined"
         />
@@ -345,15 +346,29 @@
         </div>
       </div>
     </div>
+
+    <!-- Translation Popup -->
+    <ThePopup
+      v-if="showTranslationPopup"
+      title="Oboe Sensei - Dịch tiếng Nhật"
+      :message="translationResult"
+      confirmText="Đóng"
+      :showCancel="false"
+      :useHtml="true"
+      @confirm="closeTranslationPopup"
+      @cancel="closeTranslationPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ImagePaths } from '@/assets/img/imagePaths';
-import { ref, computed, onMounted, onUnmounted, watch, nextTick, reactive } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
+import ThePopup from '@/components/common/popup/ThePopup.vue';
+import { translateJapaneseToVietnamese } from '@/api/modules/aiApi.js';
 import { TransitionGroup } from 'vue';
 import flashcardApi from '@/api/modules/flashcardApi';
 
@@ -367,6 +382,9 @@ const isAutoPlaying = ref(false);
 const showSettings = ref(false);
 const autoplaySpeed = ref(3);
 const isFullscreen = ref(false);
+const showTranslationPopup = ref(false);
+const translationResult = ref('');
+const isTranslating = ref(false);
 const trackProgress = ref(false);
 const reverseCards = ref(false);
 const showShortcuts = ref(false);
@@ -930,7 +948,6 @@ const allItems = ref([]);
 const displayLearningItems = computed(() => {
 return allItems.value.filter(item => !item.status || item.status === 'learning');
 });
-
 const displayKnownItems = computed(() => {
 return allItems.value.filter(item => item.status === 'known');
 });
@@ -940,7 +957,6 @@ const onSwiper = (swiper) => {
 
 swiperInstance.value = swiper;
 };
-
 // Phương thức để tự động chuyển slide
 const startAutoplay = () => {
 
@@ -949,13 +965,11 @@ if (!swiper) {
 
   return;
 }
-
 // Clear existing interval if any
 if (autoplayInterval.value) {
 
   clearInterval(autoplayInterval.value);
 }
-
 // Create new interval
 
 autoplayInterval.value = setInterval(() => {
@@ -977,10 +991,8 @@ if (autoplayInterval.value) {
   autoplayInterval.value = null;
 }
 };
-
 // Tạm dừng autoplay khi nhấn nút "Phát"
 const toggleAutoplay = () => {
-
 const swiper = swiperInstance.value;
 if (!swiper) {
 
@@ -996,37 +1008,24 @@ if (isAutoPlaying.value) {
 }
 
 };
-
-
-
-
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
-
 if (isAutoPlaying.value) {
-
   startAutoplay();
 }
 });
-
 // Handle shuffle button click
 const handleShuffleClick = () => {
   if (!trackProgress.value) {
     shuffleCards();
   }
 };
-
 const shuffleCards = () => {
-
-  
   // Shuffle the allItems array directly
   const shuffledItems = [...allItems.value].sort(() => Math.random() - 0.5);
-
-  
   // Update both local state and store
   allItems.value = shuffledItems;
   store.commit('flashcard/setLearningItems', shuffledItems);
-
   nextTick(() => {
     // Use the correct swiper instance reference
     if (swiperInstance.value) {
@@ -1038,7 +1037,6 @@ const shuffleCards = () => {
     }
   });
 };
-
 // Hàm mở modal cài đặt
 const openSettings = () => {
 // Dừng autoplay khi vào cài đặt
@@ -1052,18 +1050,15 @@ tempSettings.trackProgress = trackProgress.value;
 tempSettings.reverseCards = reverseCards.value;
 showSettings.value = true;
 };
-
 // Hàm hủy thay đổi cài đặt
 const cancelSettings = () => {
 showSettings.value = false;
 showShortcuts.value = false;
 };
-
 // Hàm áp dụng cài đặt
 const applySettings = () => {
 // Áp dụng các giá trị từ tempSettings
 autoplaySpeed.value = tempSettings.autoplaySpeed;
-
 // Nếu bật "Theo dõi tiến độ", hãy dừng chế độ tự động phát
 if (tempSettings.trackProgress && !trackProgress.value) {
   if (isAutoPlaying.value) {
@@ -1071,9 +1066,7 @@ if (tempSettings.trackProgress && !trackProgress.value) {
     isAutoPlaying.value = false; // Đảm bảo autoplay dừng khi chọn "Theo dõi tiến độ"
   }
 }
-
 trackProgress.value = tempSettings.trackProgress;
-
 // Xử lý đảo mặt thẻ nếu có thay đổi
 if (reverseCards.value !== tempSettings.reverseCards) {
   reverseCards.value = tempSettings.reverseCards;
@@ -1091,25 +1084,20 @@ if (reverseCards.value !== tempSettings.reverseCards) {
       slide.backcontent = temp.content;
       slide.backdescription = temp.description;
     });
-
     nextTick(() => {
       swiperInstance.value.update();
     });
   }
 }
-
 // Cập nhật autoplay nếu đang phát
 if (isAutoPlaying.value && swiperInstance.value) {
   swiperInstance.value.autoplay.stop();
   swiperInstance.value.params.autoplay.delay = autoplaySpeed.value * 1000;
   swiperInstance.value.autoplay.start();
 }
-
 showSettings.value = false;
 showShortcuts.value = false;
 };
-
-
 const toggleFullscreen = () => {
 if (!document.fullscreenElement) {
   document.documentElement.requestFullscreen();
@@ -1118,14 +1106,56 @@ if (!document.fullscreenElement) {
 }
 };
 
+// Xử lý yêu cầu dịch từ TheCard
+  const handleTranslateRequest = async (text) => {
+    if (!text || isTranslating.value) return;
+    
+    // Hiển thị popup ngay lập tức với loading state
+    translationResult.value = `<div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Oboe Sensei đang dịch...</p>
+    </div>`;
+    showTranslationPopup.value = true;
+    isTranslating.value = true;
+    
+    try {
+      const response = await translateJapaneseToVietnamese(text);
+      
+      // Format nội dung dịch để hiển thị đẹp hơn
+      const explanation = response.explanation || 'Không thể dịch văn bản này.';
+      translationResult.value = `
+          <div class="original-text">
+            <h4>📝 Văn bản gốc:</h4>
+            <p class="japanese-text">${text}</p>
+          </div>
+          <div class="translation-result">
+            <h4>🎯 Dịch và giải thích:</h4>
+            <div class="explanation-text">${explanation}</div>
+          </div>
+      `;
+    } catch (error) {
+      console.error('Lỗi khi dịch:', error);
+      translationResult.value = `
+        <div class="error-content">
+          <div class="error-icon">❌</div>
+          <p>Có lỗi xảy ra khi dịch. Vui lòng thử lại.</p>
+        </div>
+      `;
+    } finally {
+      isTranslating.value = false;
+    }
+  };
+
+// Đóng popup dịch
+const closeTranslationPopup = () => {
+  showTranslationPopup.value = false;
+  translationResult.value = '';
+};
 const onCardFlip = (index) => {
-
-
 if (trackProgress.value) {
   progress.value.reviewed++;
 }
 };
-
 const onSlideChange = () => {
 const swiper = swiperInstance.value;
 if (swiper?.pagination) {
@@ -1134,37 +1164,29 @@ if (swiper?.pagination) {
 }
 currentSlideIndex.value = swiper?.activeIndex || 0;
 };
-
 // Reset functionality
 const resetCards = () => {
-
 console.log('Before reset:', {
   allItems: allItems.value,
   learning: displayLearningItems.value.length,
   known: displayKnownItems.value.length
 });
-
 // Reset status của tất cả các items về 'learning'
 const resetItems = allItems.value.map(item => ({
   ...item,
   status: 'learning'
 }));
-
 // Cập nhật store và local state
 store.commit('flashcard/setLearningItems', resetItems);
 allItems.value = resetItems;
-
 // Reset các số liệu thống kê
 learningStats.known = 0;
 learningStats.learning = resetItems.length;
 learningStats.remaining = resetItems.length;
-
 // Cập nhật counts
 updateCounts();
-
 // Đóng modal kết quả
 showResults.value = false;
-
 // Quay về thẻ đầu tiên
 nextTick(() => {
   if (swiperInstance.value) {
@@ -1186,8 +1208,6 @@ resetCards();
 
 // Thêm hàm reviewUnknownCards
 const reviewUnknownCards = () => {
-
-
 // Lọc ra các thẻ chưa thuộc
 const unknownCards = allItems.value.filter(item => item.status !== 'known');
 
@@ -1238,23 +1258,19 @@ if (!newValue) {
   showResults.value = false;
 }
 });
-
 // Update counts
 const updateCounts = () => {
 learningStats.learning = displayLearningItems.value.length;
 learningStats.known = displayKnownItems.value.length;
 learningStats.remaining = allItems.value.length - learningStats.known;
 };
-
 // Helpers for getting item content
 const getItemContent = (item) => {
 return item.content || item.kanji || '';
 };
-
 const getItemDefinition = (item) => {
 return item.backcontent || item.meaning || '';
 };
-
 // Add unique IDs to items
 const addIdsToItems = (items) => {
 return items.map((item, index) => ({
@@ -1262,7 +1278,6 @@ return items.map((item, index) => ({
   id: `item-${index}-${item.content || item.kanji || Date.now()}`
 }));
 };
-
 // The single updateCardStatus function
 const updateCardStatus = (status) => {
 if (!trackProgress.value) {
@@ -1271,7 +1286,6 @@ if (!trackProgress.value) {
 }
 
 const currentIndex = swiperInstance.value?.activeIndex || 0;
-
 
 if (allItems.value[currentIndex]) {
   // Update the item's status
@@ -1284,10 +1298,8 @@ if (allItems.value[currentIndex]) {
 
   // Update store
   store.commit('flashcard/setLearningItems', allItems.value);
-
   // Update counts
   updateCounts();
-
   console.log('After update:', {
     allItems: allItems.value,
     learning: displayLearningItems.value,
@@ -1320,22 +1332,11 @@ allItems.value = addIdsToItems(newItems);
 updateCounts();
 }, { deep: true });
 
-// Methods for term management
-const addNewTerm = () => {
-// TODO: Implement add new term functionality
-
-};
-
 const editTerm = (slide, index) => {
 // TODO: Implement edit term functionality
-
 };
-
 const deleteTerm = (index) => {
-// TODO: Implement delete term functionality
-
 };
-
 // Watch để cập nhật UI khi slides thay đổi
 watch(slides, () => {
 nextTick(() => {
@@ -1374,18 +1375,9 @@ console.log('Known list changed:', {
     status: item.status
   }))
 });
-
-
-
 }, { deep: true });
-
 // Navigation function
 const navigateToTermCreation = () => {
-
-
-
-
-
   // Lưu trạng thái hiện tại vào store hoặc localStorage
   const currentState = {
     items: allItems.value,
@@ -1406,14 +1398,10 @@ const navigateToTermCreation = () => {
     },
     fromLearningPage: true
   };
-
-
-
   // Dừng autoplay nếu đang chạy
   if (isAutoPlaying.value) {
     stopAutoplay();
   }
-
   // Lưu state vào localStorage
   localStorage.setItem('flashcardLearnState', JSON.stringify(currentState));
 
@@ -1425,29 +1413,18 @@ const navigateToTermCreation = () => {
     title: deckTitle.value,
     description: deckDescription.value
   };
-
-
-
   router.push({
     name: 'CreateFlashcard',
     query: navigationQuery
   });
 };
-
 // Watch for route changes to update data when returning from edit page
 watch(
   () => route.query,
   async (newQuery, oldQuery) => {
-
-
-
-    
     // Check if setId changed (navigating between different flashcards)
     const newSetId = newQuery.id || newQuery.setId;
     const oldSetId = oldQuery?.id || oldQuery?.setId;
-    
-
-    
     if (newSetId && newSetId !== oldSetId) {
 
       await loadFlashcardData(newSetId);
@@ -1603,4 +1580,254 @@ try {
 
 <style lang="scss" scoped>
 @use '@/views/flashcard/flashcard-learn/FlashcardLearn.scss';
+
+/* CSS cho popup dịch - Thiết kế mới với tông màu đỏ */
+:deep(.confirm-dialog) {
+  background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);
+  border: 2px solid #b90449;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(185, 4, 73, 0.15), 0 0 0 1px rgba(185, 4, 73, 0.1);
+  animation: popupSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+:deep(.confirm-dialog::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b90449 0%, #e91e63 50%, #b90449 100%);
+}
+
+:deep(.confirm-title) {
+  color: #b90449;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+:deep(.confirm-title::before) {
+  content: '🤖';
+  font-size: 1.8rem;
+}
+
+:deep(.confirm-message) {
+  background: #ffffff;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  margin: 0;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.03);
+  max-height: 450px;
+  overflow-y: auto;
+}
+:deep(.btn-primary) {
+  background: linear-gradient(135deg, #b90449 0%, #e91e63 100%);
+  border: none;
+  padding: 14px 35px;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 30px;
+  color: white;
+  box-shadow: 0 8px 25px rgba(185, 4, 73, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.btn-primary::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+:deep(.btn-primary:hover) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(185, 4, 73, 0.4);
+}
+
+:deep(.btn-primary:hover::before) {
+  left: 100%;
+}
+
+/* Loading animation - Thiết kế mới */
+:deep(.loading-container) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+:deep(.loading-spinner) {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f8f9fa;
+  border-top: 4px solid #b90449;
+  border-right: 4px solid #e91e63;
+  border-radius: 50%;
+  animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+:deep(.loading-spinner::after) {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: #b90449;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+:deep(.loading-container p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+:deep(.original-text), :deep(.translation-result){
+  margin: 0 10px;
+}
+/* Translation content styling - Đơn giản */
+:deep(.translation-content) {
+  max-height: none;
+  overflow: visible;
+}
+
+:deep(.original-text), :deep(.translation-result) {
+  margin-bottom: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+
+:deep(.original-text) {
+  background: #fff5f5;
+  border-left-color: #b90449;
+  padding: 5px 10px;
+}
+
+:deep(.translation-result) {
+  background: #f8fff8;
+  border-left-color: #4caf50;
+  margin-bottom: 0;
+}
+
+:deep(.original-text h4), :deep(.translation-result h4) {
+  margin: 0 0 4px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+}
+
+:deep(.japanese-text) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #b90449;
+  margin: 0;
+  line-height: 1.3;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+:deep(.explanation-text) {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+/* Error content styling - Thiết kế mới */
+:deep(.error-content) {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+:deep(.error-icon) {
+  font-size: 60px;
+  margin-bottom: 20px;
+  animation: shake 0.5s ease-in-out;
+}
+
+:deep(.error-content p) {
+  color: #b90449;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7) translateY(-30px) rotate(-5deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  50% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  :deep(.confirm-dialog) {
+    width: 95vw;
+    max-width: none;
+    margin: 10px;
+    border-radius: 15px;
+  }
+  
+  :deep(.japanese-text) {
+    font-size: 13px;
+  }
+  
+  :deep(.explanation-text) {
+    font-size: 13px;
+  }
+  
+  :deep(.original-text h4), :deep(.translation-result h4) {
+    font-size: 11px;
+  }
+  
+  :deep(.confirm-title) {
+    font-size: 1.3rem;
+  }
+}
 </style>

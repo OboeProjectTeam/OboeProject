@@ -10,6 +10,7 @@ public class FlashCardDto {
     private String description;
     private List<CardItemDto> cardItems;
 
+
     public void setFlashcardID(UUID flashcardID) {
         this.flashcardID = flashcardID;
     }
@@ -24,4 +25,6 @@ public class FlashCardDto {
 
     public List<CardItemDto> getCardItems() { return cardItems; }
     public void setCardItems(List<CardItemDto> cardItems) { this.cardItems = cardItems; }
+
 }
+

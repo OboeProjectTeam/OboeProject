@@ -1,5 +1,7 @@
 package com.example.Oboe.Repository;
 
+import com.example.Oboe.DTOs.UserDTOs;
+import com.example.Oboe.DTOs.UserSearchResultDTO;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,4 +40,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @Query("SELECT u.userName, u.create_at FROM User u ORDER BY u.create_at DESC")
     List<Object[]> findLatestRegisteredUser();
 
+    @Query("SELECT new com.example.Oboe.DTOs.UserSearchResultDTO(u.user_id, u.userName, COUNT(f)) " +
+            "FROM User u LEFT JOIN FlashCards f ON f.user.user_id = u.user_id " +
+            "WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "GROUP BY u.user_id, u.userName")
+    List<UserSearchResultDTO> searchUsersWithFlashcardCount(@Param("keyword") String keyword);
+
+    @Query("SELECT new com.example.Oboe.DTOs.UserDTOs(u.user_id, u.userName, u.avatarUrl) " +
+            "FROM User u WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<UserDTOs> searchUsersByKeyword(@Param("keyword") String keyword);
 }

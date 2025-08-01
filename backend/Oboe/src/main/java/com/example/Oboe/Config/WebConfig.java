@@ -94,8 +94,9 @@ public class WebConfig {
                                 "/api/auth/loginWithFirebase", // Thêm endpoint Firebase
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
-                                "/api/feedbacks",
+                                "/oauth2/redirect",
                                 "/v3/api-docs/**",
+                                "/oauth2/**",
                                 "/api/search/**",
                                 "/api/search",
                                 "/ws/**",
@@ -145,6 +146,7 @@ public class WebConfig {
                 "https://oboeru.me"       // production domain
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization"));
         config.setAllowCredentials(true);
