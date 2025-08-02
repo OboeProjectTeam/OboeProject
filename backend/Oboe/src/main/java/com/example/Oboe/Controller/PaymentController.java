@@ -92,9 +92,19 @@ public class PaymentController {
     }
 
     @PostMapping("/payos-notify")
-    public ResponseEntity<String> handlePayOsCallback(@RequestBody Webhook webhookBody) throws Exception {
-        payOsService.handleWebhook(webhookBody);
-        return ResponseEntity.ok("success");
+    public ResponseEntity<?> handlePayOsCallback(@RequestBody String rawJson) {
+        try {
+
+            System.out.println("Webhook Received:\n" + rawJson);
+
+
+            payOsService.handleWebhook(rawJson);
+
+            return ResponseEntity.ok("Received");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed: " + e.getMessage());
+        }
     }
     @GetMapping("/payment-cancel")
     public ResponseEntity<?> handleCancel(@RequestParam(required = false) String orderCode) {

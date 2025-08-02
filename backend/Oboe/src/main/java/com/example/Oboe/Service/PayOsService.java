@@ -6,12 +6,12 @@ import com.example.Oboe.Entity.Payment;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.PaymentRepository;
 import com.example.Oboe.Repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
-import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
 import java.util.List;
@@ -19,6 +19,7 @@ import java.util.UUID;
 
 @Service
 public class PayOsService {
+
 
     private final PayOS payOS;
     private final PayOsConfig config;
@@ -69,27 +70,31 @@ public class PayOsService {
         return response;
     }
 
-    public WebhookData handleWebhook(Webhook webhookBody) throws Exception {
-        WebhookData data = payOS.verifyPaymentWebhookData(webhookBody);
+    public WebhookData handleWebhook(String rawJson) throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+        vn.payos.type.Webhook webhook = mapper.readValue(rawJson, vn.payos.type.Webhook.class);
+
+
+        WebhookData data = payOS.verifyPaymentWebhookData(webhook);
+
 
         long orderCode = data.getOrderCode();
-        String code = data.getCode(); // Mã trạng thái
+        String code = data.getCode();
 
         Payment payment = paymentRepository.findByOrderCode(orderCode);
         if (payment != null) {
             String status;
 
-            if ("00".equals(code)) {
-                status = "SUCCESS";
-
-                // Nâng cấp tài khoản
-                User user = payment.getUser();
-                user.setAccountType(AccountType.PREMIUM);
-                userRepository.save(user);
-            } else if ("09".equals(code)) {
-                status = "CANCELLED";
-            } else {
-                status = "FAILED";
+            switch (code) {
+                case "00" -> {
+                    status = "SUCCESS";
+                    User user = payment.getUser();
+                    user.setAccountType(AccountType.PREMIUM);
+                    userRepository.save(user);
+                }
+                case "09" -> status = "CANCELLED";
+                default -> status = "FAILED";
             }
 
             payment.setStatus(status);
@@ -101,7 +106,6 @@ public class PayOsService {
 
 
 
-
     public void cancelPayment(long orderCode, String reason) throws Exception {
         payOS.cancelPaymentLink(orderCode, reason);
     }
@@ -109,4 +113,5 @@ public class PayOsService {
     public Object getPaymentInfo(long orderCode) throws Exception {
         return payOS.getPaymentLinkInformation(orderCode);
     }
+
 }
