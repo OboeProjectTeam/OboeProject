@@ -106,6 +106,45 @@ public class PaymentController {
             return ResponseEntity.status(500).body("Failed: " + e.getMessage());
         }
     }
+
+    @GetMapping("/payment-success")
+    public ResponseEntity<?> handlePaymentSuccess(
+            @RequestParam String code,
+            @RequestParam String cancel,
+            @RequestParam String status,
+            @RequestParam String orderCode) {
+
+        try {
+            if (!code.equals("00")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Thanh toán thất bại", "code", code));
+            }
+
+            Long orderCodeLong = Long.parseLong(orderCode);
+            Payment payment = paymentRepository.findByOrderCode(orderCodeLong);
+
+            if (payment != null) {
+                if ("false".equals(cancel) && "PAID".equals(status)) {
+                    payment.setStatus("PAID");
+                    paymentRepository.save(payment);
+                } else if ("true".equals(cancel) && "CANCELLED".equals(status)) {
+                    payment.setStatus("CANCELLED");
+                    paymentRepository.save(payment);
+                }
+            }
+
+            // Có thể redirect về trang FE hoặc trả JSON nếu muốn xử lý ở client
+            return ResponseEntity.ok(Map.of(
+                    "message", "Đã xử lý kết quả thanh toán",
+                    "orderCode", orderCodeLong,
+                    "status", status,
+                    "cancel", cancel
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi xử lý kết quả thanh toán", "message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/payment-cancel")
     public ResponseEntity<?> handleCancel(@RequestParam(required = false) String orderCode) {
         if (orderCode == null || orderCode.trim().isEmpty()) {
