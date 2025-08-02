@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -62,28 +59,35 @@ public class PaymentController {
 
             var result = payOsService.createPayment(99000, "Thanh toán Oboeru", userId);
 
-            if (result == null) {
+            if (result == null || result.getCheckoutUrl() == null) {
                 return ResponseEntity.status(500).body(Map.of(
                         "error", "Lỗi tạo thanh toán PayOS",
-                        "message", "Không có dữ liệu trả về từ PayOS"
+                        "message", "Không có dữ liệu trả về từ PayOS hoặc thiếu checkoutUrl"
                 ));
             }
 
-            String qrUrl = null;
-            if (result.getCheckoutUrl() != null) {
-                qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" +
-                        URLEncoder.encode(result.getCheckoutUrl(), StandardCharsets.UTF_8);
+            // Lấy lại payment từ orderCode
+            long orderCode = result.getOrderCode();
+            Payment payment = paymentRepository.findByOrderCode(orderCode);
+            if (payment == null) {
+                return ResponseEntity.status(500).body(Map.of("error", "Không tìm thấy đơn hàng vừa tạo"));
             }
 
-            Map<String, Object> response = new java.util.HashMap<>();
-            response.put("checkoutUrl", result.getCheckoutUrl());
-            response.put("orderCode", result.getOrderCode());
-            response.put("expiredAt", result.getExpiredAt());
-            response.put("qrUrl", qrUrl);
+//            String encodedCheckoutUrl = URLEncoder.encode(result.getCheckoutUrl(), StandardCharsets.UTF_8);
+            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + result.getCheckoutUrl();
 
-            return ResponseEntity.ok(response);
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", payment.getAmount());
+            body.put("orderCode", payment.getOrderCode());
+            body.put("status", payment.getStatus());
+            body.put("paid_at", payment.getPaidAt());
+            body.put("qrUrl", qrUrl);
+            body.put("checkoutUrl", result.getCheckoutUrl());
+
+            return ResponseEntity.ok(body);
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of(
                     "error", "Lỗi PayOS",
                     "message", e.getMessage()
@@ -91,14 +95,18 @@ public class PaymentController {
         }
     }
 
+
+
     @PostMapping("/payos-notify")
     public ResponseEntity<?> handlePayOsCallback(@RequestBody String rawJson) {
         try {
-
             System.out.println("Webhook Received:\n" + rawJson);
 
+            var data = payOsService.handleWebhook(rawJson);
 
-            payOsService.handleWebhook(rawJson);
+            System.out.println("Payment status updated for orderCode: " + data.getOrderCode() +
+                    ", status code: " + data.getCode());
+
 
             return ResponseEntity.ok("Received");
         } catch (Exception e) {
@@ -107,42 +115,19 @@ public class PaymentController {
         }
     }
 
+
     @GetMapping("/payment-success")
     public ResponseEntity<?> handlePaymentSuccess(
             @RequestParam String code,
             @RequestParam String cancel,
             @RequestParam String status,
             @RequestParam String orderCode) {
-
-        try {
-            if (!code.equals("00")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Thanh toán thất bại", "code", code));
-            }
-
-            Long orderCodeLong = Long.parseLong(orderCode);
-            Payment payment = paymentRepository.findByOrderCode(orderCodeLong);
-
-            if (payment != null) {
-                if ("false".equals(cancel) && "PAID".equals(status)) {
-                    payment.setStatus("PAID");
-                    paymentRepository.save(payment);
-                } else if ("true".equals(cancel) && "CANCELLED".equals(status)) {
-                    payment.setStatus("CANCELLED");
-                    paymentRepository.save(payment);
-                }
-            }
-
-            // Có thể redirect về trang FE hoặc trả JSON nếu muốn xử lý ở client
-            return ResponseEntity.ok(Map.of(
-                    "message", "Đã xử lý kết quả thanh toán",
-                    "orderCode", orderCodeLong,
-                    "status", status,
-                    "cancel", cancel
-            ));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Lỗi xử lý kết quả thanh toán", "message", e.getMessage()));
-        }
+        return ResponseEntity.ok(Map.of(
+                "message", "Cảm ơn bạn đã thanh toán! Hệ thống sẽ tự động xác nhận.",
+                "orderCode", orderCode,
+                "status", status,
+                "cancel", cancel
+        ));
     }
 
     @GetMapping("/payment-cancel")
@@ -164,10 +149,24 @@ public class PaymentController {
                     "message", "Thanh toán đã bị hủy",
                     "orderCode", orderCodeLong
             ));
-
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "orderCode không hợp lệ"));
         }
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<?> getPaymentStatus(@RequestParam Long orderCode) {
+        Payment payment = paymentRepository.findByOrderCode(orderCode);
+        if (payment == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy đơn hàng"));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "orderCode", payment.getOrderCode(),
+                "status", payment.getStatus(),
+                "amount", payment.getAmount(),
+                "user", payment.getUser().getUser_id()
+        ));
     }
 
 }

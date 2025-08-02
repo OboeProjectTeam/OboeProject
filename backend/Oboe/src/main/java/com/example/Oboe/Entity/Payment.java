@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -29,6 +30,9 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference("users-Payment")
     private User user;
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
 
     public Payment() {}
 
@@ -37,7 +41,13 @@ public class Payment {
         this.status = status;
         this.user = user;
     }
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
 
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
     public String getTransactionId() {
         return transactionId;
     }

@@ -14,12 +14,12 @@ import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 import vn.payos.type.WebhookData;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PayOsService {
-
 
     private final PayOS payOS;
     private final PayOsConfig config;
@@ -56,10 +56,9 @@ public class PayOsService {
                 .items(List.of(item))
                 .build();
 
-
         CheckoutResponseData response = payOS.createPaymentLink(paymentData);
 
-        // Lưu đơn vào DB
+        // Save to DB
         Payment payment = new Payment();
         payment.setOrderCode(tempOrderCode);
         payment.setAmount(fixedAmount);
@@ -71,13 +70,9 @@ public class PayOsService {
     }
 
     public WebhookData handleWebhook(String rawJson) throws Exception {
-
         ObjectMapper mapper = new ObjectMapper();
         vn.payos.type.Webhook webhook = mapper.readValue(rawJson, vn.payos.type.Webhook.class);
-
-
         WebhookData data = payOS.verifyPaymentWebhookData(webhook);
-
 
         long orderCode = data.getOrderCode();
         String code = data.getCode();
@@ -89,13 +84,17 @@ public class PayOsService {
             switch (code) {
                 case "00" -> {
                     status = "SUCCESS";
+                    payment.setPaidAt(LocalDateTime.now());
                     User user = payment.getUser();
-                    user.setAccountType(AccountType.PREMIUM);
-                    userRepository.save(user);
+                    if (user.getAccountType() != AccountType.PREMIUM) {
+                        user.setAccountType(AccountType.PREMIUM);
+                        userRepository.save(user);
+                    }
                 }
                 case "09" -> status = "CANCELLED";
                 default -> status = "FAILED";
             }
+
 
             payment.setStatus(status);
             paymentRepository.save(payment);
@@ -104,8 +103,6 @@ public class PayOsService {
         return data;
     }
 
-
-
     public void cancelPayment(long orderCode, String reason) throws Exception {
         payOS.cancelPaymentLink(orderCode, reason);
     }
@@ -113,5 +110,4 @@ public class PayOsService {
     public Object getPaymentInfo(long orderCode) throws Exception {
         return payOS.getPaymentLinkInformation(orderCode);
     }
-
 }
