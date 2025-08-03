@@ -1,5 +1,6 @@
 package com.example.Oboe.DTOs;
 
+import java.util.List;
 import java.util.UUID;
 
 public class FlashcardSearchResultDTO {
@@ -40,11 +41,32 @@ public class FlashcardSearchResultDTO {
     private String title;
     private String authorName;
     private Long termCount;
+    private List<CardItemDto> cardItems;
 
-    public FlashcardSearchResultDTO(UUID flashcardId, String title, String authorName, long termCount) {
+    public List<CardItemDto> getCardItems() {
+        return cardItems;
+    }
+
+    public void setCardItems(List<CardItemDto> cardItems) {
+        this.cardItems = cardItems;
+    }
+
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    private String avatarUrl;
+
+    public FlashcardSearchResultDTO(UUID flashcardId, String title, String authorName, long termCount ,String avatarUrl) {
         this.flashcardId = flashcardId;
         this.title = title;
         this.authorName = authorName;
         this.termCount = termCount;
+        this.avatarUrl =avatarUrl;
     }
 }

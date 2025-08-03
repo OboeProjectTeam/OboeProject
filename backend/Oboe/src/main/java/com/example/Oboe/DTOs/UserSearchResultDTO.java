@@ -7,11 +7,23 @@ public class UserSearchResultDTO {
     private String userName;
     private Long flashcardCount;
 
-    public UserSearchResultDTO(UUID userId, String userName, Long flashcardCount) {
-        this.userId = userId;
-        this.userName = userName;
-        this.flashcardCount = flashcardCount;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    private String avatarUrl;
+
+    public UserSearchResultDTO(UUID user_id, String userName, String avatarUrl, Long flashcardCount) {
+        this.userId = user_id;
+        this.userName = userName;
+        this.avatarUrl = avatarUrl;
+        this.flashcardCount = flashcardCount != null ? flashcardCount : 0;
+    }
+
 
     public UUID getUserId() {
         return userId;

@@ -20,9 +20,5 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/search")
-    public ResponseEntity<List<UserSearchResultDTO>> searchUsers(@RequestParam String keyword) {
-        List<UserSearchResultDTO> results = userService.searchUsers(keyword);
-        return ResponseEntity.ok(results);
-    }
+
 }
