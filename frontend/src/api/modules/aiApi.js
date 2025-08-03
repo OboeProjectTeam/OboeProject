@@ -15,9 +15,9 @@ const aiApi = {
   },
 
   // Sinh câu hỏi ngẫu nhiên từ 1 user
-  async generateQuestionsByUserId(userId) {
+  async generateQuestionsByUserId() {
     try {
-      const res = await axios.get(`${PREFIX}/generate-question/${userId}`);
+      const res = await axios.get(`${PREFIX}/generate-question`);
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));

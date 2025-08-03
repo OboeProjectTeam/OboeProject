@@ -26,11 +26,9 @@ const paymentApi = {
     }
   },
   // Thanh toán Payos
-  async createPayOsPayment(amount = 99000) {
+  async createPayOsPayment() {
     try {
-      const res = await axios.post(`${PREFIX}/payos`, null, {
-        params: { amount }
-      });
+      const res = await axios.post(`${PREFIX}/payos`);
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -44,7 +42,39 @@ const paymentApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Xử lý khi thanh toán thành công
+  async handlePaymentSuccess(params) {
+    try {
+      const res = await axios.get(`${PREFIX}/payment-success`, { params });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  //Xử lý khi người dùng hủy thanh toán
+  async handlePaymentCancel(orderCode) {
+    try {
+      const res = await axios.get(`${PREFIX}/payment-cancel`, {
+        params: { orderCode }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  //Tra cứu trạng thái thanh toán theo orderCode
+  async getPaymentStatus(orderCode) {
+    try {
+      const res = await axios.get(`${PREFIX}/status`, {
+        params: { orderCode }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
+
 
 };
 
