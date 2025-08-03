@@ -45,4 +45,3 @@ const aiApi = {
 };
 
 export default aiApi;
-export const { translateJapaneseToVietnamese } = aiApi;

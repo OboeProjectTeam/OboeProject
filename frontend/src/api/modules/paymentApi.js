@@ -24,7 +24,28 @@ const paymentApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Thanh toán Payos
+  async createPayOsPayment(amount = 99000) {
+    try {
+      const res = await axios.post(`${PREFIX}/payos`, null, {
+        params: { amount }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  // Xử lý callback từ PayOS
+  async handlePayOsCallback(payload) {
+    try {
+      const res = await axios.post(`${PREFIX}/payos-notify`, payload);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
+
 };
 
 export default paymentApi; 

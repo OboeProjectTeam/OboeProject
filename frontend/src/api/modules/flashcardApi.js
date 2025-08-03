@@ -87,9 +87,18 @@ const flashcardApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Tìm kiếm toàn bộ flashcard 
+  async searchGlobal(keyword) {
+    try {
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { keyword }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
-
-
 };
 
 export default flashcardApi;

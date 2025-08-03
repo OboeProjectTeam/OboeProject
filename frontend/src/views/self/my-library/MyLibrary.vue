@@ -5,31 +5,20 @@
     </div>
 
     <div class="library__tabs">
-      <button 
-        v-for="tab in tabs" 
-        :key="tab.id"
-        :class="['tab-btn', { active: activeTab === tab.id }]"
-        @click="activeTab = tab.id"
-      >
+      <button v-for="tab in tabs" :key="tab.id" :class="['tab-btn', { active: activeTab === tab.id }]"
+        @click="activeTab = tab.id">
         {{ tab.name }}
       </button>
     </div>
 
     <div class="library__sort" v-if="activeTab === 'study-sets'">
-      <button 
-        class="sort-btn"
-        @click="toggleSortMenu"
-      >
+      <button class="sort-btn" @click="toggleSortMenu">
         <i class="fas fa-sort"></i>
         {{ currentSort.label }}
       </button>
       <div class="sort-menu" v-if="showSortMenu">
-        <button 
-          v-for="option in sortOptions" 
-          :key="option.value"
-          :class="['sort-option', { active: currentSort.value === option.value }]"
-          @click="selectSort(option)"
-        >
+        <button v-for="option in sortOptions" :key="option.value"
+          :class="['sort-option', { active: currentSort.value === option.value }]" @click="selectSort(option)">
           {{ option.label }}
         </button>
       </div>
@@ -64,7 +53,7 @@
         <div v-if="!studySets.length && !studySetsLoading" class="empty-state">
           <i class="fas fa-book-open"></i>
           <h3>Chưa có học liệu nào</h3>
-          <p>Tạo học liệu đầu tiên của  để bắt đầu học tập</p>
+          <p>Tạo học liệu đầu tiên của để bắt đầu học tập</p>
           <router-link to="/create/flashcard" class="create-btn">
             Tạo học liệu
           </router-link>
@@ -115,101 +104,91 @@
       </div>
       <div v-else>
         <div class="favorites-tabs">
-        <button 
-          v-for="tab in favoriteTabs" 
-          :key="tab.id"
-          :class="['favorite-tab', { active: activeFavoriteTab === tab.id }]"
-          @click="activeFavoriteTab = tab.id"
-        >
-          <i :class="tab.icon"></i>
-          {{ tab.name }}
-        </button>
-      </div>
-
-      <div class="favorites-content">
-        <!-- Từ vựng yêu thích -->
-        <div v-if="activeFavoriteTab === 'vocabulary'" class="favorite-list">
-          <div v-for="word in favorites.vocabulary" :key="word.id" class="favorite-item">
-            <div class="item-content" @click="goToDetail('vocabulary', word)">
-              <strong>{{ word.title }}</strong>
-              <span>{{ word.content }}</span>
-            </div>
-            <button @click="removeFromFavorites('vocabulary', word.id)" class="remove-btn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div v-if="!favorites.vocabulary.length" class="empty-state">
-            <i class="fas fa-book"></i>
-            <h3>Chưa có từ vựng yêu thích</h3>
-            <p>Đánh dấu từ vựng yêu thích để xem lại sau</p>
-          </div>
-        </div>
-        <!-- Hán tự yêu thích -->
-        <div v-if="activeFavoriteTab === 'kanji'" class="favorite-list">
-          <div v-for="kanji in favorites.kanji" :key="kanji.id" class="favorite-item">
-            <div class="item-content" @click="goToDetail('kanji', kanji)">
-              <strong>{{ kanji.title }}</strong>
-              <span>{{ kanji.content }}</span>
-            </div>
-            <button @click="removeFromFavorites('kanji', kanji.id)" class="remove-btn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div v-if="!favorites.kanji.length" class="empty-state">
-            <i class="fas fa-language fa-3x"></i>
-            <h3>Chưa có hán tự yêu thích</h3>
-            <p>Đánh dấu hán tự yêu thích để xem lại sau</p>
-          </div>
-        </div>
-        <!-- Ngữ pháp yêu thích -->
-        <div v-if="activeFavoriteTab === 'grammar'" class="favorite-list">
-          <div v-for="item in favorites.grammar" :key="item.id" class="favorite-item">
-            <div class="item-content" @click="goToDetail('grammar', item)">
-              <strong>{{ item.title }}</strong>
-              <span>{{ item.content }}</span>
-            </div>
-            <button @click="removeFromFavorites('grammar', item.id)" class="remove-btn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div v-if="!favorites.grammar.length" class="empty-state">
-            <i class="fas fa-book"></i>
-            <h3>Chưa có ngữ pháp yêu thích</h3>
-            <p>Đánh dấu ngữ pháp yêu thích để xem lại sau</p>
-          </div>
+          <button v-for="tab in favoriteTabs" :key="tab.id"
+            :class="['favorite-tab', { active: activeFavoriteTab === tab.id }]" @click="activeFavoriteTab = tab.id">
+            <i :class="tab.icon"></i>
+            {{ tab.name }}
+          </button>
         </div>
 
-        <!-- Mẫu câu yêu thích -->
-        <div v-if="activeFavoriteTab === 'sentences'" class="favorite-list">
-          <div v-for="sentence in favorites.sentences" :key="sentence.id" class="favorite-item">
-            <div class="item-content" @click="goToDetail('sentences', sentence)">
-              <strong>{{ sentence.title }}</strong>
-              <span>{{ sentence.content }}</span>
+        <div class="favorites-content">
+          <!-- Từ vựng yêu thích -->
+          <div v-if="activeFavoriteTab === 'vocabulary'" class="favorite-list">
+            <div v-for="word in favorites.vocabulary" :key="word.id" class="favorite-item">
+              <div class="item-content" @click="goToDetail('vocabulary', word)">
+                <strong>{{ word.title }}</strong>
+                <span>{{ word.content }}</span>
+              </div>
+              <button @click="removeFromFavorites('vocabulary', word.id)" class="remove-btn">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
-            <button @click="removeFromFavorites('sentences', sentence.id)" class="remove-btn">
-              <i class="fas fa-times"></i>
-            </button>
+            <div v-if="!favorites.vocabulary.length" class="empty-state">
+              <i class="fas fa-book"></i>
+              <h3>Chưa có từ vựng yêu thích</h3>
+              <p>Đánh dấu từ vựng yêu thích để xem lại sau</p>
+            </div>
           </div>
-          <div v-if="!favorites.sentences.length" class="empty-state">
-            <i class="fas fa-comment-alt"></i>
-            <h3>Chưa có mẫu câu yêu thích</h3>
-            <p>Đánh dấu mẫu câu yêu thích để xem lại sau</p>
+          <!-- Hán tự yêu thích -->
+          <div v-if="activeFavoriteTab === 'kanji'" class="favorite-list">
+            <div v-for="kanji in favorites.kanji" :key="kanji.id" class="favorite-item">
+              <div class="item-content" @click="goToDetail('kanji', kanji)">
+                <strong>{{ kanji.title }}</strong>
+                <span>{{ kanji.content }}</span>
+              </div>
+              <button @click="removeFromFavorites('kanji', kanji.id)" class="remove-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div v-if="!favorites.kanji.length" class="empty-state">
+              <i class="fas fa-language fa-3x"></i>
+              <h3>Chưa có hán tự yêu thích</h3>
+              <p>Đánh dấu hán tự yêu thích để xem lại sau</p>
+            </div>
+          </div>
+          <!-- Ngữ pháp yêu thích -->
+          <div v-if="activeFavoriteTab === 'grammar'" class="favorite-list">
+            <div v-for="item in favorites.grammar" :key="item.id" class="favorite-item">
+              <div class="item-content" @click="goToDetail('grammar', item)">
+                <strong>{{ item.title }}</strong>
+                <span>{{ item.content }}</span>
+              </div>
+              <button @click="removeFromFavorites('grammar', item.id)" class="remove-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div v-if="!favorites.grammar.length" class="empty-state">
+              <i class="fas fa-book"></i>
+              <h3>Chưa có ngữ pháp yêu thích</h3>
+              <p>Đánh dấu ngữ pháp yêu thích để xem lại sau</p>
+            </div>
+          </div>
+
+          <!-- Mẫu câu yêu thích -->
+          <div v-if="activeFavoriteTab === 'sentences'" class="favorite-list">
+            <div v-for="sentence in favorites.sentences" :key="sentence.id" class="favorite-item">
+              <div class="item-content" @click="goToDetail('sentences', sentence)">
+                <strong>{{ sentence.title }}</strong>
+                <span>{{ sentence.content }}</span>
+              </div>
+              <button @click="removeFromFavorites('sentences', sentence.id)" class="remove-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div v-if="!favorites.sentences.length" class="empty-state">
+              <i class="fas fa-comment-alt"></i>
+              <h3>Chưa có mẫu câu yêu thích</h3>
+              <p>Đánh dấu mẫu câu yêu thích để xem lại sau</p>
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
 
     <!-- Delete confirmation popup -->
-    <ThePopup
-      v-if="showDeletePopup"
-      :title="'Xác nhận xóa'"
+    <ThePopup v-if="showDeletePopup" :title="'Xác nhận xóa'"
       :message="`Bạn có chắc chắn muốn xóa ${deleteType === 'flashcard' ? 'học liệu' : 'bài kiểm tra'} '${deleteTitle}'?`"
-      :confirm-text="'Xóa'"
-      :show-cancel="true"
-      @confirm="handleDeleteConfirm"
-      @cancel="handleDeleteCancel"
-    />
+      :confirm-text="'Xóa'" :show-cancel="true" @confirm="handleDeleteConfirm" @cancel="handleDeleteCancel" />
   </div>
 </template>
 
@@ -230,14 +209,14 @@ const fetchData = async () => {
   try {
     // Lấy dữ liệu từ store
     await store.dispatch('flashcard/fetchFlashcardSets')
-    
+
     // Lấy dữ liệu quizzes
     await store.dispatch('quiz/fetchQuizzes')
-    
+
     // Lấy dữ liệu blogs
     const blogsData = await store.dispatch('blog/fetchBlogs')
     blogs.value = blogsData || []
-    
+
     // Lấy dữ liệu favorites
     await store.dispatch('user/fetchFavorites')
   } catch (error) {
@@ -271,7 +250,7 @@ onMounted(() => {
       activeFavoriteTab.value = route.query.favoriteTab;
     }
   }
-  
+
   // Load data based on active tab
   if (activeTab.value === 'study-sets') {
     loadUserFlashcards()
@@ -280,7 +259,7 @@ onMounted(() => {
   } else if (activeTab.value === 'favorites') {
     loadUserFavorites()
   }
-  
+
   fetchData()
 })
 
@@ -328,11 +307,11 @@ const loadUserFlashcards = async () => {
   try {
     studySetsLoading.value = true
     const response = await api.flashcard.getUserFlashcards()
-    
+
     // Handle different response formats
     const flashcards = response.content || response.data || response
-    
-  
+
+
     // Map flashcards to study sets format
     const mappedSets = (Array.isArray(flashcards) ? flashcards : []).map(flashcard => ({
       id: flashcard.set_id,
@@ -350,8 +329,8 @@ const loadUserFlashcards = async () => {
         back: item.meaning
       })) || []
     }))
-    
-    
+
+
     studySetsData.value = mappedSets
   } catch (error) {
     studySetsData.value = []
@@ -367,7 +346,7 @@ const loadUserQuizzes = async () => {
     const response = await api.quiz.getUserQuizzes()
     // Handle different response formats
     const quizzes = response.content || response.data || response
-    
+
     // Map quizzes to expected format với safe date handling
     const mappedQuizzes = (Array.isArray(quizzes) ? quizzes : []).map(quiz => ({
       id: quiz.quizzesID || quiz.id,
@@ -376,7 +355,7 @@ const loadUserQuizzes = async () => {
       updatedAt: quiz.updatedAt || quiz.createdAt || new Date().toISOString(),
       description: quiz.description || ''
     }))
-    
+
     quizzesData.value = mappedQuizzes
   } catch (error) {
     quizzesData.value = []
@@ -389,15 +368,15 @@ const loadUserQuizzes = async () => {
 const loadUserFavorites = async () => {
   try {
     favoritesLoading.value = true
-    
+
     // Gọi API cho từng loại yêu thích
     const [vocabularyRes, kanjiRes, grammarRes, sentencesRes] = await Promise.all([
       api.favorite.getUserFavorites('vocabulary'),
-      api.favorite.getUserFavorites('kanji'), 
+      api.favorite.getUserFavorites('kanji'),
       api.favorite.getUserFavorites('grammar'),
       api.favorite.getUserFavorites('samplesentence')
     ])
-    
+
     // Map dữ liệu từ API response
     favoritesData.value = {
       vocabulary: (vocabularyRes.data || vocabularyRes || []).map(item => ({
@@ -442,14 +421,14 @@ const studySets = computed(() => studySetsData.value)
 
 const filteredStudySets = computed(() => {
   let filtered = [...studySets.value]
-  
+
   // Áp dụng tìm kiếm
   if (searchQuery.value) {
-    filtered = filtered.filter(set => 
+    filtered = filtered.filter(set =>
       set.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
-  
+
   // Áp dụng sắp xếp
   switch (currentSort.value.value) {
     case 'recent':
@@ -465,7 +444,7 @@ const filteredStudySets = computed(() => {
       filtered.sort((a, b) => b.title.localeCompare(a.title))
       break
   }
-  
+
   return filtered
 })
 
@@ -499,15 +478,15 @@ const deleteQuiz = (id) => {
 // Handle popup confirmation
 const handleDeleteConfirm = async () => {
   showDeletePopup.value = false
-  
+
   try {
     if (deleteType.value === 'flashcard') {
       // Call API to delete flashcard
       await api.flashcard.delete(deleteId.value)
-      
+
       // Remove from local data
       studySetsData.value = studySetsData.value.filter(set => set.id !== deleteId.value)
-      
+
       // Show success message
       store.dispatch('message/showMessage', {
         type: 'success',
@@ -516,10 +495,10 @@ const handleDeleteConfirm = async () => {
     } else if (deleteType.value === 'quiz') {
       // Call API to delete quiz
       await api.quiz.delete(deleteId.value)
-      
+
       // Remove from local data
       quizzesData.value = quizzesData.value.filter(quiz => quiz.id !== deleteId.value)
-      
+
       // Show success message
       store.dispatch('message/showMessage', {
         type: 'success',
@@ -534,7 +513,7 @@ const handleDeleteConfirm = async () => {
       text: `Không thể xóa ${itemType}: ` + error.message
     })
   }
-  
+
   // Reset popup state
   deleteType.value = ''
   deleteId.value = ''
@@ -566,14 +545,14 @@ const deleteBlog = async (id) => {
 const removeFromFavorites = async (type, id) => {
   try {
     // Use the new toggleFavorite API
-    await store.dispatch('user/toggleFavorite', { 
+    await store.dispatch('user/toggleFavorite', {
       type: type === 'sentences' ? 'sentence' : type, // Convert 'sentences' to 'sentence' for API
-      itemId: id 
+      itemId: id
     });
-    
+
     // Reload favorites data to ensure UI is up to date
     await loadUserFavorites();
-    
+
     // Show success message
     store.dispatch('message/showMessage', {
       type: 'success',
@@ -590,12 +569,12 @@ const removeFromFavorites = async (type, id) => {
 
 const formatDate = (timestamp) => {
   if (!timestamp) return 'N/A'
-  
+
   const date = new Date(timestamp)
   if (isNaN(date.getTime())) {
     return 'N/A'
   }
-  
+
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
     month: '2-digit',
@@ -612,23 +591,23 @@ const startLearning = async (set) => {
       kana: '',
       meaning: card.back
     }))
-    
+
     // Lưu vào store
     await store.dispatch('flashcard/setLearningItems', learningItems)
-    
-         // Chuyển đến trang học với thông tin flashcard set
-     router.push({
-       path: '/flashcard/learn',
-       query: {
-         source: 'library',
-         title: set.title,
-         description: set.description || `Học liệu gồm ${set.cardCount} thuật ngữ`,
-         setId: set.id,
-         creatorName: set.creator?.name || 'Người dùng',
-         creatorAvatar: set.creator?.avatar || '',
-         createdAt: set.createdAt || ''
-       }
-     })
+
+    // Chuyển đến trang học với thông tin flashcard set
+    router.push({
+      path: '/flashcard/learn',
+      query: {
+        source: 'library',
+        title: set.title,
+        description: set.description || `Học liệu gồm ${set.cardCount} thuật ngữ`,
+        setId: set.id,
+        creatorName: set.creator?.name || 'Người dùng',
+        creatorAvatar: set.creator?.avatar || '',
+        createdAt: set.createdAt || ''
+      }
+    })
   } catch (error) {
     console.error('Error starting learning:', error)
   }
@@ -685,7 +664,7 @@ const deleteHistoryItem = async (id) => {
 };
 
 const reviewTest = (id) => {
-    router.push({ name: 'FlashcardTest', query: { historyId: id } });
+  router.push({ name: 'FlashcardTest', query: { historyId: id } });
 }
 
 const goToDetail = (type, item) => {

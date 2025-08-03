@@ -201,10 +201,13 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/search',
+    path: '/search/:query?',
     name: 'SearchResults',
     component: SearchResults,
-    props: route => ({ query: route.query.q })
+    props: route => ({ 
+      query: route.params.query || route.query.q || '',
+      searchResults: route.params.searchResults
+    })
   },
   {
     path: '/messages',

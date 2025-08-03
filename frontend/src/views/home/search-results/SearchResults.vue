@@ -4,9 +4,9 @@
       <h1 class="text-3xl font-bold mb-6">Kết quả cho "{{ query }}"</h1>
 
       <!-- Tabs -->
-      <div class="tabs-container mb-8">
+      <div class="tabs-container mb-8" v-if="!loading && !error">
         <ul class="tabs-list">
-          <li v-for="tab in tabs" :key="tab.key" 
+          <li v-for="tab in availableTabs" :key="tab.key" 
               :class="['tab-item', { 'active': activeTab === tab.key }]"
               @click="activeTab = tab.key">
             {{ tab.name }}
@@ -14,16 +14,29 @@
         </ul>
       </div>
 
+      <!-- Loading State -->
+      <div v-if="loading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Đang tìm kiếm...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <p>{{ error }}</p>
+        <button @click="loadSearchResults(query)" class="retry-btn">Thử lại</button>
+      </div>
+      
       <!-- All Results Tab -->
-      <div v-if="activeTab === 'all'" class="search-content">
+      <div v-else-if="activeTab === 'all'" class="search-content">
         <!-- Users Section -->
-        <section class="mt-16" v-if="users.length > 0">
+        <section class="mt-16" v-if="usersFromAPI.length > 0">
           <div class="section-header">
             <h2 class="text-2xl font-semibold">Người dùng</h2>
             <a href="#" class="view-all" @click.prevent="activeTab = 'users'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="user in users.slice(0, 6)" :key="user.id" class="user-card">
+            <div v-for="user in usersFromAPI.slice(0, 5)" :key="user.id" class="user-card" @click="goToUserProfile(user)">
               <img :src="user.avatar" :alt="user.name" class="avatar"/>
               <div class="user-info">
                 <h3 class="user-name">{{ user.name }}</h3>
@@ -42,10 +55,10 @@
             <a href="#" class="view-all" @click.prevent="activeTab = 'sets'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="set in studySets.slice(0, 5)" :key="set.id" class="set-card">
-              <div class="set-card-body">
-                <h3 class="set-title">{{ set.title }}</h3>
-                <p class="set-term-count">{{ set.termCount }} thuật ngữ</p>
+            <div v-for="set in studySets.slice(0, 5)" :key="set.id" class="question-card" @click="goToFlashcardLearn(set)">
+              <h3 class="question-title">{{ set.title }}</h3>
+              <div class="question-header">
+                <span class="answer-count">{{ set.termCount }} thuật ngữ</span>
                 <div class="author-info">
                   <img :src="set.author.avatar" :alt="set.author.name" class="author-avatar"/>
                   <span>{{ set.author.name }}</span>
@@ -62,15 +75,15 @@
             <a href="#" class="view-all" @click.prevent="activeTab = 'questions'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="question in questions.slice(0, 5)" :key="question.id" class="question-card">
+            <div v-for="question in questions.slice(0, 5)" :key="question.id" class="question-card" @click="goToFlashcardTest(question)">
+              <h3 class="question-title">{{ question.title }}</h3>
               <div class="question-header">
+                <span class="answer-count">{{ question.answerCount }} câu hỏi</span>
                 <div class="author-info">
                   <img :src="question.author.avatar" :alt="question.author.name" class="author-avatar"/>
                   <span>{{ question.author.name }}</span>
                 </div>
-                <span class="answer-count">{{ question.answerCount }} câu hỏi</span>
               </div>
-              <h3 class="question-title">{{ question.title }}</h3>
             </div>
           </div>
         </section>
@@ -102,7 +115,7 @@
                 <div v-if="selectedSet?.id === set.id && isMobileView" class="mobile-preview">
                   <div class="preview-header">
                     <div class="header-top">
-                      <button class="learn-btn">
+                      <button class="learn-btn" @click.stop="goToFlashcardLearn(set)">
                         <i class="fas fa-graduation-cap"></i>Học
                       </button>
                     </div>
@@ -138,7 +151,7 @@
             <div class="preview-header">
               <div class="header-top">
                 <h1>{{ selectedSet.title }}</h1>
-                <button class="learn-btn">
+                <button class="learn-btn" @click.stop="goToFlashcardLearn(selectedSet)">
                   <i class="fas fa-graduation-cap"></i>Học
                 </button>
               </div>
@@ -168,15 +181,15 @@
       <!-- Questions Tab -->
       <div v-else-if="activeTab === 'questions'" class="paged-grid-content">
         <div class="grid-container">
-          <div v-for="question in paginatedList" :key="question.id" class="question-card-grid">
+          <div v-for="question in paginatedList" :key="question.id" class="question-card-grid" @click="goToFlashcardTest(question)">
+            <h3 class="question-title">{{ question.title }}</h3>
             <div class="question-header">
+              <span class="answer-count">{{ question.answerCount }} câu hỏi</span>
               <div class="author-info">
                 <img :src="question.author.avatar" :alt="question.author.name" class="author-avatar"/>
                 <span>{{ question.author.name }}</span>
               </div>
-              <span class="answer-count">{{ question.answerCount }} câu hỏi</span>
             </div>
-            <h3 class="question-title">{{ question.title }}</h3>
           </div>
         </div>
         <div class="pagination">
@@ -195,11 +208,9 @@
         <div class="grid-container">
           <div v-for="user in paginatedList" :key="user.id" class="user-card-grid" @click="goToUserProfile(user)">
             <img :src="user.avatar" :alt="user.name" class="avatar"/>
-            <div class="user-info">
-              <h3 class="user-name">{{ user.name }}</h3>
-              <div class="user-stats">
-                <span>{{ user.sets }} học phần</span>
-              </div>
+            <h3 class="user-name">{{ user.name }}</h3>
+            <div class="user-stats">
+              <span>{{ user.sets }} học phần</span>
             </div>
           </div>
         </div>
@@ -214,7 +225,7 @@
         </div>
       </div>
 
-      <div v-if="!users.length && !studySets.length && !questions.length" class="text-center text-gray-500 mt-12">
+      <div v-if="!loading && !error && !hasAnyResults" class="text-center text-gray-500 mt-12">
         <p>Không tìm thấy kết quả nào cho "{{ query }}".</p>
       </div>
     </div>
@@ -222,12 +233,19 @@
 </template>
 
 <script>
+import searchApi from '@/api/modules/searchApi';
+import api from '@/api';
+
 export default {
   name: 'SearchResults',
   props: {
     query: {
       type: String,
-      default: 'Kanji N5',
+      default: '',
+    },
+    searchResults: {
+      type: Object,
+      default: null,
     },
   },
   data() {
@@ -247,171 +265,59 @@ export default {
         { key: 'questions', name: 'Bài kiểm tra' },
         { key: 'users', name: 'Người dùng' },
       ],
-      users: [
-        { id: 1, name: 'kanji', avatar: 'https://cdn-icons-png.flaticon.com/512/1998/1998627.png', sets: 0 },
-        { id: 2, name: 'kanjiN5', avatar: 'https://cdn-icons-png.flaticon.com/512/7046/7046215.png', sets: 6 },
-        { id: 3, name: 'user_3', avatar: 'https://i.pravatar.cc/80?u=user3', sets: 12 },
-        { id: 4, name: 'user_4', avatar: 'https://i.pravatar.cc/80?u=user4', sets: 5 },
-        { id: 5, name: 'user_5', avatar: 'https://i.pravatar.cc/80?u=user5', sets: 8 },
-        { id: 6, name: 'user_6', avatar: 'https://i.pravatar.cc/80?u=user6', sets: 2 },
-        { id: 7, name: 'user_7', avatar: 'https://i.pravatar.cc/80?u=user7', sets: 23 },
-        { id: 8, name: 'user_8', avatar: 'https://i.pravatar.cc/80?u=user8', sets: 1 },
-        { id: 9, name: 'user_9', avatar: 'https://i.pravatar.cc/80?u=user9', sets: 15 },
-        { id: 10, name: 'user_10', avatar: 'https://i.pravatar.cc/80?u=user10', sets: 9 },
-        { id: 11, name: 'user_11', avatar: 'https://i.pravatar.cc/80?u=user11', sets: 11 },
-        { id: 12, name: 'user_12', avatar: 'https://i.pravatar.cc/80?u=user12', sets: 4 },
-        { id: 13, name: 'user_13', avatar: 'https://i.pravatar.cc/80?u=user13', sets: 7 },
-      ],
-      studySets: [
-        {
-          id: 101,
-          title: 'Kanji N5 - Các chữ cơ bản',
-          termCount: 528,
-          author: { name: 'duong_nguyenvan', avatar: 'https://i.pravatar.cc/32?u=duong' },
-          terms: [
-            { front: '人', back: 'ひと - người' },
-            { front: '日', back: 'ひ - mặt trời, ngày' },
-            { front: '月', back: 'つき - mặt trăng, tháng' },
-            { front: '木', back: 'き - cây' },
-            { front: '山', back: 'やま - núi' },
-          ]
-        },
-        {
-          id: 102,
-          title: 'Kanji N5 - Số đếm',
-          termCount: 255,
-          author: { name: 'hoang thuy linh', avatar: 'https://i.pravatar.cc/32?u=quizlette' },
-          terms: [
-            { front: '水', back: 'みず - nước' },
-            { front: '火', back: 'ひ - lửa' },
-            { front: '土', back: 'つち - đất' },
-            { front: '金', back: 'かね - vàng, tiền' },
-            { front: '雨', back: 'あめ - mưa' },
-          ]
-        },
-        {
-          id: 103,
-          title: 'Kanji N5 - Động từ thường gặp',
-          termCount: 131,
-          author: { name: 'Nguyễn Văn Bách', avatar: 'https://i.pravatar.cc/32?u=quizlette2' },
-          terms: [
-            { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' },
-            { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' }, { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' }, { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' }, { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' }, { front: '一', back: 'いち - một' },
-            { front: '二', back: 'に - hai' },
-            { front: '三', back: 'さん - ba' },
-            { front: '四', back: 'よん/し - bốn' },
-            { front: '五', back: 'ご - năm' },
-          ]
-        },
-        {
-          id: 104,
-          title: 'Kanji N5 - Tính từ cơ bản',
-          termCount: 180,
-          author: { name: 'Mai Anh', avatar: 'https://i.pravatar.cc/32?u=maianh' },
-          terms: [
-            { front: '大', back: 'おお - lớn' },
-            { front: '小', back: 'ちい - nhỏ' },
-            { front: '新', back: 'あたら - mới' },
-            { front: '古', back: 'ふる - cũ' },
-            { front: '高', back: 'たか - cao' },
-          ]
-        },
-        {
-          id: 105,
-          title: 'Kanji N5 - Tính từ cơ bản',
-          termCount: 180,
-          author: { name: 'Mai Anh', avatar: 'https://i.pravatar.cc/32?u=maianh' },
-          terms: [
-            { front: '大', back: 'おお - lớn' },
-            { front: '小', back: 'ちい - nhỏ' },
-            { front: '新', back: 'あたら - mới' },
-            { front: '古', back: 'ふる - cũ' },
-            { front: '高', back: 'たか - cao' },
-          ]
-        },
-        {
-          id: 106,
-          title: 'Kanji N5 - Tính từ cơ bản',
-          termCount: 180,
-          author: { name: 'Mai Anh', avatar: 'https://i.pravatar.cc/32?u=maianh' },
-          terms: [
-            { front: '大', back: 'おお - lớn' },
-            { front: '小', back: 'ちい - nhỏ' },
-            { front: '新', back: 'あたら - mới' },
-            { front: '古', back: 'ふる - cũ' },
-            { front: '高', back: 'たか - cao' },
-          ]
-        },
-        {
-          id: 107,
-          title: 'Kanji N5 - Tính từ cơ bản',
-          termCount: 180,
-          author: { name: 'Mai Anh', avatar: 'https://i.pravatar.cc/32?u=maianh' },
-          terms: [
-            { front: '大', back: 'おお - lớn' },
-            { front: '小', back: 'ちい - nhỏ' },
-            { front: '新', back: 'あたら - mới' },
-            { front: '古', back: 'ふる - cũ' },
-            { front: '高', back: 'たか - cao' },
-          ]
-        },
-        {
-          id: 108,
-          title: 'Kanji N5 - Màu sắc',
-          termCount: 90,
-          author: { name: 'Đức Anh', avatar: 'https://i.pravatar.cc/32?u=ducanh' },
-          terms: [
-            { front: '白', back: 'しろ - trắng' },
-            { front: '黒', back: 'くろ - đen' },
-            { front: '赤', back: 'あか - đỏ' },
-            { front: '青', back: 'あお - xanh' },
-            { front: '黄', back: 'き - vàng' },
-          ]
-        },
-      ],
-      questions: [
-        { id: 301, title: 'Làm sao để phân biệt を và が?', author: { name: 'minh_an', avatar: 'https://i.pravatar.cc/32?u=minhan' }, answerCount: 5 },
-        { id: 302, title: 'Kinh nghiệm thi đậu N1 trong 6 tháng?', author: { name: 'long_hoang', avatar: 'https://i.pravatar.cc/32?u=longhoang' }, answerCount: 22 },
-        { id: 303, title: 'Tài liệu tự học tiếng Nhật từ con số 0?', author: { name: 'bich_phuong', avatar: 'https://i.pravatar.cc/32?u=bichphuong' }, answerCount: 18 },
-        { id: 304, title: 'Cách dùng trợ từ は và も?', author: { name: 'thanh_tam', avatar: 'https://i.pravatar.cc/32?u=thanhtam' }, answerCount: 11 },
-        { id: 305, title: 'Mẹo nhớ Kanji hiệu quả?', author: { name: 'gia_huy', avatar: 'https://i.pravatar.cc/32?u=giahuy' }, answerCount: 35 },
-        { id: 306, title: 'Nên học Mina no Nihongo hay Genki?', author: { name: 'hoai_an', avatar: 'https://i.pravatar.cc/32?u=hoaian' }, answerCount: 9 },
-        { id: 307, title: 'Phân biệt thể sai khiến và bị động sai khiến?', author: { name: 'duc_anh', avatar: 'https://i.pravatar.cc/32?u=ducanh2' }, answerCount: 15 },
-        { id: 308, title: 'JLPT N3 cần bao nhiêu từ vựng?', author: { name: 'mai_phuong', avatar: 'https://i.pravatar.cc/32?u=maiphuong' }, answerCount: 7 },
-        { id: 309, title: 'Lộ trình học từ N5 đến N3 mất bao lâu?', author: { name: 'quoc_viet', avatar: 'https://i.pravatar.cc/32?u=quocviet' }, answerCount: 25 },
-        { id: 310, title: 'Có nên đi du học Nhật Bản không?', author: { name: 'thuy_linh', avatar: 'https://i.pravatar.cc/32?u=thuylinh' }, answerCount: 42 },
-        { id: 311, title: 'Sách luyện đọc hiểu N2 nào hay?', author: { name: 'bao_ngoc', avatar: 'https://i.pravatar.cc/32?u=baongoc' }, answerCount: 13 },
-        { id: 312, title: 'Kính ngữ trong tiếng Nhật có khó không?', author: { name: 'trung_kien', avatar: 'https://i.pravatar.cc/32?u=trungkien' }, answerCount: 31 },
-        { id: 313, title: 'App học tiếng Nhật miễn phí tốt nhất?', author: { name: 'lan_anh', avatar: 'https://i.pravatar.cc/32?u=lananh' }, answerCount: 50 },
-      ]
+      // Dữ liệu từ API
+      apiResults: {
+        flashcards: { content: [], totalElements: 0 },
+        quizzes: { content: [], totalElements: 0 },
+        users: { content: [], totalElements: 0 }
+      },
+      loading: false,
+      error: null
     };
   },
   computed: {
+    // Dữ liệu từ API được format lại
+    studySets() {
+      return this.apiResults.flashcards.content.map(item => ({
+        id: item.flashcardId,
+        title: item.title,
+        termCount: item.termCount,
+        author: { 
+          name: item.authorName, 
+          avatar: item.avatarUrl || 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg'
+        },
+        terms: (item.cardItems || []).map(cardItem => ({
+          front: cardItem.word,
+          back: cardItem.meaning
+        }))
+      }));
+    },
+    questions() {
+      return this.apiResults.quizzes.content.map(item => ({
+        id: item.quizId,
+        title: item.title,
+        author: { 
+          name: item.userName, 
+          avatar: item.avatarUrl || 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg'
+        },
+        answerCount: item.questionCount
+      }));
+    },
+    usersFromAPI() {
+      return this.apiResults.users.content.map(item => ({
+        id: item.userId,
+        userId: item.userId,
+        name: item.userName,
+        userName: item.userName,
+        avatar: item.avatarUrl || 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg',
+        sets: item.flashcardCount
+      }));
+    },
     currentList() {
       switch (this.activeTab) {
         case 'sets': return this.studySets;
         case 'questions': return this.questions;
-        case 'users': return this.users;
+        case 'users': return this.usersFromAPI;
         default: return [];
       }
     },
@@ -427,6 +333,30 @@ export default {
       const start = (this.currentPage - 1) * this.currentItemsPerPage;
       const end = start + this.currentItemsPerPage;
       return this.currentList.slice(start, end);
+    },
+    availableTabs() {
+      const tabs = [];
+      
+      // Luôn hiển thị tab "Tất cả kết quả" nếu có ít nhất 1 loại dữ liệu
+      if (this.usersFromAPI.length > 0 || this.studySets.length > 0 || this.questions.length > 0) {
+        tabs.push({ key: 'all', name: 'Tất cả kết quả' });
+      }
+      
+      // Chỉ hiển thị các tab có dữ liệu
+      if (this.studySets.length > 0) {
+        tabs.push({ key: 'sets', name: 'Học liệu' });
+      }
+      if (this.questions.length > 0) {
+        tabs.push({ key: 'questions', name: 'Bài kiểm tra' });
+      }
+      if (this.usersFromAPI.length > 0) {
+        tabs.push({ key: 'users', name: 'Người dùng' });
+      }
+      
+      return tabs;
+    },
+    hasAnyResults() {
+      return this.usersFromAPI.length > 0 || this.studySets.length > 0 || this.questions.length > 0;
     }
   },
   methods: {
@@ -434,24 +364,196 @@ export default {
       this.selectedSet = set;
     },
     goToUserProfile(user) {
-      this.$router.push({ name: 'ProfileDetail', params: { username: user.name } });
+      const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+      this.$router.push({ 
+        name: 'ProfileDetail', 
+        params: { username: user.userName },
+        query: { 
+          userId: user.userId,
+          fromSource: 'search',
+          searchQuery: searchQuery // Thêm query tìm kiếm để breadcrumb có thể sử dụng
+        }
+      });
+    },
+    async goToFlashcardLearn(flashcard) {
+      try {
+        // Lấy dữ liệu flashcard từ API
+        const flashcardData = await api.flashcard.getById(flashcard.id);
+        
+        if (!flashcardData || !flashcardData.cardItems || flashcardData.cardItems.length === 0) {
+          this.$store.dispatch('showMessage', {
+            type: 'error',
+            message: 'Không thể tải dữ liệu học liệu'
+          });
+          return;
+        }
+
+        // Convert API response to learning items format for FlashcardLearn
+        const learningItems = flashcardData.cardItems.map(item => ({
+          type: 'word',
+          kanji: item.word || '',
+          kana: '',
+          meaning: item.meaning || '',
+          content: item.word || '',
+          backcontent: item.meaning || '',
+          front: item.word || '',
+          back: item.meaning || ''
+        }));
+
+        // Save to store for FlashcardLearn to use
+        await this.$store.dispatch('flashcard/setLearningItems', learningItems);
+
+        // Navigate to FlashcardLearn with query params
+        const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+        this.$router.push({
+          path: '/flashcard/learn',
+          query: {
+            source: 'search',
+            title: flashcard.title,
+            description: `Học liệu gồm ${flashcard.termCount} thuật ngữ`,
+            setId: flashcard.id,
+            creatorName: flashcard.author?.name || 'Người dùng',
+            creatorAvatar: flashcard.author?.avatar || '',
+            createdAt: new Date().toISOString(),
+            searchQuery: searchQuery // Thêm query tìm kiếm để breadcrumb có thể sử dụng
+          }
+        });
+      } catch (error) {
+        console.error('Error loading flashcard:', error);
+        this.$store.dispatch('showMessage', {
+          type: 'error',
+          message: 'Có lỗi xảy ra khi tải học liệu'
+        });
+      }
+    },
+    goToFlashcardTest(quiz) {
+      this.$router.push({ name: 'FlashcardTest', params: { quizId: quiz.quizId } });
     },
     checkMobileView() {
       this.isMobileView = window.innerWidth <= 768;
+    },
+    async loadSearchResults(keyword) {
+      if (!keyword) return;
+      
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await searchApi.search_home(keyword, null, 0, 50);
+        console.log('API Response (all):', response);
+        console.log('Flashcards count:', response.flashcards?.content?.length || 0);
+        
+        this.apiResults = {
+          flashcards: response.flashcards || { content: [], totalElements: 0 },
+          quizzes: response.quizzes || { content: [], totalElements: 0 },
+          users: response.users || { content: [], totalElements: 0 }
+        };
+        
+        // Tự động chọn tab đầu tiên có dữ liệu
+        this.$nextTick(() => {
+          this.setDefaultActiveTab();
+        });
+      } catch (error) {
+        console.error('Lỗi khi tải kết quả tìm kiếm:', error);
+        this.error = 'Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.';
+      } finally {
+        this.loading = false;
+      }
+    },
+    async loadSearchResultsByType(keyword, type) {
+      if (!keyword) return;
+      
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await searchApi.search_home(keyword, type, 0, 50);
+        console.log(`API Response (${type}):`, response);
+        
+        // Cập nhật dữ liệu theo type
+        if (type === 'flashcard') {
+          console.log('Flashcards count (by type):', response.flashcards?.content?.length || 0);
+          this.apiResults.flashcards = response.flashcards || { content: [], totalElements: 0 };
+        } else if (type === 'quiz') {
+          console.log('Quizzes count (by type):', response.quizzes?.content?.length || 0);
+          this.apiResults.quizzes = response.quizzes || { content: [], totalElements: 0 };
+        } else if (type === 'user') {
+          console.log('Users count (by type):', response.users?.content?.length || 0);
+          this.apiResults.users = response.users || { content: [], totalElements: 0 };
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải kết quả tìm kiếm theo type:', error);
+        this.error = 'Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.';
+      } finally {
+        this.loading = false;
+      }
+    },
+    setDefaultActiveTab() {
+      // Nếu tab hiện tại không có trong danh sách available tabs, chọn tab đầu tiên
+      const availableTabKeys = this.availableTabs.map(tab => tab.key);
+      if (!availableTabKeys.includes(this.activeTab)) {
+        if (availableTabKeys.length > 0) {
+          this.activeTab = availableTabKeys[0];
+        }
+      }
+    },
+    handleRouterState() {
+      // Kiểm tra xem có dữ liệu từ props không
+      if (this.searchResults) {
+        // Sử dụng dữ liệu từ props
+        this.apiResults = {
+          flashcards: this.searchResults.flashcards || { content: [], totalElements: 0 },
+          quizzes: this.searchResults.quizzes || { content: [], totalElements: 0 },
+          users: this.searchResults.users || { content: [], totalElements: 0 }
+        };
+        
+        // Tự động chọn tab đầu tiên có dữ liệu
+        this.$nextTick(() => {
+          this.setDefaultActiveTab();
+        });
+      } else {
+        // Lấy query từ props hoặc route params
+        const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+        if (searchQuery) {
+          this.loadSearchResults(searchQuery);
+        }
+      }
     }
   },
   mounted() {
     this.checkMobileView();
     window.addEventListener('resize', this.checkMobileView);
+    this.handleRouterState();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.checkMobileView);
   },
   watch: {
+    query(newQuery) {
+      if (newQuery) {
+        this.loadSearchResults(newQuery);
+      }
+    },
     activeTab: {
       immediate: true,
-      handler(newTab) {
+      handler(newTab, oldTab) {
         this.currentPage = 1;
+        
+        // Gọi API riêng biệt khi chuyển tab (trừ tab 'all')
+        if (newTab !== 'all' && newTab !== oldTab) {
+          const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+          if (searchQuery) {
+            let type = '';
+            if (newTab === 'sets') type = 'flashcard';
+            else if (newTab === 'questions') type = 'quiz';
+            else if (newTab === 'users') type = 'user';
+            
+            if (type) {
+              this.loadSearchResultsByType(searchQuery, type);
+            }
+          }
+        }
+        
         if (newTab === 'sets' && this.studySets.length > 0) {
           this.selectStudySet(this.paginatedList[0]);
         } else {
@@ -473,4 +575,4 @@ export default {
 
 <style lang="scss" scoped>
 @use '@/views/home/search-results/SearchResults.scss';
-</style> 
+</style>
