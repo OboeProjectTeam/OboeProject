@@ -73,8 +73,10 @@ public class PaymentController {
                 return ResponseEntity.status(500).body(Map.of("error", "Không tìm thấy đơn hàng vừa tạo"));
             }
 
-//            String encodedCheckoutUrl = URLEncoder.encode(result.getCheckoutUrl(), StandardCharsets.UTF_8);
-            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + result.getCheckoutUrl();
+            String encodedCheckoutUrl = URLEncoder.encode(result.getCheckoutUrl(), StandardCharsets.UTF_8);
+//            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" + result.getCheckoutUrl();
+
+            String qrUrl = result.getQrCode();
 
             Map<String, Object> body = new HashMap<>();
             body.put("amount", payment.getAmount());
@@ -84,6 +86,7 @@ public class PaymentController {
             body.put("qrUrl", qrUrl);
             body.put("checkoutUrl", result.getCheckoutUrl());
 
+            System.out.println("Checkout result: " + result);
             return ResponseEntity.ok(body);
 
         } catch (Exception e) {
