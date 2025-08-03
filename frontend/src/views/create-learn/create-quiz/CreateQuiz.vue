@@ -159,8 +159,20 @@ const createQuizWithAI = async () => {
   try {
     isGeneratingAI.value = true
     
-    // Gọi API để tạo câu hỏi ngẫu nhiên bằng AI
-    const response = await aiApi.generateRandomQuestions()
+    // Lấy userId từ store
+    const currentUser = store.getters['auth/currentUser']
+    const userId = currentUser?.userId || currentUser?.user_id || currentUser?.id
+    
+    if (!userId) {
+      store.dispatch('message/showMessage', {
+        type: 'error',
+        text: 'Không thể xác định người dùng. Vui lòng đăng nhập lại.'
+      })
+      return
+    }
+    
+    // Gọi API để tạo câu hỏi theo userId
+    const response = await aiApi.generateQuestionsByUserId(userId)
     
     if (!Array.isArray(response) || response.length === 0) {
       store.dispatch('message/showMessage', {
@@ -186,7 +198,7 @@ const createQuizWithAI = async () => {
     
     // Chuyển hướng đến trang test với thông tin AI-generated
     router.push({
-      path: '/flashcard/test',
+      name: 'FlashcardTest',
       query: {
         type: 'multiple-choice',
         aiGenerated: 'true',
