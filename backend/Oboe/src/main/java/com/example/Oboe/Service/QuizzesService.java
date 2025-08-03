@@ -156,7 +156,4 @@ public class QuizzesService {
 
 
 
-    public List<QuizSearchResultDTO> searchQuizzes(String keyword) {
-        return quizzesRepository.searchQuizzesByKeyword(keyword);
-    }
 }
