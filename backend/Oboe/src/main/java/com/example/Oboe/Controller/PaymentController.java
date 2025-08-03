@@ -168,5 +168,4 @@ public class PaymentController {
                 "user", payment.getUser().getUser_id()
         ));
     }
-
 }
