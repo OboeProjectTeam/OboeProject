@@ -35,7 +35,7 @@
             
             <div class="qr-code-section">
               <div class="qr-code-container">
-                <img :src="paymentData.qrUrl" alt="QR Code thanh toán" class="qr-code-img">
+                <img :src="qrCodeUrl" alt="QR Code thanh toán" class="qr-code-img">
               </div>
               
               <div class="payment-info">
@@ -45,11 +45,11 @@
                 </div>
                 <div class="info-item">
                   <span class="label">Số tiền:</span>
-                  <span class="value amount">99.000đ</span>
+                  <span class="value amount">{{ formatAmount(paymentData.amount) }}</span>
                 </div>
-                <div class="info-item" v-if="paymentData.expiredAt">
-                  <span class="label">Hết hạn:</span>
-                  <span class="value">{{ formatExpiredTime(paymentData.expiredAt) }}</span>
+                <div class="info-item">
+                  <span class="label">Trạng thái:</span>
+                  <span class="value" :class="getStatusClass(paymentData.status)">{{ getStatusText(paymentData.status) }}</span>
                 </div>
               </div>
             </div>
@@ -113,13 +113,22 @@
             </button>
             
             <button 
-              v-else-if="paymentData" 
+              v-else-if="paymentData && paymentData.status === 'PENDING'" 
               @click="checkPaymentStatus" 
               class="btn-submit btn-check"
               :disabled="checking"
             >
               <i class="fas fa-sync" :class="{ 'fa-spin': checking }"></i> 
               {{ checking ? 'Đang kiểm tra...' : 'Kiểm tra thanh toán' }}
+            </button>
+
+            <button 
+              v-else-if="paymentData && paymentData.status !== 'PENDING'" 
+              @click="createNewPayment" 
+              class="btn-submit"
+              :disabled="loading"
+            >
+              <i class="fas fa-plus"></i> Tạo thanh toán mới
             </button>
           </div>
           
@@ -155,7 +164,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import paymentApi from '@/api/modules/paymentApi';
 
 // Reactive data
@@ -170,6 +179,13 @@ const countdown = ref(0);
 let checkInterval = null;
 let countdownInterval = null;
 
+// Computed properties
+const qrCodeUrl = computed(() => {
+  if (!paymentData.value?.qrUrl) return '';
+  // Tạo QR code từ qrUrl bằng API QR generator
+  return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentData.value.qrUrl)}`;
+});
+
 // Create payment
 const createPayment = async () => {
   try {
@@ -177,8 +193,10 @@ const createPayment = async () => {
     error.value = null;
     paymentStatus.value = null;
     
-    const response = await paymentApi.createPayOsPayment(99000);
+    const response = await paymentApi.createPayOsPayment();
     paymentData.value = response;
+    
+    console.log('Payment created:', response);
     
     // Start auto-checking payment status
     startAutoCheck();
@@ -191,6 +209,14 @@ const createPayment = async () => {
   }
 };
 
+// Create new payment (reset current payment)
+const createNewPayment = async () => {
+  stopAutoCheck();
+  paymentData.value = null;
+  paymentStatus.value = null;
+  await createPayment();
+};
+
 // Check payment status
 const checkPaymentStatus = async () => {
   if (!paymentData.value?.orderCode) return;
@@ -198,34 +224,36 @@ const checkPaymentStatus = async () => {
   try {
     checking.value = true;
     
-    // Tạo payload để gọi API handlePayOsCallback
-    const payload = {
-      orderCode: paymentData.value.orderCode,
-      amount: paymentData.value.amount || 99000,
-      desc: "Thanh toán Oboeru",
-      transactionStatus: "PENDING", // Mặc định là PENDING, backend sẽ kiểm tra thực tế
-      code: "000",
-      checksum: "" // Backend sẽ xử lý checksum
-    };
-    
     // Gọi API kiểm tra trạng thái thanh toán
-    const response = await paymentApi.handlePayOsCallback(payload);
+    const response = await paymentApi.getPaymentStatus(paymentData.value.orderCode);
     
-    if (response.transactionStatus === 'SUCCESS' && response.code === '000') {
+    // Cập nhật trạng thái payment data
+    paymentData.value.status = response.status;
+    
+    if (response.status === 'PAID') {
       // Thanh toán thành công
       paymentStatus.value = {
         type: 'success',
         title: 'Thanh toán thành công!',
-        message: `Đơn hàng ${response.orderCode} đã được thanh toán thành công với số tiền ${response.amount.toLocaleString('vi-VN')} VNĐ.`
+        message: `Đơn hàng ${response.orderCode} đã được thanh toán thành công với số tiền ${formatAmount(response.amount)}.`
       };
       
       // Dừng auto-check khi thanh toán thành công
-       stopAutoCheck();
-       
-       // Xử lý thanh toán thành công
-       handlePaymentSuccess();
+      stopAutoCheck();
       
-    } else if (response.transactionStatus === 'FAILED') {
+      // Xử lý thanh toán thành công
+      handlePaymentSuccess();
+      
+    } else if (response.status === 'CANCELLED') {
+      // Thanh toán bị hủy
+      paymentStatus.value = {
+        type: 'error',
+        title: 'Thanh toán đã bị hủy',
+        message: 'Giao dịch đã bị hủy. Vui lòng tạo thanh toán mới.'
+      };
+      stopAutoCheck();
+      
+    } else if (response.status === 'FAILED') {
       // Thanh toán thất bại
       paymentStatus.value = {
         type: 'error',
@@ -262,8 +290,12 @@ const startAutoCheck = () => {
   }
   
   checkInterval = setInterval(() => {
-    checkPaymentStatus();
-  }, 10000); // Check every 10 seconds
+    if (paymentData.value?.status === 'PENDING') {
+      checkPaymentStatus();
+    } else {
+      stopAutoCheck();
+    }
+  }, 5000); // Check every 5 seconds
 };
 
 // Stop auto-checking
@@ -274,37 +306,46 @@ const stopAutoCheck = () => {
   }
 };
 
-// Format expired time
-const formatExpiredTime = (expiredAt) => {
-  if (!expiredAt) return '';
-  
-  try {
-    const date = new Date(expiredAt);
-    return date.toLocaleString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch (err) {
-    return expiredAt;
-  }
+// Format amount
+const formatAmount = (amount) => {
+  if (!amount) return '0đ';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount);
+};
+
+// Get status text
+const getStatusText = (status) => {
+  const statusMap = {
+    'PENDING': 'Đang chờ thanh toán',
+    'PAID': 'Đã thanh toán',
+    'CANCELLED': 'Đã hủy',
+    'FAILED': 'Thất bại'
+  };
+  return statusMap[status] || status;
+};
+
+// Get status class
+const getStatusClass = (status) => {
+  const classMap = {
+    'PENDING': 'status-pending',
+    'PAID': 'status-success',
+    'CANCELLED': 'status-cancelled',
+    'FAILED': 'status-failed'
+  };
+  return classMap[status] || '';
 };
 
 // Handle successful payment
 const handlePaymentSuccess = () => {
-  // Có thể thêm logic lưu trạng thái thanh toán vào store
-  // hoặc gọi API để cập nhật thông tin người dùng
-  
   // Bắt đầu countdown
-  countdown.value = 3;
+  countdown.value = 5;
   countdownInterval = setInterval(() => {
     countdown.value--;
     if (countdown.value <= 0) {
       clearInterval(countdownInterval);
       // Redirect về trang dashboard hoặc trang thành công
-      // Bạn có thể thay đổi đường dẫn này theo nhu cầu
       window.location.href = '/dashboard';
     }
   }, 1000);

@@ -96,27 +96,7 @@
   }
 }
 
-// --- PayOS Specific Styles ---
-.loading-container {
-  text-align: center;
-  padding: 40px 20px;
-  
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid $primary-color;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-  }
-  
-  p {
-    color: #666;
-    font-size: 1.1rem;
-  }
-}
-
+// --- Animations ---
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -127,84 +107,102 @@
   50% { opacity: 0.5; }
 }
 
-.error-container {
-  text-align: center;
-  padding: 40px 20px;
-  
-  .error-icon {
-    font-size: 3rem;
-    color: #dc3545;
-    margin-bottom: 20px;
-  }
-  
-  h3 {
-    color: #dc3545;
-    margin-bottom: 10px;
-    font-family: $font-family-bold;
-  }
-  
-  p {
-    color: #666;
-    margin-bottom: 20px;
-  }
-  
-  .btn-retry {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-    
-    &:hover {
-      background-color: color.adjust(#dc3545, $lightness: -10%);
-    }
-  }
-}
-
 .qr-payment-container {
   text-align: center;
   
-  .qr-section {
+  .qr-header {
+    margin-bottom: 25px;
+    
+    h3 {
+      color: $primary-color;
+      margin-bottom: 10px;
+      font-family: $font-family-bold;
+      font-size: 1.4rem;
+    }
+    
+    p {
+      color: #666;
+      font-size: 1rem;
+    }
+  }
+  
+  .qr-code-section {
     background: #f8f9fa;
     border-radius: 12px;
     padding: 30px;
     margin-bottom: 25px;
     
-    .qr-code {
-      width: 200px;
-      height: 200px;
-      margin: 0 auto 20px;
-      border: 3px solid #e9ecef;
-      border-radius: 8px;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .qr-code-container {
+      margin-bottom: 25px;
       
-      img {
-        max-width: 100%;
-        max-height: 100%;
+      .qr-code-img {
+        width: 250px;
+        height: 250px;
+        border: 3px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       }
     }
     
-    .qr-info {
-      h3 {
-        color: $primary-color;
-        margin-bottom: 10px;
-        font-family: $font-family-bold;
-      }
+    .payment-info {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       
-      p {
-        color: #666;
-        margin-bottom: 5px;
+      .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
         
-        &.order-code {
+        .label {
           font-weight: 600;
+          color: #495057;
+        }
+        
+        .value {
+          font-weight: 700;
           color: #333;
-          font-size: 1.1rem;
+          
+          &.amount {
+            color: $primary-color;
+            font-size: 1.1rem;
+          }
+          
+          // Status classes
+          &.status-pending {
+            color: #856404;
+            background: #fff3cd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+          }
+          
+          &.status-success {
+            color: #155724;
+            background: #d4edda;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+          }
+          
+          &.status-cancelled {
+            color: #721c24;
+            background: #f8d7da;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+          }
+          
+          &.status-failed {
+            color: #721c24;
+            background: #f8d7da;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+          }
         }
       }
     }
@@ -235,49 +233,33 @@
     }
   }
   
-  .payment-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
+  .alternative-payment {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
     
-    .btn-check-status {
-      background-color: $primary-color;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      
-      &:hover {
-        background-color: color.adjust($primary-color, $lightness: -10%);
-        transform: translateY(-2px);
-      }
-      
-      &:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        transform: none;
-      }
+    p {
+      margin-bottom: 15px;
+      color: #666;
     }
     
-    .btn-new-payment {
-      background-color: #6c757d;
+    .btn-checkout {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #28a745;
       color: white;
-      border: none;
+      text-decoration: none;
       padding: 12px 24px;
       border-radius: 6px;
-      cursor: pointer;
       font-weight: 600;
       transition: all 0.3s ease;
       
       &:hover {
-        background-color: color.adjust(#6c757d, $lightness: -10%);
+        background-color: color.adjust(#28a745, $lightness: -10%);
         transform: translateY(-2px);
+        text-decoration: none;
+        color: white;
       }
     }
   }
@@ -334,6 +316,177 @@
   }
 }
 
+// Payment Actions
+.payment-actions {
+  margin-top: 25px;
+  
+  .btn-submit {
+    width: 100%;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    padding: 15px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    
+    &:hover:not(:disabled) {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    &.btn-check {
+      background-color: #17a2b8;
+      
+      &:hover:not(:disabled) {
+        background-color: color.adjust(#17a2b8, $lightness: -10%);
+      }
+    }
+    
+    i {
+      font-size: 1.1rem;
+      
+      &.fa-spin {
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+}
+
+// Payment Preview State
+.payment-preview {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .preview-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-family: $font-family-bold;
+  }
+  
+  p {
+    color: #6c757d;
+  }
+}
+
+// Loading and Error States
+.payment-loading {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+  }
+  
+  p {
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+.payment-error {
+  text-align: center;
+  padding: 60px 20px;
+  
+  .error-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    color: #dc3545;
+    margin-bottom: 10px;
+    font-family: $font-family-bold;
+  }
+  
+  p {
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  .btn-retry {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    
+    &:hover {
+      background-color: color.adjust(#dc3545, $lightness: -10%);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Trust Badges
+.trust-badges {
+  margin-top: 20px;
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  i {
+    color: #28a745;
+    font-size: 1.1rem;
+  }
+}
+
+// Terms
+.terms {
+  margin-top: 20px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  
+  a {
+    color: $primary-color;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .payment-layout {
@@ -346,18 +499,9 @@
   }
   
   .qr-payment-container {
-    .qr-section .qr-code {
-      width: 150px;
-      height: 150px;
-    }
-    
-    .payment-actions {
-      flex-direction: column;
-      
-      .btn-check-status,
-      .btn-new-payment {
-        width: 100%;
-      }
+    .qr-code-section .qr-code-container .qr-code-img {
+      width: 200px;
+      height: 200px;
     }
   }
 }
