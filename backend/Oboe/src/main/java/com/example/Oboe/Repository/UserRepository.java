@@ -28,10 +28,21 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByUserNameAndAuthProvider(String userName, AuthProvider authProvider);
 
-    List<User> findAllByUserName(String userName);
+    @Query("SELECT u FROM User u WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<User> searchUsers(@Param("keyword") String keyword);
+
+
 
     @Query("SELECT u FROM User u WHERE u.user_id IN :ids")
     List<User> findByUserIdIn(@Param("ids") List<UUID> ids);
+    @Query("SELECT COUNT(u) FROM User u")
+    Long countAllUsers();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE FUNCTION('MONTH', u.create_at) = FUNCTION('MONTH', CURRENT_DATE)")
+    Long countUsersThisMonth();
+
+    @Query("SELECT u.userName, u.create_at FROM User u ORDER BY u.create_at DESC")
+    List<Object[]> findLatestRegisteredUser();
 
 @Query("SELECT new com.example.Oboe.DTOs.UserSearchResultDTO(u.user_id, u.userName, u.avatarUrl, COUNT(f)) " +
             "FROM User u LEFT JOIN FlashCards f ON f.user.user_id = u.user_id " +

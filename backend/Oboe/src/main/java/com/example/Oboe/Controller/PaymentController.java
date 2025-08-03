@@ -2,7 +2,9 @@ package com.example.Oboe.Controller;
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.CustomWebhookDTO;
 import com.example.Oboe.Entity.AuthProvider;
+import com.example.Oboe.Entity.Payment;
 import com.example.Oboe.Entity.User;
+import com.example.Oboe.Repository.PaymentRepository;
 import com.example.Oboe.Repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import vn.payos.type.Webhook;
@@ -17,6 +19,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +31,8 @@ public class PaymentController {
     private UserRepository userRepository;
     @Autowired
     private MomoService momoService;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @PostMapping("/momo")
     public ResponseEntity<?> payWithMomo(@RequestParam UUID userId) {
@@ -53,35 +58,23 @@ public class PaymentController {
                                           Authentication authentication) {
         try {
             CustomUserDetails customUser = (CustomUserDetails) authentication.getPrincipal();
-
             UUID userId = customUser.getUserID();
-            String username = customUser.getUsername();
-            AuthProvider provider = customUser.getAuthProvider();
 
-            System.out.println("🔐 Username: " + username);
-            System.out.println("🔐 Provider: " + provider);
-            System.out.println("🔐 UserID: " + userId);
-
-            String itemName = "Thanh toán Oboeru";
-
-            var result = payOsService.createPayment(99000, itemName, userId); // fixed amount
+            var result = payOsService.createPayment(99000, "Thanh toán Oboeru", userId);
 
             if (result == null) {
                 return ResponseEntity.status(500).body(Map.of(
                         "error", "Lỗi tạo thanh toán PayOS",
-                        "message", "Kết quả trả về từ PayOS là null"
+                        "message", "Không có dữ liệu trả về từ PayOS"
                 ));
             }
 
-            // Debug kết quả trả về
-            System.out.println("✅ Checkout URL: " + result.getCheckoutUrl());
-            System.out.println("✅ Order Code: " + result.getOrderCode());
-            System.out.println("✅ Expired At: " + result.getExpiredAt());
+            String qrUrl = null;
+            if (result.getCheckoutUrl() != null) {
+                qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" +
+                        URLEncoder.encode(result.getCheckoutUrl(), StandardCharsets.UTF_8);
+            }
 
-            String qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=" +
-                    URLEncoder.encode(result.getCheckoutUrl() != null ? result.getCheckoutUrl() : "", StandardCharsets.UTF_8);
-
-            // Dùng HashMap để tránh lỗi khi có value null
             Map<String, Object> response = new java.util.HashMap<>();
             response.put("checkoutUrl", result.getCheckoutUrl());
             response.put("orderCode", result.getOrderCode());
@@ -91,21 +84,41 @@ public class PaymentController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, Object> errorResponse = new java.util.HashMap<>();
-            errorResponse.put("error", "Lỗi tạo thanh toán PayOS");
-            errorResponse.put("message", e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", "Lỗi PayOS",
+                    "message", e.getMessage()
+            ));
         }
     }
 
-
-
-
     @PostMapping("/payos-notify")
-    public ResponseEntity<String> handlePayOsCallback(@RequestBody CustomWebhookDTO webhookBody) throws Exception {
+    public ResponseEntity<String> handlePayOsCallback(@RequestBody Webhook webhookBody) throws Exception {
         payOsService.handleWebhook(webhookBody);
         return ResponseEntity.ok("success");
+    }
+    @GetMapping("/payment-cancel")
+    public ResponseEntity<?> handleCancel(@RequestParam(required = false) String orderCode) {
+        if (orderCode == null || orderCode.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Thiếu orderCode"));
+        }
+
+        try {
+            Long orderCodeLong = Long.parseLong(orderCode);
+            Payment payment = paymentRepository.findByOrderCode(orderCodeLong);
+
+            if (payment != null) {
+                payment.setStatus("CANCELLED");
+                paymentRepository.save(payment);
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Thanh toán đã bị hủy",
+                    "orderCode", orderCodeLong
+            ));
+
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "orderCode không hợp lệ"));
+        }
     }
 
 }

@@ -8,6 +8,14 @@
         <i class="fas fa-chevron-right separator"></i>
         <span>Hồ sơ</span>
       </template>
+      <template v-else-if="route.query.fromSource === 'search'">
+        <!-- From Search: Trang chủ > Tìm kiếm > Hồ sơ -->
+        <router-link to="/">Trang chủ</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <router-link :to="route.query.searchQuery ? `/search?q=${encodeURIComponent(route.query.searchQuery)}` : '/search'">Tìm kiếm</router-link>
+        <i class="fas fa-chevron-right separator"></i>
+        <span>Hồ sơ</span>
+      </template>
       <template v-else-if="route.query.fromPostId">
         <!-- From Forum Post: Diễn đàn > Chi tiết bài viết > Hồ sơ -->
         <router-link to="/forum">Diễn đàn</router-link>

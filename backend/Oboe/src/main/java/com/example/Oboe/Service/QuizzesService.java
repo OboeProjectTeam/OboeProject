@@ -1,7 +1,9 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.DTOs.QuestionDTO;
 import com.example.Oboe.DTOs.QuizDTO;
 import com.example.Oboe.DTOs.QuizSearchResultDTO;
+import com.example.Oboe.DTOs.QuizWithQuestionsDTO;
 import com.example.Oboe.Entity.Quizzes;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.BlogRepository;
@@ -14,9 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,13 +49,12 @@ public class QuizzesService {
                 .map(this::toDTO)
                 .toList();
     }
-
-
     public QuizDTO getById(UUID id) {
         return quizzesRepository.findById(id)
                 .map(this::toDTO)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
     }
+
     public Page<QuizDTO> getQuizzesByUser(UUID userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Quizzes> quizzesPage = quizzesRepository.findQuizzesByUserIds(userId, pageable);
@@ -99,6 +98,47 @@ public class QuizzesService {
 
         quizzesRepository.delete(quiz);
     }
+    public QuizWithQuestionsDTO getQuizById(UUID id) {
+        Quizzes quiz = quizzesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        QuizWithQuestionsDTO dto = new QuizWithQuestionsDTO();
+        dto.setQuizzesID(quiz.getQuizzesID());
+        dto.setTitle(quiz.getTitle());
+        dto.setDescription(quiz.getDescription());
+
+
+
+        List<QuestionDTO> questionDTOs = quiz.getQuestions().stream().map(q -> {
+            QuestionDTO qDto = new QuestionDTO();
+            qDto.setQuestionID(q.getQuestionID());
+            qDto.setQuestionName(q.getQuestionName());
+            qDto.setCorrectAnswer(q.getCorrectAnswer());
+
+
+
+            // Làm sạch dữ liệu options
+            String rawOptions = q.getOptions();
+            List<String> cleanedOptions = new ArrayList<>();
+            if (rawOptions != null && !rawOptions.isBlank()) {
+                cleanedOptions = Arrays.stream(rawOptions
+                                .replace("[", "")   // loại dấu [
+                                .replace("]", "")   // loại dấu ]
+                                .replace("\"", "")  // loại dấu "
+                                .split(","))
+                        .map(String::trim)         // loại bỏ khoảng trắng đầu/cuối
+                        .filter(s -> !s.isEmpty()) // loại bỏ chuỗi rỗng
+                        .toList();
+            }
+            qDto.setOptions(cleanedOptions);
+            qDto.setQuizId(q.getQuiz().getQuizzesID());
+            return qDto;
+        }).toList();
+
+        dto.setQuestions(questionDTOs);
+        return dto;
+    }
+
 
 
     // Convert Entity -> DTO
@@ -114,6 +154,7 @@ public class QuizzesService {
         return dto;
     }
 
-
-
+    public List<QuizSearchResultDTO> searchQuizzes(String keyword) {
+        return quizzesRepository.searchQuizzesByKeyword(keyword);
+    }
 }

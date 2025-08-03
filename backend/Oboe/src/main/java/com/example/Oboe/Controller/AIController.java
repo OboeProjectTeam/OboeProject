@@ -3,11 +3,14 @@ package com.example.Oboe.Controller;
 import com.example.Oboe.DTOs.AnsweredQuestionDTO;
 import com.example.Oboe.DTOs.QuestionDTO;
 import com.example.Oboe.Entity.CardItem;
+import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Repository.CardItemRepository;
+import com.example.Oboe.Repository.FlashCardRepository;
 import com.example.Oboe.Service.GeminiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.Oboe.DTOs.UserAnswerAIDTO;
+
 
 
 
@@ -23,14 +26,65 @@ public class AIController {
     @Autowired
     private GeminiService geminiService;
 
-    @GetMapping("/generate-question/{cardItemId}")
-    public List<QuestionDTO> generateQuestion(@PathVariable UUID cardItemId) {
-        CardItem cardItem = cardItemRepository.findById(cardItemId).orElse(null);
-        if (cardItem == null) {
-            throw new RuntimeException("CardItem not found");
+    @Autowired
+    private FlashCardRepository flashCardRepository;
+
+    @GetMapping("/generate-question/{userId}")
+    public List<QuestionDTO> generateQuestionsByUser(@PathVariable UUID userId) {
+        List<FlashCards> flashCardsList = flashCardRepository.findflashcardByUserId(userId);
+
+        if (flashCardsList.isEmpty()) {
+            throw new RuntimeException("Người dùng chưa có flashcard nào.");
         }
-        String prompt = buildPrompt(cardItem);
-        return geminiService.generateQuestion(prompt);
+
+        List<String> wordMeaningList = new ArrayList<>();
+        for (FlashCards flashCard : flashCardsList) {
+            for (CardItem cardItem : flashCard.getCardItems()) {
+                String word = cardItem.getWord();
+                String meaning = cardItem.getMeaning();
+                if (word != null && meaning != null) {
+                    wordMeaningList.add(word + " : " + meaning);
+                }
+            }
+        }
+
+        if (wordMeaningList.isEmpty()) {
+            throw new RuntimeException("Không có từ vựng nào trong flashcards của người dùng.");
+        }
+
+        StringBuilder promptBuilder = new StringBuilder();
+        promptBuilder.append("Hãy tạo các câu hỏi trắc nghiệm tiếng Nhật dựa trên danh sách từ vựng sau:\n");
+        for (String entry : wordMeaningList) {
+            promptBuilder.append("- ").append(entry).append("\n");
+        }
+        promptBuilder.append("""
+                Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
+
+            - Từ vựng: "%s"
+            - Nghĩa tiếng Việt: "%s"
+
+            Yêu cầu:
+            1. Mỗi câu hỏi có 4 lựa chọn .
+            2. Chỉ 1 đáp án đúng.
+            3. Trả về định dạng JSON như sau:
+
+            [
+                {
+                    "question": "Câu hỏi",
+                    "choices": [
+                        "lựa chọn A",
+                        "lựa chọn B",
+                        "lựa chọn C",
+                        "lựa chọn D"
+                    ],
+                    "answer": "Đáp án đúng"
+                }
+            ]
+
+            Không thêm giải thích hay văn bản nào ngoài JSON.
+                """);
+
+        return geminiService.generateQuestion(promptBuilder.toString());
     }
 
     @GetMapping("/generate-random-question")
@@ -81,7 +135,7 @@ public class AIController {
         Bạn là một giáo viên chấm bài thi tiếng Nhật.
         Hãy dựa vào từng câu hỏi, đáp án đúng, và câu trả lời của người dùng để:
         - Đưa ra điểm tổng kết theo thang điểm 100.
-        - Phân tích rõ câu nào đúng, câu nào sai.
+        - Phân tích rõ câu nào đúng, câu nào sai nếu câu nào sai hãy đưa ra lời giải thích giúp cải thiện.
         - Đưa ra nhận xét tổng thể cho toàn bài làm.
        
         Dưới đây là danh sách câu hỏi và câu trả lời:
@@ -142,6 +196,7 @@ public class AIController {
         - Nghĩa của từng từ trong câu
         - Cấu trúc ngữ pháp được sử dụng
         - Ngữ cảnh phù hợp để dùng câu này
+        - Hoàn cảnh sử dụng, tình huống sử dụng, đưa ra ví dụ 
         - Sắc thái, mức độ lịch sự (nếu có)
         - Những lưu ý khi sử dụng câu này trong giao tiếp hàng ngày.
         - Viết cho tôi dưới 100 ký tự và hãy trả lời luôn

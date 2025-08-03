@@ -14,7 +14,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "PaymentID", updatable = false, nullable = false)
     private UUID PaymentID;
-    private String amount;
+    private int amount;
     private String status;
     private LocalDate paymentDate = LocalDate.now();
     @Column(name = "transaction_id")
@@ -32,7 +32,7 @@ public class Payment {
 
     public Payment() {}
 
-    public Payment(String amount, String status, User user) {
+    public Payment(int amount, String status, User user) {
         this.amount = amount;
         this.status = status;
         this.user = user;
@@ -70,11 +70,12 @@ public class Payment {
         PaymentID = paymentID;
     }
 
-    public String getAmount() {
+
+    public int getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(int amount) {
         this.amount = amount;
     }
 
