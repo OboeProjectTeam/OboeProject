@@ -48,4 +48,4 @@ const paymentApi = {
 
 };
 
-export default paymentApi; 
+export default paymentApi;

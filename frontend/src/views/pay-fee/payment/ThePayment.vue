@@ -198,8 +198,18 @@ const checkPaymentStatus = async () => {
   try {
     checking.value = true;
     
+    // Tạo payload để gọi API handlePayOsCallback
+    const payload = {
+      orderCode: paymentData.value.orderCode,
+      amount: paymentData.value.amount || 99000,
+      desc: "Thanh toán Oboeru",
+      transactionStatus: "PENDING", // Mặc định là PENDING, backend sẽ kiểm tra thực tế
+      code: "000",
+      checksum: "" // Backend sẽ xử lý checksum
+    };
+    
     // Gọi API kiểm tra trạng thái thanh toán
-    const response = await paymentApi.checkPayOsPaymentStatus(paymentData.value.orderCode);
+    const response = await paymentApi.handlePayOsCallback(payload);
     
     if (response.transactionStatus === 'SUCCESS' && response.code === '000') {
       // Thanh toán thành công
