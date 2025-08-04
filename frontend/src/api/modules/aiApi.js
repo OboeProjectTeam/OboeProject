@@ -14,10 +14,10 @@ const aiApi = {
     }
   },
 
-  // Sinh câu hỏi ngẫu nhiên từ 1 cardItem bất kỳ
-  async generateRandomQuestions() {
+  // Sinh câu hỏi ngẫu nhiên từ 1 user
+  async generateQuestionsByUserId() {
     try {
-      const res = await axios.get(`${PREFIX}/generate-random-question`);
+      const res = await axios.get(`${PREFIX}/generate-question`);
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));

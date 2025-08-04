@@ -160,7 +160,7 @@ const createQuizWithAI = async () => {
     isGeneratingAI.value = true
     
     // Gọi API để tạo câu hỏi ngẫu nhiên bằng AI
-    const response = await aiApi.generateRandomQuestions()
+    const response = await aiApi.generateQuestionsByUserId()
     
     if (!Array.isArray(response) || response.length === 0) {
       store.dispatch('message/showMessage', {

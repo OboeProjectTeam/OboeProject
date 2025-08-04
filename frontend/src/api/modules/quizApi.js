@@ -98,7 +98,17 @@ const quizApi = {
       console.error('QuizAPI: Error searching quizzes:', error);
       throw new Error(handleApiError(error));
     }
-  }
+  },
+  // Lấy quiz + questions theo ID (dùng trong search result)
+  async getQuizWithQuestions(id) {
+    try {
+      const res = await axios.get(`${PREFIX}/user/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error('QuizAPI: Error getting quiz with questions:', error);
+      throw new Error(handleApiError(error));
+    }
+  },
 };
 
 export default quizApi;

@@ -488,9 +488,11 @@ const fetchAiSenseiReply = async (blogId) => {
     
     const response = await aiRepApi.replyToBlog(blogId);
     
+    // API trả về format: {id, blogId, content, createdAt}
     aiSenseiReply.value = {
-      reply: response.reply,
-      commentAt: response.commentAt,
+      id: response.id,
+      reply: response.content, // content từ API -> reply cho UI
+      commentAt: response.createdAt, // createdAt từ API -> commentAt cho UI
       blogId: response.blogId
     };
     

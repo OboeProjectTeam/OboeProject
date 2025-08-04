@@ -26,7 +26,7 @@
         <p>{{ error }}</p>
         <button @click="loadSearchResults(query)" class="retry-btn">Thử lại</button>
       </div>
-
+      
       <!-- All Results Tab -->
       <div v-else-if="activeTab === 'all'" class="search-content">
         <!-- Users Section -->
@@ -36,7 +36,7 @@
             <a href="#" class="view-all" @click.prevent="activeTab = 'users'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="user in usersFromAPI.slice(0, 5)" :key="user.id" class="user-card" @click="goToUserProfile(user)">
+            <div v-for="user in usersFromAPI.slice(0, 5)" :key="user.id" class="user-card cur" @click="goToUserProfile(user)">
               <img :src="user.avatar" :alt="user.name" class="avatar"/>
               <div class="user-info">
                 <h3 class="user-name">{{ user.name }}</h3>
@@ -55,7 +55,7 @@
             <a href="#" class="view-all" @click.prevent="activeTab = 'sets'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="set in studySets.slice(0, 5)" :key="set.id" class="question-card" @click="goToFlashcardLearn(set)">
+            <div v-for="set in studySets.slice(0, 5)" :key="set.id" class="question-card cur" @click="goToFlashcardLearn(set)">
               <h3 class="question-title">{{ set.title }}</h3>
               <div class="question-header">
                 <span class="answer-count">{{ set.termCount }} thuật ngữ</span>
@@ -75,7 +75,7 @@
             <a href="#" class="view-all" @click.prevent="activeTab = 'questions'">Xem tất cả</a>
           </div>
           <div class="single-row">
-            <div v-for="question in questions.slice(0, 5)" :key="question.id" class="question-card" @click="goToFlashcardTest(question)">
+            <div v-for="question in questions.slice(0, 5)" :key="question.id" class="question-card cur" @click="goToFlashcardTest(question)">
               <h3 class="question-title">{{ question.title }}</h3>
               <div class="question-header">
                 <span class="answer-count">{{ question.answerCount }} câu hỏi</span>
@@ -234,6 +234,8 @@
 
 <script>
 import searchApi from '@/api/modules/searchApi';
+import quizApi from '@/api/modules/quizApi';
+import api from '@/api';
 
 export default {
   name: 'SearchResults',
@@ -305,7 +307,9 @@ export default {
     usersFromAPI() {
       return this.apiResults.users.content.map(item => ({
         id: item.userId,
+        userId: item.userId,
         name: item.userName,
+        userName: item.userName,
         avatar: item.avatarUrl || 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg',
         sets: item.flashcardCount
       }));
@@ -361,13 +365,131 @@ export default {
       this.selectedSet = set;
     },
     goToUserProfile(user) {
-      this.$router.push({ name: 'ProfileDetail', params: { userId: user.userId } });
+      const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+      this.$router.push({ 
+        name: 'ProfileDetail', 
+        params: { username: user.userName },
+        query: { 
+          userId: user.userId,
+          fromSource: 'search',
+          searchQuery: searchQuery // Thêm query tìm kiếm để breadcrumb có thể sử dụng
+        }
+      });
     },
-    goToFlashcardLearn(flashcard) {
-      this.$router.push({ name: 'FlashcardLearn', params: { flashcardId: flashcard.flashcardId } });
+    async goToFlashcardLearn(flashcard) {
+      try {
+        // Lấy dữ liệu flashcard từ API
+        const flashcardData = await api.flashcard.getById(flashcard.id);
+        
+        if (!flashcardData || !flashcardData.cardItems || flashcardData.cardItems.length === 0) {
+          this.$store.dispatch('showMessage', {
+            type: 'error',
+            message: 'Không thể tải dữ liệu học liệu'
+          });
+          return;
+        }
+
+        // Convert API response to learning items format for FlashcardLearn
+        const learningItems = flashcardData.cardItems.map(item => ({
+          type: 'word',
+          kanji: item.word || '',
+          kana: '',
+          meaning: item.meaning || '',
+          content: item.word || '',
+          backcontent: item.meaning || '',
+          front: item.word || '',
+          back: item.meaning || ''
+        }));
+
+        // Save to store for FlashcardLearn to use
+        await this.$store.dispatch('flashcard/setLearningItems', learningItems);
+
+        // Navigate to FlashcardLearn with query params
+        const searchQuery = this.query || this.$route.params.query || this.$route.query.q;
+        this.$router.push({
+          path: '/flashcard/learn',
+          query: {
+            source: 'search',
+            title: flashcard.title,
+            description: `Học liệu gồm ${flashcard.termCount} thuật ngữ`,
+            setId: flashcard.id,
+            creatorName: flashcard.author?.name || 'Người dùng',
+            creatorAvatar: flashcard.author?.avatar || '',
+            createdAt: new Date().toISOString(),
+            searchQuery: searchQuery // Thêm query tìm kiếm để breadcrumb có thể sử dụng
+          }
+        });
+      } catch (error) {
+        console.error('Error loading flashcard:', error);
+        this.$store.dispatch('showMessage', {
+          type: 'error',
+          message: 'Có lỗi xảy ra khi tải học liệu'
+        });
+      }
     },
-    goToFlashcardTest(quiz) {
-      this.$router.push({ name: 'FlashcardTest', params: { quizId: quiz.quizId } });
+    async goToFlashcardTest(quiz) {
+      try {
+        // Gọi API để lấy dữ liệu quiz với questions
+        const quizData = await quizApi.getQuizWithQuestions(quiz.id);
+        
+        if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+          this.$store.dispatch('showMessage', {
+            type: 'error',
+            message: 'Không thể tải dữ liệu bài kiểm tra'
+          });
+          return;
+        }
+
+        // Convert API response to learning items format for FlashcardTest
+        // Mapping theo cấu trúc API response thực tế
+        const learningItems = quizData.questions.map(question => {
+          // Xử lý options - nếu là string thì split, nếu là array thì giữ nguyên
+          let options = [];
+          if (question.options) {
+            if (typeof question.options === 'string') {
+              // Nếu options là string như "あなた自身;seek;メニュー;thing"
+              options = question.options.split(';').map(opt => opt.trim());
+            } else if (Array.isArray(question.options)) {
+              options = question.options;
+            }
+          }
+
+          return {
+            type: 'quiz',
+            front: question.questionName || question.questionText || question.question || '',
+            back: question.correctAnswer || '',
+            content: question.questionName || question.questionText || question.question || '',
+            backcontent: question.correctAnswer || '',
+            options: options, // Cho multiple choice
+            questionType: 'multiple-choice', // Mặc định là multiple choice
+            questionID: question.questionID || question.id
+          };
+        });
+
+        // Save to store for FlashcardTest to use
+        await this.$store.dispatch('flashcard/setLearningItems', learningItems);
+
+        // Navigate to FlashcardTest với đúng route
+        this.$router.push({
+          name: 'FlashcardTest', // Sử dụng name thay vì path
+          query: {
+            type: 'multiple-choice', // Default test type
+            source: 'search',
+            title: quizData.title || quiz.title,
+            description: quizData.description || `Bài kiểm tra gồm ${quizData.questions.length} câu hỏi`,
+            quizId: quizData.quizzesID || quiz.id,
+            creatorName: quiz.author?.name || 'Người dùng',
+            creatorAvatar: quiz.author?.avatar || '',
+            createdAt: quiz.createdAt || new Date().toISOString()
+          }
+        });
+      } catch (error) {
+        console.error('Error loading quiz:', error);
+        this.$store.dispatch('showMessage', {
+          type: 'error',
+          message: 'Có lỗi xảy ra khi tải bài kiểm tra'
+        });
+      }
     },
     checkMobileView() {
       this.isMobileView = window.innerWidth <= 768;

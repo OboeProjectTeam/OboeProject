@@ -11,6 +11,8 @@ import com.example.Oboe.annotation.PremiumOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.Oboe.DTOs.UserAnswerAIDTO;
+import org.springframework.security.core.Authentication;
+import com.example.Oboe.Config.CustomUserDetails;
 
 
 
@@ -31,8 +33,11 @@ public class AIController {
     private FlashCardRepository flashCardRepository;
 
     @PremiumOnly
-    @GetMapping("/generate-question/{userId}")
-    public List<QuestionDTO> generateQuestionsByUser(@PathVariable UUID userId) {
+    @GetMapping("/generate-question")
+    public List<QuestionDTO> generateQuestionsByUser(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+
         List<FlashCards> flashCardsList = flashCardRepository.findflashcardByUserId(userId);
 
         if (flashCardsList.isEmpty()) {
@@ -60,31 +65,31 @@ public class AIController {
             promptBuilder.append("- ").append(entry).append("\n");
         }
         promptBuilder.append("""
-                Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
+        Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
 
-            - Từ vựng: "%s"
-            - Nghĩa tiếng Việt: "%s"
+        - Từ vựng: "%s"
+        - Nghĩa tiếng Việt: "%s"
 
-            Yêu cầu:
-            1. Mỗi câu hỏi có 4 lựa chọn .
-            2. Chỉ 1 đáp án đúng.
-            3. Trả về định dạng JSON như sau:
+        Yêu cầu:
+        1. Mỗi câu hỏi có 4 lựa chọn .
+        2. Chỉ 1 đáp án đúng.
+        3. Trả về định dạng JSON như sau:
 
-            [
-                {
-                    "question": "Câu hỏi",
-                    "choices": [
-                        "lựa chọn A",
-                        "lựa chọn B",
-                        "lựa chọn C",
-                        "lựa chọn D"
-                    ],
-                    "answer": "Đáp án đúng"
-                }
-            ]
+        [
+            {
+                "question": "Câu hỏi",
+                "choices": [
+                    "lựa chọn A",
+                    "lựa chọn B",
+                    "lựa chọn C",
+                    "lựa chọn D"
+                ],
+                "answer": "Đáp án đúng"
+            }
+        ]
 
-            Không thêm giải thích hay văn bản nào ngoài JSON.
-                """);
+        Không thêm giải thích hay văn bản nào ngoài JSON.
+        """);
 
         return geminiService.generateQuestion(promptBuilder.toString());
     }
