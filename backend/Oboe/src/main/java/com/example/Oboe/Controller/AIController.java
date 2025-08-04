@@ -7,6 +7,7 @@ import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Repository.CardItemRepository;
 import com.example.Oboe.Repository.FlashCardRepository;
 import com.example.Oboe.Service.GeminiService;
+import com.example.Oboe.annotation.PremiumOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.Oboe.DTOs.UserAnswerAIDTO;
@@ -29,6 +30,7 @@ public class AIController {
     @Autowired
     private FlashCardRepository flashCardRepository;
 
+    @PremiumOnly
     @GetMapping("/generate-question/{userId}")
     public List<QuestionDTO> generateQuestionsByUser(@PathVariable UUID userId) {
         List<FlashCards> flashCardsList = flashCardRepository.findflashcardByUserId(userId);
@@ -87,6 +89,8 @@ public class AIController {
         return geminiService.generateQuestion(promptBuilder.toString());
     }
 
+
+    @PremiumOnly
     @GetMapping("/generate-random-question")
     public List<QuestionDTO> generateRandomQuestion() {
         List<CardItem> allCardItems = cardItemRepository.findAll();
@@ -127,7 +131,7 @@ public class AIController {
             Không thêm giải thích hay văn bản nào ngoài JSON.
             """.formatted(cardItem.getWord(), cardItem.getMeaning());
     }
-
+    @PremiumOnly
     @PostMapping("/evaluate")
     public String evaluateAnswers(@RequestBody UserAnswerAIDTO request) {
         StringBuilder prompt = new StringBuilder();
@@ -185,7 +189,7 @@ public class AIController {
             return "{\"error\": \"Lỗi khi đánh giá câu trả lời\"}";
         }
     }
-
+    @PremiumOnly
     @PostMapping("/translate")
     public Map<String, String> translateJapaneseToVietnamese(@RequestBody Map<String, String> request) {
         String input = request.get("text");

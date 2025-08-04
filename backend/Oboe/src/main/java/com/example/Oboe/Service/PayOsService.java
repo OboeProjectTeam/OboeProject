@@ -73,6 +73,7 @@ public class PayOsService {
         ObjectMapper mapper = new ObjectMapper();
         vn.payos.type.Webhook webhook = mapper.readValue(rawJson, vn.payos.type.Webhook.class);
         WebhookData data = payOS.verifyPaymentWebhookData(webhook);
+//        WebhookData data = webhook.getData(); // Bỏ verify chữ ký khi test
 
         long orderCode = data.getOrderCode();
         String code = data.getCode();
@@ -88,6 +89,7 @@ public class PayOsService {
                     User user = payment.getUser();
                     if (user.getAccountType() != AccountType.PREMIUM) {
                         user.setAccountType(AccountType.PREMIUM);
+
                         userRepository.save(user);
                     }
                 }
