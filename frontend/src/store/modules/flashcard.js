@@ -131,11 +131,6 @@ export default {
       return Math.ceil(items.length / state.itemsPerPage)
     },
     isInFlashcard: (state) => (type, id) => {
-      if (type === 'kanji') {
-        return state.items.some(
-          item => item.type === type && (item.id === id || item.kanji === id)
-        );
-      }
       return state.items.some(
         item => item.type === type && item.id === id
       );

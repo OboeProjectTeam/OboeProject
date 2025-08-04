@@ -188,12 +188,13 @@ export default defineComponent({
         });
     });
     
-    const isInFlashcards = computed(() => 
-      store.getters['flashcard/isInFlashcard'](
-        props.type, 
-        props.type === 'kanji' ? props.item.kanji : props.itemId
-      )
-    );
+    const isInFlashcards = computed(() => {
+      // Always use route params ID for consistency
+      const currentId = route.params.id;
+      if (!currentId) return false;
+      
+      return store.getters['flashcard/isInFlashcard'](props.type, currentId);
+    });
 
     const onRelatedItemClick = (item) => {
       emit('relatedItemClick', item);
@@ -214,16 +215,23 @@ export default defineComponent({
     };
 
     const toggleFlashcard = () => {
+      // Always use route params ID for consistency
+      const currentId = route.params.id;
+      if (!currentId) {
+        console.error('No ID found in route params');
+        return;
+      }
+      
       if (isInFlashcards.value) {
         store.dispatch('flashcard/removeItem', {
           type: props.type,
-          id: props.type === 'kanji' ? props.item.kanji : props.itemId,
+          id: currentId,
           ...props.item
         });
       } else {
         store.dispatch('flashcard/addItem', {
           type: props.type,
-          id: props.type === 'kanji' ? props.item.kanji : props.itemId,
+          id: currentId,
           ...props.item
         });
       }
