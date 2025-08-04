@@ -15,36 +15,104 @@
   gap: 8px;
   padding: 10px;
   border-radius: 50px; /* Pill shape */
-  border: none;
+  border: 2px solid #ffd700;
   cursor: pointer;
   font-family: $font-family-bold;
   color: white;
-  background: linear-gradient(45deg, $primary-color, $hover-btn-color);
-  box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
+  background: linear-gradient(135deg, $primary-color 0%, #ffd700 50%, $primary-color 100%);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, $primary-color, #ffd700, $primary-color, #ffd700);
+    border-radius: 50px;
+    z-index: -1;
+    animation: borderRotate 3s linear infinite;
+  }
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 7px 20px rgba(233, 69, 96, 0.45);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 7px 25px rgba(255, 215, 0, 0.6);
+    background: linear-gradient(135deg, color.adjust($primary-color, $lightness: -5%) 0%, #ffed4e 50%, color.adjust($primary-color, $lightness: -5%) 100%);
   }
 
   .pro-badge {
-    background-color: #ffc107;
-    color: #333;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: $primary-color;
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(185, 4, 73, 0.2);
   }
 
   .pro-text {
     font-size: 15px;
     font-weight: 600;
+    position: relative;
+    z-index: 1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
   }
 
   .pro-icon {
     font-size: 16px;
-    color: #ffeb3b; /* A brighter, more golden yellow */
+    color: #ffd700;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+    animation: crownFloat 2s ease-in-out infinite;
   }
-} 
+}
+
+// Shimmer Animation
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Border Rotate Animation
+@keyframes borderRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Crown Float Animation
+@keyframes crownFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}

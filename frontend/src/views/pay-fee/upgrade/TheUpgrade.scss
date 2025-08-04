@@ -73,8 +73,34 @@
 
   &.pro-plan {
     border-color: transparent;
-    border-width: 2px;
-    border-image: linear-gradient(45deg, $primary-color, color.adjust($primary-color, $hue: -20deg, $saturation: 10%)) 1;
+    border-width: 3px;
+    border-image: linear-gradient(45deg, $primary-color, #ffd700, $primary-color) 1;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+      animation: shimmer 3s infinite;
+      z-index: 0;
+    }
+    
+    .card-header,
+    .card-body,
+    .card-footer {
+      position: relative;
+      z-index: 1;
+    }
+    
+    &:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 20px 50px -10px rgba(255, 215, 0, 0.3);
+    }
   }
 }
 
@@ -83,14 +109,32 @@
   top: 15px;
   right: -40px;
   transform: rotate(45deg);
-  background: $primary-color;
+  background: linear-gradient(135deg, $primary-color 0%, #ffd700 50%, $primary-color 100%);
   color: white;
   padding: 5px 40px;
   font-size: 12px;
   font-weight: 700;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
   .fa-star {
     margin-right: 5px;
+    color: #ffd700;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    z-index: 1;
+    position: relative;
   }
 }
 
@@ -127,7 +171,11 @@
 }
 
 .pro-plan .card-header .plan-price {
-  color: $primary-color;
+  background: linear-gradient(45deg, $primary-color, #ffd700, $primary-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
 .plan-card:not(.pro-plan) .card-header .plan-price {
@@ -160,7 +208,11 @@
         }
       }
       .pro-feature {
-        color: $primary-color;
+        background: linear-gradient(45deg, $primary-color, #ffd700);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
       }
     }
   }
@@ -183,13 +235,28 @@
   font-size: 1.1rem;
 
   &.btn-primary {
-    background-color: $primary-color;
+    background: linear-gradient(135deg, $primary-color 0%, #ffd700 50%, $primary-color 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #ffd700;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
     &:hover {
       transform: translateY(-3px);
-      box-shadow: 0 7px 20px rgba(220, 53, 69, 0.3);
-      background-color: color.adjust($primary-color, $lightness: -5%);
+      box-shadow: 0 7px 25px rgba(255, 215, 0, 0.4);
+      background: linear-gradient(135deg, color.adjust($primary-color, $lightness: -5%) 0%, #ffed4e 50%, color.adjust($primary-color, $lightness: -5%) 100%);
     }
   }
   &.btn-secondary {
@@ -230,8 +297,12 @@
 
     .feature-icon {
       font-size: 36px;
-      color: $primary-color;
+      background: linear-gradient(45deg, $primary-color, #ffd700, $primary-color);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       margin-bottom: 20px;
+      filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.2));
     }
 
     h3 {
@@ -294,11 +365,17 @@
     }
 
     .rating {
-      color: #ffc107;
+      color: #ffd700;
       font-size: 16px;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.2));
 
       i {
         margin-right: 2px;
+        transition: transform 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.2);
+        }
       }
     }
   }
@@ -351,40 +428,96 @@
 .cta-section {
   text-align: center;
   padding: 60px 20px;
-  background: #f8f9fa;
+  background: linear-gradient(135deg, 
+    rgba(185, 4, 73, 0.05) 0%, 
+    rgba(255, 215, 0, 0.1) 25%,
+    rgba(185, 4, 73, 0.03) 50%,
+    rgba(255, 215, 0, 0.08) 75%,
+    rgba(185, 4, 73, 0.05) 100%
+  );
   border-radius: 12px;
   margin: 0 20px 40px;
+  border: 2px solid;
+  border-image: linear-gradient(45deg, $primary-color, #ffd700, $primary-color) 1;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    animation: shimmer 4s infinite;
+  }
 
   h2 {
     font-size: 28px;
-    color: #333;
+    background: linear-gradient(45deg, $primary-color, #ffd700, $primary-color);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
   }
 
   p {
     color: #666;
     margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
   }
 
   .btn-large {
     padding: 12px 24px;
     font-size: 16px;
-    background: $primary-color;
+    background: linear-gradient(135deg, $primary-color 0%, #ffd700 50%, $primary-color 100%);
     color: white;
-    border: none;
+    border: 2px solid #ffd700;
     border-radius: 8px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
     max-width: 300px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
 
     i {
       margin-left: 8px;
+      position: relative;
+      z-index: 1;
     }
 
     &:hover {
-      background: $hover-btn-color;
+      background: linear-gradient(135deg, color.adjust($primary-color, $lightness: -5%) 0%, #ffed4e 50%, color.adjust($primary-color, $lightness: -5%) 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 7px 25px rgba(255, 215, 0, 0.4);
     }
+  }
+}
+
+// Shimmer Animation
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
   }
 }
 

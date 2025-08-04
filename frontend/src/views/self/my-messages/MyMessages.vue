@@ -115,8 +115,7 @@
       >
         <div class="menu-item" @click="viewProfile(sidebarMenuUser)">Xem hồ sơ</div>
         <div class="menu-item" @click="openChatBox(sidebarMenuUser)">Mở Box Chat</div>
-        <div class="menu-item" @click="deleteConversation(sidebarMenuUser)">Xóa trò chuyện</div>
-        <div class="menu-item" @click="blockUser(sidebarMenuUser)">Chặn</div>
+     
       </div>
     </Teleport>
 
@@ -492,31 +491,6 @@ const viewProfile = (user) => {
     }
   })
 }
-
-const deleteConversation = (user) => {
-  showConfirm({
-    title: 'Xác nhận xóa',
-    message: `Bạn có chắc muốn xóa cuộc trò chuyện với ${user.name || user.username}?`,
-    confirmText: 'Xóa',
-    onConfirm: () => {
-      // Xử lý xóa ở đây
-      closeSidebarMenu()
-    }
-  })
-}
-
-const blockUser = (user) => {
-  showConfirm({
-    title: 'Xác nhận chặn',
-    message: `Bạn có chắc muốn chặn ${user.name || user.username}?`,
-    confirmText: 'Chặn',
-    onConfirm: () => {
-      // Xử lý chặn ở đây
-      closeSidebarMenu()
-    }
-  })
-}
-
 const openChatBox = (user) => {
   const userId = user.id
   if (!userId) {
@@ -537,10 +511,6 @@ const openChatBox = (user) => {
   emit('send-message', chatUser)
   
   closeSidebarMenu()
-}
-
-function showConfirm({ title, message, confirmText = 'Xác nhận', onConfirm }) {
-  confirmDialog.value = { show: true, title, message, confirmText, onConfirm }
 }
 
 function handleConfirm() {

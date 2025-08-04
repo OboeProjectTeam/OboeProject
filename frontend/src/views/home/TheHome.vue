@@ -12,8 +12,8 @@
       </div>
     </section>
 
-    <!-- Recent Activity Section -->
-    <section class="content-section">
+    <!-- Recent Activity Section - Only show if there are recent sets or loading -->
+    <section v-if="recentSetsLoading || recentSets.length > 0" class="content-section">
       <div class="container">
         <div class="section-header">
           <h2>Truy cập gần đây</h2>
@@ -27,11 +27,6 @@
             <div class="loading-placeholder small"></div>
             <div class="loading-placeholder button"></div>
           </div>
-        </div>
-        
-        <!-- No data state -->
-        <div v-else-if="recentSets.length === 0" class="no-data-state">
-          <p>Chưa có học liệu nào được truy cập gần đây</p>
         </div>
         
         <!-- Recent sets list -->
