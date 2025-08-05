@@ -65,6 +65,13 @@
                 <li>Xác nhận thông tin và hoàn tất thanh toán</li>
               </ol>
             </div>
+            <div class="alternative-payment">
+              <p>Hoặc bạn có thể:</p>
+              <a :href="paymentData.checkoutUrl" target="_blank" class="btn-checkout">
+                <i class="fas fa-external-link-alt"></i>
+                Thanh toán trên trang web
+              </a>
+            </div>
           </div>
         </div>
 
@@ -148,17 +155,6 @@
             >
               <i class="fas fa-qrcode"></i> Tạo mã thanh toán
             </button>
-            
-            <button 
-              v-else-if="paymentData && paymentData.status === 'PENDING'" 
-              @click="checkPaymentStatus" 
-              class="btn-submit btn-check"
-              :disabled="checking"
-            >
-              <i class="fas fa-sync" :class="{ 'fa-spin': checking }"></i> 
-              {{ 'Kiểm tra thanh toán' }}
-            </button>
-
             <button 
               v-else-if="paymentData && paymentData.status !== 'PENDING'" 
               @click="createNewPayment" 
