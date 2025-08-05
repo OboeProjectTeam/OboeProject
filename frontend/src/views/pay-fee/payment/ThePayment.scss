@@ -462,7 +462,7 @@
       transition: all 0.3s ease;
       
       &:hover {
-        background-color: color.adjust(#28a745, $lightness: -10%);
+        background-color: color.adjust($hover-btn-color, $lightness: -10%);
         transform: translateY(-2px);
         text-decoration: none;
         color: white;
