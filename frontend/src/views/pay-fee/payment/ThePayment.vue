@@ -42,6 +42,18 @@
               
               <div class="payment-info">
                 <div class="info-item">
+                  <span class="label">Ngân hàng:</span>
+                  <span class="value">Ngân hàng TMCP Quân đội</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Chủ tài khoản:</span>
+                  <span class="value">NGUYEN HUU NGHIA</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Số tài khoản:</span>
+                  <span class="value">VQRQADQDG0146</span>
+                </div>
+                <div class="info-item">
                   <span class="label">Mã đơn hàng:</span>
                   <span class="value">{{ paymentData.orderCode }}</span>
                 </div>
@@ -53,6 +65,7 @@
                   <span class="label">Trạng thái:</span>
                   <span class="value" :class="getStatusClass(paymentData.status)">{{ getStatusText(paymentData.status) }}</span>
                 </div>
+                
               </div>
             </div>
 
@@ -97,9 +110,10 @@
             <div class="premium-features">
               <ul>
                 <li><i class="fas fa-check"></i> Truy cập không giới hạn</li>
-                <li><i class="fas fa-check"></i> Tính năng AI nâng cao</li>
                 <li><i class="fas fa-check"></i> Hỗ trợ ưu tiên</li>
-                <li><i class="fas fa-check"></i> Không có quảng cáo</li>
+                <li><i class="fas fa-check"></i> Tính năng AI hỗ trợ dịch</li>
+                <li><i class="fas fa-check"></i> Tự động tạo quizz</li>
+                <li><i class="fas fa-check"></i> Đưa ra lời khuyên từ AI </li>
               </ul>
             </div>
           </div>
