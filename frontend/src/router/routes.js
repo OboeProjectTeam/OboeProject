@@ -45,6 +45,9 @@ const routes = [
     path: "/",
     name: "Home",
     component: TheHome,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: "/intro",
@@ -155,9 +158,6 @@ const routes = [
     path: '/flashcard/learn',
     name: 'flashcardLearn',
     component: FlashcardLearn,
-    meta: {
-      requiresAuth: true
-    }
   },
   {
     path: '/create/flashcard',
@@ -192,13 +192,11 @@ const routes = [
       deckId: route.query.deckId,
       source: route.query.source
     }),
-    meta: { requiresAuth: true }
   },
   {
     path: '/flashcard/match',
     name: 'FlashcardMatch',
     component: FlashcardMatch,
-    meta: { requiresAuth: true }
   },
   {
     path: '/search/:query?',
@@ -207,7 +205,8 @@ const routes = [
     props: route => ({ 
       query: route.params.query || route.query.q || '',
       searchResults: route.params.searchResults
-    })
+    }),
+    meta: { requiresAuth: true }
   },
   {
     path: '/messages',
