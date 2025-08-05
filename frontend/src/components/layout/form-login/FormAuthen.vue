@@ -124,6 +124,11 @@ const popupMessage = ref('')
 const popupTitle = ref('Thông báo')
 const success = ref (false)
 
+const showDialog = (message, type = 'success') => {
+  popupTitle.value = type === 'success' ? '🎉 Thành công' : '❗ Thất bại'
+  popupMessage.value = message
+  showPopup.value = true
+}
 
 const uiConfig = {
   signInFlow: 'popup',
@@ -201,7 +206,7 @@ const submitForm = async () => {
         lastName: lastname.value,
         authProvider: 'EMAIL',
       })
-
+      showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
       resetForm()
       success.value = true 
 
@@ -214,7 +219,7 @@ const submitForm = async () => {
       router.push('/')
     }
   } catch (err) {
-    console.log(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
+     showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
   } finally {
     isLoading.value = false
   }
