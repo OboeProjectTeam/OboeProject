@@ -729,10 +729,4 @@ async function prevPage() {
 </script>
   <style lang="scss" scoped>
   @use '@/components/layout/forum/profile/ProfileDetail.scss';
-  .stats-loading, .activities-loading {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-    font-style: italic;
-  }
   </style>
