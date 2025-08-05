@@ -7,6 +7,7 @@ import com.example.Oboe.Entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -49,4 +50,5 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "WHERE LOWER(u.userName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "GROUP BY u.user_id, u.userName, u.avatarUrl")
     Page<UserSearchResultDTO> searchUsersWithFlashcardCount(@Param("keyword") String keyword, Pageable pageable);
+
 }
