@@ -20,6 +20,7 @@ import com.example.Oboe.Config.CustomUserDetails;
 import java.util.*;
 
 @RestController
+
 @RequestMapping("/api/ai")
 public class AIController {
 
@@ -31,6 +32,7 @@ public class AIController {
 
     @Autowired
     private FlashCardRepository flashCardRepository;
+
 
     @PremiumOnly
     @GetMapping("/generate-question")
