@@ -35,10 +35,6 @@
             <!-- List Header -->
             <div class="list-header">
                 <div class="header-main">
-                    <!-- Button Đề Xuất đứng đầu -->
-                    <button class="suggest-btn" @click="sortBy('suggested')">
-                        Đề Xuất
-                    </button>
                     <!-- Dropdown Tất cả chuyên mục -->
                     <div class="control-group">
                         <div class="custom-select-wrapper">
@@ -585,8 +581,8 @@ onUnmounted(() => {
     }
     
     &.active {
-        background: #007bff;
-        border-color: #007bff;
+        background: $primary-color;
+        border-color: $primary-color;
         color: white;
     }
     

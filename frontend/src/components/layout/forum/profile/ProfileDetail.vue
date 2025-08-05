@@ -40,12 +40,6 @@
           </template>
         </div>
     </div>
-    
-    <div v-if="props.isMyProfile" class="profile-notification bd-form">
-      <i class="fas fa-info-circle"></i>
-      <span>7 ngày trải nghiệm các tính năng AI miễn phí sau khi cập nhật đầy đủ thông tin hồ sơ.</span>
-    </div>
-
     <!-- Basic personal info for all users -->
     <div class="personal-info-widget bd-form">
       <h3>Thông tin cá nhân</h3>
