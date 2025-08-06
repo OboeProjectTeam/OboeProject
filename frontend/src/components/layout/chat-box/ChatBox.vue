@@ -446,33 +446,5 @@
   
   <style lang="scss" scoped>
     @use '@/components/layout/chat-box/ChatBox.scss';
-    
-    .loading-messages, .empty-messages {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-      
-      .fas {
-        margin-bottom: 10px;
-        font-size: 24px;
-      }
-      
-      p {
-        margin: 0;
-        font-weight: 500;
-      }
-      
-      small {
-        display: block;
-        margin-top: 5px;
-        opacity: 0.7;
-      }
-    }
-    
-    .chatbox-input {
-      input:disabled, button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
+ 
   </style>

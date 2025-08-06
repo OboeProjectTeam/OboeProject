@@ -597,3 +597,9 @@ $mobile-breakpoint: 768px;
     display: none;
   }
 }
+.stats-loading, .activities-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+  }
