@@ -185,25 +185,41 @@
         <h3>Chỉnh sửa người dùng</h3>
         <form @submit.prevent="saveUserEdit">
           <div class="form-group">
-            <label>Tên hiển thị</label>
-            <input type="text" v-model="editingUser.name">
+            <label>Họ</label>
+            <input type="text" v-model="editingUser.firstName" required>
           </div>
           <div class="form-group">
-            <label>Email</label>
-            <input type="email" v-model="editingUser.email">
+            <label>Tên</label>
+            <input type="text" v-model="editingUser.lastName" required>
           </div>
           <div class="form-group">
-            <label>Vai trò</label>
-            <select v-model="editingUser.role">
-              <option value="user">Người dùng</option>
-              <option value="admin">Quản trị viên</option>
+            <label>Tên đăng nhập</label>
+            <input type="text" v-model="editingUser.username" required>
+          </div>
+          <div class="form-group">
+            <label>Địa chỉ</label>
+            <input type="text" v-model="editingUser.address" placeholder="Nhập địa chỉ">
+          </div>
+          <div class="form-group">
+            <label>Ngày sinh</label>
+            <input type="date" v-model="editingUser.dayOfBirth">
+          </div>
+          <div class="form-group">
+            <label>URL Avatar</label>
+            <input type="url" v-model="editingUser.avatar" placeholder="https://example.com/avatar.jpg">
+          </div>
+          <div class="form-group">
+            <label>Loại tài khoản</label>
+            <select v-model="editingUser.accountType">
+              <option value="FREE">Miễn phí</option>
+              <option value="PREMIUM">Cao cấp</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Trạng thái</label>
-            <select v-model="editingUser.status">
-              <option value="active">Hoạt động</option>
-              <option value="banned">Đã cấm</option>
+            <label>Vai trò</label>
+            <select v-model="editingUser.originalRole">
+              <option value="ROLE_USER">Người dùng</option>
+              <option value="ROLE_ADMIN">Quản trị viên</option>
             </select>
           </div>
           <div class="modal-actions">
@@ -285,6 +301,26 @@
       :show-cancel="false"
       @confirm="closeErrorPopup"
     />
+
+    <!-- Ban User Confirmation Popup -->
+    <ThePopup
+      v-if="showBanConfirmPopup"
+      title="Xác nhận cấm người dùng"
+      :message="getBanConfirmMessage()"
+      confirm-text="Cấm"
+      @confirm="confirmBanUser"
+      @cancel="cancelBanUser"
+    />
+
+    <!-- Delete User Confirmation Popup -->
+    <ThePopup
+      v-if="showDeleteConfirmPopup"
+      title="Xác nhận xóa người dùng"
+      :message="getDeleteConfirmMessage()"
+      confirm-text="Xóa"
+      @confirm="confirmDeleteUser"
+      @cancel="cancelDeleteUser"
+    />
   </div>
 </template>
 
@@ -306,6 +342,10 @@ const showAddModal = ref(false);
 const showConfirmPopup = ref(false);
 const showErrorPopup = ref(false);
 const errorMessage = ref('');
+const showBanConfirmPopup = ref(false);
+const showDeleteConfirmPopup = ref(false);
+const userToBan = ref(null);
+const userToDelete = ref(null);
 const newUser = ref({
   firstName: '',
   lastName: '',
@@ -328,26 +368,29 @@ const fetchUsers = async () => {
       users.value = [];
       return;
     }
-    // Map API response to component format
+    // Map API response to component format - sử dụng đúng cấu trúc từ API
     users.value = data.map(user => {
       return {
-        id: user.user_id,
+        id: user.user_id, // Sử dụng user_id từ API
         name: `${user.firstName} ${user.lastName}`,
         username: user.userName,
         email: user.userName, // API không có email riêng, dùng userName
         role: user.role === 'ROLE_ADMIN' ? 'admin' : 'user',
-        // Sử dụng verified thay vì status vì có thể status không đúng format
-        status: user.verified ? 'active' : 'banned',
+        // Sử dụng status từ API: ACTION = active, BANNED = banned
+        status: user.status === 'ACTION' ? 'active' : 'banned',
         joinDate: user.create_at ? new Date(user.create_at).toISOString().split('T')[0] : '',
         avatar: user.avatarUrl ? user.avatarUrl.trim() : 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg',
-        accountType: user.accountType,
-        authProvider: user.authProvider,
+        accountType: user.accountType, // FREE hoặc PREMIUM
+        authProvider: user.authProvider, // EMAIL, GOOGLE, FACEBOOK
         dayOfBirth: user.day_of_birth,
         address: user.address,
         verified: user.verified,
-        originalRole: user.role,
-        providerId: user.providerId,
-        originalStatus: user.status // Giữ lại status gốc để debug
+        originalRole: user.role, // ROLE_ADMIN hoặc ROLE_USER
+        originalStatus: user.status, // ACTION hoặc BANNED
+        firstName: user.firstName,
+        lastName: user.lastName,
+        createAt: user.create_at,
+        updateAt: user.update_at
       };
     });
   } catch (error) {
@@ -473,20 +516,40 @@ const editUser = (user) => {
 
 const saveUserEdit = async () => {
   try {
-    // Prepare data for API
+    // Prepare data for API - theo đúng cấu trúc body yêu cầu từ API response
     const updateData = {
-      firstName: editingUser.value.name.split(' ')[0],
-      lastName: editingUser.value.name.split(' ').slice(1).join(' '),
-      userName: editingUser.value.email,
-      role: editingUser.value.role === 'admin' ? 'ROLE_ADMIN' : 'ROLE_USER'
+      userName: editingUser.value.username,
+      firstName: editingUser.value.firstName,
+      lastName: editingUser.value.lastName,
+      avatarUrl: editingUser.value.avatar || 'https://thumbs.dreamstime.com/b/default-avatar-profile-image-vector-social-media-user-icon-potrait-182347582.jpg',
+      address: editingUser.value.address,
+      day_of_birth: editingUser.value.dayOfBirth,
+      accountType: editingUser.value.accountType || 'FREE',
+      role: editingUser.value.originalRole // Sử dụng trực tiếp originalRole từ dropdown
     };
     
+    console.log('Updating user with data:', updateData);
+    console.log('User ID:', editingUser.value.id);
+    
+    // Sử dụng user_id để gọi API update
     await api.admin.updateUser(editingUser.value.id, updateData);
     
-    // Update local data
+    // Update local data với dữ liệu mới
     const index = users.value.findIndex(u => u.id === editingUser.value.id);
     if (index !== -1) {
-      users.value[index] = { ...editingUser.value };
+      users.value[index] = { 
+        ...users.value[index],
+        name: `${updateData.firstName} ${updateData.lastName}`,
+        firstName: updateData.firstName,
+        lastName: updateData.lastName,
+        username: updateData.userName,
+        avatar: updateData.avatarUrl,
+        address: updateData.address,
+        dayOfBirth: updateData.day_of_birth,
+        accountType: updateData.accountType,
+        originalRole: updateData.role,
+        role: updateData.role === 'ROLE_ADMIN' ? 'admin' : 'user' // Cập nhật role hiển thị
+      };
     }
     
     showEditModal.value = false;
@@ -498,59 +561,111 @@ const saveUserEdit = async () => {
   }
 };
 
-const banUser = async (user) => {
-  if (confirm('Bạn có chắc chắn muốn cấm người dùng này?')) {
-    try {
-      await api.admin.updateStatus(user.id, 'BANNED');
-      
-      // Update local data
-      const index = users.value.findIndex(u => u.id === user.id);
-      if (index !== -1) {
-        users.value[index] = { ...user, status: 'banned' };
-      }
-      
-      toast.success('Đã cấm người dùng');
-    } catch (error) {
-      console.error('Error banning user:', error);
-      errorMessage.value = `Không thể cấm người dùng!\n\nLỗi: ${error.message}`;
-      showErrorPopup.value = true;
-    }
+const banUser = (user) => {
+  userToBan.value = user;
+  showBanConfirmPopup.value = true;
+};
+
+const getBanConfirmMessage = () => {
+  if (!userToBan.value) return '';
+  return `Bạn có chắc chắn muốn cấm người dùng "${userToBan.value.name}" không?\n\nHành động này sẽ ngăn người dùng truy cập vào hệ thống.`;
+};
+
+const confirmBanUser = async () => {
+  showBanConfirmPopup.value = false;
+  if (!userToBan.value) return;
+  
+  try {
+    console.log('=== BANNING USER ===');
+    console.log('User ID:', userToBan.value.id);
+    console.log('Setting status to: BANNED');
+    
+    // Sử dụng API updateStatus với status BANNED
+    const response = await api.admin.updateStatus(userToBan.value.id, 'BANNED');
+    console.log('Ban API Response:', response);
+    
+    // Refresh toàn bộ danh sách từ server để đảm bảo dữ liệu đồng bộ
+    await fetchUsers();
+    
+    toast.success('Đã cấm người dùng');
+  } catch (error) {
+    console.error('=== ERROR BANNING USER ===');
+    console.error('Error details:', error);
+    console.error('Error response:', error.response?.data);
+    errorMessage.value = `Không thể cấm người dùng!\n\nLỗi: ${error.message}`;
+    showErrorPopup.value = true;
+  } finally {
+    userToBan.value = null;
   }
+};
+
+const cancelBanUser = () => {
+  showBanConfirmPopup.value = false;
+  userToBan.value = null;
 };
 
 const unbanUser = async (user) => {
   try {
-    await api.admin.updateStatus(user.id, 'ACTIVE');
+    console.log('=== UNBANNING USER ===');
+    console.log('User ID:', user.id);
+    console.log('Setting status to: ACTION');
     
-    // Update local data
-    const index = users.value.findIndex(u => u.id === user.id);
-    if (index !== -1) {
-      users.value[index] = { ...user, status: 'active' };
-    }
+    // Sử dụng API updateStatus với status ACTION
+    const response = await api.admin.updateStatus(user.id, 'ACTION');
+    console.log('Unban API Response:', response);
+    
+    // Refresh toàn bộ danh sách từ server để đảm bảo dữ liệu đồng bộ
+    await fetchUsers();
     
     toast.success('Đã bỏ cấm người dùng');
   } catch (error) {
-    console.error('Error unbanning user:', error);
+    console.error('=== ERROR UNBANNING USER ===');
+    console.error('Error details:', error);
+    console.error('Error response:', error.response?.data);
     errorMessage.value = `Không thể bỏ cấm người dùng!\n\nLỗi: ${error.message}`;
     showErrorPopup.value = true;
   }
 };
 
-const deleteUser = async (user) => {
-  if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-    try {
-      await api.admin.deleteUser(user.id);
-      
-      // Remove from local data
-      users.value = users.value.filter(u => u.id !== user.id);
-      
-      toast.success('Đã xóa người dùng');
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      errorMessage.value = `Không thể xóa người dùng!\n\nLỗi: ${error.message}`;
-      showErrorPopup.value = true;
-    }
+const deleteUser = (user) => {
+  userToDelete.value = user;
+  showDeleteConfirmPopup.value = true;
+};
+
+const getDeleteConfirmMessage = () => {
+  if (!userToDelete.value) return '';
+  return `Bạn có chắc chắn muốn xóa người dùng "${userToDelete.value.name}" không?\n\nHành động này không thể hoàn tác và sẽ xóa vĩnh viễn tất cả dữ liệu của người dùng.`;
+};
+
+const confirmDeleteUser = async () => {
+  showDeleteConfirmPopup.value = false;
+  if (!userToDelete.value) return;
+  
+  try {
+    console.log('=== DELETING USER ===');
+    console.log('User ID:', userToDelete.value.id);
+    
+    // Sử dụng user_id để gọi API delete
+    await api.admin.deleteUser(userToDelete.value.id);
+    
+    // Refresh toàn bộ danh sách từ server
+    await fetchUsers();
+    
+    toast.success('Đã xóa người dùng');
+  } catch (error) {
+    console.error('=== ERROR DELETING USER ===');
+    console.error('Error details:', error);
+    console.error('Error response:', error.response?.data);
+    errorMessage.value = `Không thể xóa người dùng!\n\nLỗi: ${error.message}`;
+    showErrorPopup.value = true;
+  } finally {
+    userToDelete.value = null;
   }
+};
+
+const cancelDeleteUser = () => {
+  showDeleteConfirmPopup.value = false;
+  userToDelete.value = null;
 };
 
 // Hiển thị popup xác nhận

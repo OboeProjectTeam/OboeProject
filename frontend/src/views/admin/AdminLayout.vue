@@ -87,6 +87,7 @@
             <span class="admin-name">{{ adminName }}</span>
             <button class="btn-logout" @click="handleLogout">
               <i class="fas fa-sign-out-alt"></i>
+              <span>Đăng xuất</span>
             </button>
           </div>
         </div>
@@ -103,9 +104,11 @@
 import { ImagePaths } from '@/assets/img/imagePaths';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
 
 // Sidebar state
 const isSidebarCollapsed = ref(false);
@@ -114,9 +117,27 @@ const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 
-// Mock admin data - replace with real data from your auth system
-const adminAvatar = 'https://i.pravatar.cc/150?u=admin';
-const adminName = 'Admin';
+// Get current user from store
+const currentUser = computed(() => store.getters['auth/currentUser']);
+
+// Admin avatar with fallback
+const adminAvatar = computed(() => {
+  if (!currentUser.value) return 'https://ui-avatars.com/api/?name=Admin';
+  
+  return currentUser.value.avatarUrl || 
+         currentUser.value.photoURL || 
+         `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.value.displayName || currentUser.value.userName || 'Admin')}`;
+});
+
+// Admin name with fallback
+const adminName = computed(() => {
+  if (!currentUser.value) return 'Admin';
+  
+  return currentUser.value.displayName || 
+         currentUser.value.userName || 
+         `${currentUser.value.firstName || ''} ${currentUser.value.lastName || ''}`.trim() ||
+         'Admin';
+});
 
 
 
@@ -137,9 +158,17 @@ const currentPageTitle = computed(() => {
   }
 });
 
-const handleLogout = () => {
-  // Handle logout logic here
-  router.push('/login');
+const handleLogout = async () => {
+  try {
+    // Đăng xuất thông qua store
+    await store.dispatch('auth/logout');
+    // Redirect về trang login
+    router.push('/login');
+  } catch (error) {
+    console.error('Lỗi khi đăng xuất:', error);
+    // Vẫn redirect về login nếu có lỗi
+    router.push('/login');
+  }
 };
 </script>
 

@@ -161,20 +161,6 @@
                 >
                   <i class="fas fa-times"></i>
                 </button>
-                <button 
-                  class="btn-delete-post"
-                  @click="deletePost(report.post)"
-                  title="Xóa bài viết"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-                <button 
-                  class="btn-ban-user"
-                  @click="banUser(report.post.author)"
-                  title="Cấm người dùng"
-                >
-                  <i class="fas fa-user-slash"></i>
-                </button>
               </div>
             </td>
           </tr>
@@ -277,8 +263,6 @@
             <select v-model="resolveData.action" required>
               <option value="warning">Gửi cảnh báo</option>
               <option value="delete">Xóa bài viết</option>
-              <option value="restrict">Hạn chế quyền đăng bài</option>
-              <option value="temp_ban">Cấm tạm thời (7 ngày)</option>
               <option value="perm_ban">Cấm vĩnh viễn</option>
             </select>
           </div>
@@ -666,7 +650,14 @@ const resolveReport = (report) => {
 const submitResolve = async () => {
   try {
     if (selectedReport.value) {
-      // Here you would send the resolution to your backend
+      console.log('Approving report:', selectedReport.value.id);
+      console.log('Resolve data:', resolveData.value);
+      
+      // Gọi API để duyệt báo cáo
+      const response = await reportApi.approve(selectedReport.value.id);
+      console.log('Approve response:', response);
+      
+      // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === selectedReport.value.id);
       if (index !== -1) {
         reports.value[index] = {
@@ -674,7 +665,11 @@ const submitResolve = async () => {
           status: 'resolved'
         };
       }
+      
+      // Làm mới dữ liệu từ server để đảm bảo đồng bộ
+      await fetchReports();
     }
+    
     showResolveModal.value = false;
     resolveData.value = {
       severity: '',
@@ -685,12 +680,20 @@ const submitResolve = async () => {
     selectedReport.value = null;
   } catch (error) {
     console.error('Error resolving report:', error);
+    alert('Có lỗi xảy ra khi duyệt báo cáo. Vui lòng thử lại.');
   }
 };
 
 const rejectReport = async (report) => {
   if (confirm('Bạn có chắc chắn muốn từ chối báo cáo này?')) {
     try {
+      console.log('Rejecting report:', report.id);
+      
+      // Gọi API để từ chối báo cáo
+      const response = await reportApi.reject(report.id);
+      console.log('Reject response:', response);
+      
+      // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === report.id);
       if (index !== -1) {
         reports.value[index] = {
@@ -698,8 +701,13 @@ const rejectReport = async (report) => {
           status: 'rejected'
         };
       }
+      
+      // Làm mới dữ liệu từ server để đảm bảo đồng bộ
+      await fetchReports();
+      
     } catch (error) {
       console.error('Error rejecting report:', error);
+      alert('Có lỗi xảy ra khi từ chối báo cáo. Vui lòng thử lại.');
     }
   }
 };
