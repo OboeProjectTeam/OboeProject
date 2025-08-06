@@ -216,7 +216,13 @@ const submitForm = async () => {
         passWord: password.value,
       })
 
-      router.push('/')
+      // Kiểm tra role của user sau khi đăng nhập thành công
+      const user = store.getters['auth/currentUser'];
+      if (user && user.role === 'ROLE_ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     }
   } catch (err) {
      showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')

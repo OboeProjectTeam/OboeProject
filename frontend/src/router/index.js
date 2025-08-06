@@ -28,10 +28,11 @@ router.beforeEach(async (to, from, next) => {
   
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest);
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
   
   // Check if user is authenticated
   const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isAuthenticated = !!(token && user);
   
 
@@ -54,6 +55,18 @@ router.beforeEach(async (to, from, next) => {
       if (requiresAuth) {
         return next('/login');
       }
+    }
+  }
+  
+  // Check if route requires admin access
+  if (to.path.startsWith('/admin')) {
+    if (!isAuthenticated) {
+      return next('/login');
+    }
+    
+    if (user && user.role !== 'ROLE_ADMIN') {
+      // Redirect non-admin users to home page
+      return next('/');
     }
   }
   

@@ -44,10 +44,22 @@ const sampleSentenceApi = {
     }
   },
 
-  // Lấy tất cả mẫu câu
-  async getAll() {
+  // Lấy tất cả mẫu câu với phân trang
+  async getAll({ page = 0, size = 10 } = {}) {
     try {
-      const res = await axios.get(PREFIX);
+      const res = await axios.get(PREFIX, { params: { page, size } });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  // Tìm kiếm mẫu câu theo keyword
+  async search(keyword) {
+    try {
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { keyword }
+      });
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));
