@@ -114,13 +114,40 @@
         </a>
       </div>
     </div>
+
+    <!-- Success Popup -->
+    <ThePopup
+      v-if="showSuccessPopup"
+      title="Gửi thành công!"
+      message="Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể."
+      confirm-text="OK"
+      :show-cancel="false"
+      @confirm="closeSuccessPopup"
+      @cancel="closeSuccessPopup"
+    />
+
+    <!-- Error Popup -->
+    <ThePopup
+      v-if="showErrorPopup"
+      title="Có lỗi xảy ra"
+      message="Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau!"
+      confirm-text="OK"
+      :show-cancel="false"
+      @confirm="closeErrorPopup"
+      @cancel="closeErrorPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import feedbackApi from '@/api/modules/feedbackApi';
+import ThePopup from '@/components/common/popup/ThePopup.vue';
 
 const isSubmitting = ref(false);
+const showSuccessPopup = ref(false);
+const showErrorPopup = ref(false);
+
 const formData = ref({
   name: '',
   email: '',
@@ -132,8 +159,19 @@ const formData = ref({
 const submitForm = async () => {
   try {
     isSubmitting.value = true;
-    // Giả lập gửi form
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Tạo payload theo format API
+    const feedbackDto = {
+      fullName: formData.value.name,
+      email: formData.value.email,
+      title: formData.value.title,
+      topic: formData.value.subject,
+      content: formData.value.message
+    };
+    
+    // Gọi API gửi feedback
+    const response = await feedbackApi.create(feedbackDto);
+    console.log('Feedback sent successfully:', response);
     
     // Reset form
     formData.value = {
@@ -144,16 +182,24 @@ const submitForm = async () => {
       message: ''
     };
     
-    alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
+    showSuccessPopup.value = true;
   } catch (error) {
     console.error('Error submitting form:', error);
-    alert('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau!');
+    showErrorPopup.value = true;
   } finally {
     isSubmitting.value = false;
   }
+};
+
+const closeSuccessPopup = () => {
+  showSuccessPopup.value = false;
+};
+
+const closeErrorPopup = () => {
+  showErrorPopup.value = false;
 };
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/footer-services/contact/TheContact.scss';
-</style> 
+</style>

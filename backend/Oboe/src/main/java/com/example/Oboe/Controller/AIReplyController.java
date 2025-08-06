@@ -39,7 +39,7 @@ public class AIReplyController {
     private AICommentReplyRepository aiCommentReplyRepository;
 
     @PostMapping("/blog/{blogId}")
-    public ResponseEntity<?> replyToBlog(@PathVariable UUID blogId) {
+    public ResponseEntity<?> getOrCreateAIBlogReply(@PathVariable UUID blogId) {
         Blog blog = blogRepository.findById(blogId).orElse(null);
         if (blog == null) {
             Map<String, String> error = new HashMap<>();
@@ -47,49 +47,46 @@ public class AIReplyController {
             return ResponseEntity.status(404).body(error);
         }
 
+        // Kiểm tra đã có phản hồi AI chưa
+        AIBlogReply existingReply = aiBlogReplyRepository.findByBlog_BlogId(blogId);
+        AIBlogReplyDTO dto = new AIBlogReplyDTO();
+
+        if (existingReply != null) {
+            // Dùng lại phản hồi đã có
+            dto.setId(existingReply.getId());
+            dto.setBlogId(blogId);
+            dto.setContent(existingReply.getContent());
+            dto.setCreatedAt(existingReply.getCreatedAt());
+
+            return ResponseEntity.ok(dto);
+        }
+
+        // Nếu chưa có, gọi Gemini
         String prompt = "Bạn là một AI chuyên viết bình luận giá trị cho các bài blog liên quan đến tiếng Nhật. Hãy dựa vào nội dung bài viết bên dưới để đưa ra phản hồi phù hợp:\n\n" +
                 "Tiêu đề: " + blog.getTitle() +
                 "\nNội dung: " + blog.getContent() +
                 "\n\nNếu đây là bài viết nêu câu hỏi hoặc vấn đề, hãy trả lời rõ ràng, đúng trọng tâm, giúp người viết hiểu và giải quyết triệt để vấn đề. Nếu đây là bài chia sẻ kinh nghiệm, tâm sự hay bí quyết học tập (ví dụ như 'Tôi đã hoàn thành khóa học Kanji như thế nào...'), hãy phản hồi một cách thân thiện, đồng cảm và cổ vũ tích cực. Luôn dùng giọng điệu thân thiện, không dùng markdown, câu văn rõ ràng, ngắn gọn nhưng đầy đủ ý nghĩa, giúp người đọc cảm thấy được lắng nghe và trân trọng." +
-                "và hãy viết chỉ tầm khoảng dưới 150 chữ thôi";
+                " và hãy viết chỉ tầm khoảng dưới 150 chữ thôi";
 
         String response = geminiService.generateTextFromPrompt(prompt);
 
-        AIBlogReply reply = new AIBlogReply();
-        reply.setId(UUID.randomUUID());
-        reply.setBlog(blog);
-        reply.setContent(response);
-        reply.setCreatedAt(LocalDateTime.now());
+        // Tạo phản hồi mới
+        AIBlogReply newReply = new AIBlogReply();
+        newReply.setId(UUID.randomUUID());
+        newReply.setBlog(blog);
+        newReply.setContent(response);
+        newReply.setCreatedAt(LocalDateTime.now());
 
-        aiBlogReplyRepository.save(reply);
+        aiBlogReplyRepository.save(newReply);
 
-        // Trả JSON
-        Map<String, Object> result = new HashMap<>();
-        result.put("blogId", blogId);
-        result.put("reply", response);
-        result.put("createdAt", reply.getCreatedAt());
-
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/blogget/{blogId}")
-    public ResponseEntity<?> getAIBlogReplyByBlogId(@PathVariable UUID blogId) {
-        AIBlogReply aiBlogReply = aiBlogReplyRepository.findByBlog_BlogId(blogId);
-        if (aiBlogReply == null) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "AI reply not found for blog ID: " + blogId);
-            return ResponseEntity.status(404).body(error);
-        }
-
-        // Map entity sang DTO
-        AIBlogReplyDTO dto = new AIBlogReplyDTO();
-        dto.setId(aiBlogReply.getId());
-        dto.setBlogId(aiBlogReply.getBlog().getBlogId());
-        dto.setContent(aiBlogReply.getContent());
-        dto.setCreatedAt(aiBlogReply.getCreatedAt());
+        dto.setId(newReply.getId());
+        dto.setBlogId(blogId);
+        dto.setContent(newReply.getContent());
+        dto.setCreatedAt(newReply.getCreatedAt());
 
         return ResponseEntity.ok(dto);
     }
+
 
 
     @PostMapping("/comment/{commentId}")

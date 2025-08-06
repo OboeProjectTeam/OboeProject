@@ -1,5 +1,6 @@
 package com.example.Oboe.Config;
 
+import com.example.Oboe.Entity.AccountType;
 import com.example.Oboe.Entity.AuthProvider;
 import com.example.Oboe.Entity.Status;
 import com.example.Oboe.Entity.User;
@@ -46,6 +47,8 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.getStatus() != null && user.getStatus() != Status.BAN;
     }
-
+    public AccountType getAccountType() {
+        return user.getAccountType();
+    }
 }
 

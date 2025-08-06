@@ -98,15 +98,17 @@ public class WebConfig {
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
                                 "/api/search/**",
-                                "/api/ai-reply/**",
+
                                 "/api/search",
                                 "/ws/**",
                                 "/ws-raw"
                         ).permitAll()
                         // Chỉ cho phép GET cho các API sau mà không cần đăng nhập
+                        .requestMatchers("/api/payment/payos-notify").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/feedbacks").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/kanji/**").permitAll()
-                        .requestMatchers("/api/payos-notify").permitAll()
+                        .requestMatchers("/api/payment/status").permitAll()
+                        .requestMatchers("/api/payment/payos-notify").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/grammar/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/vocabulary/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/sample-sentences/**").permitAll()

@@ -6,14 +6,15 @@ import com.example.Oboe.Entity.Payment;
 import com.example.Oboe.Entity.User;
 import com.example.Oboe.Repository.PaymentRepository;
 import com.example.Oboe.Repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
-import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,10 +56,9 @@ public class PayOsService {
                 .items(List.of(item))
                 .build();
 
-
         CheckoutResponseData response = payOS.createPaymentLink(paymentData);
 
-        // Lưu đơn vào DB
+        // Save to DB
         Payment payment = new Payment();
         payment.setOrderCode(tempOrderCode);
         payment.setAmount(fixedAmount);
@@ -69,28 +69,34 @@ public class PayOsService {
         return response;
     }
 
-    public WebhookData handleWebhook(Webhook webhookBody) throws Exception {
-        WebhookData data = payOS.verifyPaymentWebhookData(webhookBody);
+    public WebhookData handleWebhook(String rawJson) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        vn.payos.type.Webhook webhook = mapper.readValue(rawJson, vn.payos.type.Webhook.class);
+        WebhookData data = payOS.verifyPaymentWebhookData(webhook);
+//        WebhookData data = webhook.getData(); // Bỏ verify chữ ký khi test
 
         long orderCode = data.getOrderCode();
-        String code = data.getCode(); // Mã trạng thái
+        String code = data.getCode();
 
         Payment payment = paymentRepository.findByOrderCode(orderCode);
         if (payment != null) {
             String status;
 
-            if ("00".equals(code)) {
-                status = "SUCCESS";
+            switch (code) {
+                case "00" -> {
+                    status = "SUCCESS";
+                    payment.setPaidAt(LocalDateTime.now());
+                    User user = payment.getUser();
+                    if (user.getAccountType() != AccountType.PREMIUM) {
+                        user.setAccountType(AccountType.PREMIUM);
 
-                // Nâng cấp tài khoản
-                User user = payment.getUser();
-                user.setAccountType(AccountType.PREMIUM);
-                userRepository.save(user);
-            } else if ("09".equals(code)) {
-                status = "CANCELLED";
-            } else {
-                status = "FAILED";
+                        userRepository.save(user);
+                    }
+                }
+                case "09" -> status = "CANCELLED";
+                default -> status = "FAILED";
             }
+
 
             payment.setStatus(status);
             paymentRepository.save(payment);
@@ -98,9 +104,6 @@ public class PayOsService {
 
         return data;
     }
-
-
-
 
     public void cancelPayment(long orderCode, String reason) throws Exception {
         payOS.cancelPaymentLink(orderCode, reason);

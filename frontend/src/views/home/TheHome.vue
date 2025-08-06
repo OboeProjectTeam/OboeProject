@@ -12,8 +12,8 @@
       </div>
     </section>
 
-    <!-- Recent Activity Section -->
-    <section class="content-section">
+    <!-- Recent Activity Section - Only show if there are recent sets or loading -->
+    <section v-if="recentSetsLoading || recentSets.length > 0" class="content-section">
       <div class="container">
         <div class="section-header">
           <h2>Truy cập gần đây</h2>
@@ -27,11 +27,6 @@
             <div class="loading-placeholder small"></div>
             <div class="loading-placeholder button"></div>
           </div>
-        </div>
-        
-        <!-- No data state -->
-        <div v-else-if="recentSets.length === 0" class="no-data-state">
-          <p>Chưa có học liệu nào được truy cập gần đây</p>
         </div>
         
         <!-- Recent sets list -->
@@ -53,7 +48,7 @@
     <section class="content-section">
       <div class="container">
         <div class="section-header">
-          <h2>Học liệu đề xuất cho bạn</h2>
+          <h2>Bài quizz đề xuất cho bạn</h2>
         </div>
         
         <!-- Loading state -->
@@ -369,85 +364,4 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use '@/views/home/TheHome.scss';
-
-/* Additional styles for loading and no-data states */
-.content-card .description {
-  color: #6b7280;
-  font-size: 0.85rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-.card-meta .date {
-  font-size: 0.75rem;
-}
-
-/* Loading states */
-.content-card.loading {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  min-width: 280px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.forum-topic-card.loading {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.loading-placeholder {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 4px;
-  height: 1.2rem;
-  margin-bottom: 0.75rem;
-}
-
-.loading-placeholder.small {
-  height: 0.9rem;
-  width: 60%;
-}
-
-.loading-placeholder.button {
-  height: 2.5rem;
-  margin-top: 1rem;
-  margin-bottom: 0;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-.no-data-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-}
-
-.no-data-state p {
-  margin: 0;
-}
 </style>

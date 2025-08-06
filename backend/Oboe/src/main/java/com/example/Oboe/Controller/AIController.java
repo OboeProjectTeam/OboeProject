@@ -7,9 +7,12 @@ import com.example.Oboe.Entity.FlashCards;
 import com.example.Oboe.Repository.CardItemRepository;
 import com.example.Oboe.Repository.FlashCardRepository;
 import com.example.Oboe.Service.GeminiService;
+import com.example.Oboe.annotation.PremiumOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.Oboe.DTOs.UserAnswerAIDTO;
+import org.springframework.security.core.Authentication;
+import com.example.Oboe.Config.CustomUserDetails;
 
 
 
@@ -17,6 +20,7 @@ import com.example.Oboe.DTOs.UserAnswerAIDTO;
 import java.util.*;
 
 @RestController
+
 @RequestMapping("/api/ai")
 public class AIController {
 
@@ -29,8 +33,13 @@ public class AIController {
     @Autowired
     private FlashCardRepository flashCardRepository;
 
-    @GetMapping("/generate-question/{userId}")
-    public List<QuestionDTO> generateQuestionsByUser(@PathVariable UUID userId) {
+
+    @PremiumOnly
+    @GetMapping("/generate-question")
+    public List<QuestionDTO> generateQuestionsByUser(Authentication authentication) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        UUID userId = userDetails.getUserID();
+
         List<FlashCards> flashCardsList = flashCardRepository.findflashcardByUserId(userId);
 
         if (flashCardsList.isEmpty()) {
@@ -58,35 +67,37 @@ public class AIController {
             promptBuilder.append("- ").append(entry).append("\n");
         }
         promptBuilder.append("""
-                Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
+        Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
 
-            - Từ vựng: "%s"
-            - Nghĩa tiếng Việt: "%s"
+        - Từ vựng: "%s"
+        - Nghĩa tiếng Việt: "%s"
 
-            Yêu cầu:
-            1. Mỗi câu hỏi có 4 lựa chọn .
-            2. Chỉ 1 đáp án đúng.
-            3. Trả về định dạng JSON như sau:
+        Yêu cầu:
+        1. Mỗi câu hỏi có 4 lựa chọn .
+        2. Chỉ 1 đáp án đúng.
+        3. Trả về định dạng JSON như sau:
 
-            [
-                {
-                    "question": "Câu hỏi",
-                    "choices": [
-                        "lựa chọn A",
-                        "lựa chọn B",
-                        "lựa chọn C",
-                        "lựa chọn D"
-                    ],
-                    "answer": "Đáp án đúng"
-                }
-            ]
+        [
+            {
+                "question": "Câu hỏi",
+                "choices": [
+                    "lựa chọn A",
+                    "lựa chọn B",
+                    "lựa chọn C",
+                    "lựa chọn D"
+                ],
+                "answer": "Đáp án đúng"
+            }
+        ]
 
-            Không thêm giải thích hay văn bản nào ngoài JSON.
-                """);
+        Không thêm giải thích hay văn bản nào ngoài JSON.
+        """);
 
         return geminiService.generateQuestion(promptBuilder.toString());
     }
 
+
+    @PremiumOnly
     @GetMapping("/generate-random-question")
     public List<QuestionDTO> generateRandomQuestion() {
         List<CardItem> allCardItems = cardItemRepository.findAll();
@@ -127,7 +138,7 @@ public class AIController {
             Không thêm giải thích hay văn bản nào ngoài JSON.
             """.formatted(cardItem.getWord(), cardItem.getMeaning());
     }
-
+    @PremiumOnly
     @PostMapping("/evaluate")
     public String evaluateAnswers(@RequestBody UserAnswerAIDTO request) {
         StringBuilder prompt = new StringBuilder();
@@ -185,7 +196,7 @@ public class AIController {
             return "{\"error\": \"Lỗi khi đánh giá câu trả lời\"}";
         }
     }
-
+    @PremiumOnly
     @PostMapping("/translate")
     public Map<String, String> translateJapaneseToVietnamese(@RequestBody Map<String, String> request) {
         String input = request.get("text");

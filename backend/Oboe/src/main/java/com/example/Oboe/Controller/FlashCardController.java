@@ -5,6 +5,7 @@
     import com.example.Oboe.Entity.FlashCards;
     import com.example.Oboe.Service.FlashCardService;
     import com.example.Oboe.Util.JwtUtil;
+    import com.example.Oboe.annotation.PremiumOnly;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
@@ -74,6 +75,7 @@
                  @AuthenticationPrincipal(expression = "userID") UUID userId) {
              return ResponseEntity.ok(flashCardService.getTop5LatestFlashCards(userId));
          }
+
 
         @GetMapping("/all")
         public ResponseEntity<?> getAllFlashCards() {

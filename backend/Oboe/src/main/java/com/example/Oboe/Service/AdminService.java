@@ -3,10 +3,7 @@ package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.UserDTOs;
 import com.example.Oboe.DTOs.UserProfileDTO;
 import com.example.Oboe.Entity.*;
-import com.example.Oboe.Repository.BlogRepository;
-import com.example.Oboe.Repository.CommentRepository;
-import com.example.Oboe.Repository.FlashCardRepository;
-import com.example.Oboe.Repository.UserRepository;
+import com.example.Oboe.Repository.*;
 import com.example.Oboe.Util.VerificationHolder;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
@@ -32,9 +29,12 @@ public class AdminService {
     private final BlogRepository blogRepository;
     private final CommentRepository commentRepository;
     private final FlashCardRepository flashCardRepository;
-    
+
     @Value("${app.domain}")
     private String domain;
+
+    @Autowired
+    private UserRepositoryCustomImpl userRepositoryCustomImpl;
     @Autowired
     public AdminService(UserRepository userRepository, BlogRepository blogRepository, CommentRepository commentRepository,
                         FlashCardRepository flashCardRepository,
@@ -118,17 +118,17 @@ public class AdminService {
     }
 
     // Xoá người dùng
-    public void deleteUser(UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
-
-        commentRepository.deleteUserbyComment(id);
-
-        blogRepository.deleteBlogsbyUser(id);
-
-
-        userRepository.delete(user);
-    }
+//    public void deleteUser(UUID id) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng."));
+//
+//        commentRepository.deleteUserbyComment(id);
+//
+//        blogRepository.deleteBlogsbyUser(id);
+//
+//
+//        userRepository.delete(user);
+//    }
 
 
     // Đổi role
@@ -186,5 +186,9 @@ public class AdminService {
 
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
+    }
+
+    public void deleteUser(UUID userId) {
+        userRepositoryCustomImpl.deleteUserWithDependencies(userId);
     }
 }

@@ -5,8 +5,10 @@
       <!-- Left Column: Payment Details -->
       <div class="payment-main-column">
         <div class="form-header">
-          <h2>Thanh toán với PayOS</h2>
-          <p class="payment-subtitle">Quét mã QR để thanh toán nhanh chóng và an toàn</p>
+          <h2 v-if="!isPremium">Thanh toán với PayOS</h2>
+          <h2 v-else><i class="fas fa-crown"></i> Tài khoản Premium</h2>
+          <p v-if="!isPremium" class="payment-subtitle">Quét mã QR để thanh toán nhanh chóng và an toàn</p>
+          <p v-else class="payment-subtitle">Chào mừng bạn đến với trải nghiệm Premium</p>
         </div>
         
         <!-- Loading State -->
@@ -26,7 +28,7 @@
         </div>
 
         <!-- Payment QR Code -->
-        <div v-else-if="paymentData" class="payment-form">
+        <div v-else-if="paymentData && !isPremium" class="payment-form">
           <div class="qr-payment-container">
             <div class="qr-header">
               <h3>Quét mã QR để thanh toán</h3>
@@ -35,22 +37,35 @@
             
             <div class="qr-code-section">
               <div class="qr-code-container">
-                <img :src="paymentData.qrUrl" alt="QR Code thanh toán" class="qr-code-img">
+                <img :src="qrCodeUrl" alt="QR Code thanh toán" class="qr-code-img">
               </div>
               
               <div class="payment-info">
+                <div class="info-item">
+                  <span class="label">Ngân hàng:</span>
+                  <span class="value">Ngân hàng TMCP Quân đội</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Chủ tài khoản:</span>
+                  <span class="value">NGUYEN HUU NGHIA</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Số tài khoản:</span>
+                  <span class="value">VQRQADQDG0146</span>
+                </div>
                 <div class="info-item">
                   <span class="label">Mã đơn hàng:</span>
                   <span class="value">{{ paymentData.orderCode }}</span>
                 </div>
                 <div class="info-item">
                   <span class="label">Số tiền:</span>
-                  <span class="value amount">99.000đ</span>
+                  <span class="value amount">{{ formatAmount(paymentData.amount) }}</span>
                 </div>
-                <div class="info-item" v-if="paymentData.expiredAt">
-                  <span class="label">Hết hạn:</span>
-                  <span class="value">{{ formatExpiredTime(paymentData.expiredAt) }}</span>
+                <div class="info-item">
+                  <span class="label">Trạng thái:</span>
+                  <span class="value" :class="getStatusClass(paymentData.status)">{{ getStatusText(paymentData.status) }}</span>
                 </div>
+                
               </div>
             </div>
 
@@ -63,7 +78,6 @@
                 <li>Xác nhận thông tin và hoàn tất thanh toán</li>
               </ol>
             </div>
-
             <div class="alternative-payment">
               <p>Hoặc bạn có thể:</p>
               <a :href="paymentData.checkoutUrl" target="_blank" class="btn-checkout">
@@ -75,7 +89,7 @@
         </div>
 
         <!-- Initial State -->
-        <div v-else class="payment-form">
+        <div v-else-if="!isPremium" class="payment-form">
           <div class="payment-preview">
             <div class="preview-icon">
               <i class="fas fa-qrcode"></i>
@@ -84,13 +98,35 @@
             <p>Nhấn nút "Tạo mã thanh toán" để bắt đầu</p>
           </div>
         </div>
+
+        <!-- Premium User State -->
+        <div v-else-if="isPremium" class="payment-form">
+          <div class="premium-user-notice">
+            <div class="premium-icon">
+              <i class="fas fa-crown"></i>
+            </div>
+            <h3>Bạn đã là thành viên Premium</h3>
+            <p>Tài khoản của bạn đã được nâng cấp lên Premium và có thể sử dụng tất cả tính năng cao cấp.</p>
+            <div class="premium-features">
+              <ul>
+                <li><i class="fas fa-check"></i> Truy cập không giới hạn</li>
+                <li><i class="fas fa-check"></i> Hỗ trợ ưu tiên</li>
+                <li><i class="fas fa-check"></i> Tính năng AI hỗ trợ dịch</li>
+                <li><i class="fas fa-check"></i> Tự động tạo quizz</li>
+                <li><i class="fas fa-check"></i> Đưa ra lời khuyên từ AI </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Right Column: Order Summary -->
       <div class="payment-sidebar-column">
         <div class="order-summary-card">
-          <h4>Tóm tắt đơn hàng</h4>
-          <div class="order-summary">
+          <h4 v-if="!isPremium">Tóm tắt đơn hàng</h4>
+          <h4 v-else>Thông tin tài khoản</h4>
+          
+          <div v-if="!isPremium" class="order-summary">
             <div class="summary-item">
               <span>Gói Oboe Pro (Hàng tháng)</span>
               <strong>99.000đ</strong>
@@ -101,8 +137,30 @@
             </div>
           </div>
           
+          <div v-else class="premium-summary">
+            <div class="premium-status">
+              <div class="premium-badge">
+                <i class="fas fa-crown"></i>
+                <span>PREMIUM</span>
+              </div>
+              <p class="premium-description">
+                Tài khoản của bạn đã được nâng cấp lên Premium với đầy đủ tính năng cao cấp.
+              </p>
+            </div>
+            <div class="premium-info">
+              <div class="info-item">
+                <span>Trạng thái:</span>
+                <strong class="status-active">Đang hoạt động</strong>
+              </div>
+              <div class="info-item">
+                <span>Loại tài khoản:</span>
+                <strong>Premium</strong>
+              </div>
+            </div>
+          </div>
+          
           <!-- Payment Button -->
-          <div class="payment-actions">
+          <div v-if="!isPremium" class="payment-actions">
             <button 
               v-if="!paymentData && !loading" 
               @click="createPayment" 
@@ -111,52 +169,65 @@
             >
               <i class="fas fa-qrcode"></i> Tạo mã thanh toán
             </button>
-            
             <button 
-              v-else-if="paymentData" 
-              @click="checkPaymentStatus" 
-              class="btn-submit btn-check"
-              :disabled="checking"
+              v-else-if="paymentData && paymentData.status !== 'PENDING'" 
+              @click="createNewPayment" 
+              class="btn-submit"
+              :disabled="loading"
             >
-              <i class="fas fa-sync" :class="{ 'fa-spin': checking }"></i> 
-              {{ checking ? 'Đang kiểm tra...' : 'Kiểm tra thanh toán' }}
+              <i class="fas fa-plus"></i> Tạo thanh toán mới
             </button>
           </div>
           
-          <p class="terms">
+          <!-- Premium User Actions -->
+          <div v-else class="payment-actions">
+            <button 
+              @click="$router.push('/')" 
+              class="btn-submit btn-premium"
+            >
+              <i class="fas fa-home"></i> Về trang chủ
+            </button>
+          </div>
+          
+          <p v-if="!isPremium" class="terms">
             Bằng việc thanh toán, bạn đồng ý với <a href="#">Điều khoản dịch vụ</a>.
           </p>
         </div>
         
         <div class="trust-badges">
-          <i class="fas fa-shield-alt"></i>
-          <span>Thanh toán an toàn với PayOS</span>
+          <i v-if="!isPremium" class="fas fa-shield-alt"></i>
+          <i v-else class="fas fa-star"></i>
+          <span v-if="!isPremium">Thanh toán an toàn với PayOS</span>
+          <span v-else>Cảm ơn bạn đã là thành viên Premium</span>
         </div>
 
         <!-- Payment Status -->
-        <div v-if="paymentStatus" class="payment-status" :class="paymentStatus.type">
-          <div class="status-icon">
-            <i v-if="paymentStatus.type === 'success'" class="fas fa-check-circle"></i>
-            <i v-else-if="paymentStatus.type === 'error'" class="fas fa-times-circle"></i>
-            <i v-else class="fas fa-clock"></i>
-          </div>
-          <div class="status-content">
-            <h4>{{ paymentStatus.title }}</h4>
-            <p>{{ paymentStatus.message }}</p>
-            <div v-if="paymentStatus.type === 'success' && countdown > 0" class="countdown">
-              <p><i class="fas fa-clock"></i> Tự động chuyển hướng sau {{ countdown }} giây...</p>
-            </div>
-          </div>
-        </div>
       </div>
 
     </div>
   </div>
+
+  <!-- Success Popup -->
+  <ThePopup
+    v-if="showSuccessPopup"
+    title="🎉 Thanh toán thành công!"
+    :message="'Chúc mừng! Tài khoản của bạn đã được nâng cấp lên Premium.\n\nBạn có thể sử dụng tất cả tính năng cao cấp:\n• Truy cập không giới hạn\n• Tính năng AI nâng cao\n• Hỗ trợ ưu tiên\n• Không có quảng cáo'"
+    confirm-text="Về trang chủ"
+    :show-cancel="false"
+    :use-html="false"
+    @confirm="handlePopupConfirm"
+    @cancel="handlePopupCancel"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import paymentApi from '@/api/modules/paymentApi';
+import profileApi from '@/api/modules/profileApi';
+import ThePopup from '@/components/common/popup/ThePopup.vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Reactive data
 const loading = ref(false);
@@ -165,20 +236,42 @@ const paymentData = ref(null);
 const checking = ref(false);
 const paymentStatus = ref(null);
 const countdown = ref(0);
+const userProfile = ref(null);
+const isPremium = ref(false);
+const showSuccessPopup = ref(false);
 
 // Auto-check interval
 let checkInterval = null;
 let countdownInterval = null;
 
+// Computed properties
+const qrCodeUrl = computed(() => {
+  if (!paymentData.value?.qrUrl) return '';
+  // Tạo QR code từ qrUrl bằng API QR generator
+  return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentData.value.qrUrl)}`;
+});
+
 // Create payment
 const createPayment = async () => {
+  // Kiểm tra nếu đã là Premium thì không cho tạo thanh toán
+  if (isPremium.value) {
+    paymentStatus.value = {
+      type: 'success',
+      title: 'Tài khoản Premium đã kích hoạt',
+      message: 'Bạn đã là thành viên Premium và không cần thanh toán thêm.'
+    };
+    return;
+  }
+
   try {
     loading.value = true;
     error.value = null;
     paymentStatus.value = null;
     
-    const response = await paymentApi.createPayOsPayment(99000);
+    const response = await paymentApi.createPayOsPayment();
     paymentData.value = response;
+    
+    console.log('Payment created:', response);
     
     // Start auto-checking payment status
     startAutoCheck();
@@ -191,6 +284,14 @@ const createPayment = async () => {
   }
 };
 
+// Create new payment (reset current payment)
+const createNewPayment = async () => {
+  stopAutoCheck();
+  paymentData.value = null;
+  paymentStatus.value = null;
+  await createPayment();
+};
+
 // Check payment status
 const checkPaymentStatus = async () => {
   if (!paymentData.value?.orderCode) return;
@@ -199,23 +300,35 @@ const checkPaymentStatus = async () => {
     checking.value = true;
     
     // Gọi API kiểm tra trạng thái thanh toán
-    const response = await paymentApi.checkPayOsPaymentStatus(paymentData.value.orderCode);
+    const response = await paymentApi.getPaymentStatus(paymentData.value.orderCode);
     
-    if (response.transactionStatus === 'SUCCESS' && response.code === '000') {
+    // Cập nhật trạng thái payment data
+    paymentData.value.status = response.status;
+    
+    if (response.status === 'PAID') {
       // Thanh toán thành công
       paymentStatus.value = {
         type: 'success',
-        title: 'Thanh toán thành công!',
-        message: `Đơn hàng ${response.orderCode} đã được thanh toán thành công với số tiền ${response.amount.toLocaleString('vi-VN')} VNĐ.`
+        title: 'Cảm ơn quý khách đã ủng hộ!',
+        message: 'Hiện tại tài khoản quý khách đã là Premium'
       };
       
       // Dừng auto-check khi thanh toán thành công
-       stopAutoCheck();
-       
-       // Xử lý thanh toán thành công
-       handlePaymentSuccess();
+      stopAutoCheck();
       
-    } else if (response.transactionStatus === 'FAILED') {
+      // Xử lý thanh toán thành công
+      handlePaymentSuccess();
+      
+    } else if (response.status === 'CANCELLED') {
+      // Thanh toán bị hủy
+      paymentStatus.value = {
+        type: 'error',
+        title: 'Thanh toán đã bị hủy',
+        message: 'Giao dịch đã bị hủy. Vui lòng tạo thanh toán mới.'
+      };
+      stopAutoCheck();
+      
+    } else if (response.status === 'FAILED') {
       // Thanh toán thất bại
       paymentStatus.value = {
         type: 'error',
@@ -251,9 +364,32 @@ const startAutoCheck = () => {
     clearInterval(checkInterval);
   }
   
-  checkInterval = setInterval(() => {
-    checkPaymentStatus();
-  }, 10000); // Check every 10 seconds
+  checkInterval = setInterval(async () => {
+    if (paymentData.value?.status === 'PENDING') {
+      // Kiểm tra trạng thái thanh toán
+      await checkPaymentStatus();
+      
+      // Đồng thời kiểm tra profile để phát hiện thay đổi Premium
+        if (!isPremium.value) {
+          try {
+            const profile = await profileApi.getProfile();
+            if (profile.accountType === 'PREMIUM') {
+              // Nếu phát hiện đã là Premium, cập nhật ngay
+              userProfile.value = profile;
+              isPremium.value = true;
+              
+              // Hiển thị popup thành công
+              showSuccessPopup.value = true;
+              stopAutoCheck();
+            }
+          } catch (err) {
+            console.error('Error checking profile during auto-check:', err);
+          }
+        }
+    } else {
+      stopAutoCheck();
+    }
+  }, 3000); // Check every 3 seconds for faster response
 };
 
 // Stop auto-checking
@@ -264,46 +400,98 @@ const stopAutoCheck = () => {
   }
 };
 
-// Format expired time
-const formatExpiredTime = (expiredAt) => {
-  if (!expiredAt) return '';
-  
+// Format amount
+const formatAmount = (amount) => {
+  if (!amount) return '0đ';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount);
+};
+
+// Get status text
+const getStatusText = (status) => {
+  const statusMap = {
+    'PENDING': 'Đang chờ thanh toán',
+    'PAID': 'Đã thanh toán',
+    'CANCELLED': 'Đã hủy',
+    'FAILED': 'Thất bại'
+  };
+  return statusMap[status] || status;
+};
+
+// Get status class
+const getStatusClass = (status) => {
+  const classMap = {
+    'PENDING': 'status-pending',
+    'PAID': 'status-success',
+    'CANCELLED': 'status-cancelled',
+    'FAILED': 'status-failed'
+  };
+  return classMap[status] || '';
+};
+
+// Check user profile and Premium status
+const checkUserProfile = async () => {
   try {
-    const date = new Date(expiredAt);
-    return date.toLocaleString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    loading.value = true;
+    const profile = await profileApi.getProfile();
+    userProfile.value = profile;
+    isPremium.value = profile.accountType === 'PREMIUM';
+    
+    if (isPremium.value) {
+      // Nếu đã là Premium, hiển thị thông báo
+      paymentStatus.value = {
+        type: 'success',
+        title: 'Tài khoản Premium đã kích hoạt',
+        message: 'Bạn đã là thành viên Premium và có thể sử dụng tất cả tính năng cao cấp.'
+      };
+    }
   } catch (err) {
-    return expiredAt;
+    console.error('Error checking user profile:', err);
+    error.value = 'Không thể kiểm tra thông tin tài khoản. Vui lòng thử lại.';
+  } finally {
+    loading.value = false;
   }
 };
 
 // Handle successful payment
-const handlePaymentSuccess = () => {
-  // Có thể thêm logic lưu trạng thái thanh toán vào store
-  // hoặc gọi API để cập nhật thông tin người dùng
-  
-  // Bắt đầu countdown
-  countdown.value = 3;
-  countdownInterval = setInterval(() => {
-    countdown.value--;
-    if (countdown.value <= 0) {
-      clearInterval(countdownInterval);
-      // Redirect về trang dashboard hoặc trang thành công
-      // Bạn có thể thay đổi đường dẫn này theo nhu cầu
-      window.location.href = '/dashboard';
-    }
-  }, 1000);
+const handlePaymentSuccess = async () => {
+  try {
+    // Kiểm tra lại profile để cập nhật trạng thái Premium
+    const profile = await profileApi.getProfile();
+    userProfile.value = profile;
+    isPremium.value = profile.accountType === 'PREMIUM';
+    
+    // Show success popup
+    showSuccessPopup.value = true;
+    
+    // Stop auto-checking
+    stopAutoCheck();
+    
+  } catch (err) {
+    console.error('Error updating profile after payment:', err);
+    // Still show popup even if profile update fails
+    showSuccessPopup.value = true;
+    stopAutoCheck();
+  }
 };
+
+// Handle popup confirm
+function handlePopupConfirm() {
+  showSuccessPopup.value = false;
+  router.push('/');
+}
+
+// Handle popup cancel
+function handlePopupCancel() {
+  showSuccessPopup.value = false;
+}
 
 // Lifecycle hooks
 onMounted(() => {
-  // Auto-create payment when component mounts
-  // createPayment();
+  // Kiểm tra trạng thái Premium khi component mount
+  checkUserProfile();
 });
 
 onUnmounted(() => {
@@ -312,6 +500,14 @@ onUnmounted(() => {
     clearInterval(countdownInterval);
   }
 });
+</script>
+
+<script>
+export default {
+  components: {
+    ThePopup
+  }
+}
 </script>
 
 <style lang="scss" scoped>

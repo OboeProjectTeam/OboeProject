@@ -6,6 +6,7 @@ import com.example.Oboe.DTOs.ReportDtos;
 import com.example.Oboe.Entity.Report;
 import com.example.Oboe.Entity.ReportStatus;
 import com.example.Oboe.Service.ReportService;
+import com.example.Oboe.annotation.PremiumOnly;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+
 @RequestMapping("/api/reports")
 public class ReportController {
 
