@@ -28,8 +28,19 @@ public class UserRepositoryCustomImpl  implements  UserRepositoryCustom{
     @Override
     @Transactional
     public void deleteUserWithDependencies(UUID userId){
+        em.createNativeQuery("""
+        DELETE c1 FROM comments c1
+        INNER JOIN (
+            SELECT comment_id FROM comments WHERE user_id = :id
+        ) AS c2 ON c1.parent_comment_id = c2.comment_id
+    """).setParameter("id", userId).executeUpdate();
+
+
+        em.createNativeQuery("DELETE FROM comments WHERE user_id = :id")
+                .setParameter("id", userId).executeUpdate();
+
+        // Các bảng khác
         em.createNativeQuery("DELETE FROM user_answers WHERE user_id = :id").setParameter("id", userId).executeUpdate();
-        em.createNativeQuery("DELETE FROM comments WHERE user_id = :id").setParameter("id", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM favorites WHERE user_id = :id").setParameter("id", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM message WHERE senderid = :id OR receiverid = :id").setParameter("id", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM notifications WHERE user_id = :id").setParameter("id", userId).executeUpdate();
@@ -37,8 +48,7 @@ public class UserRepositoryCustomImpl  implements  UserRepositoryCustom{
         em.createNativeQuery("DELETE FROM quiz_results WHERE user_id = :id").setParameter("id", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM reports WHERE user_id = :id").setParameter("id", userId).executeUpdate();
 
-
-
+        // Xoá flashcard & quiz liên quan
         em.createNativeQuery("DELETE FROM card_items WHERE set_id IN (SELECT set_id FROM flash_cards WHERE user_id = :id)")
                 .setParameter("id", userId).executeUpdate();
 
@@ -47,8 +57,12 @@ public class UserRepositoryCustomImpl  implements  UserRepositoryCustom{
 
         em.createNativeQuery("DELETE FROM flash_cards WHERE user_id = :id").setParameter("id", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM quizzes WHERE user_id = :id").setParameter("id", userId).executeUpdate();
+        em.createNativeQuery("DELETE FROM blogs WHERE user_id = :id")
+                .setParameter("id", userId).executeUpdate();
 
+        // Cuối cùng xoá user
         em.createNativeQuery("DELETE FROM users WHERE user_id = :id").setParameter("id", userId).executeUpdate();
+    }
 
     }
-}
+

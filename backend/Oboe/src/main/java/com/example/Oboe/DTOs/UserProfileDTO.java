@@ -1,9 +1,6 @@
 package com.example.Oboe.DTOs;
 
-import com.example.Oboe.Entity.AccountType;
-import com.example.Oboe.Entity.AuthProvider;
-import com.example.Oboe.Entity.Role;
-import com.example.Oboe.Entity.User;
+import com.example.Oboe.Entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +18,7 @@ public class UserProfileDTO {
     private boolean verified;
     private AccountType accountType;
     private Role role;
+    private Status status;
     private LocalDateTime create_at;
     private LocalDateTime update_at;
 
@@ -39,6 +37,7 @@ public class UserProfileDTO {
         this.role = user.getRole();
         this.create_at = user.getCreate_at();
         this.update_at = user.getUpdate_at();
+        this.status = user.getStatus();
     }
 
     public UUID getUser_id() {
@@ -63,6 +62,14 @@ public class UserProfileDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public String getLastName() {
