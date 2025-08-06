@@ -113,6 +113,8 @@ public class AdminService {
         user.setLastName(dto.getLastName());
         user.setAddress(dto.getAddress());
         user.setDay_of_birth(dto.getDay_of_birth());
+        user.setAccountType(dto.getAccountType());
+        user.setRole(dto.getRole());
         user.setUpdate_at(LocalDateTime.now());
         return userRepository.save(user);
     }
