@@ -84,11 +84,13 @@ public class AdminController {
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable UUID id, @RequestParam Status status) {
         try {
-            return ResponseEntity.ok(adminService.updateStatus(id, status));
+            User updatedUser = adminService.updateStatus(id, status);
+            return ResponseEntity.ok(new UserProfileDTO(updatedUser));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/reset-password/{id}")
