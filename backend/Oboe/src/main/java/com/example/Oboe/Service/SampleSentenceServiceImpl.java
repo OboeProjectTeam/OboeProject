@@ -3,13 +3,14 @@ package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.SampleSentenceDTO;
 import com.example.Oboe.Entity.SampleSentence;
 import com.example.Oboe.Repository.SampleSentenceRepository;
-import com.example.Oboe.Service.SampleSentenceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class SampleSentenceServiceImpl implements SampleSentenceService {
@@ -61,9 +62,19 @@ public class SampleSentenceServiceImpl implements SampleSentenceService {
     }
 
     @Override
-    public List<SampleSentenceDTO> getAll() {
-        return repository.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Map<String, Object> getAll(Pageable pageable) {
+        Page<SampleSentence> pageResult = repository.findAll(pageable);
+        Page<SampleSentenceDTO> dtoPage = pageResult.map(this::convertToDTO);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", dtoPage.getContent());
+        response.put("currentPage", dtoPage.getNumber());
+        response.put("totalItems", dtoPage.getTotalElements());
+        response.put("totalPages", dtoPage.getTotalPages());
+        response.put("isLastPage", dtoPage.isLast());
+
+        return response;
     }
+
+
 }
