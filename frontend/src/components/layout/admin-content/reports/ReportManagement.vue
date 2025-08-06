@@ -340,7 +340,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import reportApi from '@/api/modules/reportapi.js';
+import reportApi from '@/api/modules/reportApi.js';
 
 const router = useRouter();
 
