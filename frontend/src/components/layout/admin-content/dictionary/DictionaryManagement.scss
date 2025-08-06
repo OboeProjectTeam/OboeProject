@@ -123,6 +123,26 @@
   }
 }
 
+// Search results info
+.search-results-info {
+  background: #e6f3ff;
+  border: 1px solid #b3d9ff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  
+  p {
+    margin: 0;
+    color: #1a365d;
+    font-size: 14px;
+    
+    strong {
+      color: #2b6cb0;
+      font-weight: 600;
+    }
+  }
+}
+
 // Search and create button
 .search-filters {
   display: flex;
@@ -710,6 +730,23 @@
   padding: 24px;
   flex: 1;
   overflow-y: auto;
+
+  .modal-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fed7d7;
+    border: 1px solid #feb2b2;
+    border-radius: 8px;
+    color: #c53030;
+    margin-bottom: 20px;
+    font-size: 14px;
+
+    i {
+      font-size: 16px;
+    }
+  }
 
   .placeholder-text {
     text-align: center;
