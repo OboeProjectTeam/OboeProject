@@ -59,6 +59,7 @@ public class VocabularyService {
         vocab.setMeanning(dto.getMeanning());
         vocab.setWordType(dto.getWordType());
         vocab.setScriptType(dto.getScriptType());
+        vocab.setVietnamesePronunciation(dto.getVietnamese_pronunciation());
 
         Vocabulary saved = vocabularyRepository.save(vocab);
         if (dto.getKanjiId() != null) {
@@ -96,6 +97,7 @@ public class VocabularyService {
         if (dto.getMeanning() != null) vocab.setMeanning(dto.getMeanning());
         if (dto.getWordType() != null) vocab.setWordType(dto.getWordType());
         if (dto.getScriptType() != null) vocab.setScriptType(dto.getScriptType());
+        if(dto.getVietnamese_pronunciation() != null ) vocab.setVietnamesePronunciation(dto.getVietnamese_pronunciation());
 
         Vocabulary updated = vocabularyRepository.save(vocab);
 
