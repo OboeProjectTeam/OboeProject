@@ -11,6 +11,17 @@ public class VocabularyDTOs {
     private String wordType;
     private String scriptType;
     private UUID kanjiId;
+    private String vietnamese_pronunciation;
+
+    public String getVietnamese_pronunciation() {
+        return vietnamese_pronunciation;
+    }
+
+    public void setVietnamese_pronunciation(String vietnamese_pronunciation) {
+        this.vietnamese_pronunciation = vietnamese_pronunciation;
+    }
+
+
 
 
     private List<ReadingDTO> readings;
