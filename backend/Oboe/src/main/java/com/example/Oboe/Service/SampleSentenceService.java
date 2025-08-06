@@ -1,8 +1,9 @@
 package com.example.Oboe.Service;
 
 import com.example.Oboe.DTOs.SampleSentenceDTO;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface SampleSentenceService {
@@ -10,5 +11,5 @@ public interface SampleSentenceService {
     SampleSentenceDTO update(UUID id, SampleSentenceDTO dto);
     void delete(UUID id);
     SampleSentenceDTO getById(UUID id);
-    List<SampleSentenceDTO> getAll();
+    Map<String, Object> getAll(Pageable pageable);
 }
