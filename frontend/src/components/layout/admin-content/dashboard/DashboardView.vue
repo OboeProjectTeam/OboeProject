@@ -110,44 +110,65 @@
   </template>
   
   <script setup>
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  
-  const router = useRouter();
-  
-  // Mock data - replace with real API calls
-  const stats = ref({
-    totalUsers: 1234,
-    newUsers: 56,
-    totalPosts: 789,
-    newPosts: 23,
-    pendingReports: 12,
-    pendingFeedback: 8
-  });
-  
-  const recentActivities = ref([
-    {
-      id: 1,
-      type: 'user',
-      title: 'Người dùng mới đăng ký',
-      description: 'John Doe đã tạo tài khoản mới',
-      timestamp: new Date(Date.now() - 30 * 60000) // 30 minutes ago
-    },
-    {
-      id: 2,
-      type: 'report',
-      title: 'Báo cáo mới',
-      description: 'Một bài viết đã bị báo cáo vi phạm',
-      timestamp: new Date(Date.now() - 2 * 3600000) // 2 hours ago
-    },
-    {
-      id: 3,
-      type: 'feedback',
-      title: 'Phản hồi mới',
-      description: 'Người dùng gửi phản hồi về tính năng mới',
-      timestamp: new Date(Date.now() - 5 * 3600000) // 5 hours ago
-    }
-  ]);
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '@/api';
+import { toast } from 'sonner';
+
+const router = useRouter();
+
+const stats = ref({
+  totalUsers: 0,
+  newUsers: 0,
+  totalPosts: 0,
+  newPosts: 0,
+  pendingReports: 0,
+  pendingFeedback: 0
+});
+
+const recentActivities = ref([]);
+
+// Fetch dashboard data from API
+const fetchDashboardData = async () => {
+  try {
+    const data = await api.dashboard.getAdminDashboard();
+    
+    // Map API response to component data
+    stats.value = {
+      totalUsers: data.summary.users.count,
+      newUsers: data.summary.users.monthly_change,
+      totalPosts: data.summary.posts.count,
+      newPosts: data.summary.posts.monthly_change,
+      pendingReports: data.summary.post_reports.count,
+      pendingFeedback: data.summary.feedback.count
+    };
+
+    // Map recent activities
+    recentActivities.value = data.recent_activities.map((activity, index) => ({
+      id: index + 1,
+      type: getActivityType(activity.type),
+      title: activity.type,
+      description: activity.message,
+      timestamp: activity.time
+    }));
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    toast.error('Không thể tải dữ liệu dashboard');
+  }
+};
+
+// Map activity type from API to component type
+const getActivityType = (apiType) => {
+  if (apiType.includes('Người dùng') || apiType.includes('đăng ký')) return 'user';
+  if (apiType.includes('Báo cáo') || apiType.includes('báo cáo')) return 'report';
+  if (apiType.includes('Phản hồi') || apiType.includes('phản hồi')) return 'feedback';
+  if (apiType.includes('Bài viết') || apiType.includes('bài viết')) return 'post';
+  return 'info';
+};
+
+onMounted(() => {
+  fetchDashboardData();
+});
   
   const getActivityIcon = (type) => {
     const icons = {
@@ -159,31 +180,11 @@
     return icons[type] || 'fas fa-info-circle';
   };
   
-  const formatTime = (timestamp) => {
-    const now = new Date();
-    const diff = now - timestamp;
-    
-    // Less than 1 minute
-    if (diff < 60000) {
-      return 'Vừa xong';
-    }
-    
-    // Less than 1 hour
-    if (diff < 3600000) {
-      const minutes = Math.floor(diff / 60000);
-      return `${minutes} phút trước`;
-    }
-    
-    // Less than 1 day
-    if (diff < 86400000) {
-      const hours = Math.floor(diff / 3600000);
-      return `${hours} giờ trước`;
-    }
-    
-    // More than 1 day
-    const days = Math.floor(diff / 86400000);
-    return `${days} ngày trước`;
-  };
+  const formatTime = (timeString) => {
+  // API trả về chuỗi thời gian như "20 giờ trước", "5 ngày trước"
+  // Trả về trực tiếp chuỗi từ API
+  return timeString;
+};
   
   const navigateTo = (route) => {
     router.push({ name: route });

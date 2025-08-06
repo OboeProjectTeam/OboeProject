@@ -27,6 +27,7 @@ import AdminLayout from '@/views/admin/AdminLayout.vue';
 import UserManagement from '@/components/layout/admin-content/users/UserManagement.vue';
 import ReportManagement from '@/components/layout/admin-content/reports/ReportManagement.vue';
 import FeedbackManagement from '@/components/layout/admin-content/feedback/FeedbackManagement.vue';
+import DictionaryManagement from '@/components/layout/admin-content/dictionary/DictionaryManagement.vue';
 import DashboardView from '@/components/layout/admin-content/dashboard/DashboardView.vue'
 import FooterServicesLayout from '@/views/footer-services/FooterServicesLayout.vue';
 import TheTerms from '@/views/footer-services/terms/TheTerms.vue';
@@ -245,6 +246,12 @@ const routes = [
       name: 'admin-feedback',
       component: FeedbackManagement,
       meta: { title: 'Quản lý đóng góp ý kiến' }
+    },
+    {
+      path: 'dictionary',
+      name: 'admin-dictionary',
+      component: DictionaryManagement,
+      meta: { title: 'Quản lý từ điển' }
     }
   ]
   },

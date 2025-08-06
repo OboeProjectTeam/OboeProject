@@ -50,6 +50,16 @@
         </router-link>
 
         <router-link 
+          to="/admin/dictionary" 
+          class="nav-item" 
+          :class="{ 'active': $route.path.startsWith('/admin/dictionary') }"
+          :title="isSidebarCollapsed ? 'Quản lý từ điển' : ''"
+        >
+          <i class="fas fa-book"></i>
+          <span>Quản lý từ điển</span>
+        </router-link>
+
+        <router-link 
           to="/" 
           class="nav-item"
           :title="isSidebarCollapsed ? 'Quay lại trang chủ' : ''"
@@ -120,6 +130,8 @@ const currentPageTitle = computed(() => {
       return 'Bài viết bị báo cáo';
     case '/admin/feedback':
       return 'Đóng góp ý kiến';
+    case '/admin/dictionary':
+      return 'Quản lý từ điển';
     default:
       return 'Admin Panel';
   }
@@ -133,4 +145,4 @@ const handleLogout = () => {
 
 <style lang="scss" scoped>
 @use '@/views/admin/AdminLayout.scss';
-</style> 
+</style>

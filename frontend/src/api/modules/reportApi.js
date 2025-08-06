@@ -54,7 +54,50 @@ const reportApi = {
     } catch (error) {
       throw new Error(handleApiError(error));
     }
+  },
+  // Tìm kiếm báo cáo blog
+
+  async searchBlogReports({ title, type, status }) {
+    try {
+      const res = await axios.get(`${PREFIX}/search`, {
+        params: { title, type, status }
+      });
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  // Lấy tất cả báo cáo blog
+  async getAllBlogReports() {
+    try {
+      const res = await axios.get(`${PREFIX}/all-blog-reports`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  // Duyệt báo cáo blog
+  async approve(reportId) {
+    try {
+      const res = await axios.put(`${PREFIX}/approve/${reportId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  },
+  // Từ chối báo cáo blog
+
+  async reject(reportId) {
+    try {
+      const res = await axios.put(`${PREFIX}/rejected/${reportId}`);
+      return res.data;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
   }
+
+
+
 };
 
 export default reportApi;

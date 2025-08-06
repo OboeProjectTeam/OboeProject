@@ -21,18 +21,46 @@
         </select>
         
         <select v-model="categoryFilter">
-          <option value="">Tất cả danh mục</option>
-          <option value="bug">Lỗi kỹ thuật</option>
-          <option value="feature">Đề xuất tính năng</option>
-          <option value="content">Nội dung</option>
-          <option value="other">Khác</option>
+          <option value="">Tất cả chủ đề</option>
+          <option value="feature">Góp ý</option>
+          <option value="bug">Hỗ trợ kỹ thuật</option>
+          <option value="other">Thanh toán</option>
         </select>
       </div>
     </div>
 
-    <div class="feedback-list">
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Đang tải dữ liệu phản hồi...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="error-state">
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button @click="fetchFeedback" class="btn-retry">
+          <i class="fas fa-redo"></i>
+          Thử lại
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="feedback-list">
+      <!-- Empty State -->
+      <div v-if="filteredFeedback.length === 0" class="empty-state">
+        <div class="empty-message">
+          <i class="fas fa-inbox"></i>
+          <p v-if="searchQuery || statusFilter || categoryFilter">
+            Không tìm thấy phản hồi nào phù hợp với bộ lọc.
+          </p>
+          <p v-else>Chưa có phản hồi nào.</p>
+        </div>
+      </div>
+
       <div 
-        v-for="feedback in filteredFeedback" 
+        v-for="feedback in paginatedFeedback" 
         :key="feedback.id"
         class="feedback-item"
         :class="feedback.status"
@@ -47,14 +75,45 @@
               {{ getStatusName(feedback.status) }}
             </span>
           </div>
-          <div class="feedback-date">
-            {{ formatDate(feedback.createdAt) }}
+          
+          <div class="feedback-header-right">
+            <span class="feedback-date">{{ formatDate(feedback.createdAt) }}</span>
+            <div class="feedback-actions">
+              <button 
+                v-if="feedback.status === 'new'"
+                @click="startProcessing(feedback)"
+                class="btn-action btn-process"
+                title="Bắt đầu xử lý"
+              >
+                <i class="fas fa-play"></i>
+                <span>Bắt đầu xử lý</span>
+              </button>
+              
+              <button 
+                v-if="feedback.status === 'in_progress'"
+                @click="resolveFeedback(feedback)"
+                class="btn-action btn-resolve"
+                title="Đã xử lý"
+              >
+                <i class="fas fa-check"></i>
+                <span>Đã xử lý</span>
+              </button>
+              
+              <button 
+                v-if="feedback.status !== 'closed'"
+                @click="closeFeedback(feedback)"
+                class="btn-action btn-close"
+                title="Đóng phản hồi"
+              >
+                <i class="fas fa-times"></i>
+                <span>Đóng</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="feedback-content">
           <div class="user-info">
-            <img :src="feedback.user.avatar" :alt="feedback.user.name">
             <div>
               <span class="user-name">{{ feedback.user.name }}</span>
               <span class="user-email">{{ feedback.user.email }}</span>
@@ -66,156 +125,91 @@
             <p>{{ feedback.message }}</p>
           </div>
         </div>
-
-        <div class="feedback-actions">
-          <div class="status-actions">
-            <button 
-              v-if="feedback.status === 'new'"
-              class="btn-start"
-              @click="startProcessing(feedback)"
-            >
-              <i class="fas fa-play"></i>
-              Bắt đầu xử lý
-            </button>
-            <button 
-              v-if="feedback.status === 'in_progress'"
-              class="btn-resolve"
-              @click="resolveFeedback(feedback)"
-            >
-              <i class="fas fa-check"></i>
-              Đánh dấu đã xử lý
-            </button>
-            <button 
-              v-if="['new', 'in_progress'].includes(feedback.status)"
-              class="btn-close"
-              @click="closeFeedback(feedback)"
-            >
-              <i class="fas fa-times"></i>
-              Đóng phản hồi
-            </button>
-          </div>
-          
-          <button 
-            class="btn-reply"
-            @click="replyToFeedback(feedback)"
-          >
-            <i class="fas fa-reply"></i>
-            Trả lời
-          </button>
-        </div>
-
-        <!-- Feedback Replies -->
-        <div class="feedback-replies" v-if="feedback.replies?.length">
-          <div 
-            v-for="reply in feedback.replies" 
-            :key="reply.id"
-            class="reply-item"
-          >
-            <div class="reply-header">
-              <div class="user-info">
-                <img :src="reply.user.avatar" :alt="reply.user.name">
-                <div>
-                  <span class="user-name">{{ reply.user.name }}</span>
-                  <span class="user-role" v-if="reply.user.role === 'admin'">Admin</span>
-                </div>
-              </div>
-              <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
-            </div>
-            <div class="reply-content">
-              {{ reply.message }}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- Pagination -->
-    <div class="pagination">
-      <button 
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-      <button 
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <!-- Reply Modal -->
-    <div class="modal" v-if="showReplyModal">
-      <div class="modal-content">
-        <h3>Trả lời phản hồi</h3>
-        <form @submit.prevent="submitReply">
-          <div class="form-group">
-            <label>Tin nhắn</label>
-            <textarea 
-              v-model="replyMessage"
-              placeholder="Nhập nội dung trả lời..."
-              rows="4"
-            ></textarea>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="showReplyModal = false">
-              Hủy
-            </button>
-            <button type="submit" class="btn-save">
-              Gửi trả lời
-            </button>
-          </div>
-        </form>
+    <div v-if="!loading && !error && filteredFeedback.length > 0" class="pagination-container">
+      <div class="pagination-info">
+        <span>
+          Hiển thị {{ (currentPage - 1) * itemsPerPage + 1 }} - 
+          {{ Math.min(currentPage * itemsPerPage, filteredFeedback.length) }} 
+          trong tổng số {{ filteredFeedback.length }} phản hồi
+        </span>
+      </div>
+      
+      <div class="pagination" v-if="totalPages > 1">
+        <button 
+          class="pagination-btn"
+          :disabled="currentPage === 1"
+          @click="currentPage = 1"
+          title="Trang đầu"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        
+        <button 
+          class="pagination-btn"
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+          title="Trang trước"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="pagination-pages">
+           <template v-for="page in visiblePages" :key="page">
+             <span v-if="page === '...'" class="pagination-ellipsis">...</span>
+             <button
+               v-else
+               class="pagination-btn page-number"
+               :class="{ active: page === currentPage }"
+               @click="currentPage = page"
+             >
+               {{ page }}
+             </button>
+           </template>
+         </div>
+        
+        <button 
+          class="pagination-btn"
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          title="Trang sau"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <button 
+          class="pagination-btn"
+          :disabled="currentPage === totalPages"
+          @click="currentPage = totalPages"
+          title="Trang cuối"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
       </div>
     </div>
+
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import feedbackApi from '@/api/modules/feedbackApi';
 
-// Mock data - replace with API calls
-const feedbackList = ref([
-  {
-    id: 1,
-    title: 'Lỗi không thể đăng nhập',
-    message: 'Tôi không thể đăng nhập vào hệ thống sau khi cập nhật mật khẩu mới.',
-    category: 'bug',
-    status: 'new',
-    createdAt: '2024-03-15T10:30:00',
-    user: {
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com',
-      avatar: 'https://i.pravatar.cc/150?u=john'
-    },
-    replies: [
-      {
-        id: 1,
-        message: 'Cảm ơn bạn đã báo cáo. Chúng tôi sẽ kiểm tra và phản hồi sớm.',
-        createdAt: '2024-03-15T11:00:00',
-        user: {
-          id: 2,
-          name: 'Admin User',
-          role: 'admin',
-          avatar: 'https://i.pravatar.cc/150?u=admin'
-        }
-      }
-    ]
-  },
-  // Add more mock feedback...
-]);
+// Data
+const feedbackList = ref([]);
+const loading = ref(false);
+const error = ref(null);
 
 const searchQuery = ref('');
 const statusFilter = ref('');
 const categoryFilter = ref('');
 const currentPage = ref(1);
 const itemsPerPage = 10;
-const showReplyModal = ref(false);
-const replyMessage = ref('');
-const selectedFeedback = ref(null);
+
 
 // Computed properties
 const filteredFeedback = computed(() => {
@@ -245,15 +239,102 @@ const totalPages = computed(() =>
   Math.ceil(filteredFeedback.value.length / itemsPerPage)
 );
 
+const paginatedFeedback = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredFeedback.value.slice(start, end);
+});
+
+const visiblePages = computed(() => {
+  const pages = [];
+  const total = totalPages.value;
+  const current = currentPage.value;
+  
+  if (total <= 7) {
+    // Hiển thị tất cả trang nếu ít hơn hoặc bằng 7 trang
+    for (let i = 1; i <= total; i++) {
+      pages.push(i);
+    }
+  } else {
+    // Hiển thị trang đầu
+    pages.push(1);
+    
+    if (current > 4) {
+      pages.push('...');
+    }
+    
+    // Hiển thị các trang xung quanh trang hiện tại
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+    
+    for (let i = start; i <= end; i++) {
+      if (!pages.includes(i)) {
+        pages.push(i);
+      }
+    }
+    
+    if (current < total - 3) {
+      pages.push('...');
+    }
+    
+    // Hiển thị trang cuối
+    if (!pages.includes(total)) {
+      pages.push(total);
+    }
+  }
+  
+  return pages;
+});
+
+// API Methods
+const fetchFeedback = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    const response = await feedbackApi.getAll();
+    
+    // Map dữ liệu từ API vào định dạng component
+    feedbackList.value = response.map(feedback => ({
+      id: feedback.feedbackId,
+      title: feedback.title,
+      message: feedback.content,
+      category: mapTopicToCategory(feedback.topic),
+      status: 'new', // Mặc định là new vì API không có status
+      createdAt: feedback.createdAt,
+      user: {
+        id: feedback.feedbackId, // Sử dụng feedbackId làm user id tạm thời
+        name: feedback.fullName,
+        email: feedback.email
+      }
+    }));
+  } catch (err) {
+    error.value = 'Không thể tải dữ liệu phản hồi. Vui lòng thử lại.';
+    console.error('Error fetching feedback:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Helper function để map topic từ API sang category
+const mapTopicToCategory = (topic) => {
+  const topicMap = {
+    'Góp ý': 'feature',
+    'billing': 'other',
+    'support': 'bug',
+    'Hỗ trợ kỹ thuật': 'bug'
+  };
+  return topicMap[topic] || 'other';
+};
+
 // Methods
 const getCategoryName = (category) => {
   const categories = {
-    bug: 'Lỗi kỹ thuật',
-    feature: 'Đề xuất tính năng',
-    content: 'Nội dung',
-    other: 'Khác'
+    feature: 'Góp ý',
+    bug: 'Hỗ trợ kỹ thuật',
+    other: 'Thanh toán'
   };
-  return categories[category] || category;
+  return categories[category] || 'Khác';
 };
 
 const getStatusName = (status) => {
@@ -306,40 +387,19 @@ const closeFeedback = (feedback) => {
   }
 };
 
-const replyToFeedback = (feedback) => {
-  selectedFeedback.value = feedback;
-  showReplyModal.value = true;
-};
 
-const submitReply = () => {
-  if (selectedFeedback.value && replyMessage.value.trim()) {
-    const index = feedbackList.value.findIndex(f => f.id === selectedFeedback.value.id);
-    if (index !== -1) {
-      const newReply = {
-        id: Date.now(),
-        message: replyMessage.value,
-        createdAt: new Date().toISOString(),
-        user: {
-          id: 999, // Replace with actual admin ID
-          name: 'Admin User',
-          role: 'admin',
-          avatar: 'https://i.pravatar.cc/150?u=admin'
-        }
-      };
-      
-      feedbackList.value[index].replies = [
-        ...(feedbackList.value[index].replies || []),
-        newReply
-      ];
-    }
-    
-    showReplyModal.value = false;
-    replyMessage.value = '';
-    selectedFeedback.value = null;
-  }
-};
+
+// Watchers - Reset trang khi filter thay đổi
+watch([searchQuery, statusFilter, categoryFilter], () => {
+  currentPage.value = 1;
+});
+
+// Lifecycle
+onMounted(() => {
+  fetchFeedback();
+});
 </script>
 
 <style lang="scss" scoped>
 @use '@/components/layout/admin-content/feedback/FeedbackManagement.scss';
-</style> 
+</style>
