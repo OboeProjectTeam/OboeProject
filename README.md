@@ -17,7 +17,9 @@ Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết 
 - **Tự động tạo Quiz**: AI tạo bài kiểm tra từ nội dung học
 - **Đánh giá và gợi ý**: AI phân tích và đưa ra lời khuyên học tập
 - **Dịch thuật tự động**: Hỗ trợ dịch chi tiết và chính xác
-- **Học liệu được đề xuất**: AI gợi ý nội dung phù hợp với trình độ
+- **Tự động trả lời blog**: AI giải thích và giải đáp theo từng bài viết
+
+
 
 ### 👥 **Cộng đồng & Diễn đàn**
 - **Chia sẻ học liệu**: Đăng và chia sẻ flashcard, quiz với cộng đồng
@@ -27,9 +29,8 @@ Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết 
 - **Hệ thống báo cáo**: Báo cáo nội dung vi phạm
 
 ### 💳 **Hệ thống thanh toán**
-- **Tích hợp đa nền tảng**: MoMo, PayOS
+- **Tích hợp nền tảng**: PayOS
 - **Nâng cấp tài khoản**: Các gói premium với tính năng mở rộng
-- **Theo dõi giao dịch**: Lịch sử thanh toán chi tiết
 
 ### ⚙️ **Quản trị & Bảo mật**
 - **Dashboard admin**: Quản lý người dùng, nội dung, thống kê
@@ -297,6 +298,18 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 # Firebase Configuration
 firebase.credentials.path=path/to/firebase-service-account.json
+
+# Firebase Environment Variables (Alternative to service account file)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY_ID=your_private_key_id
+FIREBASE_PRIVATE_KEY=your_private_key
+FIREBASE_CLIENT_EMAIL=your_client_email
+FIREBASE_CLIENT_ID=your_client_id
+FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+
+# Firebase Service Account File Path
+FIREBASE_SERVICE_ACCOUNT_PATH=src/main/resources/firebase/firebase-service-account.json
 
 # AI Configuration (Gemini)
 gemini.api.key=your_gemini_api_key
