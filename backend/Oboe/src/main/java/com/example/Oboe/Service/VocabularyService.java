@@ -144,16 +144,21 @@ public class VocabularyService {
         dto.setMeanning(vocab.getMeanning());
         dto.setWordType(vocab.getWordType());
         dto.setScriptType(vocab.getScriptType());
-        dto.setKanjiId(vocab.getKanji().getKanjiId());
+
+        // ✅ Sửa ở đây để tránh lỗi nếu kanji là null
+        dto.setKanjiId(vocab.getKanji() != null ? vocab.getKanji().getKanjiId() : null);
+
         dto.setVietnamese_pronunciation(vocab.getVietnamesePronunciation());
 
-
-        List<ReadingDTO> readingDTOs = readingRepository.findByOwnerTypeAndOwnerId("vocabulary", vocab.getVocalbId())
-                .stream().map(this::readingToDTO).collect(Collectors.toList());
+        List<ReadingDTO> readingDTOs = readingRepository
+                .findByOwnerTypeAndOwnerId("vocabulary", vocab.getVocalbId())
+                .stream().map(this::readingToDTO)
+                .collect(Collectors.toList());
         dto.setReadings(readingDTOs);
 
         return dto;
     }
+
 
     private ReadingDTO readingToDTO(Reading r) {
         return new ReadingDTO(
