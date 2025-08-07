@@ -6,7 +6,7 @@
         <button @click="createQuizWithAI" class="ai-btn" :disabled="isGeneratingAI">
           <i v-if="isGeneratingAI" class="fas fa-spinner fa-spin"></i>
           <i v-else class="fas fa-magic"></i>
-          {{ isGeneratingAI ? 'Đang tạo...' : 'Tạo bằng AI' }}
+          {{ isGeneratingAI ? 'Đang tạo...' : 'Nhờ Oboe Sensei' }}
         </button>
       </div>
     </div>
