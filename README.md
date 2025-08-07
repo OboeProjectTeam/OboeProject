@@ -354,9 +354,6 @@ server.port=8080
 - `GET /api/search/kanji` - Tìm kiếm kanji
 - `GET /api/search/grammar` - Tìm kiếm ngữ pháp
 
-### Swagger Documentation
-API documentation chi tiết có sẵn tại `/swagger-ui.html` khi chạy backend server.
-
 ## Deployment
 
 ### Frontend (Firebase Hosting)
@@ -368,67 +365,6 @@ npm run build
 firebase deploy --only hosting
 ```
 
-### Backend (AWS Infrastructure)
-
-#### EC2 Deployment
-```bash
-# Build Docker image
-docker build -t oboe-backend .
-
-# Push to ECR (Amazon Container Registry)
-aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com
-docker tag oboe-backend:latest <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/oboe-backend:latest
-docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/oboe-backend:latest
-```
-
-#### AWS Services Configuration
-
-**CloudFront Distribution:**
-- Origin: EC2 Load Balancer
-- Caching: Static assets cached, API requests forwarded
-- Custom domain với SSL certificate
-
-**AWS WAF Rules:**
-```json
-{
-  "DDoSProtection": "Rate limiting 1000 requests/5min",
-  "AdminAccess": "Block /admin/* except whitelisted IPs",
-  "GeneralRateLimit": "100 requests/min per IP"
-}
-```
-
-**Auto Scaling Group:**
-- Min instances: 1
-- Max instances: 5
-- Scale out when CPU > 70%
-- Scale in when CPU < 30%
-
-**Lambda Security Updater:**
-```python
-# Tự động cập nhật Security Groups với IP CloudFront
-# Chạy hàng ngày qua EventBridge
-```
-
-**AWS S3 Configuration:**
-```json
-{
-  "Bucket": "oboe-file-storage",
-  "Region": "ap-southeast-1",
-  "PublicAccess": "Blocked",
-  "Versioning": "Enabled",
-  "Encryption": "AES-256",
-  "LifecyclePolicy": "Archive after 90 days"
-}
-```
-
-**CloudWatch Alarms:**
-- CPU Utilization > 70%
-- Memory Usage > 80%
-- Error Rate > 5%
-- Response Time > 2s
-- S3 Storage Usage
-- Database Connection Pool
-
 ## Contributing
 
 1. Fork repository
@@ -437,11 +373,6 @@ docker push <account-id>.dkr.ecr.ap-southeast-1.amazonaws.com/oboe-backend:lates
 4. Push to branch (`git push origin feature/TenTinhNang`)
 5. Tạo Pull Request
 
-### Coding Standards
-- **Frontend**: Vue 3 Composition API, ESLint, Prettier
-- **Backend**: Java Code Conventions, Spring Boot best practices
-- **Database**: Tuân thủ naming conventions MySQL
-
 ## License
 
 Dự án này được phát triển cho mục đích học tập và nghiên cứu.
@@ -449,9 +380,7 @@ Dự án này được phát triển cho mục đích học tập và nghiên c�
 ## Contact & Links
 
 - **Website**: [https://oboeru.me/](https://oboeru.me/)
-- **Demo**: [https://oboe-demo.web.app/](https://oboe-demo.web.app/)
-- **Documentation**: [Wiki](https://github.com/your-repo/wiki)
 
 ---
 
-**Oboe** - Nền tảng học tiếng Nhật thông minh với AI 🤖🇯🇵
+**Oboe** - Nền tảng học tiếng Nhật thông minh với AI
