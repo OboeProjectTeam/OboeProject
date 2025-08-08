@@ -3,6 +3,7 @@ package com.example.Oboe.Controller;
 import com.example.Oboe.Config.CustomUserDetails;
 import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.DTOs.ReportDtos;
+import com.example.Oboe.Entity.ActionType;
 import com.example.Oboe.Entity.Report;
 import com.example.Oboe.Entity.ReportStatus;
 import com.example.Oboe.Service.ReportService;
@@ -71,10 +72,15 @@ public class ReportController {
         return reportService.getAllBlogReports();
     }
     @PutMapping("/approve/{reportId}")
-    public ResponseEntity<String> approveReport(@PathVariable UUID reportId) {
-        reportService.approveReport(reportId);
+    public ResponseEntity<String> approveReport(
+            @PathVariable UUID reportId,
+            @RequestParam ActionType actionType,
+            @RequestParam(required = false) String note) {
+
+        reportService.approveReport(reportId, actionType, note);
         return ResponseEntity.ok("Report approved successfully");
     }
+
     @PutMapping("/rejected/{reportId}")
     public ResponseEntity<String>rejectedReport(@PathVariable UUID reportId){
         reportService.rejectedReport(reportId);

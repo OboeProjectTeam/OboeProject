@@ -1,13 +1,10 @@
 package com.example.Oboe.Service;
 
-
 import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.DTOs.ReportDtos;
-import com.example.Oboe.Entity.Blog;
-import com.example.Oboe.Entity.Report;
-import com.example.Oboe.Entity.ReportStatus;
-import com.example.Oboe.Entity.User;
+import com.example.Oboe.Entity.*;
 import com.example.Oboe.Repository.BlogRepository;
+import com.example.Oboe.Repository.ReportActionsRepository;
 import com.example.Oboe.Repository.ReportRepository;
 import com.example.Oboe.Repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,6 +24,8 @@ public class ReportService {
     @Autowired
     private ReportRepository reportRepository;
 
+    @Autowired
+    private ReportActionsRepository reportActionsRepository;
 
     @Autowired
     private BlogRepository blogRepository;
@@ -54,13 +53,10 @@ public class ReportService {
         return reportRepository.save(report);
     }
 
-
-    // Lấy toàn bộ báo cáo
     public List<Report> getAllReports() {
         return reportRepository.findAll();
     }
 
-    // Cập nhật trạng thái
     public boolean updateStatus(UUID reportId, ReportStatus status) {
         Report report = reportRepository.findById(reportId).orElse(null);
         if (report == null) return false;
@@ -68,31 +64,65 @@ public class ReportService {
         reportRepository.save(report);
         return true;
     }
-    // Lấy báo cáo theo blog
+
     public List<Report> getReportsByBlogId(UUID blogId) {
         return reportRepository.findByBlogId(blogId);
     }
-    // Lấy báo cáo theo user
+
     public List<Report> getReportsByUserId(UUID userId) {
         return reportRepository.findByUserId(userId);
     }
 
-    // Xoá báo cáo
     public boolean deleteReport(UUID reportId) {
         if (!reportRepository.existsById(reportId)) return false;
         reportRepository.deleteById(reportId);
         return true;
     }
+
     public List<BlogReportDTO> searchBlogReports(String title, String type, ReportStatus status) {
         return reportRepository.searchBlogReports(title, type, status);
     }
+
     public List<BlogReportDTO> getAllBlogReports() {
         return reportRepository.findAllBlogReports();
     }
+
     @Transactional
-    public void approveReport(UUID reportId) {
-        reportRepository.updateReportStatus(reportId, ReportStatus.APPROVED);
+    public void approveReport(UUID reportId, ActionType actionType, String note) {
+
+        Report report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+
+        report.setStatus(ReportStatus.APPROVED);
+        reportRepository.save(report);
+
+
+        ReportActions action = new ReportActions();
+        action.setReport(report);
+        action.setActionType(actionType);
+        action.setNote(note);
+        reportActionsRepository.save(action);
+
+        switch (actionType) {
+            case WARNING:
+                break;
+            case DELETE_POST:
+                if (report.getBlog() != null) {
+                    Blog blog = report.getBlog();
+                    blogRepository.delete(blog);
+                }
+                break;
+            case BAN_USER:
+                if (report.getUser() != null) {
+                    User user = report.getUser();
+                    user.setStatus(Status.BAN);
+                    userRepository.save(user);
+                }
+                break;
+        }
     }
+
     @Transactional
     public void rejectedReport(UUID reportId) {
         reportRepository.updateReportStatus(reportId, ReportStatus.REJECTED);
