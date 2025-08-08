@@ -380,6 +380,7 @@ import { useRoute, useRouter } from 'vue-router';
 import TheCard from '@/components/layout/card/TheCard.vue';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
 import api from '@/api';
+import flashcardApi from '@/api/modules/flashcardApi';
 import { TransitionGroup } from 'vue';
 
 const store = useStore();
@@ -595,25 +596,73 @@ const setMode = async (mode) => {
         isAutoPlaying: isAutoPlaying.value,
       };
       localStorage.setItem('flashcardLearnStateBeforeMatch', JSON.stringify(learnStateToSave));
-      // 2. Save current flashcards to store for the match game
-      // Ensure currentFlashcards are up-to-date and have IDs
-      const currentFlashcards = allItems.value.map(item => ({
-        id: item.id, // Ensure ID is passed
-        front: item.content || '',
-        back: item.backcontent || '',
-        content: item.content || '', // Duplicate for potential different uses in components
-        backcontent: item.backcontent || '',
-        meaning: item.backcontent || '',
-        type: item.type || 'word',
-        status: item.status || 'learning'
-      }));
+      
+      // 2. Save current flashcards to store for the match game with proper mapping
+      const currentFlashcards = allItems.value.map(item => {
+        // Determine front and back content based on item structure
+        let frontContent, backContent;
+        
+        // Check if item has slide structure (from slides.value)
+        if (item.content !== undefined && item.backcontent !== undefined) {
+          frontContent = item.content;
+          backContent = item.backcontent;
+        }
+        // Check if item has flashcard structure (from original data)
+        else if (item.front !== undefined && item.back !== undefined) {
+          frontContent = item.front;
+          backContent = item.back;
+        }
+        // Check for different item types
+        else {
+          switch (item.type) {
+            case 'kanji':
+              frontContent = item.kanji || '';
+              backContent = item.kanjiname || '';
+              break;
+            case 'grammar':
+              frontContent = item.kana || '';
+              backContent = item.meaning || '';
+              break;
+            case 'sentence':
+              frontContent = item.sentence || '';
+              backContent = item.translation || '';
+              break;
+            case 'word':
+            default:
+              frontContent = item.kanji || item.front || '';
+              backContent = item.meaning || item.back || '';
+          }
+        }
+
+        return {
+          id: item.id || Math.random().toString(36).substr(2, 9), // Ensure ID exists
+          front: frontContent,
+          back: backContent,
+          content: frontContent, // For compatibility
+          backcontent: backContent, // For compatibility
+          meaning: backContent, // For compatibility
+          type: item.type || 'word',
+          status: item.status || 'learning',
+          // Preserve original item data for reference
+          originalItem: item
+        };
+      });
+
+      console.log('Mapped flashcards for match game:', currentFlashcards);
       await store.dispatch('flashcard/setLearningItems', currentFlashcards);
-      // 3. Navigate
+      
+      // 3. Navigate with proper query parameters
       await router.push({
         name: 'FlashcardMatch',
-        query: { // Pass similar queries as test, if needed in the future
-          deckId: route.query.deckId || '',
-          source: route.query.source || ''
+        query: {
+          deckId: route.query.deckId || route.query.id || '',
+          source: route.query.source || 'library',
+          title: deckTitle.value || route.query.title || '',
+          description: deckDescription.value || route.query.description || '',
+          creatorName: route.query.creatorName || '',
+          creatorAvatar: route.query.creatorAvatar || '',
+          createdAt: route.query.createdAt || '',
+          setId: route.query.setId || route.query.id || ''
         }
       });
 
@@ -650,31 +699,74 @@ const startTest = async () => {
       // Add any other relevant states from tempSettings or other refs if needed
     };
     localStorage.setItem('flashcardLearnStateBeforeTest', JSON.stringify(learnStateToSave));
-    // 2. Save current flashcards to store for the test
-    const currentFlashcards = allItems.value.map(item => ({
-      id: item.id, // Ensure ID is passed for correct answer matching
-      front: item.content || '',
-      back: item.backcontent || '',
-      content: item.content || '',
-      backcontent: item.backcontent || '',
-      meaning: item.backcontent || '', // Assuming backcontent is meaning for 'word' type
-      type: item.type || 'word', // Pass item type if available
-      status: item.status || 'learning'
-    }));
+    
+    // 2. Save current flashcards to store for the test with proper mapping
+    const currentFlashcards = allItems.value.map(item => {
+      // Determine front and back content based on item structure
+      let frontContent, backContent;
+      
+      // Check if item has slide structure (from slides.value)
+      if (item.content !== undefined && item.backcontent !== undefined) {
+        frontContent = item.content;
+        backContent = item.backcontent;
+      }
+      // Check if item has flashcard structure (from original data)
+      else if (item.front !== undefined && item.back !== undefined) {
+        frontContent = item.front;
+        backContent = item.back;
+      }
+      // Check for different item types
+      else {
+        switch (item.type) {
+          case 'kanji':
+            frontContent = item.kanji || '';
+            backContent = item.kanjiname || '';
+            break;
+          case 'grammar':
+            frontContent = item.kana || '';
+            backContent = item.meaning || '';
+            break;
+          case 'sentence':
+            frontContent = item.sentence || '';
+            backContent = item.translation || '';
+            break;
+          case 'word':
+          default:
+            frontContent = item.kanji || item.front || '';
+            backContent = item.meaning || item.back || '';
+        }
+      }
+
+      return {
+        id: item.id || Math.random().toString(36).substr(2, 9), // Ensure ID exists
+        front: frontContent,
+        back: backContent,
+        content: frontContent, // For compatibility
+        backcontent: backContent, // For compatibility
+        meaning: backContent, // For compatibility
+        type: item.type || 'word',
+        status: item.status || 'learning',
+        // Preserve original item data for reference
+        originalItem: item
+      };
+    });
+
+    console.log('Mapped flashcards for test:', currentFlashcards);
     await store.dispatch('flashcard/setLearningItems', currentFlashcards);
+    
     // 3. Navigate with all necessary query parameters
     await router.push({
       path: '/flashcard/test',
       query: {
         type: selectedTestType.value,
-        deckId: route.query.deckId || '',
-        source: route.query.source || '',
-        title: route.query.title || '',
-        description: route.query.description || '',
+        deckId: route.query.deckId || route.query.id || '',
+        source: route.query.source || 'library',
+        title: deckTitle.value || route.query.title || '',
+        description: deckDescription.value || route.query.description || '',
         creatorName: route.query.creatorName || '',
         creatorAvatar: route.query.creatorAvatar || '',
         createdAt: route.query.createdAt || '',
-        setId: route.query.setId || ''
+        setId: route.query.setId || route.query.id || ''
       }
     });
     closeTestOptions();
@@ -831,7 +923,13 @@ onMounted(async () => {
       tempSettings.reverseCards = reverseCards.value;
 
       // Restore swiper position and autoplay
-      // slides.value should update automatically via watch(allItems, ...)
+      // Đảm bảo slides được cập nhật ngay lập tức
+      if (allItems.value.length > 0) {
+        // Trigger slides update manually to ensure immediate update
+        const event = new Event('allItemsUpdated');
+        window.dispatchEvent(event);
+      }
+      
       // Wait for slides to update and swiper to be ready
       nextTick(() => {
         if (swiperInstance.value) {
@@ -856,6 +954,13 @@ onMounted(async () => {
     // Normal mount: load items from API or store
     const setId = route.query.id || route.query.setId;
     await loadFlashcardData(setId);
+    
+    // Đảm bảo slides được cập nhật sau khi load dữ liệu
+    if (allItems.value.length > 0) {
+      // Trigger slides update manually to ensure immediate update
+      const event = new Event('allItemsUpdated');
+      window.dispatchEvent(event);
+    }
   }
 
   // Initialize slides (this will run after potential state restoration or initial load)
@@ -1217,10 +1322,62 @@ const getItemDefinition = (item) => {
 };
 // Add unique IDs to items
 const addIdsToItems = (items) => {
-  return items.map((item, index) => ({
-    ...item,
-    id: `item-${index}-${item.content || item.kanji || Date.now()}`
-  }));
+  return items.map((item, index) => {
+    // Đảm bảo mapping đúng các trường dữ liệu
+    let mappedItem = { ...item };
+    
+    // Nếu item có cấu trúc slide (từ localStorage)
+    if (item.content && item.backcontent) {
+      mappedItem = {
+        ...item,
+        front: item.content,
+        back: item.backcontent,
+        // Giữ nguyên các trường khác nếu có
+        kanji: item.content,
+        meaning: item.backcontent,
+        kana: item.description || '',
+        romaji: item.description || '',
+        sentence: item.content,
+        translation: item.backcontent,
+        kanjiname: item.backcontent,
+        kunyomi: item.backdescription || ''
+      };
+    }
+    
+    // Nếu item có cấu trúc flashcard gốc
+    if (item.front && item.back) {
+      mappedItem = {
+        ...item,
+        content: item.front,
+        backcontent: item.back,
+        // Map theo type nếu có
+        ...(item.type === 'kanji' && {
+          kanji: item.front,
+          kanjiname: item.back,
+          kunyomi: item.kana || ''
+        }),
+        ...(item.type === 'grammar' && {
+          kana: item.front,
+          meaning: item.back,
+          romaji: item.description || ''
+        }),
+        ...(item.type === 'sentence' && {
+          sentence: item.front,
+          translation: item.back
+        }),
+        ...(item.type === 'word' && {
+          kanji: item.front,
+          meaning: item.back,
+          kana: item.kana || ''
+        })
+      };
+    }
+    
+    // Đảm bảo có ID
+    mappedItem.id = item.id || `item-${index}-${item.content || item.front || item.kanji || Date.now()}`;
+    
+    return mappedItem;
+  });
 };
 // The single updateCardStatus function
 const updateCardStatus = (status) => {
@@ -1279,7 +1436,89 @@ watch(() => store.getters['flashcard/getLearningItems'], (newItems) => {
 const editTerm = (slide, index) => {
   // TODO: Implement edit term functionality
 };
-const deleteTerm = (index) => {
+const deleteTerm = async (itemToDelete) => {
+  try {
+    console.log('Bắt đầu xóa item:', itemToDelete);
+    
+    if (!itemToDelete) {
+      console.error('Item không tồn tại');
+      return;
+    }
+
+    // Tìm index của item cần xóa
+    const itemIndex = allItems.value.findIndex(item => item.id === itemToDelete.id);
+    if (itemIndex === -1) {
+      console.error('Không tìm thấy item trong danh sách');
+      return;
+    }
+
+    console.log('Item index:', itemIndex);
+
+    // Tạo danh sách items mới (loại bỏ item cần xóa)
+    const updatedItems = allItems.value.filter(item => item.id !== itemToDelete.id);
+
+    console.log('Updated items count:', updatedItems.length);
+
+    // Kiểm tra nguồn dữ liệu để quyết định có gọi API hay không
+    const source = route.query.source;
+    const setId = route.query.id || route.query.setId;
+
+    // Nếu có setId và không phải từ flashcard-list thì gọi API
+    if (setId && source !== 'flashcard-list') {
+      console.log('Cập nhật database với setId:', setId);
+      
+      // Chuẩn bị body cho API update
+      const updateBody = {
+        title: deckTitle.value,
+        description: deckDescription.value,
+        cardItems: updatedItems.map(item => ({
+          word: item.content || item.front || item.kanji || '',
+          meaning: item.backcontent || item.back || item.meaning || ''
+        }))
+      };
+
+      console.log('Update body:', updateBody);
+
+      // Gọi API update
+      await flashcardApi.update(setId, updateBody);
+      console.log('API update thành công');
+    } else {
+      console.log('Chỉ cập nhật local, không gọi API (source:', source, ', setId:', setId, ')');
+    }
+
+    // Cập nhật store và UI (luôn thực hiện)
+    await store.dispatch('flashcard/setLearningItems', updatedItems);
+    
+    // Nếu từ flashcard-list, cũng cần xóa khỏi store flashcard items
+    if (source === 'flashcard-list') {
+      await store.dispatch('flashcard/removeItem', itemToDelete);
+    }
+    
+    allItems.value = addIdsToItems(updatedItems);
+    updateCounts();
+
+    // Cập nhật learning stats nếu đang track progress
+    if (trackProgress.value) {
+      learningStats.learning = updatedItems.filter(item => item.status === 'learning').length;
+      learningStats.known = updatedItems.filter(item => item.status === 'known').length;
+      learningStats.remaining = learningStats.learning;
+    }
+
+    // Cập nhật swiper
+    nextTick(() => {
+      if (swiperInstance.value) {
+        // Nếu xóa slide cuối cùng, chuyển về slide trước đó
+        const newActiveIndex = Math.min(currentSlideIndex.value, updatedItems.length - 1);
+        swiperInstance.value.slideTo(newActiveIndex);
+        swiperInstance.value.update();
+      }
+    });
+
+    console.log('Đã xóa thành công item:', itemToDelete);
+  } catch (error) {
+    console.error('Lỗi khi xóa item:', error);
+    console.error('Error details:', error.response?.data || error.message);
+  }
 };
 // Watch để cập nhật UI khi slides thay đổi
 watch(slides, () => {

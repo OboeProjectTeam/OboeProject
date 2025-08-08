@@ -291,7 +291,8 @@ const initializeTest = () => {
   isReviewing.value = false; // NEW: Ensure not in review mode
 
   const flashcards = store.getters['flashcard/getLearningItems'];
-
+  console.log('FlashcardTest - Received flashcards from store:', flashcards);
+  console.log('FlashcardTest - Test type:', testType.value);
   
   if (!flashcards || flashcards.length === 0) {
     console.error('No flashcards found in store');
