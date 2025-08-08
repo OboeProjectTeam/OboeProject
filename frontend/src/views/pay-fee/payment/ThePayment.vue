@@ -226,8 +226,12 @@ import paymentApi from '@/api/modules/paymentApi';
 import profileApi from '@/api/modules/profileApi';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { useGlobalPremiumSync } from '@/composables/useGlobalPremiumSync';
 
 const router = useRouter();
+const store = useStore();
+const { requestPremiumSync } = useGlobalPremiumSync();
 
 // Reactive data
 const loading = ref(false);
@@ -370,22 +374,22 @@ const startAutoCheck = () => {
       await checkPaymentStatus();
       
       // Đồng thời kiểm tra profile để phát hiện thay đổi Premium
-        if (!isPremium.value) {
-          try {
-            const profile = await profileApi.getProfile();
-            if (profile.accountType === 'PREMIUM') {
-              // Nếu phát hiện đã là Premium, cập nhật ngay
-              userProfile.value = profile;
-              isPremium.value = true;
-              
-              // Hiển thị popup thành công
-              showSuccessPopup.value = true;
-              stopAutoCheck();
-            }
-          } catch (err) {
-            console.error('Error checking profile during auto-check:', err);
-          }
-        }
+         if (!isPremium.value) {
+           try {
+             const profile = await requestPremiumSync();
+             if (profile.accountType === 'PREMIUM') {
+               // Nếu phát hiện đã là Premium, cập nhật ngay
+               userProfile.value = profile;
+               isPremium.value = true;
+               
+               // Hiển thị popup thành công
+               showSuccessPopup.value = true;
+               stopAutoCheck();
+             }
+           } catch (err) {
+             console.error('Error checking profile during auto-check:', err);
+           }
+         }
     } else {
       stopAutoCheck();
     }
@@ -435,7 +439,7 @@ const getStatusClass = (status) => {
 const checkUserProfile = async () => {
   try {
     loading.value = true;
-    const profile = await profileApi.getProfile();
+    const profile = await requestPremiumSync();
     userProfile.value = profile;
     isPremium.value = profile.accountType === 'PREMIUM';
     
@@ -458,8 +462,10 @@ const checkUserProfile = async () => {
 // Handle successful payment
 const handlePaymentSuccess = async () => {
   try {
-    // Kiểm tra lại profile để cập nhật trạng thái Premium
-    const profile = await profileApi.getProfile();
+    // Sử dụng global premium sync để cập nhật toàn bộ app
+    const profile = await requestPremiumSync();
+    
+    // Cập nhật trạng thái Premium local
     userProfile.value = profile;
     isPremium.value = profile.accountType === 'PREMIUM';
     

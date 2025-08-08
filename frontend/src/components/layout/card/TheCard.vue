@@ -52,6 +52,17 @@
     <div class="slider-button-prev slider-button"></div>
     <div class="slider-button-next slider-button"></div>
   </Swiper>
+  
+  <!-- Premium Required Popup -->
+  <ThePopup
+    v-if="showPremiumPopup"
+    :title="premiumPopupTitle"
+    :message="premiumPopupMessage"
+    confirmText="Nâng cấp Premium"
+    @confirm="handlePremiumPopupConfirm"
+    @cancel="handlePremiumPopupCancel"
+    :showCancel="true"
+  />
 </template>
 
 <script setup>
@@ -59,6 +70,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Navigation, Pagination, EffectCards, Keyboard } from 'swiper/modules'
 import { nextTick } from 'vue';
+import { usePremiumCheck } from '@/composables/usePremiumCheck'
+import ThePopup from '@/components/common/popup/ThePopup.vue'
 
 import 'swiper/css'
 import 'swiper/css/effect-cards'
@@ -106,6 +119,16 @@ const { slides, width, height, pagination, autoplay, canFlip, buttonFontSize, ti
 
 const emit = defineEmits(['translate-request']);
 
+// Premium check
+const { 
+  checkPremiumFeature, 
+  showPremiumPopup, 
+  premiumPopupMessage, 
+  premiumPopupTitle,
+  handlePremiumPopupConfirm,
+  handlePremiumPopupCancel
+} = usePremiumCheck()
+
 const swiperRef = ref(null);
 const flippedIndex = ref(null);
 const showBackIndex = ref(null);
@@ -121,7 +144,12 @@ function onSwiper(swiper) {
 
 
 // Xử lý khi bấm nút "Oboe Sensei" - emit event để parent component xử lý
-function onSeeMore(slide) {
+async function onSeeMore(slide) {
+  // Kiểm tra premium trước khi sử dụng tính năng AI
+  if (!(await checkPremiumFeature())) {
+    return
+  }
+  
   // Emit event với nội dung cần dịch
   emit('translate-request', slide.content || slide.backcontent || '');
 }
