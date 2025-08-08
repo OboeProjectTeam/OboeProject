@@ -52,9 +52,9 @@
         </li>
         
         <!-- Email - always shown, not editable -->
-        <li v-if="editableUser.userName">
+        <li v-if="editableUser.email">
           <i class="fas fa-envelope"></i>
-          <span>{{ editableUser.userName }}</span>
+          <span>{{ editableUser.email }}</span>
         </li>
         
         <!-- Address - editable for own profile -->
@@ -624,22 +624,17 @@ async function prevPage() {
   // Handle flashcard click - call API to get detailed data and navigate to FlashcardLearn
   async function handleFlashcardClick(activity) {
     try {
-      console.log('=== FLASHCARD CLICK DEBUG ===');
-      console.log('Activity:', activity);
-      
       // Extract flashcard ID from the activity URL or use activity id
       let flashcardId = null;
       
       if (activity.url && activity.url.includes('?')) {
         const urlParams = new URLSearchParams(activity.url.split('?')[1]);
         flashcardId = urlParams.get('setId') || urlParams.get('id');
-        console.log('FlashcardId from URL params:', flashcardId);
       }
       
       // Fallback to activity id if no flashcardId in URL
       if (!flashcardId) {
         flashcardId = activity.id;
-        console.log('Using activity.id as flashcardId:', flashcardId);
       }
       
       if (!flashcardId) {
@@ -651,12 +646,8 @@ async function prevPage() {
         return;
       }
       
-      console.log('Final flashcardId to use:', flashcardId);
-      
       // Call API to get detailed flashcard data
-      console.log('Calling flashcardApi.getById with flashcardId:', flashcardId);
       const flashcardData = await flashcardApi.getById(flashcardId);
-      console.log('API response:', flashcardData);
       
       if (!flashcardData || !flashcardData.cardItems || flashcardData.cardItems.length === 0) {
         console.error('No cardItems in flashcard data:', flashcardData);
@@ -666,8 +657,6 @@ async function prevPage() {
         });
         return;
       }
-      
-      console.log('CardItems found:', flashcardData.cardItems.length);
       
       // Convert API response to learning items format for FlashcardLearn
       const learningItems = flashcardData.cardItems.map(item => ({
@@ -681,11 +670,8 @@ async function prevPage() {
         back: item.meaning || ''
       }));
       
-      console.log('Learning items prepared:', learningItems.length);
-      
       // Save to store for FlashcardLearn to use
       await store.dispatch('flashcard/setLearningItems', learningItems);
-      console.log('Learning items saved to store');
       
       // Navigate to FlashcardLearn with query parameters
       const navigationQuery = {
@@ -697,26 +683,11 @@ async function prevPage() {
         creatorAvatar: props.user.avatarUrl || props.user.avatar || 'https://ui-avatars.com/api/?name=User',
         createdAt: new Date().toISOString()
       };
-      
-      console.log('Navigation query:', navigationQuery);
-      
       router.push({
         path: '/flashcard/learn',
         query: navigationQuery
       });
-      
-      console.log('=== END FLASHCARD CLICK DEBUG ===');
-      
     } catch (error) {
-      console.error('=== FLASHCARD CLICK ERROR DEBUG ===');
-      console.error('Error loading flashcard data:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error message:', error.message);
-      console.error('Error response:', error.response);
-      console.error('Error response data:', error.response?.data);
-      console.error('Error response status:', error.response?.status);
-      console.error('=== END FLASHCARD CLICK ERROR DEBUG ===');
-      
       // Use handleApiError to get proper error message
       const errorMessage = handleApiError(error);
       

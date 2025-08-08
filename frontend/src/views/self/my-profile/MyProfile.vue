@@ -24,7 +24,22 @@ const user = ref(null);
 
 const activeTab = computed(() => route.query.tab || 'activities');
 
+// Hàm helper để loại bỏ @gmail.com khỏi username
+function removeGmailSuffix(username) {
+  if (!username) return '';
+  return username.replace(/@gmail\.com$/i, '');
+}
+
 function handleProfileSave(updatedUser) {
+  // Loại bỏ @gmail.com khỏi username nếu có, nhưng giữ nguyên email
+  if (updatedUser.username) {
+    updatedUser.username = removeGmailSuffix(updatedUser.username);
+  }
+  if (updatedUser.userName) {
+    updatedUser.userName = removeGmailSuffix(updatedUser.userName);
+  }
+  // Không loại bỏ @gmail.com khỏi email - giữ nguyên
+  
   user.value = updatedUser;
   // Cập nhật store với dữ liệu mới
   store.commit('auth/SET_USER', {
@@ -53,9 +68,10 @@ watch(() => route.query.newPost, async (newPost) => {
 onMounted(async () => {
   try {
     const profile = await api.profile.getProfile();
+    const cleanUsername = removeGmailSuffix(profile.userName);
     user.value = {
-      username: profile.userName,
-      userName: profile.userName, // Add this for consistency
+      username: cleanUsername,
+      userName: cleanUsername, // Add this for consistency
       fullName: (profile.lastName || '') + ' ' + (profile.firstName || ''),
       avatar: profile.avatarUrl,
       avatarUrl: profile.avatarUrl, // Add this for consistency

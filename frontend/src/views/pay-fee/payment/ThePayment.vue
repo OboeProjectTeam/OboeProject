@@ -274,9 +274,6 @@ const createPayment = async () => {
     
     const response = await paymentApi.createPayOsPayment();
     paymentData.value = response;
-    
-    console.log('Payment created:', response);
-    
     // Start auto-checking payment status
     startAutoCheck();
     

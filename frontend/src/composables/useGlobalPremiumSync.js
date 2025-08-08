@@ -31,7 +31,6 @@ export function useGlobalPremiumSync() {
       // Cập nhật store auth với thông tin mới
       store.commit('auth/SET_USER', profile)
       
-      console.log('Premium status synced:', profile.accountType)
       return profile
       
     } catch (error) {

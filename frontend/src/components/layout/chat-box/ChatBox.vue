@@ -121,8 +121,6 @@
   
   // Handle incoming WebSocket messages
   const handleIncomingMessage = (messageData) => {
-    console.log('ChatBox: Received WebSocket message:', messageData)
-    
     // Check if this message is for the current conversation
     const chatUserId = props.user?.id || props.user?.userId
     
@@ -390,8 +388,6 @@
 
        // Debug: Add onMounted to see if component is mounting
   onMounted(async () => {
-    console.log('ChatBox mounted')
-    
     // Get current user ID first (same as MyMessages.vue)
     const userId = await getCurrentUserId()
     if (userId) {
@@ -414,7 +410,6 @@
     
     // Cleanup WebSocket on unmount
     onUnmounted(() => {
-      console.log('ChatBox unmounted')
       // Clean up WebSocket listeners
       if (WebSocketService.isConnected()) {
         WebSocketService.offMessage(handleIncomingMessage)

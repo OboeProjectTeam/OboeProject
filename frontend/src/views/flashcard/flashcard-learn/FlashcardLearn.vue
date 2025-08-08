@@ -648,7 +648,6 @@ const setMode = async (mode) => {
         };
       });
 
-      console.log('Mapped flashcards for match game:', currentFlashcards);
       await store.dispatch('flashcard/setLearningItems', currentFlashcards);
       
       // 3. Navigate with proper query parameters
@@ -751,7 +750,6 @@ const startTest = async () => {
       };
     });
 
-    console.log('Mapped flashcards for test:', currentFlashcards);
     await store.dispatch('flashcard/setLearningItems', currentFlashcards);
     
     // 3. Navigate with all necessary query parameters
@@ -829,11 +827,6 @@ const handleKeydown = (e) => {
 
   // Xử lý phím + và - (không cần swiper)
   if (trackProgress.value) {
-    console.log('Processing progress key:', {
-      code: e.code,
-      trackProgress: trackProgress.value
-    });
-
     // Thêm hiệu ứng nhấn nút
     const button = e.code.includes('Minus') || e.code.includes('Subtract')
       ? document.querySelector('.progress-btn.learning')
@@ -1008,26 +1001,23 @@ const onSwiper = (swiper) => {
 };
 // Phương thức để tự động chuyển slide
 const startAutoplay = () => {
-
   const swiper = swiperInstance.value;
   if (!swiper) {
-
     return;
   }
+  if (slides.value.length === 0) {
+    return;
+  }
+  
   // Clear existing interval if any
   if (autoplayInterval.value) {
-
     clearInterval(autoplayInterval.value);
   }
   // Create new interval
-
   autoplayInterval.value = setInterval(() => {
-
     if (swiper.isEnd) {
-
       swiper.slideTo(0);
     } else {
-
       swiper.slideNext();
     }
   }, autoplaySpeed.value * 1000);
@@ -1044,7 +1034,6 @@ const stopAutoplay = () => {
 const toggleAutoplay = () => {
   const swiper = swiperInstance.value;
   if (!swiper) {
-
     return;
   }
 
@@ -1055,7 +1044,6 @@ const toggleAutoplay = () => {
     startAutoplay();
     isAutoPlaying.value = true;
   }
-
 };
 // Watch for autoplaySpeed changes
 watch(autoplaySpeed, (newSpeed) => {
@@ -1215,11 +1203,6 @@ const onSlideChange = () => {
 };
 // Reset functionality
 const resetCards = () => {
-  console.log('Before reset:', {
-    allItems: allItems.value,
-    learning: displayLearningItems.value.length,
-    known: displayKnownItems.value.length
-  });
   // Reset status của tất cả các items về 'learning'
   const resetItems = allItems.value.map(item => ({
     ...item,
@@ -1241,13 +1224,6 @@ const resetCards = () => {
     if (swiperInstance.value) {
       swiperInstance.value.slideTo(0);
     }
-  });
-
-  console.log('After reset:', {
-    allItems: resetItems,
-    learning: displayLearningItems.value.length,
-    known: displayKnownItems.value.length,
-    stats: learningStats
   });
 };
 
@@ -1283,13 +1259,6 @@ const reviewUnknownCards = () => {
     if (swiperInstance.value) {
       swiperInstance.value.slideTo(0);
     }
-  });
-
-  console.log('After review setup:', {
-    unknownCount: unknownCards.length,
-    learning: displayLearningItems.value.length,
-    known: displayKnownItems.value.length,
-    stats: learningStats
   });
 };
 
@@ -1401,14 +1370,6 @@ const updateCardStatus = (status) => {
     store.commit('flashcard/setLearningItems', allItems.value);
     // Update counts
     updateCounts();
-    console.log('After update:', {
-      allItems: allItems.value,
-      learning: displayLearningItems.value,
-      known: displayKnownItems.value,
-      learningCount: learningStats.learning,
-      knownCount: learningStats.known
-    });
-
     // Animation and UI updates
     currentStatus.value = status;
     showStatusAnimation.value = true;
@@ -1438,8 +1399,6 @@ const editTerm = (slide, index) => {
 };
 const deleteTerm = async (itemToDelete) => {
   try {
-    console.log('Bắt đầu xóa item:', itemToDelete);
-    
     if (!itemToDelete) {
       console.error('Item không tồn tại');
       return;
@@ -1452,12 +1411,8 @@ const deleteTerm = async (itemToDelete) => {
       return;
     }
 
-    console.log('Item index:', itemIndex);
-
     // Tạo danh sách items mới (loại bỏ item cần xóa)
     const updatedItems = allItems.value.filter(item => item.id !== itemToDelete.id);
-
-    console.log('Updated items count:', updatedItems.length);
 
     // Kiểm tra nguồn dữ liệu để quyết định có gọi API hay không
     const source = route.query.source;
@@ -1465,8 +1420,6 @@ const deleteTerm = async (itemToDelete) => {
 
     // Nếu có setId và không phải từ flashcard-list thì gọi API
     if (setId && source !== 'flashcard-list') {
-      console.log('Cập nhật database với setId:', setId);
-      
       // Chuẩn bị body cho API update
       const updateBody = {
         title: deckTitle.value,
@@ -1476,12 +1429,8 @@ const deleteTerm = async (itemToDelete) => {
           meaning: item.backcontent || item.back || item.meaning || ''
         }))
       };
-
-      console.log('Update body:', updateBody);
-
       // Gọi API update
       await flashcardApi.update(setId, updateBody);
-      console.log('API update thành công');
     } else {
       console.log('Chỉ cập nhật local, không gọi API (source:', source, ', setId:', setId, ')');
     }
@@ -1513,8 +1462,6 @@ const deleteTerm = async (itemToDelete) => {
         swiperInstance.value.update();
       }
     });
-
-    console.log('Đã xóa thành công item:', itemToDelete);
   } catch (error) {
     console.error('Lỗi khi xóa item:', error);
     console.error('Error details:', error.response?.data || error.message);
@@ -1664,7 +1611,6 @@ watch(
 // Thêm hàm để cập nhật slides khi allItems thay đổi
 watch(allItems, (newItems) => {
   if (newItems.length > 0) {
-
     slides.value = newItems.map(item => {
       let frontContent, backContent, description, backDescription;
       let title = 'Từ vựng';

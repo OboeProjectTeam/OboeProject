@@ -797,12 +797,7 @@ const loadVocabulary = async (page = 0) => {
     loading.value = true
     error.value = ''
     const response = await vocabularyApi.getAll({ page, size: pageSize.value })
-    
-    console.log('API response:', response)
-    console.log('First vocabulary item:', response.vocabularies?.[0])
-    
     vocabularyData.value = response.vocabularies.map(item => {
-      console.log('Mapping vocabulary item:', item)
       return {
         id: item.vocalbId,
         word: item.words,
@@ -1412,15 +1407,11 @@ const loadVocabulary = async (page = 0) => {
             readings: []
           }
           
-          console.log('Sending vocabulary data to API:', vocabularyData)
-          
           if (modalMode.value === 'create') {
             const result = await vocabularyApi.create(vocabularyData)
-            console.log('Create vocabulary result:', result)
             successMessage.value = 'Từ vựng đã được thêm thành công'
           } else {
             const result = await vocabularyApi.update(item.id, vocabularyData)
-            console.log('Update vocabulary result:', result)
             successMessage.value = 'Từ vựng đã được cập nhật thành công'
           }
           await loadVocabulary(currentPage.value)

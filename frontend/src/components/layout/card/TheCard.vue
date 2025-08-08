@@ -117,7 +117,7 @@ const { slides, width, height, pagination, autoplay, canFlip, buttonFontSize, ti
   }
 });
 
-const emit = defineEmits(['translate-request']);
+const emit = defineEmits(['translate-request', 'swiper', 'slideChange', 'card-flipped']);
 
 // Premium check
 const { 
@@ -140,6 +140,8 @@ const swiperInstance = ref(null);
 // Khi Swiper khởi tạo xong thì gọi hàm này để lưu lại instance
 function onSwiper(swiper) {
   swiperInstance.value = swiper;
+  // Emit event để parent component có thể nhận được swiper instance
+  emit('swiper', swiper);
 }
 
 
@@ -172,12 +174,14 @@ function flipCard(index) {
     setTimeout(() => {
       showBackIndex.value = null; // Delay 600ms mới ẩn mặt sau
     }, 600);
+    emit('card-flipped', { index, isFlipped: false });
   } else {
     // Lật sang mặt sau
     flippedIndex.value = index;
     setTimeout(() => {
       showBackIndex.value = index;
     }, 600);
+    emit('card-flipped', { index, isFlipped: true });
   }
 }
 
@@ -189,6 +193,8 @@ function handleSlideChange() {
   }
   flippedIndex.value = null
   showBackIndex.value = null
+  // Emit slideChange event cho parent component
+  emit('slideChange', activeIndex.value);
 }
 
 

@@ -39,10 +39,8 @@ export default {
     // Function to fetch kanji data
     const fetchKanjiData = async (id) => {
       try {
-        console.log('Fetching kanji data for ID:', id) // Debug log
         isLoading.value = true;
         const response = await kanjiApi.getById(id);
-        console.log('Kanji API response:', response) // Debug log
         kanjiData.value = response;
       } catch (error) {
         console.error('Error fetching kanji data:', error);
@@ -56,11 +54,8 @@ export default {
     // Function to fetch related kanji
     const fetchRelatedKanji = async (id) => {
       try {
-        console.log('Fetching related kanji for ID:', id) // Debug log
         const response = await kanjiApi.getRelated(id);
-        console.log('Related kanji API response:', response) // Debug log
         relatedKanji.value = response || [];
-        console.log('Related kanji data set:', relatedKanji.value) // Debug log
       } catch (error) {
         console.error('Error fetching related kanji:', error);
         relatedKanji.value = [];
@@ -69,7 +64,6 @@ export default {
 
     // Navigate to kanji detail
     const navigateToKanjiDetail = (item) => {
-      console.log('Navigating to kanji detail:', item) // Debug log
       router.push({ name: 'KanjiDetail', params: { id: item.kanjiId || item.id } });
     };
 

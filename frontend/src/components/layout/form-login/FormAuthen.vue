@@ -191,8 +191,6 @@ const uiConfig = {
         if (!result || !result.token || !result.user) {
           throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
         }
-        console.log('Firebase login callback hit');
-
         const { token, user } = result;
         store.commit('auth/SET_TOKEN', token);
         store.commit('auth/SET_USER', user);

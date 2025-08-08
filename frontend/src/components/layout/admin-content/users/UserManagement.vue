@@ -528,9 +528,6 @@ const saveUserEdit = async () => {
       role: editingUser.value.originalRole // Sử dụng trực tiếp originalRole từ dropdown
     };
     
-    console.log('Updating user with data:', updateData);
-    console.log('User ID:', editingUser.value.id);
-    
     // Sử dụng user_id để gọi API update
     await api.admin.updateUser(editingUser.value.id, updateData);
     
@@ -576,14 +573,8 @@ const confirmBanUser = async () => {
   if (!userToBan.value) return;
   
   try {
-    console.log('=== BANNING USER ===');
-    console.log('User ID:', userToBan.value.id);
-    console.log('Setting status to: BANNED');
-    
     // Sử dụng API updateStatus với status BANNED
     const response = await api.admin.updateStatus(userToBan.value.id, 'BANNED');
-    console.log('Ban API Response:', response);
-    
     // Refresh toàn bộ danh sách từ server để đảm bảo dữ liệu đồng bộ
     await fetchUsers();
     
@@ -606,14 +597,8 @@ const cancelBanUser = () => {
 
 const unbanUser = async (user) => {
   try {
-    console.log('=== UNBANNING USER ===');
-    console.log('User ID:', user.id);
-    console.log('Setting status to: ACTION');
-    
     // Sử dụng API updateStatus với status ACTION
-    const response = await api.admin.updateStatus(user.id, 'ACTION');
-    console.log('Unban API Response:', response);
-    
+    await api.admin.updateStatus(user.id, 'ACTION');
     // Refresh toàn bộ danh sách từ server để đảm bảo dữ liệu đồng bộ
     await fetchUsers();
     
@@ -642,9 +627,6 @@ const confirmDeleteUser = async () => {
   if (!userToDelete.value) return;
   
   try {
-    console.log('=== DELETING USER ===');
-    console.log('User ID:', userToDelete.value.id);
-    
     // Sử dụng user_id để gọi API delete
     await api.admin.deleteUser(userToDelete.value.id);
     
@@ -714,9 +696,7 @@ const saveNewUser = async () => {
       role: newUser.value.role
     };
     
-    const response = await api.admin.createUser(userData);
-    console.log('User created successfully:', response);
-    
+    await api.admin.createUser(userData);
     // Refresh user list
     await fetchUsers();
     

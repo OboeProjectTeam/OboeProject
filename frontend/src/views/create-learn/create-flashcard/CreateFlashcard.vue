@@ -203,14 +203,6 @@ onMounted(() => {
       }
     }
   }
-  
-  console.log('Final loaded data:', {
-    title: title.value,
-    description: description.value,
-    cards: cards.value,
-    fromLearningPage: fromLearningPage.value,
-    isEditing: isEditing.value
-  })
 })
 
 // Auto-save functionality

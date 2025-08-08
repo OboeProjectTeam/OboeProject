@@ -172,7 +172,6 @@ const loadRecentSets = async () => {
       cardItems: item.cardItems || []
     }));
     
-    console.log('Recent sets loaded:', recentSets.value);
   } catch (error) {
     console.error('Error loading recent sets:', error);
     // Keep empty array if API fails

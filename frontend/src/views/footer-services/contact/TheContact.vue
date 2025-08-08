@@ -171,8 +171,6 @@ const submitForm = async () => {
     
     // Gọi API gửi feedback
     const response = await feedbackApi.create(feedbackDto);
-    console.log('Feedback sent successfully:', response);
-    
     // Reset form
     formData.value = {
       name: '',

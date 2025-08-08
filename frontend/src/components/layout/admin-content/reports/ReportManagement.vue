@@ -361,8 +361,6 @@ const fetchReports = async () => {
     error.value = null;
     
     const data = await reportApi.getAllBlogReports();
-    console.log('API response:', data);
-    
     // Map API data to component format
     reports.value = data.map(report => ({
       id: report.reportId,
@@ -650,13 +648,8 @@ const resolveReport = (report) => {
 const submitResolve = async () => {
   try {
     if (selectedReport.value) {
-      console.log('Approving report:', selectedReport.value.id);
-      console.log('Resolve data:', resolveData.value);
-      
       // Gọi API để duyệt báo cáo
       const response = await reportApi.approve(selectedReport.value.id);
-      console.log('Approve response:', response);
-      
       // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === selectedReport.value.id);
       if (index !== -1) {
@@ -687,12 +680,8 @@ const submitResolve = async () => {
 const rejectReport = async (report) => {
   if (confirm('Bạn có chắc chắn muốn từ chối báo cáo này?')) {
     try {
-      console.log('Rejecting report:', report.id);
-      
       // Gọi API để từ chối báo cáo
-      const response = await reportApi.reject(report.id);
-      console.log('Reject response:', response);
-      
+      await reportApi.reject(report.id);
       // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === report.id);
       if (index !== -1) {
