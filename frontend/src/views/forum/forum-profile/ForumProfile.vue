@@ -83,6 +83,12 @@ const isMyProfile = computed(() => {
   return currentUsername === username.value;
 });
 
+// Hàm helper để loại bỏ @gmail.com khỏi username
+function removeGmailSuffix(username) {
+  if (!username) return '';
+  return username.replace(/@gmail\.com$/i, '');
+}
+
 // Load user profile by username or userId
 const loadUserProfile = async () => {
   if (!username.value) return;
@@ -94,9 +100,12 @@ const loadUserProfile = async () => {
     // For current user, we can get more detailed info
     if (isMyProfile.value) {
       const profileData = await profileApi.getProfile();
+      const cleanUsername = removeGmailSuffix(profileData.userName || profileData.username);
       user.value = {
         ...profileData,
-        username: profileData.userName || profileData.username,
+        username: cleanUsername,
+        userName: cleanUsername,
+        email: profileData.userName, // Giữ nguyên email đầy đủ
         stats: {
           joined: formatDate(profileData.create_at),
           learning_materials: profileData.flashCardCount || 0,
@@ -109,9 +118,12 @@ const loadUserProfile = async () => {
       const userId = route.query.userId;
       if (userId) {
         const profileData = await profileApi.getUserProfileById(userId);
+        const cleanUsername = removeGmailSuffix(profileData.userName || profileData.username);
         user.value = {
           ...profileData,
-          username: profileData.userName || profileData.username,
+          username: cleanUsername,
+          userName: cleanUsername,
+          email: profileData.userName, // Giữ nguyên email đầy đủ
           stats: {
             joined: formatDate(profileData.create_at),
             learning_materials: profileData.flashCardCount || 0,

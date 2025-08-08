@@ -1,0 +1,18 @@
+@use '@/assets/css/index.scss' as *;
+@use '@/assets/css/mixins/breakpoints' as *;
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 1.2rem;
+}
+
+// Đảm bảo username hiển thị tốt trên mobile
+@include mobile-only {
+  .username-large {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

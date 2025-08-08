@@ -61,6 +61,10 @@ $mobile-breakpoint: 768px;
 
       @include mobile-only {
         font-size: 1.5rem;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
     .full-name-large {

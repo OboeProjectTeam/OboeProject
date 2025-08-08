@@ -1485,27 +1485,6 @@ watch(slides, () => {
   });
 }, { deep: true });
 
-// Watch để debug các thay đổi
-watch([displayLearningItems, displayKnownItems], ([newLearning, newKnown], [oldLearning, oldKnown]) => {
-
-  console.log('Learning list changed:', {
-    count: newLearning.length,
-    oldCount: oldLearning?.length,
-    items: newLearning.map(item => ({
-      content: item.content,
-      status: item.status
-    }))
-  });
-
-  console.log('Known list changed:', {
-    count: newKnown.length,
-    oldCount: oldKnown?.length,
-    items: newKnown.map(item => ({
-      content: item.content,
-      status: item.status
-    }))
-  });
-}, { deep: true });
 // Navigation function
 const navigateToTermCreation = () => {
   // Lưu trạng thái hiện tại vào store hoặc localStorage

@@ -98,9 +98,5 @@ onMounted(async () => {
 });
 </script>
 <style lang="scss" scoped>
-.loading {
-  text-align: center;
-  padding: 50px;
-  font-size: 1.2rem;
-}
+@use '@/views/self/my-profile/MyProfile.scss';
 </style>

@@ -19,9 +19,9 @@
           <img :src="userProfile.avatarUrl" :alt="userProfile.fullName" class="profile-avatar">
           <div class="profile-info">
             <router-link :to="profileLink" class="username-link">
-              <h2 class="username">{{ userProfile.fullName }}</h2>
+              <h2 class="username">{{ removeGmailSuffix(userProfile.fullName) }}</h2>
             </router-link>
-            <p class="email">{{ userProfile.userName }}</p>
+            <p class="email">{{ removeGmailSuffix(userProfile.userName) }}</p>
             <div class="user-badges">
             </div>
           </div>
@@ -130,6 +130,12 @@ const formatDate = (dateString) => {
   });
 };
 
+// Helper function to remove @gmail.com suffix
+const removeGmailSuffix = (text) => {
+  if (!text) return '';
+  return text.replace(/@gmail\.com$/, '');
+};
+
 // Get current user from store
 const currentUser = computed(() => store.getters['auth/currentUser']);
 
@@ -208,4 +214,4 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use '@/components/layout/forum/profilecard/UserProfileCard.scss';
-</style> 
+</style>

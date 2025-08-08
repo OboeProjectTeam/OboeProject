@@ -13,7 +13,7 @@
   color: #333;
 
   @include mobile-only {
-    width: 280px;
+    width: 320px;
   }
 
   .card-content {
@@ -67,8 +67,12 @@
         transition: color 0.2s ease;
 
         @include mobile-only {
-          font-size: 1.2rem;
+          font-size: 1.0rem;
           margin: 0 0 2px;
+          max-width: 180px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
       .full-name, .title {
@@ -298,6 +302,14 @@
   color: #666;
   font-size: 0.9rem;
   margin: 0.25rem 0;
+
+  @include mobile-only {
+    font-size: 0.75rem;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
 .user-stats {
