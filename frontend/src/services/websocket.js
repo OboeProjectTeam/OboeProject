@@ -57,6 +57,17 @@ function send(data) {
   }
 }
 
+function disconnect() {
+  if (socket) {
+    console.log("🔌 Disconnecting WebSocket...");
+    socket.close();
+    socket = null;
+    userId = null;
+    onMessageCallback = null;
+    onNotificationCallback = null;
+  }
+}
+
 // Gán callback cho message
 function onMessage(callback) {
   onMessageCallback = callback;
@@ -76,6 +87,7 @@ function removeNotificationListener() {
 export default {
   connect,
   send,
+  disconnect,
   onMessage,
   onNotification,
   removeMessageListener,

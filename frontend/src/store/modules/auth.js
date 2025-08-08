@@ -110,6 +110,7 @@ const actions = {
       await api.auth.logout?.(); // Nếu có API logout thì gọi, không có thì bỏ qua
     } catch (e) {
       console.warn('Không gọi được logout API, vẫn xóa local.');
+      console.error('Chi tiết lỗi logout API:', e);
     }
     commit('CLEAR_AUTH');
   },

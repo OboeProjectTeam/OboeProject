@@ -159,7 +159,7 @@
 
     .content-card {
       flex: 0 0 auto; // Không co lại, không mở rộng, kích thước tự động
-      width: 280px; // Chiều rộng cố định cho desktop
+      width: 280px; // Chiều rộng mặc định
       min-width: 280px; // Đảm bảo không co lại
       box-sizing: border-box;
       display: flex;
@@ -191,6 +191,37 @@
       .learn-now-btn {
         padding: 0.75rem;
         font-size: 0.95rem;
+      }
+    }
+
+    // Desktop optimization - bỏ scroll, để 5 item tự co giãn vừa màn hình
+    @include desktop-only {
+      overflow-x: visible; // Bỏ thanh cuộn
+      gap: 0.75rem;
+      
+      .content-card {
+        flex: 1; // Cho phép card co giãn đều nhau
+        width: auto; // Bỏ width cố định
+        min-width: 180px; // Chiều rộng tối thiểu
+        max-width: 240px; // Chiều rộng tối đa
+        padding: 0.875rem;
+        
+        h3 {
+          font-size: 0.9rem;
+        }
+        
+        .description {
+          font-size: 0.8rem;
+        }
+        
+        .card-meta {
+          font-size: 0.75rem;
+        }
+        
+        .learn-now-btn {
+          padding: 0.625rem;
+          font-size: 0.85rem;
+        }
       }
     }
 
