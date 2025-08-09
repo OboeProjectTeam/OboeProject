@@ -68,12 +68,12 @@
     font-size: 1rem;
     color: #444;
     line-height: 1.5;
+    white-space: pre-line;
+    text-align: left;
   }
   .confirm-message.html-content {
-    white-space: pre-line;
     max-height: 400px;
     overflow-y: auto;
-    text-align: left;
   }
   .confirm-actions {
     display: flex;

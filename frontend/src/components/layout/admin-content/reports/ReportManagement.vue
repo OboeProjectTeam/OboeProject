@@ -14,9 +14,9 @@
       <div class="filter-options">
         <select v-model="statusFilter">
           <option value="">Tất cả trạng thái</option>
-          <option value="pending">Chờ xử lý</option>
-          <option value="resolved">Đã xử lý</option>
-          <option value="rejected">Đã từ chối</option>
+          <option value="pending">Chờ xử lý (PENDING)</option>
+          <option value="resolved">Đã xử lý (APPROVED)</option>
+          <option value="rejected">Đã từ chối (REJECTED)</option>
         </select>
         
         <select v-model="typeFilter">
@@ -41,7 +41,26 @@
       </div>
     </div>
 
-    <div class="table-container">
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Đang tải danh sách báo cáo...</p>
+    </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="error-container">
+      <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button @click="fetchReports" class="btn-retry">
+          <i class="fas fa-redo"></i>
+          Thử lại
+        </button>
+      </div>
+    </div>
+
+    <!-- Table Container -->
+    <div v-else class="table-container">
       <table class="reports-table">
         <thead>
           <tr>
@@ -57,8 +76,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="report in filteredReports" :key="report.id">
-            <td>{{ report.id }}</td>
+          <tr v-if="paginatedReports.length === 0">
+            <td colspan="7" class="no-data">
+              <div class="no-data-message">
+                <i class="fas fa-inbox"></i>
+                <p v-if="filteredReports.length === 0 && !loading">
+                  {{ searchQuery || statusFilter || typeFilter || severityFilter 
+                     ? 'Không tìm thấy báo cáo nào phù hợp với bộ lọc.' 
+                     : 'Chưa có báo cáo nào.' }}
+                </p>
+                <p v-else-if="!loading">Không có dữ liệu cho trang này.</p>
+              </div>
+            </td>
+          </tr>
+          <tr v-for="report in paginatedReports" :key="report.id">
+            <td>
+              <span class="report-id" :title="report.id">
+                {{ report.id.substring(0, 8) }}...
+              </span>
+            </td>
             <td class="post-info">
               <div class="post-preview">
                 <h4>{{ report.post.title }}</h4>
@@ -69,10 +105,6 @@
                   <i class="fas fa-external-link-alt"></i>
                   Xem bài viết
                 </button>
-                <button class="btn-history" @click="viewReportHistory(report.post.id)">
-                  <i class="fas fa-history"></i>
-                  Lịch sử báo cáo
-                </button>
               </div>
             </td>
             <td class="reporter-info-cell">
@@ -81,9 +113,6 @@
                 <div>
                   <span class="reporter-name">{{ report.reporter.name }}</span>
                   <span class="reporter-email">{{ report.reporter.email }}</span>
-                  <span class="report-count" :class="getReportCountClass(report.reporter.reportCount)">
-                    {{ report.reporter.reportCount }} báo cáo
-                  </span>
                 </div>
               </div>
             </td>
@@ -132,20 +161,6 @@
                 >
                   <i class="fas fa-times"></i>
                 </button>
-                <button 
-                  class="btn-delete-post"
-                  @click="deletePost(report.post)"
-                  title="Xóa bài viết"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-                <button 
-                  class="btn-ban-user"
-                  @click="banUser(report.post.author)"
-                  title="Cấm người dùng"
-                >
-                  <i class="fas fa-user-slash"></i>
-                </button>
               </div>
             </td>
           </tr>
@@ -154,20 +169,82 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pagination">
-      <button 
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-      <button 
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
-        <i class="fas fa-chevron-right"></i>
-      </button>
+    <div v-if="!loading && !error && totalItems > 0" class="pagination-container">
+      <div class="pagination-info">
+        <span>
+          Hiển thị {{ ((currentPage - 1) * itemsPerPage) + 1 }} - 
+          {{ Math.min(currentPage * itemsPerPage, totalItems) }} 
+          trong tổng số {{ totalItems }} báo cáo
+        </span>
+        <select v-model="itemsPerPage" @change="handleItemsPerPageChange" class="items-per-page">
+          <option :value="5">5 / trang</option>
+          <option :value="10">10 / trang</option>
+          <option :value="20">20 / trang</option>
+          <option :value="50">50 / trang</option>
+        </select>
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          :disabled="currentPage === 1"
+          @click="goToPage(1)"
+          class="pagination-btn"
+          title="Trang đầu"
+        >
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+        
+        <button 
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+          class="pagination-btn"
+          title="Trang trước"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="page-numbers">
+          <button
+            v-for="page in visiblePages"
+            :key="page"
+            @click="goToPage(page)"
+            :class="['page-btn', { active: page === currentPage }]"
+          >
+            {{ page }}
+          </button>
+        </div>
+        
+        <button 
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+          class="pagination-btn"
+          title="Trang sau"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <button 
+          :disabled="currentPage === totalPages"
+          @click="goToPage(totalPages)"
+          class="pagination-btn"
+          title="Trang cuối"
+        >
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </div>
+      
+      <div class="page-jump">
+        <span>Đi đến trang:</span>
+        <input 
+          type="number" 
+          :min="1" 
+          :max="totalPages"
+          v-model.number="jumpToPage"
+          @keyup.enter="handlePageJump"
+          class="page-input"
+        >
+        <button @click="handlePageJump" class="jump-btn">Đi</button>
+      </div>
     </div>
 
     <!-- Resolve Report Modal -->
@@ -186,8 +263,6 @@
             <select v-model="resolveData.action" required>
               <option value="warning">Gửi cảnh báo</option>
               <option value="delete">Xóa bài viết</option>
-              <option value="restrict">Hạn chế quyền đăng bài</option>
-              <option value="temp_ban">Cấm tạm thời (7 ngày)</option>
               <option value="perm_ban">Cấm vĩnh viễn</option>
             </select>
           </div>
@@ -247,8 +322,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import reportApi from '@/api/modules/reportApi.js';
 
 const router = useRouter();
 
@@ -258,7 +334,13 @@ const statusFilter = ref('');
 const typeFilter = ref('');
 const severityFilter = ref('');
 const currentPage = ref(1);
-const itemsPerPage = 10;
+const itemsPerPage = ref(10);
+const jumpToPage = ref(1);
+
+// Data
+const reports = ref([]);
+const loading = ref(false);
+const error = ref(null);
 
 // Modals
 const showResolveModal = ref(false);
@@ -272,38 +354,122 @@ const resolveData = ref({
 const selectedReport = ref(null);
 const reportHistory = ref([]);
 
-// Mock data
-const reports = ref([
-  {
-    id: 1,
-    post: {
-      id: 1,
-      title: 'Hướng dẫn học lập trình Python cho người mới bắt đầu',
-      excerpt: 'Bài viết chia sẻ các bước cơ bản để bắt đầu học Python một cách hiệu quả...',
-      author: {
-        id: 1,
-        name: 'John Doe'
-      }
-    },
-    reporter: {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      avatar: 'https://i.pravatar.cc/150?u=jane',
-      reportCount: 5
-    },
-    type: 'spam',
-    reason: 'Bài viết chứa nhiều link quảng cáo và nội dung không liên quan',
-    severity: 'medium',
-    status: 'pending',
-    reportDate: '2024-03-15T10:30:00',
-    evidence: [
-      'https://example.com/evidence1',
-      'https://example.com/evidence2'
-    ]
-  },
-  // Add more mock reports...
-]);
+// Fetch reports from API
+const fetchReports = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    
+    const data = await reportApi.getAllBlogReports();
+    // Map API data to component format
+    reports.value = data.map(report => ({
+      id: report.reportId,
+      post: {
+        id: report.blogId,
+        title: report.blogTitle,
+        excerpt: report.blogContent ? report.blogContent.substring(0, 100) + '...' : 'Không có nội dung',
+        author: {
+          id: 'unknown',
+          name: report.userName || 'Người dùng ẩn danh'
+        }
+      },
+      reporter: {
+        id: 'unknown',
+        name: report.userName || 'Người báo cáo ẩn danh',
+        email: 'unknown@example.com',
+        avatar: report.avatarUrl || 'https://i.pravatar.cc/150?u=anonymous',
+        reportCount: report.reportCount || 1
+      },
+      type: getTypeFromTitle(report.blogTitle), // Phân loại dựa trên title
+      reason: report.content || 'Không có lý do',
+      severity: mapReportSeverity(report.reportCount), // Tạo severity từ reportCount
+      status: mapApiStatusToComponentStatus(report.status),
+      reportDate: report.report_at + 'T00:00:00', // Thêm time để tạo datetime
+      evidence: [],
+      // Thêm các trường mới từ API
+      authProvider: report.authProvider
+    }));
+    
+  } catch (err) {
+    console.error('Error fetching reports:', err);
+    error.value = 'Không thể tải danh sách báo cáo. Vui lòng thử lại.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Helper functions to map API data
+const mapReportType = (type) => {
+  const typeMap = {
+    'spam': 'spam',
+    'harassment': 'harassment', 
+    'inappropriate': 'inappropriate',
+    'violence': 'violence',
+    'copyright': 'copyright',
+    'misinformation': 'misinformation',
+    'cây đổ chắn đường': 'other' // Map loại báo cáo từ API
+  };
+  return typeMap[type?.toLowerCase()] || 'other';
+};
+
+const getTypeFromTitle = (title) => {
+  const titleLower = title.toLowerCase();
+  if (titleLower.includes('spam')) return 'spam';
+  if (titleLower.includes('quấy rối')) return 'harassment';
+  if (titleLower.includes('không phù hợp')) return 'inappropriate';
+  if (titleLower.includes('vi phạm')) return 'copyright';
+  return 'other';
+};
+
+const mapReportSeverity = (reportCount) => {
+  // Sử dụng reportCount để xác định mức độ nghiêm trọng
+  if (typeof reportCount === 'number') {
+    if (reportCount >= 10) return 'urgent';
+    if (reportCount >= 5) return 'high';
+    if (reportCount >= 2) return 'medium';
+    return 'low';
+  }
+  return 'low';
+};
+
+const getSeverityFromStatus = (status) => {
+  switch (status) {
+    case 'PENDING': return 'medium';
+    case 'APPROVED': return 'high';
+    case 'REJECTED': return 'low';
+    default: return 'medium';
+  }
+};
+
+const mapReportStatus = (status) => {
+  const statusMap = {
+    'pending': 'pending',
+    'approved': 'resolved',
+    'rejected': 'rejected',
+    'resolved': 'resolved'
+  };
+  return statusMap[status?.toLowerCase()] || 'pending';
+};
+
+const mapApiStatusToComponentStatus = (apiStatus) => {
+  switch (apiStatus) {
+    case 'PENDING': return 'pending';
+    case 'APPROVED': return 'resolved';
+    case 'REJECTED': return 'rejected';
+    default: return 'pending';
+  }
+};
+
+// Initialize data on component mount
+onMounted(() => {
+  fetchReports();
+});
+
+// Watch for filter changes and reset to page 1
+watch([searchQuery, statusFilter, typeFilter, severityFilter], () => {
+  currentPage.value = 1;
+  jumpToPage.value = 1;
+});
 
 // Computed
 const filteredReports = computed(() => {
@@ -333,9 +499,44 @@ const filteredReports = computed(() => {
   return result;
 });
 
+// Phân trang dữ liệu
+const paginatedReports = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredReports.value.slice(start, end);
+});
+
 const totalPages = computed(() => 
-  Math.ceil(filteredReports.value.length / itemsPerPage)
+  Math.ceil(filteredReports.value.length / itemsPerPage.value)
 );
+
+const totalItems = computed(() => filteredReports.value.length);
+
+// Tính toán các trang hiển thị
+const visiblePages = computed(() => {
+  const total = totalPages.value;
+  const current = currentPage.value;
+  const delta = 2; // Số trang hiển thị mỗi bên
+  
+  if (total <= 7) {
+    // Nếu tổng số trang <= 7, hiển thị tất cả
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  
+  let start = Math.max(1, current - delta);
+  let end = Math.min(total, current + delta);
+  
+  // Điều chỉnh để luôn hiển thị 5 trang
+  if (end - start < 4) {
+    if (start === 1) {
+      end = Math.min(total, start + 4);
+    } else {
+      start = Math.max(1, end - 4);
+    }
+  }
+  
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
 
 // Methods
 const getReportTypeName = (type) => {
@@ -381,11 +582,7 @@ const getStatusName = (status) => {
   return statuses[status] || status;
 };
 
-const getReportCountClass = (count) => {
-  if (count <= 3) return 'low';
-  if (count <= 7) return 'medium';
-  return 'high';
-};
+
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('vi-VN');
@@ -410,30 +607,31 @@ const handleSearch = () => {
   currentPage.value = 1;
 };
 
-const viewPost = (post) => {
-  router.push(`/forum/post/${post.id}`);
+// Pagination methods
+const goToPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+    jumpToPage.value = page;
+  }
 };
 
-const viewReportHistory = async (postId) => {
-  // Mock history data - replace with API call
-  reportHistory.value = [
-    {
-      id: 1,
-      type: 'report',
-      title: 'Báo cáo mới',
-      description: 'Người dùng báo cáo vi phạm về spam',
-      date: '2024-03-15T10:30:00'
-    },
-    {
-      id: 2,
-      type: 'resolve',
-      title: 'Đã xử lý',
-      description: 'Admin đã xem xét và xử lý báo cáo',
-      date: '2024-03-15T11:00:00',
-      action: 'Gửi cảnh báo cho người vi phạm'
-    }
-  ];
-  showHistoryModal.value = true;
+const handleItemsPerPageChange = () => {
+  currentPage.value = 1;
+  jumpToPage.value = 1;
+};
+
+const handlePageJump = () => {
+  if (jumpToPage.value >= 1 && jumpToPage.value <= totalPages.value) {
+    currentPage.value = jumpToPage.value;
+  } else {
+    jumpToPage.value = currentPage.value;
+  }
+};
+
+
+
+const viewPost = (post) => {
+  router.push(`/forum/post/${post.id}`);
 };
 
 const resolveReport = (report) => {
@@ -450,7 +648,9 @@ const resolveReport = (report) => {
 const submitResolve = async () => {
   try {
     if (selectedReport.value) {
-      // Here you would send the resolution to your backend
+      // Gọi API để duyệt báo cáo
+      const response = await reportApi.approve(selectedReport.value.id);
+      // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === selectedReport.value.id);
       if (index !== -1) {
         reports.value[index] = {
@@ -458,7 +658,11 @@ const submitResolve = async () => {
           status: 'resolved'
         };
       }
+      
+      // Làm mới dữ liệu từ server để đảm bảo đồng bộ
+      await fetchReports();
     }
+    
     showResolveModal.value = false;
     resolveData.value = {
       severity: '',
@@ -469,12 +673,16 @@ const submitResolve = async () => {
     selectedReport.value = null;
   } catch (error) {
     console.error('Error resolving report:', error);
+    alert('Có lỗi xảy ra khi duyệt báo cáo. Vui lòng thử lại.');
   }
 };
 
 const rejectReport = async (report) => {
   if (confirm('Bạn có chắc chắn muốn từ chối báo cáo này?')) {
     try {
+      // Gọi API để từ chối báo cáo
+      await reportApi.reject(report.id);
+      // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === report.id);
       if (index !== -1) {
         reports.value[index] = {
@@ -482,8 +690,13 @@ const rejectReport = async (report) => {
           status: 'rejected'
         };
       }
+      
+      // Làm mới dữ liệu từ server để đảm bảo đồng bộ
+      await fetchReports();
+      
     } catch (error) {
       console.error('Error rejecting report:', error);
+      alert('Có lỗi xảy ra khi từ chối báo cáo. Vui lòng thử lại.');
     }
   }
 };
@@ -513,4 +726,4 @@ const banUser = async (user) => {
 
 <style lang="scss" scoped>
 @use '@/components/layout/admin-content/reports/ReportManagement.scss';
-</style> 
+</style>

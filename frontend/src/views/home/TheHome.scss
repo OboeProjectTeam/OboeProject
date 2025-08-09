@@ -9,6 +9,11 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 1rem;
+
+    // Mobile responsive
+    @include mobile-only {
+      padding: 0 0.75rem;
+    }
   }
 
   // Hero Section
@@ -34,6 +39,22 @@
       margin-bottom: 28px;
     }
 
+    // Mobile responsive
+    @include mobile-only {
+      padding: 32px 1rem 24px 1rem;
+      border-radius: 12px;
+      
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+      }
+      
+      p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+      }
+    }
+
     .main-search-bar {
       display: flex;
       justify-content: center;
@@ -56,6 +77,17 @@
         
       }
       @include mobile-only{
+        input[type="text"] {
+          width: 100%;
+          max-width: 280px;
+          font-size: 0.9rem;
+        }
+        
+        button {
+          padding: 10px 14px;
+          font-size: 1rem;
+        }
+        
         ::placeholder{
           font-size: 13px;
         }
@@ -98,6 +130,23 @@
         font-weight: 500;
       }
     }
+
+    // Mobile responsive
+    @include mobile-only {
+      padding: 2rem 0;
+      
+      .section-header {
+        margin-bottom: 1rem;
+        
+        h2 {
+          font-size: 1.1rem;
+        }
+        
+        .view-all-link {
+          font-size: 0.9rem;
+        }
+      }
+    }
   }
 
   // Horizontal Scroll for Recent Sets
@@ -106,11 +155,12 @@
     gap: 1rem;
     overflow-x: auto;
     padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch; // Smooth scrolling on iOS
 
     .content-card {
-      flex: 1; // Tự động điều chỉnh width để chia đều
-      max-width: 346px !important;
-      min-width: 0; // Cho phép shrink
+      flex: 0 0 auto; // Không co lại, không mở rộng, kích thước tự động
+      width: 280px; // Chiều rộng mặc định
+      min-width: 280px; // Đảm bảo không co lại
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -141,6 +191,67 @@
       .learn-now-btn {
         padding: 0.75rem;
         font-size: 0.95rem;
+      }
+    }
+
+    // Desktop optimization - bỏ scroll, để 5 item tự co giãn vừa màn hình
+    @include desktop-only {
+      overflow-x: visible; // Bỏ thanh cuộn
+      gap: 0.75rem;
+      
+      .content-card {
+        flex: 1; // Cho phép card co giãn đều nhau
+        width: auto; // Bỏ width cố định
+        min-width: 180px; // Chiều rộng tối thiểu
+        max-width: 240px; // Chiều rộng tối đa
+        padding: 0.875rem;
+        
+        h3 {
+          font-size: 0.9rem;
+        }
+        
+        .description {
+          font-size: 0.8rem;
+        }
+        
+        .card-meta {
+          font-size: 0.75rem;
+        }
+        
+        .learn-now-btn {
+          padding: 0.625rem;
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    // Mobile responsive
+    @include mobile-only {
+      gap: 0.75rem;
+      padding: 0 1rem;
+      margin: 0 -1rem; // Mở rộng ra ngoài container padding
+      
+      .content-card {
+        width: 260px; // Chiều rộng nhỏ hơn cho mobile
+        min-width: 260px;
+        padding: 0.875rem;
+        
+        h3 {
+          font-size: 0.95rem;
+        }
+        
+        .description {
+          font-size: 0.8rem;
+        }
+        
+        .card-meta {
+          font-size: 0.75rem;
+        }
+        
+        .learn-now-btn {
+          padding: 0.625rem;
+          font-size: 0.9rem;
+        }
       }
     }
   }
@@ -196,6 +307,12 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+
+    // Mobile responsive
+    @include mobile-only {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
   }
 
   .forum-topic-card {

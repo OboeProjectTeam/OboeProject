@@ -94,8 +94,6 @@ const hasMore = computed(() => currentPage.value < totalPages.value - 1)
 // Function to get team ID based on type and itemId
 const getTeamId = () => {
   const teamId = `${props.type}_${props.itemId}`
-  console.log('Generated teamId:', teamId) // Debug log
-  console.log('Props type:', props.type, 'Props itemId:', props.itemId) // Debug log
   return teamId
 }
 
@@ -121,12 +119,7 @@ const loadComments = async (page = 0, append = false) => {
       isLoadingMore.value = true
     }
     
-    console.log('Loading comments for itemId:', props.itemId) // Debug log
-    console.log('Calling API with URL:', `/api/comments/${props.itemId}?page=${page}&size=${pageSize.value}`) // Debug log
-    
     const response = await commentApi.getComments(props.itemId, page, pageSize.value)
-    console.log('Comments API response:', response) // Debug log
-    
     if (response && response.comments) {
       if (append) {
         comments.value = [...comments.value, ...response.comments]
@@ -173,7 +166,6 @@ const submitComment = async () => {
       title: 'Bình luận' // Add default title
     }
     
-    console.log('Submitting comment for itemId:', props.itemId) // Debug log
     await commentApi.createComment(props.itemId, commentData)
     
     // Reset form
@@ -198,7 +190,6 @@ onMounted(() => {
 // Watch for itemId changes and reload comments
 watch(() => props.itemId, (newItemId, oldItemId) => {
   if (newItemId !== oldItemId) {
-    console.log('ItemId changed from', oldItemId, 'to', newItemId, '- reloading comments')
     // Reset pagination state
     currentPage.value = 0
     totalPages.value = 0

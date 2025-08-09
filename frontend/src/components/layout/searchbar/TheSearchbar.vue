@@ -106,30 +106,10 @@ const performSearch = async (query) => {
     isLoading.value = true
     const searchType = getSearchType()
     
-    console.log('=== Search API Call ===')
-    console.log('Query:', query)
-    console.log('Search Type:', searchType)
-    console.log('Active Index:', activeIndex.value)
-    
     // Use real API
     const response = await api.search.search(query, searchType)
-    console.log('Raw API response:', response)
-    
     // API trả về array của objects với structure: {id, type, word, reading, meaning}
     const results = Array.isArray(response) ? response : (response.content || response.data || [])
-    console.log('Processed results:', results)
-    console.log('Results length:', results.length)
-    
-    // Log từng item để debug
-    results.forEach((item, index) => {
-      console.log(`Item ${index}:`, {
-        id: item.id,
-        type: item.type,
-        word: item.word,
-        reading: item.reading,
-        meaning: item.meaning
-      })
-    })
     
     searchResults.value = results.slice(0, 10)
     showSuggestions.value = true
@@ -165,12 +145,6 @@ const clearSearch = () => {
 
 const selectSuggestion = (item) => {
   try {
-    console.log('=== selectSuggestion called ===')
-    console.log('Selected item:', item)
-    console.log('Item type:', item.type)
-    console.log('Item ID:', item.id)
-    console.log('Item word:', item.word)
-    
     // Set search query to the word from API response
     searchQuery.value = item.word || ''
     
@@ -185,16 +159,10 @@ const selectSuggestion = (item) => {
 }
 
 const navigateToDetail = (item) => {
-  console.log('=== Navigation Debug ===')
-  console.log('Navigating to detail for item:', item)
-  
   try {
     // API mới trả về cấu trúc chuẩn: {id, type, word, reading, meaning}
     const itemId = item.id
-    console.log('Using item.id:', itemId)
-    
     if (!itemId) {
-      console.error('Cannot navigate: missing itemId', item)
       return
     }
     
@@ -219,8 +187,6 @@ const navigateToDetail = (item) => {
     }
     
     const fullPath = `/${routeType}/${itemId}`
-    console.log('Navigating to:', fullPath)
-    
     router.push(fullPath)
       .then(() => {
         console.log('Navigation successful to:', fullPath)

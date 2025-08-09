@@ -91,13 +91,23 @@
   th, td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #e2e8f0;
+    // border-bottom: 1px solid #e2e8f0;
   }
   
   th {
     background: #f7fafc;
     font-weight: 600;
     color: #2d3748;
+  }
+  
+  // Điều chỉnh cột ID
+  th:first-child,
+  td:first-child {
+    width: 152px;
+    max-width: 152px;
+    padding: 12px 8px;
+    font-size: 13px;
+    word-break: break-all;
   }
 }
 
@@ -201,27 +211,101 @@
   }
 }
 
-.pagination {
+.pagination-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
   margin-top: 20px;
+  padding: 16px 0;
+  border-top: 1px solid #e2e8f0;
   
-  button {
-    background: none;
-    border: 1px solid #e2e8f0;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+  .pagination-info {
+    color: #718096;
+    font-size: 14px;
+  }
+  
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .pagination-btn {
+      background: none;
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #4a5568;
+      transition: all 0.2s;
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f7fafc;
+      }
+      
+      &:not(:disabled):hover {
+        background: #4a90e2;
+        color: white;
+        border-color: #4a90e2;
+      }
     }
     
-    &:not(:disabled):hover {
-      background: #f7fafc;
+    .pagination-numbers {
+       display: flex;
+       gap: 2px;
+       margin: 0 8px;
+       align-items: center;
+       
+       .pagination-number {
+         background: none;
+         border: 1px solid #e2e8f0;
+         padding: 8px 12px;
+         border-radius: 6px;
+         cursor: pointer;
+         color: #4a5568;
+         transition: all 0.2s;
+         min-width: 40px;
+         text-align: center;
+         
+         &:hover {
+           background: #f7fafc;
+           border-color: #cbd5e0;
+         }
+         
+         &.active {
+           background: #4a90e2;
+           color: white;
+           border-color: #4a90e2;
+         }
+       }
+       
+       .pagination-ellipsis {
+         padding: 8px 4px;
+         color: #718096;
+         font-weight: bold;
+       }
+     }
+  }
+  
+  .items-per-page {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #718096;
+    font-size: 14px;
+    
+    select {
+      padding: 6px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      background: white;
+      color: #4a5568;
+      
+      &:focus {
+        outline: none;
+        border-color: #4a90e2;
+      }
     }
   }
 }
@@ -244,6 +328,8 @@
     border-radius: 8px;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     
     h3 {

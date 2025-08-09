@@ -144,7 +144,7 @@
             </div>
           </div>
           <div class="loading-text">
-            <h3><i class="fas fa-robot"></i> AI đang phân tích kết quả của bạn</h3>
+            <h3><i class="fas fa-robot"></i> Oboe Sensei đang chấm bài của bạn</h3>
             <p class="loading-message">Vui lòng chờ trong giây lát...</p>
             <div class="progress-bar-loading">
               <div class="progress-fill"></div>
@@ -154,7 +154,7 @@
 
         <!-- AI Comment Section -->
         <div v-if="isAIGenerated && aiEvaluationResult && aiEvaluationResult.comment" class="ai-comment-section">
-          <h3><i class="fas fa-robot"></i> Lời khuyên từ AI</h3>
+          <h3><i class="fas fa-robot"></i> Lời khuyên từ Oboe Sensei</h3>
           <div class="ai-comment-content">
             <p>{{ aiEvaluationResult.comment }}</p>
           </div>
@@ -291,8 +291,6 @@ const initializeTest = () => {
   isReviewing.value = false; // NEW: Ensure not in review mode
 
   const flashcards = store.getters['flashcard/getLearningItems'];
-
-  
   if (!flashcards || flashcards.length === 0) {
     console.error('No flashcards found in store');
     router.push({ 

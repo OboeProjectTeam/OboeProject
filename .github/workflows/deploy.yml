@@ -164,5 +164,6 @@ jobs:
                                                 -DAPI_KEY=${{ secrets.API_KEY }} \
                                                 -DCHECKSUM_KEY=${{ secrets.CHECKSUM_KEY }} \
                                                 -DCLIENT_ID=${{ secrets.CLIENT_ID }} \
+                                                -DGEMINI_API_URL=${{ secrets.GEMINI_API_URL }} \
                                                 -jar /var/www/OboeProject/backend/Oboe-0.0.1-SNAPSHOT.jar
           echo "Backend started using PM2 with environment variables"

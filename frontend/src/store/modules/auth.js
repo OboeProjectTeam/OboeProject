@@ -1,5 +1,6 @@
 import api from '@/api';
 import { isTokenExpired } from '@/api/modules/authApi';
+import { jwtDecode } from 'jwt-decode';
 import WebSocketService from '@/services/websocket';
 
 const state = () => ({
@@ -53,9 +54,7 @@ const actions = {
   // Đăng ký tài khoản
   async signup(_,userData) {
     try {
-      const result = await api.auth.signup(userData);
-      console.log('Đăng ký thành công:', result);
-
+      await api.auth.signup(userData);
     } catch (error) {
       console.error('Lỗi khi đăng ký:', error);
       throw error;
@@ -94,7 +93,7 @@ const actions = {
   // Tải lại profile từ server
   async refreshProfile({ commit }) {
     try {
-      // const user = await api.profile.getProfile();
+      const user = await api.profile.getProfile();
       commit('SET_USER', user);
       return user;
     } catch (error) {
@@ -112,6 +111,7 @@ const actions = {
       await api.auth.logout?.(); // Nếu có API logout thì gọi, không có thì bỏ qua
     } catch (e) {
       console.warn('Không gọi được logout API, vẫn xóa local.');
+      console.error('Chi tiết lỗi logout API:', e);
     }
     commit('CLEAR_AUTH');
   },
@@ -128,6 +128,17 @@ const getters = {
   isAuthenticated: (state) => !!state.token && !!state.user,
   currentUser: (state) => state.user,
   accessToken: (state) => state.token,
+  // Kiểm tra user có đăng nhập bằng Google không
+  isGoogleUser: (state) => {
+    if (!state.token) return false;
+    try {
+      const decoded = jwtDecode(state.token);
+      return decoded.provider === 'GOOGLE';
+    } catch (error) {
+      console.error('Lỗi decode JWT token:', error);
+      return false;
+    }
+  },
 };
 
 export default {

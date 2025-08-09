@@ -4,7 +4,7 @@
     :item="wordData"
     :itemId="wordId"
     mainField="words"
-    readingField=""
+    readingField="vietnamese_pronunciation"
     meaningField="meanning"
     notFoundMessage="Không tìm thấy từ vựng"
   />
@@ -32,11 +32,8 @@ export default {
     const fetchWordData = async (id) => {
       try {
         isLoading.value = true;
-        console.log('Fetching word data for ID:', id); // Debug log
         const response = await vocabularyApi.getById(id);
-        console.log('Word API response:', response); // Debug log
         wordData.value = response;
-        console.log('Word data set to:', wordData.value); // Debug log
       } catch (error) {
         console.error('Error fetching word data:', error);
         wordData.value = null;

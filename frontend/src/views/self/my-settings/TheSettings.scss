@@ -422,3 +422,48 @@
     color: #dc3545;
   }
 }
+
+// Error and Success Messages
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @include mobile-only {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
+
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @include mobile-only {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
+
+// Disabled button state
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  
+  &:hover {
+    background-color: inherit !important;
+  }
+}

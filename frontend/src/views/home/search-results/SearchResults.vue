@@ -502,9 +502,6 @@ export default {
       
       try {
         const response = await searchApi.search_home(keyword, null, 0, 50);
-        console.log('API Response (all):', response);
-        console.log('Flashcards count:', response.flashcards?.content?.length || 0);
-        
         this.apiResults = {
           flashcards: response.flashcards || { content: [], totalElements: 0 },
           quizzes: response.quizzes || { content: [], totalElements: 0 },
@@ -530,17 +527,12 @@ export default {
       
       try {
         const response = await searchApi.search_home(keyword, type, 0, 50);
-        console.log(`API Response (${type}):`, response);
-        
         // Cập nhật dữ liệu theo type
         if (type === 'flashcard') {
-          console.log('Flashcards count (by type):', response.flashcards?.content?.length || 0);
           this.apiResults.flashcards = response.flashcards || { content: [], totalElements: 0 };
         } else if (type === 'quiz') {
-          console.log('Quizzes count (by type):', response.quizzes?.content?.length || 0);
           this.apiResults.quizzes = response.quizzes || { content: [], totalElements: 0 };
         } else if (type === 'user') {
-          console.log('Users count (by type):', response.users?.content?.length || 0);
           this.apiResults.users = response.users || { content: [], totalElements: 0 };
         }
       } catch (error) {

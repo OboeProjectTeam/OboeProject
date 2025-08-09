@@ -541,10 +541,10 @@ const handleNotificationClick = (notification) => {
       break
     case 'forum':
     case 'comment':
-      router.push('/forum')
+      router.push('/messages')
       break
     case 'achievement':
-      router.push('/profile')
+      router.push('/messages')
       break
     default:
       break

@@ -28,6 +28,11 @@
       <div class="main-info">
         <h1 class="main-text">{{ item[mainField] }}</h1>
         <div v-if="readingField && item[readingField]" class="reading-text">{{ item[readingField] }}</div>
+        <div v-if="item.readings && item.readings.length > 0" class="reading-text">
+          <span v-for="(reading, index) in item.readings" :key="index">
+            {{ reading }}{{ index < item.readings.length - 1 ? ', ' : '' }}
+          </span>
+        </div>
         <div class="meaning-text">{{ item[meaningField] }}</div>
       </div>
 

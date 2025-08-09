@@ -30,18 +30,9 @@ export default {
     // Function to fetch grammar data
     const fetchGrammarData = async (id) => {
       try {
-        console.log('Fetching grammar data for ID:', id);
         isLoading.value = true;
         const response = await grammarApi.getById(id);
-        console.log('Grammar API response:', response);
-        console.log('Grammar response keys:', Object.keys(response || {}));
-        console.log('Grammar ID fields check:', {
-          id: response?.id,
-          grammarId: response?.grammarId,
-          grammaID: response?.grammaID
-        });
         grammarData.value = response;
-        console.log('Grammar data set:', grammarData.value);
       } catch (error) {
         console.error('Error fetching grammar data:', error);
         grammarData.value = null;

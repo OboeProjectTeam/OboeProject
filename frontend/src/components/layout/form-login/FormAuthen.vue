@@ -15,13 +15,13 @@
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '10px' : '0px' }">
         <input v-model="username" type="text" class="styled-input__input" />
         <div class="styled-input__placeholder">
-          <span class="styled-input__placeholder-text">Email / Số Điện Thoại</span>
+          <span class="styled-input__placeholder-text">Email</span>
         </div>
         <div class="styled-input__circle"></div>
       </div>
 
       <div class="styled-input" :style="{ 'margin-top': isRegister ? '20px' : '0px' }">
-        <input v-model="password" type="password" class="styled-input__input" :disabled="isLoading" />
+        <input v-model="password" type="password" class="styled-input__input" />
         <div class="styled-input__placeholder">
           <span class="styled-input__placeholder-text">Mật Khẩu</span>
         </div>
@@ -50,16 +50,16 @@
         <MCheckbox v-model="remember" :disabled="isLoading">
           <span style="color: #888888;font-size: 10px; width: 100%;">
             Tôi chấp nhận
-            <router-link to="/dieu-khoan-dich-vu" target="_blank">Điều khoản dịch vụ</router-link>
+            <router-link to="/footer-services" target="_blank">Điều khoản dịch vụ</router-link>
             và
-            <router-link to="/quyen-rieng-tu" target="_blank">Chính sách quyền riêng tư</router-link>
+            <router-link to="/footer-services/privacy" target="_blank">Chính sách quyền riêng tư</router-link>
             của Oboe
           </span>
         </MCheckbox>
       </div>
 
-      <button type="button" class="styled-button" @click="submitForm" :disabled="isLoading">
-        <span class="styled-button__real-text-holder">
+      <button type="button" class="styled-button" @click="submitForm" :disabled="isLoading" :class="{ 'loading': isLoading }">
+        <span class="styled-button__real-text-holder" v-if="!isLoading">
           <span class="styled-button__real-text">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
           <span class="styled-button__moving-block face">
             <span class="styled-button__text-holder">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
@@ -67,6 +67,9 @@
           <span class="styled-button__moving-block back">
             <span class="styled-button__text-holder">{{ isRegister ? 'Đăng ký' : 'Đăng nhập' }}</span>
           </span>
+        </span>
+        <span v-if="isLoading" class="loading-text">
+          <i class="fas fa-spinner fa-spin"></i> {{ isRegister ? 'Đang đăng ký...' : 'Đang đăng nhập...' }}
         </span>
       </button>
 
@@ -130,6 +133,44 @@ const showDialog = (message, type = 'success') => {
   showPopup.value = true
 }
 
+const validateForm = () => {
+  const validationErrors = []
+  
+  // Validate username
+  if (!username.value || username.value.trim() === '') {
+    validationErrors.push('Email không được để trống')
+  } else if (props.isRegister) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const value = username.value.trim()
+    
+    if (!emailRegex.test(value)) {
+      validationErrors.push('Email không đúng định dạng')
+    }
+  }
+  
+  // Validate password
+  if (!password.value || password.value.trim() === '') {
+    validationErrors.push('Mật khẩu không được để trống')
+  } else if (props.isRegister && password.value.length < 6) {
+    validationErrors.push('Mật khẩu phải có ít nhất 6 ký tự')
+  }
+  
+  // Validate register fields
+  if (props.isRegister) {
+    if (!firstname.value || firstname.value.trim() === '') {
+      validationErrors.push('Tên không được để trống')
+    }
+    if (!lastname.value || lastname.value.trim() === '') {
+      validationErrors.push('Họ không được để trống')
+    }
+    if (!remember.value) {
+      validationErrors.push('Bạn phải chấp nhận điều khoản dịch vụ')
+    }
+  }
+  
+  return validationErrors
+}
+
 const uiConfig = {
   signInFlow: 'popup',
   signInSuccessUrl: '',
@@ -140,10 +181,6 @@ const uiConfig = {
         prompt: 'select_account'
       }
     },
-    {
-      provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-      scopes: ['email']
-    }
   ],
   callbacks: {
     signInSuccessWithAuthResult: async function (authResult) {
@@ -154,8 +191,6 @@ const uiConfig = {
         if (!result || !result.token || !result.user) {
           throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
         }
-        console.log('Firebase login callback hit');
-
         const { token, user } = result;
         store.commit('auth/SET_TOKEN', token);
         store.commit('auth/SET_USER', user);
@@ -194,16 +229,25 @@ const handlePopupConfirm = () => {
 }
 
 const submitForm = async () => {
+    // Frontend validation
+    const validationErrors = validateForm()
+    if (validationErrors.length > 0) {
+      // Hiển thị lỗi theo từng dòng với bullet points
+      const errorMessage = validationErrors.map(error => `• ${error}`).join('\n')
+      showDialog(errorMessage, 'error')
+      return
+    }
+  
   isLoading.value = true
   store.commit('auth/CLEAR_AUTH')
 
   try {
     if (props.isRegister) {
       await store.dispatch('auth/signup', {
-        userName: username.value,
+        userName: username.value.trim(),
         passWord: password.value,
-        firstName: firstname.value,
-        lastName: lastname.value,
+        firstName: firstname.value.trim(),
+        lastName: lastname.value.trim(),
         authProvider: 'EMAIL',
       })
       showDialog('Đăng ký thành công! Vui lòng kiểm tra email để xác minh.', 'success')
@@ -212,14 +256,54 @@ const submitForm = async () => {
 
     } else {
       await store.dispatch('auth/login', {
-        userName: username.value,
+        userName: username.value.trim(),
         passWord: password.value,
       })
 
-      router.push('/')
+      // Kiểm tra role của user sau khi đăng nhập thành công
+      const user = store.getters['auth/currentUser'];
+      if (user && user.role === 'ROLE_ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     }
   } catch (err) {
-     showDialog(err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại'), 'error')
+    // Xử lý các message lỗi cụ thể từ backend
+    let errorMessage = err.message || (props.isRegister ? 'Đăng ký thất bại' : 'Đăng nhập thất bại')
+    
+    // Mapping các message lỗi từ backend sang tiếng Việt nếu cần
+    if (errorMessage.includes('Username is required')) {
+      errorMessage = 'Email không được để trống'
+    } else if (errorMessage.includes('Password is required')) {
+      errorMessage = 'Mật khẩu không được để trống'
+    } else if (errorMessage.includes('User not found')) {
+      errorMessage = 'Tài khoản không tồn tại'
+    } else if (errorMessage.includes('Invalid credentials')) {
+      errorMessage = 'Email hoặc mật khẩu không chính xác'
+    } else if (errorMessage.includes('Please verify your email')) {
+      errorMessage = 'Vui lòng xác minh email trước khi đăng nhập'
+    } else if (errorMessage.includes('Verification email sent')) {
+      errorMessage = 'Email xác minh đã được gửi. Vui lòng kiểm tra hộp thư của bạn.'
+    } else if (errorMessage.includes('Tài khoản đã tồn tại')) {
+      errorMessage = 'Tài khoản đã tồn tại với email này'
+    } else if (errorMessage.includes('Nhiều tài khoản trùng username')) {
+      errorMessage = 'Có nhiều tài khoản với thông tin này. Vui lòng liên hệ hỗ trợ.'
+    } else if (errorMessage.includes('Hãy đăng nhập bằng')) {
+      // Giữ nguyên message này vì đã có sẵn tiếng Việt
+    } else if (errorMessage.includes('Không thể kết nối')) {
+      errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.'
+    } else if (errorMessage.includes('Lỗi máy chủ')) {
+      errorMessage = 'Lỗi máy chủ. Vui lòng thử lại sau.'
+    } else if (errorMessage.includes('timeout') || errorMessage.includes('TIMEOUT')) {
+      errorMessage = 'Kết nối quá chậm. Vui lòng thử lại.'
+    } else if (errorMessage.includes('Network Error') || errorMessage.includes('ERR_NETWORK')) {
+      errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.'
+    } else if (errorMessage.includes('ECONNREFUSED') || errorMessage.includes('ERR_CONNECTION_REFUSED')) {
+      errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.'
+    }
+    
+    showDialog(errorMessage, 'error')
   } finally {
     isLoading.value = false
   }
@@ -229,6 +313,7 @@ const resetForm = () => {
   password.value = ''
   firstname.value = ''
   lastname.value = ''
+  remember.value = false
 }
 
 function placeholderAnimationIn(parent, action) {

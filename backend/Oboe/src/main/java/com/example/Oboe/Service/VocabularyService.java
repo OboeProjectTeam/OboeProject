@@ -4,6 +4,7 @@ import com.example.Oboe.DTOs.VocabularyDTOs;
 import com.example.Oboe.DTOs.ReadingDTO;
 import com.example.Oboe.Entity.Vocabulary;
 import com.example.Oboe.Entity.Reading;
+import com.example.Oboe.Repository.KanjiRepository;
 import com.example.Oboe.Repository.VocabularyRepository;
 import com.example.Oboe.Repository.ReadingRepository;
 import jakarta.transaction.Transactional;
@@ -22,10 +23,12 @@ public class VocabularyService {
 
     private final VocabularyRepository vocabularyRepository;
     private final ReadingRepository readingRepository;
+    private final KanjiRepository kanjiRepository;
 
-    public VocabularyService(VocabularyRepository vocabularyRepository, ReadingRepository readingRepository) {
+    public VocabularyService(VocabularyRepository vocabularyRepository, ReadingRepository readingRepository ,KanjiRepository kanjiRepository) {
         this.vocabularyRepository = vocabularyRepository;
         this.readingRepository = readingRepository;
+        this.kanjiRepository = kanjiRepository;
     }
 
     // Get all vocabularies with pagination
@@ -56,8 +59,13 @@ public class VocabularyService {
         vocab.setMeanning(dto.getMeanning());
         vocab.setWordType(dto.getWordType());
         vocab.setScriptType(dto.getScriptType());
+        vocab.setVietnamesePronunciation(dto.getVietnamese_pronunciation());
 
         Vocabulary saved = vocabularyRepository.save(vocab);
+        if (dto.getKanjiId() != null) {
+            kanjiRepository.findById(dto.getKanjiId())
+                    .ifPresent(vocab::setKanji);
+        }
 
         if (dto.getReadings() != null && !dto.getReadings().isEmpty()) {
             List<Reading> readings = dto.getReadings().stream().map(r -> {
@@ -89,6 +97,7 @@ public class VocabularyService {
         if (dto.getMeanning() != null) vocab.setMeanning(dto.getMeanning());
         if (dto.getWordType() != null) vocab.setWordType(dto.getWordType());
         if (dto.getScriptType() != null) vocab.setScriptType(dto.getScriptType());
+        if(dto.getVietnamese_pronunciation() != null ) vocab.setVietnamesePronunciation(dto.getVietnamese_pronunciation());
 
         Vocabulary updated = vocabularyRepository.save(vocab);
 
@@ -135,14 +144,21 @@ public class VocabularyService {
         dto.setMeanning(vocab.getMeanning());
         dto.setWordType(vocab.getWordType());
         dto.setScriptType(vocab.getScriptType());
-        dto.setKanjiId(vocab.getKanji().getKanjiId());
 
-        List<ReadingDTO> readingDTOs = readingRepository.findByOwnerTypeAndOwnerId("vocabulary", vocab.getVocalbId())
-                .stream().map(this::readingToDTO).collect(Collectors.toList());
+        // ✅ Sửa ở đây để tránh lỗi nếu kanji là null
+        dto.setKanjiId(vocab.getKanji() != null ? vocab.getKanji().getKanjiId() : null);
+
+        dto.setVietnamese_pronunciation(vocab.getVietnamesePronunciation());
+
+        List<ReadingDTO> readingDTOs = readingRepository
+                .findByOwnerTypeAndOwnerId("vocabulary", vocab.getVocalbId())
+                .stream().map(this::readingToDTO)
+                .collect(Collectors.toList());
         dto.setReadings(readingDTOs);
 
         return dto;
     }
+
 
     private ReadingDTO readingToDTO(Reading r) {
         return new ReadingDTO(

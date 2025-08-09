@@ -9,6 +9,16 @@
 .forum-profile-container {
   max-width: 1200px;
   margin: 0 auto;
+  
+  // Đảm bảo username hiển thị tốt trên mobile
+  @include mobile-only {
+    .username-large {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
 
 .breadcrumb {

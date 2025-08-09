@@ -110,18 +110,24 @@
         <div class="setting-item">
           <div class="item-info">
             <label>Đổi mật khẩu</label>
-            <p class="item-description">Thay đổi mật khẩu của bạn để tăng cường bảo mật.</p>
+            <p class="item-description" v-if="!isGoogleUser">Thay đổi mật khẩu của bạn để tăng cường bảo mật.</p>
+            <p class="item-description" v-else>Bạn đã đăng nhập bằng tài khoản Google. Không thể đổi mật khẩu.</p>
           </div>
           <div class="item-control">
-            <button v-if="!isChangingPassword" class="btn btn-secondary" @click="isChangingPassword = true">Đổi mật khẩu</button>
+            <button v-if="!isChangingPassword && !isGoogleUser" class="btn btn-secondary" @click="isChangingPassword = true">Đổi mật khẩu</button>
+            <button v-else-if="isGoogleUser" class="btn btn-secondary" disabled>Đổi mật khẩu</button>
             <div v-else class="password-fields">
               <input v-model="oldPassword" type="password" placeholder="Mật khẩu cũ" class="password-input">
               <input v-model="newPassword" type="password" placeholder="Mật khẩu mới" class="password-input">
               <input v-model="confirmPassword" type="password" placeholder="Xác nhận mật khẩu mới" class="password-input">
               <div class="password-buttons">
-                <button class="btn btn-secondary" @click="isChangingPassword = false">Hủy</button>
-                <button class="btn btn-primary">Lưu thay đổi</button>
+                <button class="btn btn-secondary" @click="cancelPasswordChange">Hủy</button>
+                <button class="btn btn-primary" @click="handleChangePassword" :disabled="isLoading">
+                  {{ isLoading ? 'Đang xử lý...' : 'Lưu thay đổi' }}
+                </button>
               </div>
+              <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
+              <div v-if="passwordSuccess" class="success-message">{{ passwordSuccess }}</div>
             </div>
           </div>
         </div>
@@ -146,18 +152,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { useDarkMode } from '@/composables/useDarkMode';
+import api from '@/api';
 
 const router = useRouter();
+const store = useStore();
 const { isDark } = useDarkMode();
 const isChangingPassword = ref(false);
 const currentSection = ref('account');
 
+// Kiểm tra user có đăng nhập bằng Google không
+const isGoogleUser = computed(() => store.getters['auth/isGoogleUser']);
+
 const oldPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
+const isLoading = ref(false);
+const passwordError = ref('');
+const passwordSuccess = ref('');
 
 const setCurrentSection = (section, event) => {
   if (event) {
@@ -212,6 +227,76 @@ onUnmounted(() => {
 
 const goToUpgrade = () => {
   router.push('/upgrade');
+};
+
+const cancelPasswordChange = () => {
+  isChangingPassword.value = false;
+  oldPassword.value = '';
+  newPassword.value = '';
+  confirmPassword.value = '';
+  passwordError.value = '';
+  passwordSuccess.value = '';
+};
+
+const validatePasswords = () => {
+  if (!oldPassword.value.trim()) {
+    passwordError.value = 'Vui lòng nhập mật khẩu cũ';
+    return false;
+  }
+  
+  if (!newPassword.value.trim()) {
+    passwordError.value = 'Vui lòng nhập mật khẩu mới';
+    return false;
+  }
+  
+  if (newPassword.value.length < 6) {
+    passwordError.value = 'Mật khẩu mới phải có ít nhất 6 ký tự';
+    return false;
+  }
+  
+  if (newPassword.value !== confirmPassword.value) {
+    passwordError.value = 'Mật khẩu xác nhận không khớp';
+    return false;
+  }
+  
+  if (oldPassword.value === newPassword.value) {
+    passwordError.value = 'Mật khẩu mới phải khác mật khẩu cũ';
+    return false;
+  }
+  
+  return true;
+};
+
+const handleChangePassword = async () => {
+  passwordError.value = '';
+  passwordSuccess.value = '';
+  
+  if (!validatePasswords()) {
+    return;
+  }
+  
+  isLoading.value = true;
+  
+  try {
+    const passwordData = {
+      oldPassword: oldPassword.value,
+      newPassword: newPassword.value
+    };
+    
+    await api.auth.changePassword(passwordData);
+    
+    passwordSuccess.value = 'Đổi mật khẩu thành công!';
+    
+    // Reset form sau 2 giây
+    setTimeout(() => {
+      cancelPasswordChange();
+    }, 2000);
+    
+  } catch (error) {
+    passwordError.value = error.message || 'Có lỗi xảy ra khi đổi mật khẩu';
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 

@@ -3,6 +3,7 @@ import adminApi from './modules/adminApi';
 import authApi from './modules/authApi';
 import blogApi from './modules/blogApi';
 import commentApi from './modules/commentApi';
+import dashboardApi from './modules/dashboardApi';
 import favoriteApi from './modules/favoriteApi';
 import flashcardApi from './modules/flashcardApi';
 import grammarApi from './modules/grammarApi';
@@ -31,6 +32,7 @@ const api = {
     auth: authApi,
     blog: blogApi,
     comment: commentApi,
+    dashboard: dashboardApi,
     favorite: favoriteApi,
     flashcard: flashcardApi,
     grammar: grammarApi,

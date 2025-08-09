@@ -6,7 +6,7 @@
         <button @click="createQuizWithAI" class="ai-btn" :disabled="isGeneratingAI">
           <i v-if="isGeneratingAI" class="fas fa-spinner fa-spin"></i>
           <i v-else class="fas fa-magic"></i>
-          {{ isGeneratingAI ? 'Đang tạo...' : 'Tạo bằng AI' }}
+          {{ isGeneratingAI ? 'Đang tạo...' : 'Nhờ Oboe Sensei' }}
         </button>
       </div>
     </div>
@@ -64,6 +64,17 @@
         <button @click="saveQuiz" class="save-btn">Lưu bài kiểm tra</button>
       </div>
     </div>
+    
+    <!-- Premium Required Popup -->
+    <ThePopup
+      v-if="showPremiumPopup"
+      :title="premiumPopupTitle"
+      :message="premiumPopupMessage"
+      confirmText="Nâng cấp Premium"
+      @confirm="handlePremiumPopupConfirm"
+      @cancel="handlePremiumPopupCancel"
+      :showCancel="true"
+    />
   </div>
 </template>
 
@@ -73,9 +84,21 @@ import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import questionApi from '@/api/modules/questionApi'
 import aiApi from '@/api/modules/aiApi'
+import { usePremiumCheck } from '@/composables/usePremiumCheck'
+import ThePopup from '@/components/common/popup/ThePopup.vue'
 
 const router = useRouter()
 const store = useStore()
+
+// Premium check
+const { 
+  checkPremiumFeature, 
+  showPremiumPopup, 
+  premiumPopupMessage, 
+  premiumPopupTitle,
+  handlePremiumPopupConfirm,
+  handlePremiumPopupCancel
+} = usePremiumCheck()
 
 const title = ref('')
 const description = ref('')
@@ -156,6 +179,11 @@ const validateQuiz = () => {
 }
 
 const createQuizWithAI = async () => {
+  // Kiểm tra premium trước khi sử dụng tính năng AI
+  if (!(await checkPremiumFeature())) {
+    return
+  }
+  
   try {
     isGeneratingAI.value = true
     
