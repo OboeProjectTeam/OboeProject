@@ -3,14 +3,14 @@
         <!-- Header -->
         <div class="forum-header">
             <div class="header-content">
-                <h1>Diễn đàn Oboe</h1>
+                <h1>{{ t('forum.title') }}</h1>
                 <div class="header-actions flex-jsb">
                     <div class="search-container">
                         <div class="search-input-wrapper">
                             <input 
                                 type="text" 
                                 v-model="searchQuery" 
-                                placeholder="Tìm kiếm bài viết..." 
+                                :placeholder="t('forum.searchPlaceholder')" 
                                 class="search-input"
                                 @input="debouncedSearch"
                                 @keyup.enter="handleSearch"
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                     <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
-                        <i class="fas fa-edit"></i> Tạo bài viết mới
+                        <i class="fas fa-edit"></i> {{ t('forum.createNewPost') }}
                     </button>
                 </div>
             </div>
@@ -47,22 +47,22 @@
                     <div class="control-group">
                         <div class="custom-select-wrapper">
                             <select id="tag-filter" v-model="selectedTag" @change="currentPage = 1">
-                                <option value="all">Tất cả các thẻ</option>
+                                <option value="all">{{ t('forum.allTags') }}</option>
                                 <option v-for="tag in allTags.filter(t => t !== 'all')" :key="tag" :value="tag">{{ tag }}</option>
                             </select>
                         </div>
                     </div>
-                    <button class="btn btn-secondary clear-filter-btn" @click="resetFilters" v-if="selectedCategory !== 'all' || selectedTag !== 'all'" title="Xóa bộ lọc">
+                    <button class="btn btn-secondary clear-filter-btn" @click="resetFilters" v-if="selectedCategory !== 'all' || selectedTag !== 'all'" :title="t('forum.clearFilters')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <div class="header-stats">
                     <button class="sort-btn" @click="sortBy('replies')">
-                        Trả lời
+                        {{ t('forum.replies') }}
                         <i v-if="sortKey === 'replies'" :class="sortIconClass"></i>
                     </button>
                     <button class="sort-btn" @click="sortBy('views')">
-                        Lượt xem
+                        {{ t('forum.views') }}
                         <i v-if="sortKey === 'views'" :class="sortIconClass"></i>
                     </button>
                 </div>
@@ -72,11 +72,11 @@
             <div v-if="searchQuery && !loading" class="search-results-header">
                 <div class="search-info">
                     <i class="fas fa-search"></i>
-                    <span>Kết quả tìm kiếm cho: "<strong>{{ searchQuery }}</strong>"</span>
-                    <span class="result-count">({{ totalElements }} kết quả)</span>
+                    <span>{{ t('forum.searchResultsFor') }}: "<strong>{{ searchQuery }}</strong>"</span>
+                    <span class="result-count">({{ totalElements }} {{ t('forum.results') }})</span>
                 </div>
                 <button @click="clearSearch" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-times"></i> Xóa tìm kiếm
+                    <i class="fas fa-times"></i> {{ t('forum.clearSearch') }}
                 </button>
             </div>
 
@@ -86,7 +86,7 @@
                 <div v-if="loading" class="loading-container">
                     <div class="loading-spinner">
                         <i class="fas fa-spinner fa-spin fa-2x"></i>
-                        <p>{{ searchQuery ? 'Đang tìm kiếm...' : 'Đang tải bài viết...' }}</p>
+                        <p>{{ searchQuery ? t('forum.searching') : t('forum.loadingPosts') }}</p>
                     </div>
                 </div>
                 
@@ -96,7 +96,7 @@
                         <i class="fas fa-exclamation-triangle fa-2x"></i>
                         <p>{{ error }}</p>
                         <button class="btn btn-primary" @click="fetchBlogs(currentPage - 1, postsPerPage, searchQuery)">
-                            Thử lại
+                            {{ t('forum.tryAgain') }}
                         </button>
                     </div>
                 </div>
@@ -105,9 +105,9 @@
                 <div v-else-if="posts.length === 0" class="empty-container">
                     <div class="empty-message">
                         <i class="fas fa-2x" :class="searchQuery ? 'fa-search' : 'fa-comments'"></i>
-                        <p>{{ searchQuery ? `Không tìm thấy bài viết nào cho "${searchQuery}"` : 'Chưa có bài viết nào' }}</p>
+                        <p>{{ searchQuery ? t('forum.noSearchResults', { query: searchQuery }) : t('forum.noPosts') }}</p>
                         <button v-if="searchQuery" @click="clearSearch" class="btn btn-secondary">
-                            Xóa tìm kiếm
+                            {{ t('forum.clearSearch') }}
                         </button>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                         </span>
                         <h3 class="post-title">{{ post.title }}</h3>
                         <p class="post-meta">
-                            bởi <a class="author-name">{{ post.author.name }}</a>
+                            {{ t('forum.by') }} <a class="author-name">{{ post.author.name }}</a>
                             <span class="post-time">{{ formatTimeAgo(post.time) }}</span>
                         </p>
                     </div>
@@ -191,7 +191,7 @@
                 
                 <!-- Show page info -->
                 <div class="page-info">
-                    Trang {{ currentPage }} / {{ totalPages }} ({{ totalElements }} bài viết)
+                    {{ t('forum.pageInfo', { current: currentPage, total: totalPages, count: totalElements }) }}
                 </div>
             </div>
         </div>
@@ -201,7 +201,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import blogApi from '@/api/modules/blogApi';
+
+const { t } = useI18n();
 
 const router = useRouter();
 
@@ -226,15 +229,15 @@ const searchTimeout = ref(null);
 const isSearching = ref(false);
 
 // --- DATA ---
-const categories = ref([
-    { id: 'all', name: 'Tất cả chuyên mục', color: '' },
-    { id: 'word', name: 'Từ vựng', color: '#28a745' },
-    { id: 'kanji', name: 'Học Kanji', color: '#17a2b8' },
-    { id: 'grammar', name: 'Ngữ pháp', color: '#fd7e14' },
-    { id: 'jlpt', name: 'Luyện thi JLPT', color: '#007bff' },
-    { id: 'communication', name: 'Giao tiếp', color: '#6f42c1' },
-    { id: 'life-in-japan', name: 'Cuộc sống tại Nhật', color: '#dc3545' },
-    { id: 'other', name: 'Chủ đề khác', color: '#6c757d' }
+const categories = computed(() => [
+    { id: 'all', name: t('forum.categories.all'), color: '' },
+    { id: 'word', name: t('forum.categories.word'), color: '#28a745' },
+    { id: 'kanji', name: t('forum.categories.kanji'), color: '#17a2b8' },
+    { id: 'grammar', name: t('forum.categories.grammar'), color: '#fd7e14' },
+    { id: 'jlpt', name: t('forum.categories.jlpt'), color: '#007bff' },
+    { id: 'communication', name: t('forum.categories.communication'), color: '#6f42c1' },
+    { id: 'life-in-japan', name: t('forum.categories.lifeInJapan'), color: '#dc3545' },
+    { id: 'other', name: t('forum.categories.other'), color: '#6c757d' }
 ]);
 
 // --- API FUNCTIONS ---
@@ -309,7 +312,7 @@ const fetchBlogs = async (page = 0, size = 10, searchKeyword = '') => {
         
     } catch (err) {
         console.error('Error fetching blogs:', err);
-        error.value = err.message || 'Không thể tải danh sách bài viết';
+        error.value = err.message || t('forum.errorLoadingPosts');
         posts.value = [];
         totalPages.value = 0;
         totalElements.value = 0;
@@ -436,16 +439,16 @@ function formatTimeAgo(date) {
     const now = new Date();
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " năm trước";
+    if (interval > 1) return t('forum.timeAgo.years', { count: Math.floor(interval) });
     interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " tháng trước";
+    if (interval > 1) return t('forum.timeAgo.months', { count: Math.floor(interval) });
     interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " ngày trước";
+    if (interval > 1) return t('forum.timeAgo.days', { count: Math.floor(interval) });
     interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " giờ trước";
+    if (interval > 1) return t('forum.timeAgo.hours', { count: Math.floor(interval) });
     interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " phút trước";
-    return "Vài giây trước";
+    if (interval > 1) return t('forum.timeAgo.minutes', { count: Math.floor(interval) });
+    return t('forum.timeAgo.seconds');
 }
 
 // Debounced search function

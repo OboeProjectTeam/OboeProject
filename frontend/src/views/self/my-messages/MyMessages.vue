@@ -3,21 +3,21 @@
     <!-- Sidebar with conversations -->
     <div class="messages-sidebar" :class="{ 'mobile-hidden': isMobileAndChatOpen }">
       <div class="sidebar-header">
-        <h2>Tin nhắn</h2>
+        <h2>{{ t('myMessages.title') }}</h2>
       </div>
       <div class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Tìm kiếm cuộc trò chuyện...">
+        <input type="text" :placeholder="t('myMessages.searchPlaceholder')">
       </div>
 
       <div class="conversations-list">
         <div v-if="conversationsLoading" class="loading-conversations">
           <i class="fas fa-spinner fa-spin"></i>
-          <p>Đang tải cuộc trò chuyện...</p>
+          <p>{{ t('myMessages.loadingConversations') }}</p>
         </div>
         <div v-else-if="conversations.length === 0" class="empty-conversations">
           <i class="fas fa-comments"></i>
-          <p>Chưa có cuộc trò chuyện nào</p>
+          <p>{{ t('myMessages.noConversations') }}</p>
         </div>
         <div v-else v-for="chat in conversations" 
              :key="chat.id" 
@@ -65,12 +65,12 @@
         <div class="chat-messages" ref="messagesContainer">
           <div v-if="conversationMessagesLoading" class="loading-messages">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Đang tải tin nhắn...</p>
+            <p>{{ t('myMessages.loadingMessages') }}</p>
           </div>
           <div v-else-if="selectedChat.messages?.length === 0" class="empty-messages">
             <i class="fas fa-comment-dots"></i>
-            <p>Chưa có tin nhắn nào</p>
-            <small>Hãy bắt đầu cuộc trò chuyện!</small>
+            <p>{{ t('myMessages.noMessages') }}</p>
+            <small>{{ t('myMessages.startConversation') }}</small>
           </div>
           <div v-else v-for="message in selectedChat.messages" 
                :key="message.id" 
@@ -89,7 +89,7 @@
           </button>
           <input type="text" 
                  v-model="newMessage" 
-                 placeholder="Nhập tin nhắn..."
+                 :placeholder="t('myMessages.messagePlaceholder')"
                  :disabled="sendingMessage"
                  @keyup.enter="sendMessage">
           <button class="send-btn" @click="sendMessage" :disabled="sendingMessage || !newMessage.trim()">
@@ -101,8 +101,8 @@
 
       <div v-else class="no-chat-selected">
         <i class="fas fa-comments"></i>
-        <h2>Chọn một cuộc trò chuyện để bắt đầu</h2>
-        <p>Hoặc tạo tin nhắn mới để kết nối với bạn bè</p>
+        <h2>{{ t('myMessages.selectChat') }}</h2>
+        <p>{{ t('myMessages.createNewMessage') }}</p>
       </div>
     </div>
 
@@ -113,8 +113,8 @@
         :style="{ top: sidebarMenuPosition.y + 'px', left: sidebarMenuPosition.x + 'px' }"
         @click.stop
       >
-        <div class="menu-item" @click="viewProfile(sidebarMenuUser)">Xem hồ sơ</div>
-        <div class="menu-item" @click="openChatBox(sidebarMenuUser)">Mở Box Chat</div>
+        <div class="menu-item" @click="viewProfile(sidebarMenuUser)">{{ t('myMessages.viewProfile') }}</div>
+        <div class="menu-item" @click="openChatBox(sidebarMenuUser)">{{ t('myMessages.openChatBox') }}</div>
      
       </div>
     </Teleport>
@@ -134,6 +134,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ConfirmDialog from '@/components/common/popup/ThePopup.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
@@ -161,6 +162,7 @@ const confirmDialog = ref({
 
 const router = useRouter()
 const store = useStore()
+const { t } = useI18n()
 
 // Define emits for parent component
 const emit = defineEmits(['send-message'])
@@ -220,7 +222,7 @@ const loadChatPartners = async () => {
        // Build full name from firstName and lastName
        const firstName = partner.firstName || ''
        const lastName = partner.lastName || ''
-       const fullName = `${firstName} ${lastName}`.trim() || partner.userName || 'Người dùng'
+       const fullName = `${firstName} ${lastName}`.trim() || partner.userName || t('myMessages.defaultUser')
        
        return {
          id: partner.userId,
@@ -228,7 +230,7 @@ const loadChatPartners = async () => {
          username: partner.userName, // Add username for profile navigation
          fullName: fullName,
          avatarUrlReceiver: partner.avatarUrlReceiver || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
-         lastMessage: partner.lastMessageContent || 'Chưa có tin nhắn',
+         lastMessage: partner.lastMessageContent || t('myMessages.noMessages'),
          lastMessageTime: partner.lastMessageTime ? formatMessageTime(partner.lastMessageTime) : '',
          unreadCount: 0, // Not provided in UserSummaryDTO
          messages: [] // Will be loaded when chat is selected
@@ -243,13 +245,13 @@ const loadChatPartners = async () => {
     // Show success message
     store.dispatch('message/showMessage', {
       type: 'success',
-      text: `Đã tải ${mappedConversations.length} cuộc trò chuyện`
+      text: t('myMessages.loadedConversations', { count: mappedConversations.length })
     })
   } catch (error) {
     // Show error message
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Không thể tải danh sách tin nhắn: ' + error.message
+      text: t('myMessages.loadError') + ': ' + error.message
     })
     
     // Set empty array on error
@@ -269,7 +271,7 @@ const formatMessageTime = (dateString) => {
     
     // Check if date is valid
     if (isNaN(date.getTime())) {
-      return 'Invalid Date'
+      return t('myMessages.invalidDate')
     }
     
     const now = new Date()
@@ -285,14 +287,14 @@ const formatMessageTime = (dateString) => {
     
     // Within a week - show days ago
     if (diffDays < 7) {
-      return `${diffDays} ngày trước`
+      return t('myMessages.daysAgo', { days: diffDays })
     }
     
     // Older - show date
     return date.toLocaleDateString('vi-VN')
   } catch (error) {
     console.error('Error formatting time:', dateString, error)
-    return 'Lỗi thời gian'
+    return t('myMessages.timeError')
   }
 }
 
@@ -366,7 +368,7 @@ const selectChat = async (chat) => {
     // Show error message
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Không thể tải cuộc trò chuyện: ' + error.message
+      text: t('myMessages.conversationLoadError') + ': ' + error.message
     })
     
     // Still select chat but with empty messages
@@ -440,7 +442,7 @@ const sendMessage = async () => {
     // Show error message
          store.dispatch('message/showMessage', {
        type: 'error',
-       text: 'Không thể gửi tin nhắn: ' + error.message
+       text: t('myMessages.sendError') + ': ' + error.message
      })
    } finally {
      sendingMessage.value = false
@@ -539,7 +541,7 @@ const handleIncomingUser = () => {
         id: query.userId,
         name: query.fullName || query.userName,
         avatarUrlReceiver: query.avatarUrlReceiver || `https://ui-avatars.com/api/?name=${encodeURIComponent(query.fullName || query.userName)}&background=random`,
-        lastMessage: 'Bắt đầu cuộc trò chuyện',
+        lastMessage: t('myMessages.startConversation'),
         lastMessageTime: '',
         unreadCount: 0,
         messages: []
@@ -554,7 +556,7 @@ const handleIncomingUser = () => {
       // Show notification
       store.dispatch('message/showMessage', {
         type: 'info',
-        text: `Bắt đầu cuộc trò chuyện với ${newChat.name}`
+        text: t('myMessages.startConversationWith', { name: newChat.name })
       })
     }
     

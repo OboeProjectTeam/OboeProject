@@ -2,34 +2,34 @@
   <div class="create-quiz">
     <div class="header-section">
       <div class="flex-jsb">
-        <h1>Tạo Bài Kiểm Tra Mới</h1>
+        <h1>{{ t('createQuiz.title') }}</h1>
         <button @click="createQuizWithAI" class="ai-btn" :disabled="isGeneratingAI">
           <i v-if="isGeneratingAI" class="fas fa-spinner fa-spin"></i>
           <i v-else class="fas fa-magic"></i>
-          {{ isGeneratingAI ? 'Đang tạo...' : 'Nhờ Oboe Sensei' }}
+          {{ isGeneratingAI ? t('createQuiz.generating') : t('createQuiz.aiButton') }}
         </button>
       </div>
     </div>
     <div class="form-container">
       <div class="form-group">
-        <label>Tên bài kiểm tra</label>
-        <input v-model="title" type="text" placeholder="Nhập tên bài kiểm tra..." />
+        <label>{{ t('createQuiz.nameLabel') }}</label>
+        <input v-model="title" type="text" :placeholder="t('createQuiz.namePlaceholder')" />
       </div>
       <div class="form-group">
-        <label>Mô tả</label>
-        <textarea v-model="description" placeholder="Nhập mô tả về bài kiểm tra..."></textarea>
+        <label>{{ t('createQuiz.descriptionLabel') }}</label>
+        <textarea v-model="description" :placeholder="t('createQuiz.descriptionPlaceholder')"></textarea>
       </div>
       <div class="questions-container">
-        <h2>Câu hỏi</h2>
+        <h2>{{ t('createQuiz.questions') }}</h2>
         <div v-for="(question, qIndex) in questions" :key="qIndex" class="question-item">
           <div class="question-header">
-            <span>Câu hỏi {{ qIndex + 1 }}</span>
+            <span>{{ t('createQuiz.question') }} {{ qIndex + 1 }}</span>
             <button @click="removeQuestion(qIndex)" class="remove-btn">
               <i class="fas fa-trash"></i>
             </button>
           </div>
           <div class="question-content">
-            <input v-model="question.text" type="text" placeholder="Nhập câu hỏi..." />
+            <input v-model="question.text" type="text" :placeholder="t('createQuiz.questionPlaceholder')" />
             <div class="options-container">
               <div v-for="(option, oIndex) in question.options" :key="oIndex" class="option-item">
                 <input 
@@ -42,7 +42,7 @@
                 <input 
                   type="text" 
                   v-model="question.options[oIndex]"
-                  :placeholder="'Phương án ' + (oIndex + 1)"
+                  :placeholder="t('createQuiz.option') + ' ' + (oIndex + 1)"
                 />
                 <button @click="removeOption(qIndex, oIndex)" class="remove-option-btn" v-if="question.options.length > 2">
                   <i class="fas fa-times"></i>
@@ -50,18 +50,18 @@
               </div>
               <button @click="addOption(qIndex)" class="add-option-btn" v-if="question.options.length < 4">
                 <i class="fas fa-plus"></i>
-                Thêm phương án
+                {{ t('createQuiz.addOption') }}
               </button>
             </div>
           </div>
         </div>
         <button @click="addQuestion" class="add-question-btn">
           <i class="fas fa-plus"></i>
-          Thêm câu hỏi
+          {{ t('createQuiz.addQuestion') }}
         </button>
       </div>
       <div class="form-actions">
-        <button @click="saveQuiz" class="save-btn">Lưu bài kiểm tra</button>
+        <button @click="saveQuiz" class="save-btn">{{ t('createQuiz.saveQuiz') }}</button>
       </div>
     </div>
     
@@ -70,7 +70,7 @@
       v-if="showPremiumPopup"
       :title="premiumPopupTitle"
       :message="premiumPopupMessage"
-      confirmText="Nâng cấp Premium"
+      :confirmText="t('createQuiz.upgradePremium')"
       @confirm="handlePremiumPopupConfirm"
       @cancel="handlePremiumPopupCancel"
       :showCancel="true"
@@ -82,6 +82,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 import questionApi from '@/api/modules/questionApi'
 import aiApi from '@/api/modules/aiApi'
 import { usePremiumCheck } from '@/composables/usePremiumCheck'
@@ -89,6 +90,7 @@ import ThePopup from '@/components/common/popup/ThePopup.vue'
 
 const router = useRouter()
 const store = useStore()
+const { t } = useI18n()
 
 // Premium check
 const { 
@@ -142,7 +144,7 @@ const validateQuiz = () => {
   if (!title.value.trim()) {
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Vui lòng nhập tên bài kiểm tra.'
+      text: t('createQuiz.nameRequired')
     });
     return false;
   }
@@ -150,7 +152,7 @@ const validateQuiz = () => {
   if (questions.value.length === 0) {
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Vui lòng thêm ít nhất một câu hỏi.'
+      text: t('createQuiz.questionRequired')
     });
     return false;
   }
@@ -160,7 +162,7 @@ const validateQuiz = () => {
     if (!question.text.trim()) {
       store.dispatch('message/showMessage', {
         type: 'error',
-        text: `Vui lòng nhập nội dung cho câu hỏi ${i + 1}.`
+        text: `${t('createQuiz.questionContentRequired')} ${i + 1}.`
       });
       return false;
     }
@@ -169,7 +171,7 @@ const validateQuiz = () => {
     if (emptyOption !== -1) {
       store.dispatch('message/showMessage', {
         type: 'error',
-        text: `Vui lòng nhập nội dung cho phương án ${emptyOption + 1} của câu hỏi ${i + 1}.`
+        text: `${t('createQuiz.optionContentRequired')} ${emptyOption + 1} ${t('createQuiz.of')} ${i + 1}.`
       });
       return false;
     }
@@ -193,7 +195,7 @@ const createQuizWithAI = async () => {
     if (!Array.isArray(response) || response.length === 0) {
       store.dispatch('message/showMessage', {
         type: 'error',
-        text: 'Không thể tạo câu hỏi bằng AI. Vui lòng thử lại.'
+        text: t('createQuiz.aiGenerateError')
       })
       return
     }
@@ -219,8 +221,8 @@ const createQuizWithAI = async () => {
         type: 'multiple-choice',
         aiGenerated: 'true',
         source: 'ai-generated',
-        title: 'Bài kiểm tra được tạo bằng AI',
-        description: `Bài kiểm tra gồm ${response.length} câu hỏi được tạo tự động bằng AI`
+        title: t('createQuiz.aiGeneratedTitle'),
+        description: t('createQuiz.aiGeneratedDescription', { count: response.length })
       }
     })
     
@@ -228,7 +230,7 @@ const createQuizWithAI = async () => {
     console.error('Error generating AI quiz:', error)
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Đã có lỗi xảy ra khi tạo bài kiểm tra bằng AI: ' + error.message
+      text: t('createQuiz.aiError') + error.message
     })
   } finally {
     isGeneratingAI.value = false
@@ -261,7 +263,7 @@ const saveQuiz = async () => {
     
     store.dispatch('message/showMessage', {
       type: 'success',
-      text: 'Tạo bài kiểm tra thành công!'
+      text: t('createQuiz.createSuccess')
     });
     
     // Chuyển hướng đến trang thư viện
@@ -270,7 +272,7 @@ const saveQuiz = async () => {
     console.error('Error creating quiz:', error);
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Đã có lỗi xảy ra khi lưu bài kiểm tra: ' + error.message
+      text: t('createQuiz.saveError') + error.message
     });
   }
 }

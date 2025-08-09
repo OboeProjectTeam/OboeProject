@@ -4,30 +4,30 @@
     <div class="breadcrumb">
       <!-- Dynamic breadcrumb based on source -->
       <template v-if="route.query.source === 'search'">
-        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <router-link to="/" class="breadcrumb-link">{{ t('common.home') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <router-link :to="route.query.searchQuery ? `/search?q=${encodeURIComponent(route.query.searchQuery)}` : '/search'" class="breadcrumb-link">Tìm kiếm</router-link>
+        <router-link :to="route.query.searchQuery ? `/search?q=${encodeURIComponent(route.query.searchQuery)}` : '/search'" class="breadcrumb-link">{{ t('common.search') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <span class="breadcrumb-current">Học liệu</span>
+        <span class="breadcrumb-current">{{ t('common.studyMaterial') }}</span>
       </template>
       <template v-else-if="route.query.source === 'library'">
-        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <router-link to="/" class="breadcrumb-link">{{ t('common.home') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <router-link to="/library" class="breadcrumb-link">Thư viện</router-link>
+        <router-link to="/library" class="breadcrumb-link">{{ t('common.library') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <span class="breadcrumb-current">Học liệu</span>
+        <span class="breadcrumb-current">{{ t('common.studyMaterial') }}</span>
       </template>
       <template v-else-if="route.query.source === 'profile'">
-        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <router-link to="/" class="breadcrumb-link">{{ t('common.home') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <router-link :to="`/forum/u/${route.query.creatorName}`" class="breadcrumb-link">Hồ sơ</router-link>
+        <router-link :to="`/forum/u/${route.query.creatorName}`" class="breadcrumb-link">{{ t('common.profile') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <span class="breadcrumb-current">Học liệu</span>
+        <span class="breadcrumb-current">{{ t('common.studyMaterial') }}</span>
       </template>
       <template v-else>
-        <router-link to="/" class="breadcrumb-link">Trang chủ</router-link>
+        <router-link to="/" class="breadcrumb-link">{{ t('common.home') }}</router-link>
         <span class="breadcrumb-separator">></span>
-        <span class="breadcrumb-current">Học liệu</span>
+        <span class="breadcrumb-current">{{ t('common.studyMaterial') }}</span>
       </template>
     </div>
 
@@ -45,15 +45,15 @@
       <div class="side-menu">
         <div class="menu-item" :class="{ active: activeMode === 'flashcard' }" @click="setMode('flashcard')">
           <i class="fas fa-sticky-note"></i>
-          <span>Thẻ ghi nhớ</span>
+          <span>{{ t('flashcard.flashcards') }}</span>
         </div>
         <div class="menu-item" :class="{ active: activeMode === 'test' }" @click="openTestOptions">
           <i class="fas fa-tasks"></i>
-          <span>Kiểm tra</span>
+          <span>{{ t('flashcard.test') }}</span>
         </div>
         <div class="menu-item" :class="{ active: activeMode === 'match' }" @click="setMode('match')">
           <i class="fas fa-puzzle-piece"></i>
-          <span>Ghép thẻ</span>
+          <span>{{ t('flashcard.match') }}</span>
         </div>
       </div>
 
@@ -76,19 +76,19 @@
       <div class="control-menu">
         <button class="control-btn" :class="{ 'playing': isAutoPlaying }" @click="toggleAutoplay">
           <i :class="isAutoPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
-          <span>{{ isAutoPlaying ? 'Tạm dừng' : 'Phát' }}</span>
+          <span>{{ isAutoPlaying ? t('flashcard.pause') : t('flashcard.play') }}</span>
         </button>
         <button class="control-btn" :class="{ 'disabled': trackProgress }" @click="handleShuffleClick">
           <i class="fas fa-random"></i>
-          <span>Trộn thẻ</span>
+          <span>{{ t('flashcard.shuffleCards') }}</span>
         </button>
         <button class="control-btn" @click="openSettings">
           <i class="fas fa-cog"></i>
-          <span>Cài đặt</span>
+          <span>{{ t('flashcard.settings') }}</span>
         </button>
         <button class="control-btn" @click="toggleFullscreen">
           <i class="fas fa-expand"></i>
-          <span>Toàn màn hình</span>
+          <span>{{ t('flashcard.fullscreen') }}</span>
         </button>
       </div>
     </div>
@@ -99,14 +99,14 @@
           :class="{ active: slides[currentSlideIndex]?.status === 'learning', pressed: slides[currentSlideIndex]?.status === 'learning' }"
           @click="updateCardStatus('learning')">
           <i class="fas fa-minus"></i>
-          <span>Đang học</span>
+          <span>{{ t('flashcard.learning') }}</span>
           <span class="count">({{ learningStats.learning }})</span>
         </button>
         <button class="progress-btn known"
           :class="{ active: slides[currentSlideIndex]?.status === 'known', pressed: slides[currentSlideIndex]?.status === 'known' }"
           @click="updateCardStatus('known')">
           <i class="fas fa-plus"></i>
-          <span>Đã biết</span>
+          <span>{{ t('flashcard.known') }}</span>
           <span class="count">({{ learningStats.known }})</span>
         </button>
       </div>
@@ -117,17 +117,17 @@
       <!-- List Items Section -->
       <div class="list-items-section">
         <div class="list-header">
-          <h3>Thuật ngữ trong học phần này</h3>
+          <h3>{{ t('flashcard.termsInThisSet') }}</h3>
           <button class="add-term-btn" @click="navigateToTermCreation">
             <i class="fas fa-plus"></i>
-            Thêm hoặc xóa thuật ngữ
+            {{ t('flashcard.addOrRemoveTerms') }}
           </button>
         </div>
 
         <!-- Learning Terms -->
         <div class="terms-list">
           <h4 class="list-title">
-            Đang học
+            {{ t('flashcard.learning') }}
             <span class="count">({{ learningStats.learning }})</span>
           </h4>
           <TransitionGroup name="list" tag="div" class="terms-container">
@@ -151,7 +151,7 @@
         <!-- Known Terms -->
         <div v-if="trackProgress" class="terms-list">
           <h4 class="list-title">
-            Đã biết
+            {{ t('flashcard.known') }}
             <span class="count">({{ learningStats.known }})</span>
           </h4>
           <TransitionGroup name="list" tag="div" class="terms-container">
@@ -177,18 +177,18 @@
     <transition name="status-fade">
       <div v-if="showStatusAnimation" class="status-animation" :class="currentStatus">
         <i class="fas" :class="currentStatus === 'known' ? 'fa-check' : 'fa-clock'"></i>
-        <span>{{ currentStatus === 'known' ? 'Đã biết' : 'Đang học' }}</span>
+        <span>{{ currentStatus === 'known' ? t('flashcard.known') : t('flashcard.learning') }}</span>
       </div>
     </transition>
 
     <!-- Settings Modal -->
     <div v-if="showSettings" class="settings-modal">
       <div class="modal-content">
-        <h3>Cài đặt</h3>
+        <h3>{{ t('flashcard.settings') }}</h3>
 
         <div class="settings-body">
           <div class="setting-item speed-control">
-            <label>Tốc độ tự động chuyển</label>
+            <label>{{ t('flashcard.autoplaySpeed') }}</label>
             <div class="speed-buttons">
               <button @click="tempSettings.autoplaySpeed = Math.max(1, tempSettings.autoplaySpeed - 1)"
                 class="speed-btn">
@@ -204,7 +204,7 @@
 
           <div class="settings-group">
             <div class="setting-item toggle">
-              <span class="setting-label">Theo dõi tiến độ</span>
+              <span class="setting-label">{{ t('flashcard.trackProgress') }}</span>
               <label class="toggle-switch">
                 <input type="checkbox" v-model="tempSettings.trackProgress" />
                 <span class="toggle-slider"></span>
@@ -212,7 +212,7 @@
             </div>
 
             <div class="setting-item toggle">
-              <span class="setting-label">Đảo mặt thẻ</span>
+              <span class="setting-label">{{ t('flashcard.reverseCards') }}</span>
               <label class="toggle-switch">
                 <input type="checkbox" v-model="tempSettings.reverseCards" />
                 <span class="toggle-slider"></span>
@@ -223,46 +223,46 @@
           <div class="settings-actions">
             <button class="action-btn shortcuts-btn" @click="showShortcuts = true">
               <i class="fas fa-keyboard"></i>
-              <span>Phím tắt</span>
+              <span>{{ t('flashcard.shortcuts') }}</span>
             </button>
 
             <button class="action-btn reset-btn" @click="resetCards">
               <i class="fas fa-redo"></i>
-              <span>Khởi động lại</span>
+              <span>{{ t('flashcard.restart') }}</span>
             </button>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button class="cancel-btn" @click="cancelSettings">Hủy</button>
-          <button class="confirm-btn" @click="applySettings">Xác nhận</button>
+          <button class="cancel-btn" @click="cancelSettings">{{ t('flashcard.cancel') }}</button>
+          <button class="confirm-btn" @click="applySettings">{{ t('flashcard.confirm') }}</button>
         </div>
       </div>
 
       <!-- Shortcuts Modal -->
       <div v-if="showShortcuts" class="shortcuts-modal">
         <div class="shortcuts-content">
-          <h4>Phím tắt</h4>
+          <h4>{{ t('flashcard.shortcuts') }}</h4>
           <div class="shortcut-list">
             <div class="shortcut-item">
               <span class="key">←</span>
-              <span>Thẻ trước</span>
+              <span>{{ t('flashcard.previousCard') }}</span>
             </div>
             <div class="shortcut-item">
               <span class="key">→</span>
-              <span>Thẻ sau</span>
+              <span>{{ t('flashcard.nextCard') }}</span>
             </div>
             <div class="shortcut-item">
               <span class="key">↑</span>
-              <span>Lật thẻ</span>
+              <span>{{ t('flashcard.flipCard') }}</span>
             </div>
             <div v-if="trackProgress" class="shortcut-item">
               <span class="key">-</span>
-              <span>Đánh dấu đang học</span>
+              <span>{{ t('flashcard.markAsLearning') }}</span>
             </div>
             <div v-if="trackProgress" class="shortcut-item">
               <span class="key">+</span>
-              <span>Đánh dấu đã biết</span>
+              <span>{{ t('flashcard.markAsKnown') }}</span>
             </div>
           </div>
           <button class="close-shortcuts-btn" @click="showShortcuts = false">
@@ -279,37 +279,37 @@
         <div class="results-header">
           <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />
           <h2>{{ learningStats.known === slides.length ?
-            'Chà,Bạn nắm bài thật chắc! Bạn đã sắp xếp tất cả các thẻ.' :
-            'Bạn đang làm rất tốt! Hãy tiếp tục để tăng cường tự tin' }}</h2>
+            t('flashcard.congratulations') :
+            t('flashcard.keepGoing') }}</h2>
         </div>
 
         <div class="progress-section">
-          <h3>Tiến độ của </h3>
+          <h3>{{ t('flashcard.progressOf') }}</h3>
           <div class="progress-items">
             <div class="progress-item learning">
-              <div class="label">Đang học</div>
+              <div class="label">{{ t('flashcard.learning') }}</div>
               <div class="count">{{ learningStats.learning }}</div>
             </div>
             <div class="progress-item known">
-              <div class="label">Đã biết</div>
+              <div class="label">{{ t('flashcard.known') }}</div>
               <div class="count">{{ learningStats.known }}</div>
             </div>
           </div>
         </div>
 
         <div class="next-steps">
-          <h3>Bước tiếp theo</h3>
+          <h3>{{ t('flashcard.nextSteps') }}</h3>
           <button class="practice-btn">
             <i class="fas fa-sync-alt"></i>
-            Ôn luyện với các câu hỏi
+            {{ t('flashcard.practiceWithQuestions') }}
           </button>
           <button v-if="learningStats.known !== slides.length" class="review-btn" @click="reviewUnknownCards">
             <i class="fas fa-graduation-cap"></i>
-            Học lại {{ learningStats.learning }} thẻ chưa thuộc
+            {{ t('flashcard.reviewUnknownCards', { count: learningStats.learning }) }}
           </button>
           <button class="reset-btn" @click="handleReset">
             <i class="fas fa-redo"></i>
-            Đặt lại Thẻ ghi nhớ
+            {{ t('flashcard.resetFlashcards') }}
           </button>
         </div>
       </div>
@@ -319,7 +319,7 @@
     <div v-if="showTestOptions" class="test-options-modal">
       <div class="modal-overlay" @click="closeTestOptions"></div>
       <div class="test-options-content">
-        <h3>Chọn loại bài kiểm tra</h3>
+        <h3>{{ t('flashcard.chooseTestType') }}</h3>
         <div class="test-options">
           <div class="test-option" :class="{ active: selectedTestType === 'multiple-choice' }"
             @click="selectedTestType = 'multiple-choice'">
@@ -327,8 +327,8 @@
               <i class="fas fa-list-ul"></i>
             </div>
             <div class="option-details">
-              <h4>Trắc nghiệm</h4>
-              <p>Chọn đáp án đúng từ các lựa chọn</p>
+              <h4>{{ t('flashcard.multipleChoice') }}</h4>
+              <p>{{ t('flashcard.multipleChoiceDesc') }}</p>
             </div>
           </div>
 
@@ -338,8 +338,8 @@
               <i class="fas fa-pen"></i>
             </div>
             <div class="option-details">
-              <h4>Tự luận</h4>
-              <p>Viết câu trả lời của </p>
+              <h4>{{ t('flashcard.written') }}</h4>
+              <p>{{ t('flashcard.writtenDesc') }}</p>
             </div>
           </div>
 
@@ -349,25 +349,25 @@
               <i class="fas fa-check-circle"></i>
             </div>
             <div class="option-details">
-              <h4>Đúng/Sai</h4>
-              <p>Xác định câu đúng hay sai</p>
+              <h4>{{ t('flashcard.trueFalse') }}</h4>
+              <p>{{ t('flashcard.trueFalseDesc') }}</p>
             </div>
           </div>
         </div>
 
         <div class="test-options-footer">
-          <button class="cancel-btn" @click="closeTestOptions">Hủy</button>
+          <button class="cancel-btn" @click="closeTestOptions">{{ t('flashcard.cancel') }}</button>
           <button class="start-test-btn" :disabled="!selectedTestType" @click="startTest">
             <i class="fas fa-play"></i>
-            Bắt đầu kiểm tra
+            {{ t('flashcard.startTest') }}
           </button>
         </div>
       </div>
     </div>
 
     <!-- Translation Popup -->
-    <ThePopup v-if="showTranslationPopup" title="Oboe Sensei - Dịch tiếng Nhật" :message="translationResult"
-      confirmText="Đóng" :showCancel="false" :useHtml="true" @confirm="closeTranslationPopup"
+    <ThePopup v-if="showTranslationPopup" :title="t('flashcard.translationTitle')" :message="translationResult"
+      :confirmText="t('flashcard.close')" :showCancel="false" :useHtml="true" @confirm="closeTranslationPopup"
       @cancel="closeTranslationPopup" />
   </div>
 </template>
@@ -377,6 +377,7 @@ import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import TheCard from '@/components/layout/card/TheCard.vue';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
 import api from '@/api';
@@ -386,6 +387,7 @@ import { TransitionGroup } from 'vue';
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const cardRef = ref(null);
 const swiperInstance = ref(null);
 const activeMode = ref('flashcard');
@@ -447,8 +449,8 @@ const creatorInfo = computed(() => {
 
   if (source && (source === 'library' || source === 'profile')) {
     // Use data from query params when coming from library or profile
-    const creatorName = route.query.creatorName || 'Người dùng';
-    const displayName = isCurrentUserCreator.value ? 'Bạn' : creatorName;
+    const creatorName = route.query.creatorName || t('flashcard.user');
+    const displayName = isCurrentUserCreator.value ? t('flashcard.you') : creatorName;
 
     return {
       avatar: route.query.creatorAvatar || ImagePaths.avatar.default,
@@ -459,8 +461,8 @@ const creatorInfo = computed(() => {
     // Default fallback for other sources
     return {
       avatar: ImagePaths.avatar.default,
-      name: 'Bạn',
-      createdDate: 'Mới tạo'
+      name: t('flashcard.you'),
+      createdDate: t('flashcard.justCreated')
     };
   }
 });
@@ -476,7 +478,7 @@ const deckTitle = computed(() => {
   }
 
   // Default fallback only for temporary/create mode
-  return 'Kho Thẻ Tạm Thời';
+  return t('flashcard.temporaryDeck');
 });
 
 // Computed description based on source
@@ -490,12 +492,12 @@ const deckDescription = computed(() => {
   }
 
   // Default fallback only for temporary/create mode
-  return 'Mô tả flashcard ở đây';
+  return t('flashcard.flashcardDescription');
 });
 
 // Helper function to format created date
 const formatCreatedDate = (timestamp) => {
-  if (!timestamp) return 'Mới tạo';
+  if (!timestamp) return t('flashcard.justCreated');
 
   try {
     const date = new Date(timestamp);
@@ -506,16 +508,16 @@ const formatCreatedDate = (timestamp) => {
     const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
 
     if (diffInDays > 0) {
-      return `${diffInDays} ngày trước`;
+      return t('flashcard.daysAgo', { count: diffInDays });
     } else if (diffInHours > 0) {
-      return `${diffInHours} giờ trước`;
+      return t('flashcard.hoursAgo', { count: diffInHours });
     } else if (diffInMinutes > 0) {
-      return `${diffInMinutes} phút trước`;
+      return t('flashcard.minutesAgo', { count: diffInMinutes });
     } else {
-      return 'Vừa tạo';
+      return t('flashcard.justCreated');
     }
   } catch (error) {
-    return 'Mới tạo';
+    return t('flashcard.justCreated');
   }
 };
 
@@ -1150,7 +1152,7 @@ const handleTranslateRequest = async (text) => {
   // Hiển thị popup ngay lập tức với loading state
   translationResult.value = `<div class="loading-container">
       <div class="loading-spinner"></div>
-      <p>Oboe Sensei đang dịch...</p>
+      <p>${t('flashcard.translating')}</p>
     </div>`;
   showTranslationPopup.value = true;
   isTranslating.value = true;
@@ -1159,14 +1161,14 @@ const handleTranslateRequest = async (text) => {
     const response = await api.ai.translateJapaneseToVietnamese(text);
 
     // Format nội dung dịch để hiển thị đẹp hơn
-    const explanation = response.explanation || 'Không thể dịch văn bản này.';
+    const explanation = response.explanation || t('flashcard.cannotTranslate');
     translationResult.value = `
           <div class="original-text">
-            <h4>📝 Văn bản gốc:</h4>
+            <h4>📝 ${t('flashcard.originalText')}:</h4>
             <p class="japanese-text">${text}</p>
           </div>
           <div class="translation-result">
-            <h4>🎯 Dịch và giải thích:</h4>
+            <h4>🎯 ${t('flashcard.translateAndExplain')}:</h4>
             <div class="explanation-text">${explanation}</div>
           </div>
       `;
@@ -1175,7 +1177,7 @@ const handleTranslateRequest = async (text) => {
     translationResult.value = `
         <div class="error-content">
           <div class="error-icon">❌</div>
-          <p>Có lỗi xảy ra khi dịch. Vui lòng thử lại.</p>
+          <p>${t('flashcard.translationError')}</p>
         </div>
       `;
   } finally {
@@ -1592,11 +1594,11 @@ watch(allItems, (newItems) => {
   if (newItems.length > 0) {
     slides.value = newItems.map(item => {
       let frontContent, backContent, description, backDescription;
-      let title = 'Từ vựng';
+      let title = t('common.vocabulary');
 
       switch (item.type) {
         case 'kanji':
-          title = 'Hán tự';
+          title = t('common.kanji');
           frontContent = item.kanji || '';
           description = '';
           backContent = item.kanjiname || '';
@@ -1604,7 +1606,7 @@ watch(allItems, (newItems) => {
           break;
 
         case 'grammar':
-          title = 'Ngữ pháp';
+          title = t('common.grammar');
           frontContent = item.kana || '';
           description = item.romaji || '';
           backContent = item.meaning || '';
@@ -1612,7 +1614,7 @@ watch(allItems, (newItems) => {
           break;
 
         case 'sentence':
-          title = 'Mẫu câu';
+          title = t('common.sentences');
           frontContent = item.sentence || '';
           description = '';
           backContent = item.translation || '';

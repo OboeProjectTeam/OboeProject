@@ -14,7 +14,7 @@
     <!-- Dropdown List -->
     <div v-if="isOpen" class="flashcard-list">
       <div class="list-header">
-        <h3>Danh sách Flashcard</h3>
+        <h3>{{ t('flashcard.list') }}</h3>
         <button class="close-btn" @click="toggleList">
           <i class="fas fa-times"></i>
         </button>
@@ -49,13 +49,13 @@
         </div>
       </div>
       <div v-else class="empty-message">
-        Chưa có item nào trong danh sách {{ getActiveTabLabel }}
+        {{ t('flashcard.noItems', { type: getActiveTabLabel }) }}
       </div>
 
       <div class="list-footer">
         <button class="view-all-btn" @click="goToFlashcardLearn">
           <i class="fas fa-external-link-alt"></i>
-          Đi tới trang Flashcard
+          {{ t('flashcard.goToPage') }}
         </button>
       </div>
     </div>
@@ -66,9 +66,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const store = useStore()
 const router = useRouter()
+const { t } = useI18n()
 const isOpen = ref(false)
 const activeTab = ref('word')
 const isDragging = ref(false)
@@ -180,12 +182,12 @@ onUnmounted(() => {
   document.removeEventListener('touchend', stopDrag)
 })
 
-const tabs = [
-  { type: 'word', label: 'Từ vựng' },
-  { type: 'kanji', label: 'Hán tự' },
-  { type: 'grammar', label: 'Ngữ pháp' },
-  { type: 'sentence', label: 'Mẫu câu' }
-]
+const tabs = computed(() => [
+  { type: 'word', label: t('common.vocabulary') },
+  { type: 'kanji', label: t('common.kanji') },
+  { type: 'grammar', label: t('common.grammar') },
+  { type: 'sentence', label: t('common.sentences') }
+])
 
 const toggleList = () => {
   isOpen.value = !isOpen.value
@@ -199,7 +201,7 @@ const filteredItems = computed(() => {
 })
 
 const getActiveTabLabel = computed(() => {
-  return tabs.find(tab => tab.type === activeTab.value)?.label
+  return tabs.value.find(tab => tab.type === activeTab.value)?.label
 })
 
 const getMainText = (item) => {
@@ -249,7 +251,7 @@ const removeFromFlashcard = (item) => {
 }
 
 const tabsWithCount = computed(() => {
-  return tabs.map(tab => ({
+  return tabs.value.map(tab => ({
     ...tab,
     count: store.getters['flashcard/getItemsByType'](tab.type).length
   }))
@@ -326,8 +328,8 @@ const goToFlashcardLearn = async () => {
     name: 'flashcardLearn',
     query: {
       source: 'flashcard-list',
-      title: 'Danh sách Flashcard',
-      description: `${totalItems.value} thẻ từ danh sách của bạn`
+      title: t('flashcard.list'),
+      description: t('flashcard.itemsFromList', { count: totalItems.value })
     }
   });
 }

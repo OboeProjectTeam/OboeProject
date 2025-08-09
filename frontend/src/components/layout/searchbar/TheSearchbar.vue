@@ -5,12 +5,12 @@
       v-model="searchQuery"
       @input="onSearch"
       @click="clearSearch"
-      :placeholder="placeholder"
+      :placeholder="computedPlaceholder"
     />
     <ul v-if="searchResults.length && showSuggestions" class="suggestions">
       <li v-if="isLoading" class="suggestion-item loading">
         <i class="fas fa-spinner fa-spin"></i>
-        Đang tìm kiếm...
+        {{ t('common.searching') }}
       </li>
       <li
         v-else
@@ -33,13 +33,20 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import api from '@/api'
+
+const { t } = useI18n()
 
 const props = defineProps({
   placeholder: {
     type: String,
-    default: 'Tìm kiếm...'
+    default: ''
   }
+})
+
+const computedPlaceholder = computed(() => {
+  return props.placeholder || t('search.placeholder')
 })
 
 const router = useRouter()
@@ -62,10 +69,10 @@ const isSentence = computed(() => activeIndex.value === 3)
 // Map activeIndex to API search type
 const getSearchType = () => {
   switch (activeIndex.value) {
-    case 0: return 'vocabulary'  // Từ Vựng
-    case 1: return 'kanji'       // Hán Tự
-    case 2: return 'grammar'     // Ngữ Pháp
-    case 3: return 'sentence'    // Mẫu câu
+    case 0: return 'vocabulary'  // Vocabulary
+    case 1: return 'kanji'       // Kanji
+    case 2: return 'grammar'     // Grammar
+    case 3: return 'sentence'    // Sentences
     default: return 'vocabulary'
   }
 }

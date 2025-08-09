@@ -7,9 +7,8 @@ export default {
 
   // State: lưu trữ dữ liệu cho phần chân trang (footer)
   state: () => ({
-    ListInfor: FOOTER.CONTACT_INFO,
+    // Keep social links from constants as they don't need translation
     ListCNC: FOOTER.SOCIAL_LINKS,
-    ListServies: FOOTER.SERVICES,
   }),
 
   // Các mutation để cập nhật dữ liệu nếu cần
@@ -27,8 +26,6 @@ export default {
 
   // Các getter để lấy dữ liệu từ state
   getters: {
-    ListInfor: (state) => state.ListInfor,
     ListCNC: (state) => state.ListCNC,
-    ListServies: (state) => state.ListServies,
   },
 };

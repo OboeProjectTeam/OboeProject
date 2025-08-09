@@ -2,21 +2,21 @@
   <div class="create-post-container">
     <div class="create-post-card">
       <div class="card-header">
-        <h1>Tạo bài viết mới</h1>
-        <p>Chia sẻ kiến thức và câu hỏi của  với cộng đồng</p>
+        <h1>{{ t('createForumPost.title') }}</h1>
+        <p>{{ t('createForumPost.subtitle') }}</p>
       </div>
       <div class="card-body">
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label for="post-title">Tiêu đề</label>
-            <input type="text" id="post-title" v-model="postTitle" placeholder="Nhập tiêu đề hấp dẫn cho bài viết của ...">
+            <label for="post-title">{{ t('createForumPost.titleLabel') }}</label>
+            <input type="text" id="post-title" v-model="postTitle" :placeholder="t('createForumPost.titlePlaceholder')">
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="post-category">Chuyên mục</label>
+              <label for="post-category">{{ t('createForumPost.categoryLabel') }}</label>
               <div class="custom-select-wrapper">
                 <select id="post-category" v-model="selectedCategory">
-                  <option value="" disabled>-- Chọn một chuyên mục --</option>
+                  <option value="" disabled>{{ t('createForumPost.categoryPlaceholder') }}</option>
                   <option v-for="category in categories" :key="category.id" :value="category.id">
                     {{ category.name }}
                   </option>
@@ -24,10 +24,10 @@
               </div>
             </div>
             <div class="form-group">
-              <label>Thẻ</label>
+              <label>{{ t('createForumPost.tagsLabel') }}</label>
               <div class="tags-input-container" ref="tagsContainerRef">
                 <div class="tags-input-trigger" @click="isTagDropdownActive = !isTagDropdownActive" :class="{ 'is-active': isTagDropdownActive }">
-                  <span v-if="selectedTags.length === 0" class="placeholder">Thêm hoặc chọn thẻ...</span>
+                  <span v-if="selectedTags.length === 0" class="placeholder">{{ t('createForumPost.tagsPlaceholder') }}</span>
                   <div v-else class="selected-tags-pills">
                     <span v-for="(tag, index) in selectedTags" :key="index" class="tag-pill is-compact">
                       {{ tag }}
@@ -42,7 +42,7 @@
                       ref="tagInputRef"
                       type="text"
                       v-model="tagSearch"
-                      placeholder="Tìm kiếm..."
+                      :placeholder="t('createForumPost.searchPlaceholder')"
                       @keydown.enter.prevent="addTagFromInput"
                       @keydown.backspace="removeLastTag"
                     />
@@ -52,10 +52,10 @@
                       {{ tag }}
                     </li>
                      <li v-if="canAddNewTag" class="add-new-tag" @mousedown.prevent="addTag(tagSearch)">
-                      Thêm thẻ mới: <strong>"{{ tagSearch }}"</strong>
+                      {{ t('createForumPost.addNewTag') }} <strong>"{{ tagSearch }}"</strong>
                     </li>
                     <li v-if="filteredTags.length === 0 && !canAddNewTag" class="no-results">
-                      Không tìm thấy thẻ.
+                      {{ t('createForumPost.noTagsFound') }}
                     </li>
                   </ul>
                 </div>
@@ -63,17 +63,17 @@
             </div>
           </div>
           <div class="form-group">
-            <label for="post-content">Nội dung</label>
-            <textarea id="post-content" v-model="postContent" rows="12" placeholder="Viết nội dung chi tiết ở đây.  có thể sử dụng markdown để định dạng."></textarea>
+            <label for="post-content">{{ t('createForumPost.contentLabel') }}</label>
+            <textarea id="post-content" v-model="postContent" rows="12" :placeholder="t('createForumPost.contentPlaceholder')"></textarea>
           </div>
            <div class="form-actions">
-            <button type="button" class="btn btn-secondary" @click="goBackToForum" :disabled="isSubmitting">Hủy</button>
+            <button type="button" class="btn btn-secondary" @click="goBackToForum" :disabled="isSubmitting">{{ t('createForumPost.cancel') }}</button>
             <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting">
-                <i class="fas fa-spinner fa-spin"></i> Đang đăng...
+                <i class="fas fa-spinner fa-spin"></i> {{ t('createForumPost.posting') }}
               </span>
               <span v-else>
-                <i class="fas fa-paper-plane"></i> Đăng bài
+                <i class="fas fa-paper-plane"></i> {{ t('createForumPost.post') }}
               </span>
             </button>
           </div>
@@ -87,10 +87,12 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import blogApi from '@/api/modules/blogApi';
 
 const router = useRouter();
 const store = useStore();
+const { t } = useI18n();
 
 // --- STATE ---
 const postTitle = ref('');
@@ -107,20 +109,23 @@ const isSubmitting = ref(false);
 const currentUser = computed(() => store.state.auth.user);
 
 // --- DATA ---
-const categories = ref([
-  { id: 'word', name: 'Từ vựng' },
-  { id: 'kanji', name: 'Học Kanji' },
-  { id: 'grammar', name: 'Ngữ pháp' },
-  { id: 'jlpt', name: 'Luyện thi JLPT' },
-  { id: 'communication', name: 'Giao tiếp' },
-  { id: 'life-in-japan', name: 'Cuộc sống tại Nhật' },
-  { id: 'other', name: 'Chủ đề khác' }
+const categories = computed(() => [
+  { id: 'word', name: t('createForumPost.categories.word') },
+  { id: 'kanji', name: t('createForumPost.categories.kanji') },
+  { id: 'grammar', name: t('createForumPost.categories.grammar') },
+  { id: 'jlpt', name: t('createForumPost.categories.jlpt') },
+  { id: 'communication', name: t('createForumPost.categories.communication') },
+  { id: 'life-in-japan', name: t('createForumPost.categories.life-in-japan') },
+  { id: 'other', name: t('createForumPost.categories.other') }
 ]);
 
-const allTags = ref([
-    'kanji', 'jlpt', 'ngữ pháp', 'giao tiếp', 'tự học', 'N2', 'N3', 
-    'anime', 'review', 'luyện nghe', 'tài liệu', 'trợ từ', 'shadowing',
-    'phát âm', 'lỗi sai', 'sách', 'người mới bắt đầu'
+const allTags = computed(() => [
+    'kanji', 'jlpt', t('createForumPost.tags.grammar'), t('createForumPost.tags.communication'), 
+    t('createForumPost.tags.selfStudy'), 'N2', 'N3', 'anime', 'review', 
+    t('createForumPost.tags.listening'), t('createForumPost.tags.materials'), 
+    t('createForumPost.tags.particles'), 'shadowing', t('createForumPost.tags.pronunciation'), 
+    t('createForumPost.tags.mistakes'), t('createForumPost.tags.books'), 
+    t('createForumPost.tags.beginner')
 ]);
 
 // --- COMPUTED ---
@@ -205,7 +210,7 @@ const handleSubmit = async (event) => {
   if (!postTitle.value || !postContent.value || !selectedCategory.value) {
     store.dispatch('showMessage', {
       type: 'error',
-      text: 'Vui lòng điền đầy đủ thông tin bài viết'
+      text: t('createForumPost.fillAllFields')
     });
     return;
   }
@@ -214,7 +219,7 @@ const handleSubmit = async (event) => {
   if (!currentUser.value) {
     store.dispatch('showMessage', {
       type: 'error',
-      text: 'Bạn cần đăng nhập để tạo bài viết'
+      text: t('createForumPost.loginRequired')
     });
     router.push('/login');
     return;
@@ -244,7 +249,7 @@ const handleSubmit = async (event) => {
     // Show success message
     store.dispatch('showMessage', {
       type: 'success',
-      text: response.message || 'Bài viết đã được tạo thành công!'
+      text: response.message || t('createForumPost.createSuccess')
     });
 
     // Navigate to the newly created post detail page
@@ -254,7 +259,7 @@ const handleSubmit = async (event) => {
     console.error('Error creating blog post:', error);
     
     // Handle different error scenarios
-    let errorMessage = 'Có lỗi xảy ra khi tạo bài viết. Vui lòng thử lại sau.';
+    let errorMessage = t('createForumPost.createError');
     
     if (error.message) {
       errorMessage = error.message;
@@ -273,4 +278,4 @@ const handleSubmit = async (event) => {
 
 <style lang="scss" scoped>
 @use '@/views/forum/forum-post-create/CreateForumPost.scss';
-</style> 
+</style>

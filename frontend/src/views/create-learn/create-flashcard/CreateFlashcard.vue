@@ -3,68 +3,68 @@
     <div class="header-section">
       <button v-if="fromLearningPage" class="back-btn" @click="goBackToLearning">
         <i class="fas fa-arrow-left"></i>
-        Quay lại Trang Học
+        {{ t('createFlashcard.backToLearning') }}
       </button>
       <div class="flex-jsb">
-        <h1>{{ isEditing ? 'Chỉnh sửa Bộ Thẻ Ghi Nhớ' : 'Tạo Bộ Thẻ Ghi Nhớ Mới' }}</h1>
+        <h1>{{ isEditing ? t('createFlashcard.editTitle') : t('createFlashcard.createTitle') }}</h1>
       </div>
     </div>
     <div class="form-container">
       <div class="form-group">
-        <label>Tên bộ thẻ <span class="required">*</span></label>
-        <input v-model="title" type="text" placeholder="Nhập tên bộ thẻ..." :class="{ 'error': showError && !title }" />
+        <label>{{ t('createFlashcard.nameLabel') }} <span class="required">{{ t('createFlashcard.required') }}</span></label>
+        <input v-model="title" type="text" :placeholder="t('createFlashcard.namePlaceholder')" :class="{ 'error': showError && !title }" />
         <span v-if="showError && !title" class="error-message">
-          Vui lòng nhập tên bộ thẻ
+          {{ t('createFlashcard.nameRequired') }}
         </span>
       </div>
       <div class="form-group">
-        <label>Mô tả</label>
-        <textarea v-model="description" placeholder="Nhập mô tả về bộ thẻ..."></textarea>
+        <label>{{ t('createFlashcard.descriptionLabel') }}</label>
+        <textarea v-model="description" :placeholder="t('createFlashcard.descriptionPlaceholder')"></textarea>
       </div>
 
       <div class="import-section" v-if="showImport">
-        <h2>Nhập dữ liệu</h2>
-        <p class="import-instruction">Chép và dán dữ liệu ở đây (từ Word, Excel, Google Docs, v.v)</p>
+        <h2>{{ t('createFlashcard.importData') }}</h2>
+        <p class="import-instruction">{{ t('createFlashcard.importInstruction') }}</p>
         <div class="separator-options">
           <div class="separator-group">
-            <label>Giữa thuật ngữ và định nghĩa</label>
+            <label>{{ t('createFlashcard.termSeparator') }}</label>
             <div class="radio-group">
               <label class="radio-label">
                 <input type="radio" v-model="termSeparator" value="tab">
-                Tab
+                {{ t('createFlashcard.tab') }}
               </label>
               <label class="radio-label">
                 <input type="radio" v-model="termSeparator" value="comma">
-                Phẩy
+                {{ t('createFlashcard.comma') }}
               </label>
               <label class="radio-label">
                 <input type="radio" v-model="termSeparator" value="custom">
-                Tùy chỉnh
+                {{ t('createFlashcard.custom') }}
               </label>
               <input v-if="termSeparator === 'custom'" v-model="customTermSeparator" type="text"
-                class="custom-separator-input" placeholder="Nhập ký tự phân cách..." />
+                class="custom-separator-input" :placeholder="t('createFlashcard.customSeparatorPlaceholder')" />
             </div>
           </div>
           <div class="separator-group">
-            <label>Giữa các thẻ</label>
+            <label>{{ t('createFlashcard.cardSeparator') }}</label>
             <div class="radio-group">
               <label class="radio-label">
                 <input type="radio" v-model="cardSeparator" value="newline">
-                Dòng mới
+                {{ t('createFlashcard.newline') }}
               </label>
               <label class="radio-label">
                 <input type="radio" v-model="cardSeparator" value="custom">
-                Tùy chỉnh
+                {{ t('createFlashcard.custom') }}
               </label>
               <input v-if="cardSeparator === 'custom'" v-model="customCardSeparator" type="text"
-                class="custom-separator-input" placeholder="Nhập ký tự phân cách..." />
+                class="custom-separator-input" :placeholder="t('createFlashcard.customSeparatorPlaceholder')" />
             </div>
           </div>
         </div>
         <textarea v-model="importText" class="import-textarea"
           placeholder="Từ 1&#9;Định nghĩa 1&#10;Từ 2&#9;Định nghĩa 2&#10;Từ 3&#9;Định nghĩa 3"></textarea>
         <div class="preview-section" v-if="importText">
-          <h3>Xem trước</h3>
+          <h3>{{ t('createFlashcard.preview') }}</h3>
           <div class="preview-cards">
             <div v-for="(preview, index) in previewCards" :key="index" class="preview-card">
               <div class="preview-content">
@@ -75,38 +75,38 @@
           </div>
         </div>
         <div class="import-actions">
-          <button @click="processImport" class="import-btn" :disabled="!importText">Nhập</button>
-          <button @click="cancelImport" class="cancel-btn">Hủy nhập</button>
+          <button @click="processImport" class="import-btn" :disabled="!importText">{{ t('createFlashcard.import') }}</button>
+          <button @click="cancelImport" class="cancel-btn">{{ t('createFlashcard.cancelImport') }}</button>
         </div>
       </div>
 
       <div class="cards-container" v-else>
         <div class="cards-header">
-          <h2>Thẻ ghi nhớ</h2>
+          <h2>{{ t('createFlashcard.flashcards') }}</h2>
           <button @click="showImportSection" class="import-toggle-btn">
             <i class="fas fa-file-import"></i>
-            Nhập dữ liệu
+            {{ t('createFlashcard.importData') }}
           </button>
         </div>
         <div v-for="(card, index) in cards" :key="index" class="card-item">
           <div class="card-header">
-            <span>Thẻ {{ index + 1 }}</span>
+            <span>{{ t('createFlashcard.card') }} {{ index + 1 }}</span>
             <button @click="removeCard(index)" class="remove-btn">
               <i class="fas fa-trash"></i>
             </button>
           </div>
           <div class="card-content">
-            <input v-model="card.front" type="text" placeholder="Mặt trước..." />
-            <input v-model="card.back" type="text" placeholder="Mặt sau..." />
+            <input v-model="card.front" type="text" :placeholder="t('createFlashcard.frontPlaceholder')" />
+            <input v-model="card.back" type="text" :placeholder="t('createFlashcard.backPlaceholder')" />
           </div>
         </div>
         <button @click="addCard" class="add-card-btn">
           <i class="fas fa-plus"></i>
-          Thêm thẻ
+          {{ t('createFlashcard.addCard') }}
         </button>
       </div>
       <div class="form-actions">
-        <button @click="saveFlashcard" class="save-btn">Lưu bộ thẻ</button>
+        <button @click="saveFlashcard" class="save-btn">{{ t('createFlashcard.saveFlashcard') }}</button>
       </div>
     </div>
   </div>
@@ -116,11 +116,13 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 import flashcardApi from '@/api/modules/flashcardApi'
 
 const router = useRouter()
 const route = useRoute()
 const store = useStore()
+const { t } = useI18n()
 
 const STORAGE_KEY = 'flashcard_draft'
 const AUTO_SAVE_DELAY = 1000 // 1 second
@@ -319,7 +321,7 @@ const saveFlashcard = async () => {
   if (validCards.length === 0) {
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Vui lòng thêm ít nhất một thẻ ghi nhớ với đầy đủ nội dung.'
+      text: t('createFlashcard.addCardError')
     });
     return;
   }
@@ -352,7 +354,7 @@ const saveFlashcard = async () => {
     // Show success message
     store.dispatch('message/showMessage', {
       type: 'success',
-      text: isEditing.value ? 'Cập nhật bộ thẻ thành công!' : 'Tạo bộ thẻ thành công!'
+      text: isEditing.value ? t('createFlashcard.updateSuccess') : t('createFlashcard.createSuccess')
     });
 
     // Clean up storage
@@ -391,7 +393,7 @@ const saveFlashcard = async () => {
     console.error('Error saving flashcard:', error);
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Đã có lỗi xảy ra khi lưu bộ thẻ: ' + error.message
+      text: t('createFlashcard.saveError') + error.message
     });
   }
 }

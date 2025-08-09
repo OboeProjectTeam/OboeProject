@@ -6,13 +6,14 @@
     mainField="japaneseText"
     readingField=""
     meaningField="vietnameseMeaning"
-    notFoundMessage="Không tìm thấy câu mẫu"
+    :notFoundMessage="t('sentenceDetail.notFound')"
   />
 </template>
 
 <script>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
 import sampleSentenceApi from '@/api/modules/sampleSentenceApi';
 
@@ -22,6 +23,7 @@ export default {
     DetailPage
   },
   setup() {
+    const { t } = useI18n();
     const route = useRoute();
     const sentenceId = ref(route.params.id);
     const sentenceData = ref(null);
@@ -60,6 +62,7 @@ export default {
     );
 
     return {
+      t,
       sentenceData,
       sentenceId,
       isLoading

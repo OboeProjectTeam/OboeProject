@@ -12,7 +12,7 @@
           <ExitTestButton @exit="confirmExitToLearn" v-if="!showFinalResults" />
         </div>
       </div>
-      <p class="progress-text">Câu {{ currentQuestionIndex + 1 }}/{{ totalQuestions }}</p>
+      <p class="progress-text">{{ t('flashcardTest.questionProgress', { current: currentQuestionIndex + 1, total: totalQuestions }) }}</p>
     </div>
 
     <!-- Progress Bar -->
@@ -50,7 +50,7 @@
         <div class="written-answer">
           <textarea
             v-model="writtenAnswer"
-            placeholder="Nhập câu trả lời của ..."
+            :placeholder="t('flashcardTest.enterAnswer', { question: currentQuestion.question })"
             :disabled="showResults"
           ></textarea>
         </div>
@@ -71,7 +71,7 @@
             :disabled="showResults"
           >
             <i class="fas fa-check"></i>
-            Đúng
+            {{ t('flashcardTest.correct') }}
           </button>
           <button
             class="true-false-button"
@@ -84,7 +84,7 @@
             :disabled="showResults"
           >
             <i class="fas fa-times"></i>
-            Sai
+            {{ t('flashcardTest.incorrect') }}
           </button>
         </div>
       </div>
@@ -94,16 +94,16 @@
     <div class="action-buttons">
       <button class="secondary-button" @click="previousQuestion" :disabled="currentQuestionIndex === 0">
         <i class="fas fa-arrow-left"></i>
-        Câu trước
+        {{ t('flashcardTest.previousQuestion') }}
       </button>
       
       <button v-if="!showResults" class="primary-button" @click="submitAnswer" :disabled="!canSubmit">
-        {{ isLastQuestion ? 'Nộp bài' : 'Câu tiếp theo' }}
+        {{ isLastQuestion ? t('flashcardTest.submitTest') : t('flashcardTest.nextQuestion') }}
         <i class="fas" :class="isLastQuestion ? 'fa-check' : 'fa-arrow-right'"></i>
       </button>
       
       <button v-else class="primary-button" @click="nextQuestion" :disabled="(isLastQuestion && !isReviewing) || isShowingAnswer">
-        {{ (isLastQuestion && isReviewing) ? 'Xem kết quả' : 'Câu tiếp theo' }}
+        {{ (isLastQuestion && isReviewing) ? t('flashcardTest.viewResults') : t('flashcardTest.nextQuestion') }}
         <i class="fas" :class="(isLastQuestion && isReviewing) ? 'fa-poll' : 'fa-arrow-right'"></i>
       </button>
     </div>
@@ -114,20 +114,20 @@
       <div class="results-content">
         <div class="results-header">
           <img :src="ImagePaths.learn.celebration" alt="Celebration" class="celebration-image" />
-          <h2>Chúc mừng!  đã hoàn thành bài kiểm tra</h2>
+          <h2>{{ t('flashcardTest.congratulations') }}</h2>
         </div>
 
         <div class="results-stats">
           <div class="stat-item">
-            <div class="stat-label">Điểm số</div>
+            <div class="stat-label">{{ t('flashcardTest.score') }}</div>
             <div class="stat-value" >{{ score }}/{{ totalQuestions }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Thời gian</div>
+            <div class="stat-label">{{ t('flashcardTest.time') }}</div>
             <div class="stat-value">{{ formatTime(totalTime) }}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">Độ chính xác</div>
+            <div class="stat-label">{{ t('flashcardTest.accuracy') }}</div>
             <div class="stat-value" v-if="!isAIGenerated || !aiEvaluationResult">{{ accuracy }}%</div>
             <div class="stat-value" v-else>{{ Math.round((aiEvaluationResult.results.filter(r => r.correct).length / aiEvaluationResult.results.length) * 100) }}%</div>
           </div>
@@ -144,8 +144,8 @@
             </div>
           </div>
           <div class="loading-text">
-            <h3><i class="fas fa-robot"></i> Oboe Sensei đang chấm bài của bạn</h3>
-            <p class="loading-message">Vui lòng chờ trong giây lát...</p>
+            <h3><i class="fas fa-robot"></i> {{ t('flashcardTest.aiGrading') }}</h3>
+            <p class="loading-message">{{ t('flashcardTest.pleaseWait') }}</p>
             <div class="progress-bar-loading">
               <div class="progress-fill"></div>
             </div>
@@ -154,7 +154,7 @@
 
         <!-- AI Comment Section -->
         <div v-if="isAIGenerated && aiEvaluationResult && aiEvaluationResult.comment" class="ai-comment-section">
-          <h3><i class="fas fa-robot"></i> Lời khuyên từ Oboe Sensei</h3>
+          <h3><i class="fas fa-robot"></i> {{ t('flashcardTest.aiAdvice') }}</h3>
           <div class="ai-comment-content">
             <p>{{ aiEvaluationResult.comment }}</p>
           </div>
@@ -162,7 +162,7 @@
   
         <!-- AI Detailed Results -->
         <div v-if="isAIGenerated && aiEvaluationResult && aiEvaluationResult.results" class="ai-detailed-results">
-          <h4><i class="fas fa-list"></i> Chi tiết từng câu hỏi</h4>
+          <h4><i class="fas fa-list"></i> {{ t('flashcardTest.questionDetails') }}</h4>
           <div class="ai-results-list">
             <div 
               v-for="(result, index) in aiEvaluationResult.results" 
@@ -171,10 +171,10 @@
               :class="{ correct: result.correct, incorrect: !result.correct }"
             >
               <div class="result-header">
-                <span class="question-number">Câu {{ index + 1 }}</span>
+                <span class="question-number">{{ t('flashcardTest.question') }} {{ index + 1 }}</span>
                 <span class="result-status">
                   <i :class="result.correct ? 'fas fa-check' : 'fas fa-times'"></i>
-                  {{ result.correct ? 'Đúng' : 'Sai' }}
+                  {{ result.correct ? t('flashcardTest.correct') : t('flashcardTest.incorrect') }}
                 </span>
               </div>
               <div class="result-feedback">{{ result.feedback }}</div>
@@ -186,11 +186,11 @@
           <div class="results-actions-row">
             <button class="secondary-button" @click="reviewAnswers">
               <i class="fas fa-search"></i>
-              Xem lại đáp án
+              {{ t('flashcardTest.reviewAnswer') }}
             </button>
             <button class="secondary-button" @click="retakeTest">
               <i class="fas fa-redo"></i>
-              Làm lại kiểm tra 
+              {{ t('flashcardTest.retakeTest') }}
             </button>
           </div>
           <!-- Button thêm vào thư viện chỉ hiển thị cho AI-generated quiz -->
@@ -203,12 +203,12 @@
               <i v-if="isAddingToLibrary" class="fas fa-spinner fa-spin"></i>
               <i v-else-if="isAddedToLibrary" class="fas fa-check"></i>
               <i v-else class="fas fa-plus"></i>
-              {{ isAddingToLibrary ? 'Đang thêm...' : (isAddedToLibrary ? 'Đã thêm vào thư viện' : 'Thêm vào thư viện của bạn') }}
+              {{ isAddingToLibrary ? t('flashcardTest.adding') : (isAddedToLibrary ? t('flashcardTest.addedToLibrary') : t('flashcardTest.addToLibrary')) }}
             </button>
           </div>
           <button class="primary-button full-width-button" @click="returnToLearn">
             <i class="fas fa-graduation-cap"></i>
-            Học Lại
+            {{ t('flashcardTest.learnAgain') }}
           </button>
         </div>
       </div>
@@ -221,6 +221,7 @@ import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import ExitTestButton from '@/components/layout/button-exit/ExitTestButton.vue';
 import aiApi from '@/api/modules/aiApi';
 import questionApi from '@/api/modules/questionApi';
@@ -228,6 +229,7 @@ import questionApi from '@/api/modules/questionApi';
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
+const { t } = useI18n();
 
 // State
 const testType = ref('');
@@ -276,7 +278,7 @@ const loadUserAnswerForCurrentQuestion = () => {
         console.warn('Could not load multiple-choice answer: options not found for question', currentQuestionIndex.value);
       }
     } else if (testType.value === 'true-false') {
-      selectedAnswer.value = answerRecord.userAnswer === 'Đúng';
+      selectedAnswer.value = answerRecord.userAnswer === t('flashcardTest.correct');
     }
 
   } else {
@@ -443,7 +445,7 @@ const initializeTest = () => {
         if (otherAnswers.length > 0) {
           wrongAnswer = otherAnswers[Math.floor(Math.random() * otherAnswers.length)];
         } else {
-          wrongAnswer = 'Không có đáp án';
+          wrongAnswer = t('flashcardTest.noAnswer');
         }
 
         return {
@@ -569,13 +571,13 @@ watch(() => route.query, (newQuery, oldQuery) => {
 const testTypeTitle = computed(() => {
   switch (testType.value) {
     case 'multiple-choice':
-      return 'Bài kiểm tra trắc nghiệm';
+      return t('flashcardTest.multipleChoiceTestTitle');
     case 'written':
-      return 'Bài kiểm tra tự luận';
+      return t('flashcardTest.writtenTestTitle');
     case 'true-false':
-      return 'Bài kiểm tra đúng sai';
+      return t('flashcardTest.trueFalseTestTitle');
     default:
-      return 'Bài kiểm tra';
+      return t('flashcardTest.defaultTestTitle');
   }
 });
 
@@ -636,8 +638,8 @@ const submitAnswer = () => {
       isCorrect = selectedAnswer.value === currentQ.correctAnswer;
       answers.value.push({
         question: currentQ.question,
-        userAnswer: selectedAnswer.value ? 'Đúng' : 'Sai',
-        correctAnswer: currentQ.correctAnswer ? 'Đúng' : 'Sai',
+        userAnswer: selectedAnswer.value ? t('flashcardTest.correct') : t('flashcardTest.incorrect'),
+        correctAnswer: currentQ.correctAnswer ? t('flashcardTest.correct') : t('flashcardTest.incorrect'),
         isCorrect
       });
       break;
@@ -745,8 +747,8 @@ const evaluateWithAI = async () => {
 const saveTestToHistory = async () => {
   try {
     const testData = {
-      title: `${testTypeTitle.value} (Lúc ${new Date().toLocaleTimeString('vi-VN')})`,
-      description: `Kết quả: ${score.value}/${totalQuestions.value}`,
+      title: `${testTypeTitle.value} ${t('flashcardTest.testHistoryTitle', { time: new Date().toLocaleTimeString('vi-VN') })}`,
+      description: t('flashcardTest.testHistoryDescription', { score: score.value, total: totalQuestions.value }),
       questions: questions.value,
       answers: answers.value,
       score: score.value,
@@ -826,22 +828,22 @@ const addToLibrary = async () => {
     if (!isAuthenticated) {
       store.dispatch('message/showMessage', {
         type: 'error',
-        text: 'Bạn cần đăng nhập để thêm vào thư viện!'
+        text: t('flashcardTest.loginRequiredToAddLibrary')
       });
       return;
     }
     
     // Tạo dữ liệu quiz từ questions hiện tại
     const quizData = {
-      title: route.query.title || 'Bài kiểm tra AI',
-      description: route.query.description || `Bài kiểm tra gồm ${questions.value.length} câu hỏi được tạo bằng AI`
+      title: route.query.title || t('flashcardTest.aiTestTitle'),
+      description: route.query.description || t('flashcardTest.aiTestDescription', { count: questions.value.length })
     };
     
     // Gọi API tạo quiz
     const response = await store.dispatch('quiz/createQuiz', quizData);
     
     if (!response || !response.quizzesID) {
-      throw new Error('Không thể tạo quiz - response không hợp lệ');
+      throw new Error(t('flashcardTest.createQuizError'));
     }
     
     // Tạo danh sách câu hỏi cho quiz (backend nhận List<QuestionDTO>)
@@ -875,7 +877,7 @@ const addToLibrary = async () => {
     // Hiển thị thông báo thành công
     store.dispatch('message/showMessage', {
       type: 'success',
-      text: `Đã thêm bài kiểm tra với ${successCount} câu hỏi vào thư viện của bạn!`
+      text: t('flashcardTest.addedToLibrarySuccess', { count: successCount })
     });
     
     // Đánh dấu đã thêm vào thư viện thành công
@@ -885,7 +887,7 @@ const addToLibrary = async () => {
     console.error('Error adding quiz to library:', error);
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Đã có lỗi xảy ra khi thêm vào thư viện: ' + (error.response?.data?.message || error.message)
+      text: t('flashcardTest.addToLibraryError') + (error.response?.data?.message || error.message)
     });
   } finally {
     isAddingToLibrary.value = false;

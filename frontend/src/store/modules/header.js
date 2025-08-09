@@ -2,7 +2,7 @@
 export default {
     namespaced: true,
     state: () => ({
-      options: ['Từ Vựng', 'Hán Tự', 'Ngữ Pháp', 'Mẫu câu'],
+      optionKeys: ['vocabulary', 'kanji', 'grammar', 'sentences'],
       activeIndex: 0,
     }),
     mutations: {
@@ -11,7 +11,7 @@ export default {
       },
     },
     getters: {
-      options: (state) => state.options,
+      optionKeys: (state) => state.optionKeys,
       activeIndex: (state) => state.activeIndex,
     },
   };

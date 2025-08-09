@@ -2,110 +2,110 @@
   <div class="terms-page">
     <div class="terms-container">
       <div class="terms-header">
-        <h1>Điều Khoản Dịch Vụ</h1>
-        <p class="last-updated">Cập nhật lần cuối: {{ lastUpdated }}</p>
+        <h1>{{ t('terms.title') }}</h1>
+        <p class="last-updated">{{ t('terms.lastUpdated') }}</p>
       </div>
 
       <div class="terms-content">
         <section class="terms-section">
-          <h2>1. Giới thiệu</h2>
-          <p>Chào mừng bạn đến với Oboe - Nền tảng học tiếng Nhật trực tuyến. Bằng việc truy cập và sử dụng dịch vụ của chúng tôi, bạn đồng ý tuân thủ các điều khoản và điều kiện này.</p>
-          <p>Oboe cung cấp các công cụ và tài nguyên học tập tiếng Nhật hiệu quả, bao gồm hệ thống flashcard, bài kiểm tra, và cộng đồng học tập.</p>
+          <h2>{{ t('terms.section1Title') }}</h2>
+          <p>{{ t('terms.section1Description1') }}</p>
+          <p>{{ t('terms.section1Description2') }}</p>
         </section>
 
         <section class="terms-section">
-          <h2>2. Tài khoản người dùng</h2>
+          <h2>{{ t('terms.section2Title') }}</h2>
           <div class="sub-section">
-            <h3>2.1. Đăng ký tài khoản</h3>
-            <p>Để sử dụng đầy đủ các tính năng của Oboe, bạn cần đăng ký tài khoản với thông tin chính xác và cập nhật.</p>
+            <h3>{{ t('terms.section2_1Title') }}</h3>
+            <p>{{ t('terms.section2_1Description') }}</p>
           </div>
           <div class="sub-section">
-            <h3>2.2. Bảo mật tài khoản</h3>
-            <p>Bạn có trách nhiệm:</p>
+            <h3>{{ t('terms.section2_2Title') }}</h3>
+            <p>{{ t('terms.section2_2Description') }}</p>
             <ul>
-              <li>Bảo mật thông tin đăng nhập của mình</li>
-              <li>Không chia sẻ tài khoản cho người khác</li>
-              <li>Thông báo ngay cho chúng tôi nếu phát hiện việc sử dụng trái phép</li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="terms-section">
-          <h2>3. Dịch vụ của chúng tôi</h2>
-          <div class="sub-section">
-            <h3>3.1. Học tập</h3>
-            <ul>
-              <li>Hệ thống flashcard học từ vựng và kanji</li>
-              <li>Bài kiểm tra và quiz đánh giá năng lực</li>
-              <li>Tài liệu học tập và ngữ pháp</li>
-              <li>Công cụ luyện tập và ôn tập</li>
-            </ul>
-          </div>
-          <div class="sub-section">
-            <h3>3.2. Cộng đồng</h3>
-            <ul>
-              <li>Diễn đàn thảo luận và trao đổi</li>
-              <li>Chia sẻ tài liệu học tập</li>
-              <li>Kết nối với người học khác</li>
+              <li>{{ t('terms.security1') }}</li>
+              <li>{{ t('terms.security2') }}</li>
+              <li>{{ t('terms.security3') }}</li>
             </ul>
           </div>
         </section>
 
         <section class="terms-section">
-          <h2>4. Quyền và trách nhiệm</h2>
+          <h2>{{ t('terms.section3Title') }}</h2>
           <div class="sub-section">
-            <h3>4.1. Quyền của người dùng</h3>
+            <h3>{{ t('terms.section3_1Title') }}</h3>
             <ul>
-              <li>Truy cập và sử dụng các tính năng theo gói dịch vụ</li>
-              <li>Nhận hỗ trợ kỹ thuật khi cần thiết</li>
-              <li>Yêu cầu xóa tài khoản và dữ liệu cá nhân</li>
+              <li>{{ t('terms.service1') }}</li>
+              <li>{{ t('terms.service2') }}</li>
+              <li>{{ t('terms.service3') }}</li>
+              <li>{{ t('terms.service4') }}</li>
             </ul>
           </div>
           <div class="sub-section">
-            <h3>4.2. Trách nhiệm của người dùng</h3>
+            <h3>{{ t('terms.section3_2Title') }}</h3>
             <ul>
-              <li>Tuân thủ quy tắc cộng đồng</li>
-              <li>Không chia sẻ nội dung vi phạm bản quyền</li>
-              <li>Tôn trọng quyền riêng tư của người khác</li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="terms-section">
-          <h2>5. Gói dịch vụ và thanh toán</h2>
-          <div class="sub-section">
-            <h3>5.1. Các gói dịch vụ</h3>
-            <ul>
-              <li>Gói miễn phí: Truy cập các tính năng cơ bản</li>
-              <li>Gói premium: Truy cập đầy đủ tính năng và nội dung độc quyền</li>
-            </ul>
-          </div>
-          <div class="sub-section">
-            <h3>5.2. Chính sách thanh toán</h3>
-            <ul>
-              <li>Thanh toán trước khi sử dụng gói premium</li>
-              <li>Không hoàn tiền cho thời gian không sử dụng</li>
-              <li>Tự động gia hạn theo chu kỳ đăng ký</li>
+              <li>{{ t('terms.community1') }}</li>
+              <li>{{ t('terms.community2') }}</li>
+              <li>{{ t('terms.community3') }}</li>
             </ul>
           </div>
         </section>
 
         <section class="terms-section">
-          <h2>6. Bảo mật thông tin</h2>
-          <p>Chúng tôi cam kết bảo vệ thông tin cá nhân của người dùng theo chính sách bảo mật của Oboe.</p>
+          <h2>{{ t('terms.section4Title') }}</h2>
+          <div class="sub-section">
+            <h3>{{ t('terms.section4_1Title') }}</h3>
+            <ul>
+              <li>{{ t('terms.userRight1') }}</li>
+              <li>{{ t('terms.userRight2') }}</li>
+              <li>{{ t('terms.userRight3') }}</li>
+            </ul>
+          </div>
+          <div class="sub-section">
+            <h3>{{ t('terms.section4_2Title') }}</h3>
+            <ul>
+              <li>{{ t('terms.userResponsibility1') }}</li>
+              <li>{{ t('terms.userResponsibility2') }}</li>
+              <li>{{ t('terms.userResponsibility3') }}</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="terms-section">
+          <h2>{{ t('terms.section5Title') }}</h2>
+          <div class="sub-section">
+            <h3>{{ t('terms.section5_1Title') }}</h3>
+            <ul>
+              <li>{{ t('terms.plan1') }}</li>
+              <li>{{ t('terms.plan2') }}</li>
+            </ul>
+          </div>
+          <div class="sub-section">
+            <h3>{{ t('terms.section5_2Title') }}</h3>
+            <ul>
+              <li>{{ t('terms.payment1') }}</li>
+              <li>{{ t('terms.payment2') }}</li>
+              <li>{{ t('terms.payment3') }}</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="terms-section">
+          <h2>{{ t('terms.section6Title') }}</h2>
+          <p>{{ t('terms.section6Description') }}</p>
           <ul>
-            <li>Không chia sẻ thông tin cá nhân cho bên thứ ba</li>
-            <li>Áp dụng các biện pháp bảo mật tiên tiến</li>
-            <li>Tuân thủ các quy định về bảo vệ dữ liệu</li>
+            <li>{{ t('terms.dataSecurity1') }}</li>
+            <li>{{ t('terms.dataSecurity2') }}</li>
+            <li>{{ t('terms.dataSecurity3') }}</li>
           </ul>
         </section>
 
         <section class="terms-section">
-          <h2>7. Điều khoản khác</h2>
+          <h2>{{ t('terms.section7Title') }}</h2>
           <ul>
-            <li>Chúng tôi có quyền thay đổi điều khoản mà không cần thông báo trước</li>
-            <li>Mọi tranh chấp sẽ được giải quyết theo luật pháp Việt Nam</li>
-            <li>Liên hệ bộ phận hỗ trợ khi có thắc mắc: bophanchamsoc@oboe.com</li>
+            <li>{{ t('terms.other1') }}</li>
+            <li>{{ t('terms.other2') }}</li>
+            <li>{{ t('terms.other3') }}</li>
           </ul>
         </section>
       </div>
@@ -115,10 +115,12 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const lastUpdated = ref('15/03/2024');
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/footer-services/terms/TheTerms.scss';
-</style> 
+</style>

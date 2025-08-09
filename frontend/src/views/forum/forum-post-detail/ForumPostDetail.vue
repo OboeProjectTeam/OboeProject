@@ -3,22 +3,22 @@
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
       <div class="spinner"></div>
-      <p>Đang tải bài viết...</p>
+      <p>{{ t('forumPostDetail.loading') }}</p>
     </div>
 
     <!-- Error State -->
     <div v-else-if="!isPostLoaded" class="error-state">
-      <p>Không tìm thấy bài viết hoặc đã có lỗi xảy ra.</p>
-      <button class="btn btn-primary" @click="goBackToForum">Quay lại diễn đàn</button>
+      <p>{{ t('forumPostDetail.notFound') }}</p>
+      <button class="btn btn-primary" @click="goBackToForum">{{ t('forumPostDetail.backToForum') }}</button>
     </div>
 
     <!-- Content State -->
     <template v-else>
       <!-- Breadcrumb -->
       <div class="breadcrumb">
-        <a href="#" @click.prevent="goBackToForum">Diễn đàn</a>
+        <a href="#" @click.prevent="goBackToForum">{{ t('forumPostDetail.forum') }}</a>
         <i class="fas fa-chevron-right separator"></i>
-        <span>Chi tiết bài viết</span>
+        <span>{{ t('forumPostDetail.postDetail') }}</span>
       </div>
 
       <!-- Post Header -->
@@ -51,18 +51,18 @@
               <template v-if="isPostOwner">
                 <button class="menu-item" @click="handleMenuItemClick('delete')">
                   <i class="fas fa-trash"></i>
-                  Xóa bài viết
+                  {{ t('forumPostDetail.deletePost') }}
                 </button>
                 <button class="menu-item" @click="handleMenuItemClick('update')">
                   <i class="fas fa-edit"></i>
-                  Sửa bài viết
+                  {{ t('forumPostDetail.editPost') }}
                 </button>
               </template>
               <!-- Options for other users -->
               <template v-else>
                 <button class="menu-item" @click="handleMenuItemClick('report')">
                   <i class="fas fa-flag"></i>
-                  Báo cáo bài viết
+                  {{ t('forumPostDetail.reportPost') }}
                 </button>
                 
               </template>
@@ -94,7 +94,7 @@
                 <i class="fas fa-robot"></i>
                 Oboe Sensei
               </h3>
-              <span class="sensei-badge">AI Giáo viên</span>
+              <span class="sensei-badge">{{ t('forumPostDetail.aiTeacher') }}</span>
             </div>
           </div>
           
@@ -135,7 +135,7 @@
         <!-- Comments Loading State -->
         <div v-if="commentsLoading" class="comments-loading">
           <div class="spinner"></div>
-          <p>Đang tải bình luận...</p>
+          <p>{{ t('forumPostDetail.loadingComments') }}</p>
         </div>
         
         <!-- No Comments State -->
@@ -185,21 +185,21 @@
                    <textarea 
                      v-model="replyContent[reply.id]"
                      class="reply-textarea" 
-                     :placeholder="`Viết trả lời cho ${reply.author.username}...`"
+                     :placeholder="t('forumPostDetail.replyTo', { username: reply.author.username })"
                      :disabled="isSubmittingReply[reply.id]"
                    ></textarea>
                    <div class="reply-form-actions">
-                     <button @click="replyingTo = null; replyContent[reply.id] = ''" class="btn btn-secondary cancel-reply-btn">Hủy</button>
+                     <button @click="replyingTo = null; replyContent[reply.id] = ''" class="btn btn-secondary cancel-reply-btn">{{ t('forumPostDetail.cancel') }}</button>
                      <button 
                        @click="submitReply(reply.id)"
                        class="btn btn-primary submit-reply-btn"
                        :disabled="isSubmittingReply[reply.id] || !replyContent[reply.id]?.trim()"
                      >
                        <span v-if="isSubmittingReply[reply.id]">
-                         <i class="fas fa-spinner fa-spin"></i> Đang gửi...
+                         <i class="fas fa-spinner fa-spin"></i> {{ t('forumPostDetail.sending') }}
                        </span>
                        <span v-else>
-                         Gửi trả lời
+                         {{ t('forumPostDetail.sendReply') }}
                        </span>
                      </button>
                    </div>
@@ -241,10 +241,10 @@
               :disabled="loadingMoreComments"
             >
               <span v-if="loadingMoreComments">
-                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                <i class="fas fa-spinner fa-spin"></i> {{ t('forumPostDetail.loading') }}
               </span>
               <span v-else>
-                <i class="fas fa-comment-dots"></i> Xem thêm bình luận
+                <i class="fas fa-comment-dots"></i> {{ t('forumPostDetail.loadMoreComments') }}
               </span>
             </button>
           </div>
@@ -254,12 +254,12 @@
 
        <!-- Add Reply Form -->
       <div class="add-reply-card" v-if="currentUser">
-        <h3 class="add-reply-header">Tham gia thảo luận</h3>
+        <h3 class="add-reply-header">{{ t('forumPostDetail.joinDiscussion') }}</h3>
         <div class="reply-form">
           <textarea 
             v-model="newCommentContent"
             class="reply-textarea" 
-            placeholder="Viết bình luận của bạn..."
+            :placeholder="t('forumPostDetail.writeComment')"
             :disabled="isSubmittingComment"
             rows="4"
           ></textarea>
@@ -269,10 +269,10 @@
             :disabled="isSubmittingComment || !newCommentContent.trim()"
           >
             <span v-if="isSubmittingComment">
-              <i class="fas fa-spinner fa-spin"></i> Đang gửi...
+              <i class="fas fa-spinner fa-spin"></i> {{ t('forumPostDetail.sending') }}
             </span>
             <span v-else>
-              <i class="fas fa-paper-plane"></i> Gửi trả lời
+              <i class="fas fa-paper-plane"></i> {{ t('forumPostDetail.sendReply') }}
             </span>
           </button>
         </div>
@@ -280,9 +280,9 @@
       
       <!-- Login prompt for non-authenticated users -->
       <div class="login-prompt" v-else>
-        <p>Bạn cần đăng nhập để có thể bình luận</p>
+        <p>{{ t('forumPostDetail.loginRequired') }}</p>
         <button @click="router.push('/login')" class="btn btn-primary">
-          Đăng nhập
+          {{ t('forumPostDetail.login') }}
         </button>
       </div>
     </template>
@@ -303,18 +303,18 @@
     <!-- Popup components -->
     <ThePopup
       v-if="showDeleteConfirm"
-      title="Xóa bài viết"
-      message="Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác."
-      confirmText="Xóa"
+      :title="t('forumPostDetail.deleteConfirmTitle')"
+      :message="t('forumPostDetail.deleteConfirmMessage')"
+      :confirmText="t('forumPostDetail.delete')"
       @confirm="handleDeletePost"
       @cancel="showDeleteConfirm = false"
     />
 
     <ThePopup
       v-if="showLockConfirm"
-      :title="isCommentsLocked ? 'Mở khóa bình luận' : 'Khóa bình luận'"
-      :message="isCommentsLocked ? 'Bạn có chắc chắn muốn mở khóa bình luận cho bài viết này?' : 'Bạn có chắc chắn muốn khóa bình luận cho bài viết này?'"
-      :confirmText="isCommentsLocked ? 'Mở khóa' : 'Khóa'"
+      :title="isCommentsLocked ? t('forumPostDetail.unlockComments') : t('forumPostDetail.lockComments')"
+      :message="isCommentsLocked ? t('forumPostDetail.unlockConfirmMessage') : t('forumPostDetail.lockConfirmMessage')"
+      :confirmText="isCommentsLocked ? t('forumPostDetail.unlock') : t('forumPostDetail.lock')"
       @confirm="handleToggleComments"
       @cancel="showLockConfirm = false"
     />
@@ -323,9 +323,9 @@
     <!-- Report Confirmation Popup -->
     <ThePopup
       v-if="showReportConfirm"
-      title="Xác nhận báo cáo"
-      message="Bạn có chắc chắn muốn gửi báo cáo này?"
-      confirmText="Gửi báo cáo"
+      :title="t('forumPostDetail.reportConfirmTitle')"
+      :message="t('forumPostDetail.reportConfirmMessage')"
+      :confirmText="t('forumPostDetail.submitReport')"
       @confirm="handleSubmitReport"
       @cancel="showReportConfirm = false"
       style="z-index: 10000;"
@@ -338,8 +338,8 @@
           <i class="fas fa-check-circle"></i>
         </div>
         <div class="success-text">
-          <h3>Báo cáo thành công!</h3>
-          <p>Cảm ơn bạn đã góp phần xây dựng cộng đồng tích cực</p>
+          <h3>{{ t('forumPostDetail.reportSuccess') }}</h3>
+          <p>{{ t('forumPostDetail.reportSuccessMessage') }}</p>
         </div>
       </div>
     </div>
@@ -348,7 +348,7 @@
     <div class="report-dialog" v-if="showReportDialog">
       <div class="report-dialog-content">
         <div class="dialog-header">
-          <h3>Báo cáo bài viết</h3>
+          <h3>{{ t('forumPostDetail.reportPostTitle') }}</h3>
           <button class="close-btn" @click="closeReportDialog">
             <i class="fas fa-times"></i>
           </button>
@@ -356,35 +356,35 @@
 
         <form @submit.prevent="validateAndConfirm" class="report-form">
           <div class="form-group">
-            <label>Loại vi phạm</label>
+            <label>{{ t('forumPostDetail.violationType') }}</label>
             <select v-model="reportData.type" required>
-              <option value="">Chọn loại vi phạm</option>
-              <option value="spam">Spam / Quảng cáo</option>
-              <option value="inappropriate">Nội dung không phù hợp</option>
-              <option value="harassment">Quấy rối / Xúc phạm</option>
-              <option value="copyright">Vi phạm bản quyền</option>
-              <option value="violence">Bạo lực / Nguy hiểm</option>
-              <option value="hate_speech">Phát ngôn thù ghét</option>
-              <option value="fake_news">Thông tin sai lệch</option>
-              <option value="other">Khác</option>
+              <option value="">{{ t('forumPostDetail.selectViolationType') }}</option>
+              <option value="spam">{{ t('forumPostDetail.spam') }}</option>
+              <option value="inappropriate">{{ t('forumPostDetail.inappropriate') }}</option>
+              <option value="harassment">{{ t('forumPostDetail.harassment') }}</option>
+              <option value="copyright">{{ t('forumPostDetail.copyright') }}</option>
+              <option value="violence">{{ t('forumPostDetail.violence') }}</option>
+              <option value="hate_speech">{{ t('forumPostDetail.hateSpeech') }}</option>
+              <option value="fake_news">{{ t('forumPostDetail.fakeNews') }}</option>
+              <option value="other">{{ t('forumPostDetail.other') }}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Mô tả chi tiết</label>
+            <label>{{ t('forumPostDetail.detailedDescription') }}</label>
             <textarea 
               v-model="reportData.reason"
               rows="4"
-              placeholder="Vui lòng mô tả chi tiết lý do báo cáo..."
+              :placeholder="t('forumPostDetail.reportPlaceholder')"
               required
             ></textarea>
           </div>
 
           <div class="form-actions">
             <button type="button" class="btn-cancel" @click="closeReportDialog">
-              Hủy
+              {{ t('forumPostDetail.cancel') }}
             </button>
             <button type="submit" class="btn-submit">
-              Tiếp tục
+              {{ t('forumPostDetail.continue') }}
             </button>
           </div>
         </form>
@@ -398,6 +398,7 @@ import { ImagePaths } from '@/assets/img/imagePaths';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import UserProfileCard from '@/components/layout/forum/profilecard/UserProfileCard.vue';
 import { useFloating, autoUpdate, offset } from '@floating-ui/vue';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
@@ -409,6 +410,7 @@ import aiRepApi from '@/api/modules/aiRepApi';
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
+const { t } = useI18n();
 const activeUserCard = ref(null);
 const showPostMenu = ref(false);
 const isCommentsLocked = ref(false);
@@ -724,16 +726,16 @@ const formatTimeAgo = (date) => {
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " năm trước";
+  if (interval > 1) return t('forum.timeAgo.years', { count: Math.floor(interval) });
   interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " tháng trước";
+  if (interval > 1) return t('forum.timeAgo.months', { count: Math.floor(interval) });
   interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " ngày trước";
+  if (interval > 1) return t('forum.timeAgo.days', { count: Math.floor(interval) });
   interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " giờ trước";
+  if (interval > 1) return t('forum.timeAgo.hours', { count: Math.floor(interval) });
   interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " phút trước";
-  return "Vài giây trước";
+  if (interval > 1) return t('forum.timeAgo.minutes', { count: Math.floor(interval) });
+  return t('forum.timeAgo.seconds');
 };
 
 

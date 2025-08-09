@@ -1,35 +1,35 @@
 <template>
   <div class="comment-section">
-    <h2>Bình luận & Góp ý</h2>
+    <h2>{{ t('comments.title') }}</h2>
     
     <!-- Form thêm bình luận -->
     <div class="comment-form">
       <textarea
         v-model="newComment"
-        placeholder="Nhập bình luận của bạn..."
+        :placeholder="t('comments.placeholder')"
         rows="3"
       ></textarea>
       <button @click="submitComment" :disabled="!newComment.trim() || isSubmitting">
         <i v-if="isSubmitting" class="fas fa-spinner"></i>
         <i v-else class="fas fa-paper-plane"></i>
-        {{ isSubmitting ? 'Đang gửi...' : 'Gửi bình luận' }}
+        {{ isSubmitting ? t('comments.submitting') : t('comments.submit') }}
       </button>
     </div>
 
     <!-- Danh sách bình luận -->
     <div class="comments-list">
       <div v-if="isLoading" class="loading">
-        Đang tải bình luận...
+        {{ t('comments.loadingComments') }}
       </div>
       <div v-else-if="comments.length === 0" class="no-comments">
-        Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
+        {{ t('comments.noComments') }}
       </div>
       <div v-else>
         <div v-for="comment in comments" :key="comment.commentId" class="comment-item">
           <div class="comment-header">
             <div class="user-info">
               <img :src="comment.avatarUrl || '/default-avatar.png'" alt="User avatar" class="avatar">
-              <span class="username">{{ comment.userName || 'Người dùng ẩn danh' }}</span>
+              <span class="username">{{ comment.userName || t('comments.anonymous') }}</span>
             </div>
             <span class="timestamp">{{ formatDate(comment.createdAt) }}</span>
           </div>
@@ -41,7 +41,7 @@
               <div class="comment-header">
                 <div class="user-info">
                   <img :src="reply.avatarUrl || '/default-avatar.png'" alt="User avatar" class="avatar">
-                  <span class="username">{{ reply.userName || 'Người dùng ẩn danh' }}</span>
+                  <span class="username">{{ reply.userName || t('comments.anonymous') }}</span>
                 </div>
                 <span class="timestamp">{{ formatDate(reply.createdAt) }}</span>
               </div>
@@ -55,7 +55,7 @@
           <button @click="loadMoreComments" :disabled="isLoadingMore">
             <i v-if="isLoadingMore" class="fas fa-spinner"></i>
             <i v-else class="fas fa-chevron-down"></i>
-            {{ isLoadingMore ? 'Đang tải...' : 'Xem thêm bình luận' }}
+            {{ isLoadingMore ? t('comments.loadingComments') : t('comments.loadMoreComments') }}
           </button>
         </div>
       </div>
@@ -65,7 +65,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import commentApi from '@/api/modules/commentApi'
+
+const { t } = useI18n()
 
 const props = defineProps({
   type: {
@@ -163,7 +166,7 @@ const submitComment = async () => {
     
     const commentData = {
       content: newComment.value.trim(),
-      title: 'Bình luận' // Add default title
+      title: t('comments.comment') // Add default title
     }
     
     await commentApi.createComment(props.itemId, commentData)
@@ -176,7 +179,7 @@ const submitComment = async () => {
     
   } catch (error) {
     console.error('Error submitting comment:', error)
-    alert('Có lỗi xảy ra khi gửi bình luận. Vui lòng thử lại.')
+    alert(t('comments.errorSubmitting'))
   } finally {
     isSubmitting.value = false
   }

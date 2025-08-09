@@ -1,8 +1,8 @@
 <template>
   <div class="contact-page">
     <div class="contact-header">
-      <h1 class="main-title">Liên Hệ Chúng Tôi</h1>
-      <p class="subtitle">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn 24/7</p>
+      <h1 class="main-title">{{ t('contact.title') }}</h1>
+      <p class="subtitle">{{ t('contact.subtitle') }}</p>
     </div>
 
     <div class="contact-content">
@@ -10,87 +10,87 @@
       <div class="contact-info">
         <div class="info-card">
           <i class="fas fa-phone-alt"></i>
-          <h3>Điện thoại</h3>
+          <h3>{{ t('contact.phone') }}</h3>
           <p>0775751954</p>
-          <p class="time">8:00 - 24:00 (Thứ 2 - Chủ nhật)</p>
+          <p class="time">{{ t('contact.phoneTime') }}</p>
         </div>
 
         <div class="info-card">
           <i class="fas fa-envelope"></i>
-          <h3>Email</h3>
+          <h3>{{ t('contact.email') }}</h3>
           <p>bophanchamsoc@oboe.com</p>
-          <p class="time">Phản hồi trong vòng 24h</p>
+          <p class="time">{{ t('contact.emailTime') }}</p>
         </div>
 
         <div class="info-card">
           <i class="fas fa-map-marker-alt"></i>
-          <h3>Địa chỉ</h3>
-          <p>Hoài Đức, Hà Nội, Việt Nam</p>
-          <p class="time">Văn phòng chính</p>
+          <h3>{{ t('contact.address') }}</h3>
+          <p>{{ t('contact.addressDetail') }}</p>
+          <p class="time">{{ t('contact.addressNote') }}</p>
         </div>
       </div>
 
       <!-- Contact Form -->
       <div class="contact-form">
-        <h2>Gửi tin nhắn cho chúng tôi</h2>
+        <h2>{{ t('contact.formTitle') }}</h2>
         <form @submit.prevent="submitForm">
           <div class="form-group">
-            <label for="name">Họ và tên</label>
+            <label for="name">{{ t('contact.nameLabel') }}</label>
             <input 
               type="text" 
               id="name" 
               v-model="formData.name"
-              placeholder="Nhập họ và tên của bạn"
+              :placeholder="t('contact.namePlaceholder')"
               required
             >
           </div>
 
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email">{{ t('contact.emailLabel') }}</label>
             <input 
               type="email" 
               id="email" 
               v-model="formData.email"
-              placeholder="Nhập địa chỉ email của bạn"
+              :placeholder="t('contact.emailPlaceholder')"
               required
             >
           </div>
 
           <div class="form-group">
-            <label for="title">Tiêu đề</label>
+            <label for="title">{{ t('contact.titleLabel') }}</label>
             <input 
               type="text" 
               id="title" 
               v-model="formData.title"
-              placeholder="Nhập tiêu đề tin nhắn"
+              :placeholder="t('contact.titlePlaceholder')"
               required
             >
           </div>
 
           <div class="form-group">
-            <label for="subject">Chủ đề</label>
+            <label for="subject">{{ t('contact.subjectLabel') }}</label>
             <select id="subject" v-model="formData.subject" required>
-              <option value="">Chọn chủ đề</option>
-              <option value="support">Hỗ trợ kỹ thuật</option>
-              <option value="billing">Vấn đề thanh toán</option>
-              <option value="feedback">Góp ý sản phẩm</option>
-              <option value="other">Khác</option>
+              <option value="">{{ t('contact.selectSubject') }}</option>
+              <option value="support">{{ t('contact.technicalSupport') }}</option>
+              <option value="billing">{{ t('contact.paymentIssue') }}</option>
+              <option value="feedback">{{ t('contact.productFeedback') }}</option>
+              <option value="other">{{ t('contact.other') }}</option>
             </select>
           </div>
 
           <div class="form-group">
-            <label for="message">Nội dung tin nhắn</label>
+            <label for="message">{{ t('contact.messageLabel') }}</label>
             <textarea 
               id="message" 
               v-model="formData.message"
               rows="5"
-              placeholder="Nhập nội dung tin nhắn của bạn"
+              :placeholder="t('contact.messagePlaceholder')"
               required
             ></textarea>
           </div>
 
           <button type="submit" class="submit-btn" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Đang gửi...' : 'Gửi tin nhắn' }}
+            {{ isSubmitting ? t('contact.sending') : t('contact.sendMessage') }}
           </button>
         </form>
       </div>
@@ -98,7 +98,7 @@
 
     <!-- Social Media Links -->
     <div class="social-links">
-      <h2>Kết nối với chúng tôi</h2>
+      <h2>{{ t('contact.connectWithUs') }}</h2>
       <div class="social-icons">
         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
           <i class="fab fa-facebook"></i>
@@ -118,9 +118,9 @@
     <!-- Success Popup -->
     <ThePopup
       v-if="showSuccessPopup"
-      title="Gửi thành công!"
-      message="Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể."
-      confirm-text="OK"
+      :title="t('contact.successTitle')"
+      :message="t('contact.successMessage')"
+      :confirm-text="t('common.ok')"
       :show-cancel="false"
       @confirm="closeSuccessPopup"
       @cancel="closeSuccessPopup"
@@ -129,9 +129,9 @@
     <!-- Error Popup -->
     <ThePopup
       v-if="showErrorPopup"
-      title="Có lỗi xảy ra"
-      message="Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau!"
-      confirm-text="OK"
+      :title="t('contact.errorTitle')"
+      :message="t('contact.errorMessage')"
+      :confirm-text="t('common.ok')"
       :show-cancel="false"
       @confirm="closeErrorPopup"
       @cancel="closeErrorPopup"
@@ -141,8 +141,11 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import feedbackApi from '@/api/modules/feedbackApi';
 import ThePopup from '@/components/common/popup/ThePopup.vue';
+
+const { t } = useI18n();
 
 const isSubmitting = ref(false);
 const showSuccessPopup = ref(false);

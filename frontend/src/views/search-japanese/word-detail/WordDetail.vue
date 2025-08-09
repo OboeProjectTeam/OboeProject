@@ -6,13 +6,14 @@
     mainField="words"
     readingField="vietnamese_pronunciation"
     meaningField="meanning"
-    notFoundMessage="Không tìm thấy từ vựng"
+    :notFoundMessage="t('wordDetail.notFound')"
   />
 </template>
 
 <script>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
 import vocabularyApi from '@/api/modules/vocabularyApi';
 
@@ -22,6 +23,7 @@ export default {
     DetailPage
   },
   setup() {
+    const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
     const wordId = ref(route.params.id);
@@ -61,6 +63,7 @@ export default {
     );
 
     return {
+      t,
       wordData,
       wordId,
       isLoading
