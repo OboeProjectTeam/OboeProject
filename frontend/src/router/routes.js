@@ -41,6 +41,7 @@ import TheContact from '@/views/footer-services/contact/TheContact.vue';
 import TheBenefits from '@/views/footer-services/japanese-benefits/TheBenefits.vue';
 import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
 
+
 const routes = [
   {
     path: "/",
@@ -312,6 +313,6 @@ const routes = [
       },
     ]
   }
-]
+];
 
 export default routes;

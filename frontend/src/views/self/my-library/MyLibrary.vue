@@ -1,13 +1,13 @@
 <template>
   <div class="library">
     <div class="library__header">
-      <h1>Thư viện của tôi </h1>
+      <h1>{{ t('library.myLibrary') }}</h1>
     </div>
 
     <div class="library__tabs">
       <button v-for="tab in tabs" :key="tab.id" :class="['tab-btn', { active: activeTab === tab.id }]"
         @click="activeTab = tab.id">
-        {{ tab.name }}
+        {{ t(tab.nameKey) }}
       </button>
     </div>
 
@@ -28,7 +28,7 @@
     <div v-if="activeTab === 'study-sets'" class="content-section">
       <div v-if="studySetsLoading" class="loading-state">
         <i class="fas fa-spinner fa-spin"></i>
-        <p>Đang tải học liệu...</p>
+        <p>{{ t('library.loadingStudySets') }}</p>
       </div>
       <div v-else class="content-grid">
         <div v-for="set in filteredStudySets" :key="set.id" class="content-card">
@@ -36,14 +36,14 @@
             <h3>{{ set.title }}</h3>
             <p v-if="set.description" class="card-description">{{ set.description }}</p>
             <p class="card-meta">
-              <span>{{ set.cardCount }} thuật ngữ</span>
+              <span>{{ set.cardCount }} {{ t('home.terms') }}</span>
               <span>{{ formatDate(set.updatedAt) }}</span>
             </p>
           </div>
           <div class="card-actions">
             <button @click="startLearning(set)" class="action-btn primary">
               <i class="fas fa-book"></i>
-              Học ngay
+              {{ t('home.learnNow') }}
             </button>
             <button @click="deleteSet(set.id)" class="action-btn">
               <i class="fas fa-trash"></i>
@@ -52,10 +52,10 @@
         </div>
         <div v-if="!studySets.length && !studySetsLoading" class="empty-state">
           <i class="fas fa-book-open"></i>
-          <h3>Chưa có học liệu nào</h3>
-          <p>Tạo học liệu đầu tiên của để bắt đầu học tập</p>
+          <h3>{{ t('library.noStudySets') }}</h3>
+          <p>{{ t('library.noStudySetsMessage') }}</p>
           <router-link to="/create/flashcard" class="create-btn">
-            Tạo học liệu
+            {{ t('library.createStudySet') }}
           </router-link>
         </div>
       </div>
@@ -65,7 +65,7 @@
     <div v-if="activeTab === 'quizzes'" class="content-section">
       <div v-if="quizzesLoading" class="loading-state">
         <i class="fas fa-spinner fa-spin"></i>
-        <p>Đang tải bài kiểm tra...</p>
+        <p>{{ t('library.loadingQuizzes') }}</p>
       </div>
       <div v-else class="content-grid">
         <div v-for="quiz in quizzes" :key="quiz.id" class="content-card">
@@ -79,7 +79,7 @@
           <div class="card-actions">
             <button @click="startQuiz(quiz)" class="action-btn primary">
               <i class="fas fa-play"></i>
-              Làm bài
+              {{ t('home.takeQuiz') }}
             </button>
             <button @click="deleteQuiz(quiz.id)" class="action-btn">
               <i class="fas fa-trash"></i>
@@ -88,10 +88,10 @@
         </div>
         <div v-if="!quizzes.length && !quizzesLoading" class="empty-state">
           <i class="fas fa-question-circle"></i>
-          <h3>Chưa có bài kiểm tra nào</h3>
-          <p>Tạo bài kiểm tra để đánh giá kiến thức của </p>
+          <h3>{{ t('library.noQuizzes') }}</h3>
+          <p>{{ t('library.noQuizzesMessage') }}</p>
           <router-link to="/create/quiz" class="create-btn">
-            Tạo bài kiểm tra
+            {{ t('library.createQuiz') }}
           </router-link>
         </div>
       </div>
@@ -100,14 +100,14 @@
     <div v-if="activeTab === 'favorites'" class="content-section">
       <div v-if="favoritesLoading" class="loading-state">
         <i class="fas fa-spinner fa-spin"></i>
-        <p>Đang tải mục yêu thích...</p>
+        <p>{{ t('library.loadingFavorites') }}</p>
       </div>
       <div v-else>
         <div class="favorites-tabs">
           <button v-for="tab in favoriteTabs" :key="tab.id"
             :class="['favorite-tab', { active: activeFavoriteTab === tab.id }]" @click="activeFavoriteTab = tab.id">
             <i :class="tab.icon"></i>
-            {{ tab.name }}
+            {{ t(tab.nameKey) }}
           </button>
         </div>
 
@@ -125,8 +125,8 @@
             </div>
             <div v-if="!favorites.vocabulary.length" class="empty-state">
               <i class="fas fa-book"></i>
-              <h3>Chưa có từ vựng yêu thích</h3>
-              <p>Đánh dấu từ vựng yêu thích để xem lại sau</p>
+              <h3>{{ t('library.noFavoriteVocabulary') }}</h3>
+              <p>{{ t('library.markFavoriteVocabulary') }}</p>
             </div>
           </div>
           <!-- Hán tự yêu thích -->
@@ -142,8 +142,8 @@
             </div>
             <div v-if="!favorites.kanji.length" class="empty-state">
               <i class="fas fa-language fa-3x"></i>
-              <h3>Chưa có hán tự yêu thích</h3>
-              <p>Đánh dấu hán tự yêu thích để xem lại sau</p>
+              <h3>{{ t('library.noFavoriteKanji') }}</h3>
+              <p>{{ t('library.markFavoriteKanji') }}</p>
             </div>
           </div>
           <!-- Ngữ pháp yêu thích -->
@@ -159,8 +159,8 @@
             </div>
             <div v-if="!favorites.grammar.length" class="empty-state">
               <i class="fas fa-book"></i>
-              <h3>Chưa có ngữ pháp yêu thích</h3>
-              <p>Đánh dấu ngữ pháp yêu thích để xem lại sau</p>
+              <h3>{{ t('library.noFavoriteGrammar') }}</h3>
+              <p>{{ t('library.markFavoriteGrammar') }}</p>
             </div>
           </div>
 
@@ -177,8 +177,8 @@
             </div>
             <div v-if="!favorites.sentences.length" class="empty-state">
               <i class="fas fa-comment-alt"></i>
-              <h3>Chưa có mẫu câu yêu thích</h3>
-              <p>Đánh dấu mẫu câu yêu thích để xem lại sau</p>
+              <h3>{{ t('library.noFavoriteSentences') }}</h3>
+              <p>{{ t('library.markFavoriteSentences') }}</p>
             </div>
           </div>
         </div>
@@ -186,9 +186,9 @@
     </div>
 
     <!-- Delete confirmation popup -->
-    <ThePopup v-if="showDeletePopup" :title="'Xác nhận xóa'"
-      :message="`Bạn có chắc chắn muốn xóa ${deleteType === 'flashcard' ? 'học liệu' : 'bài kiểm tra'} '${deleteTitle}'?`"
-      :confirm-text="'Xóa'" :show-cancel="true" @confirm="handleDeleteConfirm" @cancel="handleDeleteCancel" />
+    <ThePopup v-if="showDeletePopup" :title="t('library.confirmDelete')"
+      :message="deleteType === 'flashcard' ? t('library.deleteStudySetMessage', { title: deleteTitle }) : t('library.deleteQuizMessage', { title: deleteTitle })"
+      :confirm-text="t('common.delete')" :show-cancel="true" @confirm="handleDeleteConfirm" @cancel="handleDeleteCancel" />
   </div>
 </template>
 
@@ -197,12 +197,14 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '@/api'
 import ThePopup from '@/components/common/popup/ThePopup.vue'
 
 const store = useStore()
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 
 // Thêm hàm để lấy dữ liệu
 const fetchData = async () => {
@@ -281,26 +283,26 @@ const favorites = computed(() => favoritesData.value)
 const history = computed(() => store.getters['history/getTestHistory'] || [])
 
 const tabs = [
-  { id: 'study-sets', name: 'Học liệu' },
-  { id: 'quizzes', name: 'Bài kiểm tra' },
-  { id: 'favorites', name: 'Mục yêu thích' },
+  { id: 'study-sets', name: 'Học liệu', nameKey: 'library.studySets' },
+  { id: 'quizzes', name: 'Bài kiểm tra', nameKey: 'library.quizzes' },
+  { id: 'favorites', name: 'Mục yêu thích', nameKey: 'library.favorites' },
 ]
 
 const favoriteTabs = [
-  { id: 'vocabulary', name: 'Từ vựng', icon: 'fas fa-book' },
-  { id: 'kanji', name: 'Hán tự', icon: 'fas fa-language' },
-  { id: 'grammar', name: 'Ngữ pháp', icon: 'fas fa-pen' },
-  { id: 'sentences', name: 'Mẫu câu', icon: 'fas fa-comment-alt' }
+  { id: 'vocabulary', name: 'Từ vựng', nameKey: 'library.vocabulary', icon: 'fas fa-book' },
+  { id: 'kanji', name: 'Hán tự', nameKey: 'library.kanji', icon: 'fas fa-language' },
+  { id: 'grammar', name: 'Ngữ pháp', nameKey: 'library.grammar', icon: 'fas fa-pen' },
+  { id: 'sentences', name: 'Mẫu câu', nameKey: 'library.sentences', icon: 'fas fa-comment-alt' }
 ]
 
-const sortOptions = [
-  { value: 'recent', label: 'Gần đây nhất' },
-  { value: 'oldest', label: 'Cũ nhất' },
-  { value: 'name-asc', label: 'Tên A-Z' },
-  { value: 'name-desc', label: 'Tên Z-A' }
-]
+const sortOptions = computed(() => [
+  { value: 'recent', label: t('library.sortRecent') },
+  { value: 'oldest', label: t('library.sortOldest') },
+  { value: 'name-asc', label: t('library.sortNameAsc') },
+  { value: 'name-desc', label: t('library.sortNameDesc') }
+])
 
-const currentSort = ref(sortOptions[0])
+const currentSort = ref({ value: 'recent', label: t('library.sortRecent') })
 
 // Function để load flashcards từ API
 const loadUserFlashcards = async () => {
@@ -321,7 +323,7 @@ const loadUserFlashcards = async () => {
       updatedAt: flashcard.created,
       createdAt: flashcard.created, // Add created timestamp
       creator: {
-        name: flashcard.user?.userName || flashcard.user?.firstName || 'Người dùng',
+        name: flashcard.user?.userName || flashcard.user?.firstName || t('common.user'),
         avatar: flashcard.user?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(flashcard.user?.userName || 'User')}`
       },
       cards: flashcard.cardItems?.map(item => ({
@@ -461,7 +463,7 @@ const deleteSet = (id) => {
   const set = studySetsData.value.find(s => s.id === id)
   deleteType.value = 'flashcard'
   deleteId.value = id
-  deleteTitle.value = set?.title || 'học liệu này'
+  deleteTitle.value = set?.title || t('library.thisStudySet')
   showDeletePopup.value = true
 }
 
@@ -471,7 +473,7 @@ const deleteQuiz = (id) => {
   const quiz = quizzesData.value.find(q => q.id === id)
   deleteType.value = 'quiz'
   deleteId.value = id
-  deleteTitle.value = quiz?.title || 'bài kiểm tra này'
+  deleteTitle.value = quiz?.title || t('library.thisQuiz')
   showDeletePopup.value = true
 }
 
@@ -490,7 +492,7 @@ const handleDeleteConfirm = async () => {
       // Show success message
       store.dispatch('message/showMessage', {
         type: 'success',
-        text: 'Xóa học liệu thành công!'
+        text: t('library.deleteStudySetSuccess')
       })
     } else if (deleteType.value === 'quiz') {
       // Call API to delete quiz
@@ -502,15 +504,15 @@ const handleDeleteConfirm = async () => {
       // Show success message
       store.dispatch('message/showMessage', {
         type: 'success',
-        text: 'Xóa bài kiểm tra thành công!'
+        text: t('library.deleteQuizSuccess')
       })
     }
   } catch (error) {
     // Show error message
-    const itemType = deleteType.value === 'flashcard' ? 'học liệu' : 'bài kiểm tra'
+    const itemType = deleteType.value === 'flashcard' ? t('library.studySet') : t('library.quiz')
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: `Không thể xóa ${itemType}: ` + error.message
+      text: t('library.deleteError', { itemType, error: error.message })
     })
   }
 
@@ -533,7 +535,7 @@ const editBlog = (id) => {
 }
 
 const deleteBlog = async (id) => {
-  if (!confirm(' có chắc chắn muốn xóa bài viết này?')) return
+  if (!confirm(t('library.confirmDeleteBlog'))) return
   try {
     // await api.deleteBlog(id)
     blogs.value = blogs.value.filter(blog => blog.id !== id)
@@ -556,13 +558,13 @@ const removeFromFavorites = async (type, id) => {
     // Show success message
     store.dispatch('message/showMessage', {
       type: 'success',
-      text: 'Đã xóa khỏi danh sách yêu thích!'
+      text: t('library.removedFromFavorites')
     });
   } catch (error) {
     console.error('Error removing from favorites:', error);
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Không thể xóa khỏi danh sách yêu thích: ' + error.message
+      text: t('library.removeFavoriteError', { error: error.message })
     });
   }
 }
@@ -601,9 +603,9 @@ const startLearning = async (set) => {
       query: {
         source: 'library',
         title: set.title,
-        description: set.description || `Học liệu gồm ${set.cardCount} thuật ngữ`,
+        description: set.description || t('library.studySetDescription', { count: set.cardCount }),
         setId: set.id,
-        creatorName: set.creator?.name || 'Người dùng',
+        creatorName: set.creator?.name || t('common.user'),
         creatorAvatar: set.creator?.avatar || '',
         createdAt: set.createdAt || ''
       }
@@ -620,7 +622,7 @@ const startQuiz = async (quiz) => {
     if (!Array.isArray(questions) || questions.length === 0) {
       store.dispatch('message/showMessage', {
         type: 'error',
-        text: 'Bài kiểm tra không có câu hỏi nào'
+        text: t('library.quizNoQuestions')
       })
       return
     }
@@ -642,20 +644,20 @@ const startQuiz = async (quiz) => {
         type: 'multiple-choice',
         source: 'library',
         title: quiz.title,
-        description: quiz.description || `Bài kiểm tra gồm ${questions.length} câu hỏi`,
+        description: quiz.description || t('library.quizDescription', { count: questions.length }),
         quizId: quiz.id
       }
     })
   } catch (error) {
     store.dispatch('message/showMessage', {
       type: 'error',
-      text: 'Không thể tải bài kiểm tra: ' + error.message
+      text: t('library.loadQuizError', { error: error.message })
     })
   }
 }
 
 const deleteHistoryItem = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa mục lịch sử này không?')) return;
+  if (!confirm(t('library.confirmDeleteHistory'))) return;
   try {
     await store.dispatch('history/deleteTestFromHistory', id);
   } catch (error) {

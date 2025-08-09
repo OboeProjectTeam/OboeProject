@@ -3,10 +3,10 @@
     <!-- Hero Section with Search -->
     <section class="hero-section">
       <div class="container">
-        <h1>Chào mừng trở lại!</h1>
-        <p>Hôm nay bạn muốn học gì?</p>
+        <h1>{{ t('home.welcome') }}</h1>
+        <p>{{ t('home.whatToLearn') }}</p>
         <div class="main-search-bar">
-          <input type="text" v-model="searchQuery" placeholder="Tìm kiếm học liệu từ cộng đồng..." @keyup.enter="performSearch" />
+          <input type="text" v-model="searchQuery" :placeholder="t('home.searchPlaceholder')" @keyup.enter="performSearch" />
           <button @click="performSearch"><i class="fas fa-search"></i></button>
         </div>
       </div>
@@ -16,8 +16,8 @@
     <section v-if="recentSetsLoading || recentSets.length > 0" class="content-section">
       <div class="container">
         <div class="section-header">
-          <h2>Truy cập gần đây</h2>
-          <router-link to="/library" class="view-all-link">Xem tất cả</router-link>
+          <h2>{{ t('home.recentAccess') }}</h2>
+          <router-link to="/library" class="view-all-link">{{ t('home.viewAll') }}</router-link>
         </div>
         
         <!-- Loading state -->
@@ -35,10 +35,10 @@
             <h3>{{ set.title }}</h3>
             <p v-if="set.description" class="description">{{ set.description }}</p>
             <div class="card-meta">
-              <span>{{ set.cardCount }} thuật ngữ</span>
+              <span>{{ set.cardCount }} {{ t('home.terms') }}</span>
               <span v-if="set.created" class="date">{{ new Date(set.created).toLocaleDateString('vi-VN') }}</span>
             </div>
-            <button @click="startLearning(set)" class="learn-now-btn">Học ngay</button>
+            <button @click="startLearning(set)" class="learn-now-btn">{{ t('home.learnNow') }}</button>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
     <section class="content-section">
       <div class="container">
         <div class="section-header">
-          <h2>Bài quizz đề xuất cho bạn</h2>
+          <h2>{{ t('home.recommendedQuizzes') }}</h2>
         </div>
         
         <!-- Loading state -->
@@ -71,7 +71,7 @@
         
         <!-- No data state -->
         <div v-else-if="recommendedSets.length === 0" class="no-data-state">
-          <p>Chưa có học liệu đề xuất nào</p>
+          <p>{{ t('home.noRecommendedSets') }}</p>
         </div>
         
         <!-- Recommended sets list -->
@@ -86,7 +86,7 @@
                 </div>
              </div>
              <div class="card-actions">
-                <button @click="startQuiz(set)" class="learn-now-btn">Làm bài</button>
+                <button @click="startQuiz(set)" class="learn-now-btn">{{ t('home.takeQuiz') }}</button>
              </div>
           </div>
         </div>
@@ -97,8 +97,8 @@
     <section class="content-section">
       <div class="container">
         <div class="section-header">
-          <h2>Chủ đề nổi bật</h2>
-          <router-link to="/forum" class="view-all-link">Xem tất cả</router-link>
+          <h2>{{ t('home.featuredTopics') }}</h2>
+          <router-link to="/forum" class="view-all-link">{{ t('home.viewAll') }}</router-link>
         </div>
         
         <!-- Loading state -->
@@ -112,16 +112,16 @@
         
         <!-- No data state -->
         <div v-else-if="recommendedTopics.length === 0" class="no-data-state">
-          <p>Chưa có chủ đề nổi bật nào</p>
+          <p>{{ t('home.noFeaturedTopics') }}</p>
         </div>
         
         <!-- Featured topics list -->
         <div v-else class="forum-grid">
           <div v-for="topic in recommendedTopics" :key="topic.id" class="forum-topic-card">
             <h4>{{ topic.title }}</h4>
-            <p>{{ topic.postCount }} bình luận</p>
+            <p>{{ topic.postCount }} {{ t('home.comments') }}</p>
             <router-link :to="`/forum/post/${topic.id}`" class="view-topic-btn">
-              Xem chủ đề <i class="fas fa-arrow-right"></i>
+              {{ t('home.viewTopic') }} <i class="fas fa-arrow-right"></i>
             </router-link>
           </div>
         </div>
@@ -134,6 +134,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import flashcardApi from '@/api/modules/flashcardApi';
 import learningMaterialApi from '@/api/modules/learningMaterialApi';
 import blogApi from '@/api/modules/blogApi';
@@ -141,6 +142,7 @@ import searchApi from '@/api/modules/searchApi';
 
 const store = useStore();
 const router = useRouter();
+const { t } = useI18n();
 
 const searchQuery = ref('');
 
@@ -318,7 +320,7 @@ const startLearning = async (set) => {
       } else {
         store.dispatch('showMessage', {
           type: 'error',
-          text: 'Học liệu không có nội dung'
+          text: t('home.noContent')
         });
       }
     }
@@ -326,7 +328,7 @@ const startLearning = async (set) => {
     console.error('Error starting learning:', error);
     store.dispatch('showMessage', {
       type: 'error',
-      text: 'Không thể tải dữ liệu học liệu'
+      text: t('home.cannotLoadData')
     });
   }
 };
@@ -347,7 +349,7 @@ const startQuiz = (quiz) => {
     console.error('Error starting quiz:', error);
     store.dispatch('showMessage', {
       type: 'error',
-      text: 'Không thể mở bài quiz'
+      text: t('home.cannotOpenQuiz')
     });
   }
 };

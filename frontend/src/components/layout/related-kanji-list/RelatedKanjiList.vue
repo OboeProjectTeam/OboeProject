@@ -1,6 +1,6 @@
 <template>
   <div class="mt-6">
-    <h3 class="text-lg font-semibold mb-3">Hán tự liên quan</h3>
+    <h3 class="text-lg font-semibold mb-3">{{ t('kanji.relatedKanji') }}</h3>
     <div v-if="relatedKanji.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <div 
         v-for="kanji in relatedKanji" 
@@ -10,13 +10,13 @@
       >
         <div class="text-3xl font-bold mb-2">{{ kanji.kanji }}</div>
         <div class="text-sm">
-          <div><span class="font-medium">Âm on:</span> {{ kanji.reading }}</div>
-          <div><span class="font-medium">Âm kun:</span> {{ kanji.kunyomi }}</div>
+          <div><span class="font-medium">{{ t('kanji.onReading') }}:</span> {{ kanji.reading }}</div>
+          <div><span class="font-medium">{{ t('kanji.kunReading') }}:</span> {{ kanji.kunyomi }}</div>
         </div>
       </div>
     </div>
     <div v-else class="text-gray-500">
-      Không có Hán tự liên quan
+      {{ t('kanji.noRelatedKanji') }}
     </div>
   </div>
 </template>
@@ -24,6 +24,7 @@
 <script>
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import { computed } from 'vue';
 
 export default {
@@ -37,6 +38,7 @@ export default {
   setup(props) {
     const store = useStore();
     const router = useRouter();
+    const { t } = useI18n();
 
     const relatedKanji = computed(() => {
       return store.getters['search/getRelatedKanjiList'](props.word);
@@ -49,7 +51,8 @@ export default {
 
     return {
       relatedKanji,
-      navigateToKanjiDetail
+      navigateToKanjiDetail,
+      t
     };
   }
 };

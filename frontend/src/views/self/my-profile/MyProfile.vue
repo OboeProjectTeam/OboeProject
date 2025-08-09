@@ -7,7 +7,7 @@
     @save-profile="handleProfileSave" 
   />
   <div v-else class="loading">
-    Đang tải hồ sơ...
+    {{ t('profile.loadingProfile') }}
   </div>
 </template>
 
@@ -15,8 +15,11 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import ProfileDetail from '@/components/layout/forum/profile/ProfileDetail.vue';
 import api from '@/api';
+
+const { t } = useI18n();
 
 const store = useStore();
 const route = useRoute();

@@ -2,7 +2,7 @@
   <div class="flashcard-match">
     <div class="match-header">
       <div class="header-top-line">
-        <h1>Ghép Thẻ</h1>
+        <h1>{{ $t('flashcardMatch.title') }}</h1>
         <div class="header-actions">
           <div class="timer">
             <i class="fas fa-clock"></i>
@@ -11,7 +11,7 @@
           <ExitTestButton @exit="confirmExitToLearn" />
         </div>
       </div>
-      <p class="cards-count">{{ gridItems.length / 2 }} cặp thẻ</p>
+      <p class="cards-count">{{ gridItems.length / 2 }} {{ $t('flashcardMatch.cardPairs') }}</p>
     </div>
 
     <div class="match-grid" :class="gridLayoutClass">
@@ -31,12 +31,12 @@
     <div v-if="isGameWon" class="game-won-popup">
       <div class="popup-overlay"></div>
       <div class="popup-content">
-        <h2>Chúc mừng!</h2>
-        <p> đã hoàn thành trò chơi ghép thẻ trong {{ finalTime }}.</p>
+        <h2>{{ $t('flashcardMatch.congratulations') }}</h2>
+        <p>{{ $t('flashcardMatch.gameCompleted') }} {{ finalTime }}.</p>
         <div class="popup-actions">
-          <button @click="playAgain" class="primary-button">Chơi lại</button>
-          <button @click="returnToLearnPage" class="secondary-button">Về trang học</button>
-        </div>
+            <button @click="playAgain" class="primary-button">{{ $t('flashcardMatch.playAgain') }}</button>
+            <button @click="goBackToLearn" class="secondary-button">{{ $t('flashcardMatch.backToLearn') }}</button>
+          </div>
       </div>
     </div>
   </div>

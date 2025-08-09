@@ -8,11 +8,11 @@
     meaningField="meaning"
     :showRelated="true"
     :relatedItems="relatedKanji"
-    relatedTitle="Hán tự liên quan"
+    :relatedTitle="t('kanjiDetail.relatedKanji')"
     relatedMainField="characterName"
     relatedKeyField="kanjiId"
-    emptyRelatedMessage="Không có hán tự liên quan"
-    notFoundMessage="Không tìm thấy Hán tự"
+    :emptyRelatedMessage="t('kanjiDetail.noRelatedKanji')"
+    :notFoundMessage="t('kanjiDetail.notFound')"
     @relatedItemClick="navigateToKanjiDetail"
   />
 </template>
@@ -20,6 +20,7 @@
 <script>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
 import kanjiApi from '@/api/modules/kanjiApi';
 
@@ -29,6 +30,7 @@ export default {
     DetailPage
   },
   setup() {
+    const { t } = useI18n();
     const route = useRoute();
     const router = useRouter();
     const kanjiId = ref(route.params.id);
@@ -93,6 +95,7 @@ export default {
     );
 
     return {
+      t,
       kanjiData,
       relatedKanji,
       kanjiId,

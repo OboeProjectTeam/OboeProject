@@ -4,13 +4,13 @@
       <!-- Loading state -->
       <div v-if="loading" class="card-loading">
         <div class="loading-spinner"></div>
-        <p>Đang tải thông tin...</p>
+        <p>{{ t('common.loadingInfo') }}</p>
       </div>
       
       <!-- Error state -->
       <div v-else-if="error" class="card-error">
         <p>{{ error }}</p>
-        <button class="btn btn-secondary" @click="loadUserProfile">Thử lại</button>
+        <button class="btn btn-secondary" @click="loadUserProfile">{{ t('common.retry') }}</button>
       </div>
       
       <!-- User profile content -->
@@ -27,12 +27,12 @@
           </div>
                      <div class="card-actions" v-if="!isCurrentUser">
              <button class="btn btn-primary" @click="$emit('send-message', userProfile)">
-               <i class="fas fa-envelope"></i> Gửi tin nhắn
+               <i class="fas fa-envelope"></i> {{ t('profile.sendMessage') }}
              </button>
            </div>
            <div class="card-actions" v-else>
              <div class="current-user-badge">
-               <i class="fas fa-user"></i> Đây là bạn
+               <i class="fas fa-user"></i> {{ t('profile.thisIsYou') }}
              </div>
            </div>
         </div>
@@ -44,29 +44,29 @@
           
           <div class="join-date" v-if="userProfile.create_at">
             <i class="fas fa-calendar-alt"></i> 
-            Tham gia: {{ formatDate(userProfile.create_at) }}
+            {{ t('profile.joined') }}: {{ formatDate(userProfile.create_at) }}
           </div>
           
           <div class="birthday" v-if="userProfile.day_of_birth">
             <i class="fas fa-birthday-cake"></i> 
-            Sinh nhật: {{ formatDate(userProfile.day_of_birth) }}
+            {{ t('profile.birthday') }}: {{ formatDate(userProfile.day_of_birth) }}
           </div>
         </div>
         
         <div class="user-stats">
-          <div class="stat-item">
-            <div class="stat-label">Bài viết</div>
-            <div class="stat-value">{{ userProfile.blogCount || 0 }}</div>
+            <div class="stat-item">
+              <div class="stat-label">{{ t('forum.posts') }}</div>
+              <div class="stat-value">{{ userProfile.blogCount || 0 }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">{{ t('forum.comments') }}</div>
+              <div class="stat-value">{{ userProfile.commentCount || 0 }}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">{{ t('flashcard.materials') }}</div>
+              <div class="stat-value">{{ userProfile.flashCardCount || 0 }}</div>
+            </div>
           </div>
-          <div class="stat-item">
-            <div class="stat-label">Bình luận</div>
-            <div class="stat-value">{{ userProfile.commentCount || 0 }}</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">Học Liệu</div>
-            <div class="stat-value">{{ userProfile.flashCardCount || 0 }}</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -75,9 +75,11 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import profileApi from '@/api/modules/profileApi';
 
 const store = useStore();
+const { t } = useI18n();
 
 const props = defineProps({
   userId: {
@@ -112,7 +114,7 @@ const loadUserProfile = async () => {
     const data = await profileApi.getUserProfileById(props.userId);
     userProfile.value = data;
   } catch (err) {
-    error.value = 'Không thể tải thông tin người dùng';
+    error.value = t('profile.loadError');
     console.error('Error loading user profile:', err);
   } finally {
     loading.value = false;

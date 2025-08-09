@@ -6,13 +6,14 @@
     mainField="structure"
     readingField="vietnamesePronunciation"
     meaningField="explanation"
-    notFoundMessage="Không tìm thấy ngữ pháp"
+    :notFoundMessage="t('grammarDetail.notFound')"
   />
 </template>
 
 <script>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import DetailPage from '@/components/layout/detail-search/DetailSearch.vue';
 import grammarApi from '@/api/modules/grammarApi';
 
@@ -22,6 +23,7 @@ export default {
     DetailPage
   },
   setup() {
+    const { t } = useI18n();
     const route = useRoute();
     const grammarId = ref(route.params.id);
     const grammarData = ref(null);
@@ -60,6 +62,7 @@ export default {
     );
 
     return {
+      t,
       grammarData,
       grammarId,
       isLoading

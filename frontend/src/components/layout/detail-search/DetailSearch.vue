@@ -3,7 +3,7 @@
     <!-- Back Button -->
     <button v-if="showBackButton" @click="goBack" class="back-button">
       <i class="fas fa-arrow-left"></i>
-      Quay lại Thư viện
+      {{ t('detail.backToLibrary') }}
     </button>
     <div class="detail-card">
       <!-- Action Buttons -->
@@ -49,8 +49,8 @@
             <div class="related-main">{{ relatedItem[relatedMainField] }}</div>
             <div class="related-info">
               <template v-if="type === 'word'">
-                <div><span class="label">Âm on:</span> {{ relatedItem.reading }}</div>
-                <div><span class="label">Âm kun:</span> {{ relatedItem.kunyomi }}</div>
+                <div><span class="label">{{ t('kanji.onReading') }}:</span> {{ relatedItem.reading }}</div>
+                <div><span class="label">{{ t('kanji.kunReading') }}:</span> {{ relatedItem.kunyomi }}</div>
               </template>
               <template v-else-if="type === 'sentence'">
                 <div class="related-kana">{{ relatedItem.kana }}</div>
@@ -60,13 +60,13 @@
           </div>
         </div>
         <div v-else class="empty-message">
-          {{ emptyRelatedMessage }}
+          {{ emptyRelatedMessageText }}
         </div>
       </div>
 
       <!-- Examples Section for Grammar -->
       <div v-if="type === 'grammar' && item.examples" class="examples-section">
-        <h3 class="section-title">Ví dụ</h3>
+        <h3 class="section-title">{{ t('detail.example') }}</h3>
         <div v-if="item.examples.length > 0" class="examples-list">
           <div v-for="(example, index) in item.examples" :key="index" class="example-item">
             <div class="japanese">{{ example.japanese }}</div>
@@ -74,7 +74,7 @@
           </div>
         </div>
         <div v-else class="empty-message">
-          Không có ví dụ
+          {{ t('detail.noExample') }}
         </div>
       </div>
 
@@ -85,7 +85,7 @@
     </div>
   </div>
   <div v-else class="not-found">
-    {{ notFoundMessage }}
+    {{ notFoundMessageText }}
   </div>
 </template>
 
@@ -93,6 +93,7 @@
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import CommentSection from '@/components/layout/comment/CommentSection.vue';
 
 export default defineComponent({
@@ -148,11 +149,11 @@ export default defineComponent({
     },
     emptyRelatedMessage: {
       type: String,
-      default: 'Không có dữ liệu liên quan'
+      default: ''
     },
     notFoundMessage: {
       type: String,
-      default: 'Không tìm thấy dữ liệu'
+      default: ''
     }
   },
   emits: ['relatedItemClick', 'toggleFavorite'],
@@ -160,12 +161,22 @@ export default defineComponent({
     const store = useStore();
     const route = useRoute();
     const router = useRouter();
+    const { t } = useI18n();
 
     const showBackButton = computed(() => route.query.from === 'library');
 
     const goBack = () => {
       router.push({ path: '/library', query: { tab: 'favorites', favoriteTab: route.query.favoriteTab } });
     };
+
+    // Computed properties for i18n text messages
+    const emptyRelatedMessageText = computed(() => {
+      return props.emptyRelatedMessage || t('detail.noRelatedData');
+    });
+
+    const notFoundMessageText = computed(() => {
+      return props.notFoundMessage || t('detail.noDataFound');
+    });
 
     const favoriteType = computed(() => {
       if (props.type === 'word') return 'vocabulary';
@@ -254,7 +265,10 @@ export default defineComponent({
       toggleFavorite,
       toggleFlashcard,
       showBackButton,
-      goBack
+      goBack,
+      emptyRelatedMessageText,
+      notFoundMessageText,
+      t
     };
   }
 });

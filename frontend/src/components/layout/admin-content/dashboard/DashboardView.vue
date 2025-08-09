@@ -7,11 +7,11 @@
             <i class="fas fa-users"></i>
           </div>
           <div class="stat-info">
-            <h3>Người dùng</h3>
+            <h3>{{ t('admin.users') }}</h3>
             <div class="stat-value">{{ stats.totalUsers }}</div>
             <div class="stat-change increase">
               <i class="fas fa-arrow-up"></i>
-              {{ stats.newUsers }} mới trong tháng
+              {{ t('admin.newInMonth', { count: stats.newUsers }) }}
             </div>
           </div>
         </div>
@@ -21,11 +21,11 @@
             <i class="fas fa-file-alt"></i>
           </div>
           <div class="stat-info">
-            <h3>Bài viết</h3>
+            <h3>{{ t('forum.posts') }}</h3>
             <div class="stat-value">{{ stats.totalPosts }}</div>
             <div class="stat-change increase">
               <i class="fas fa-arrow-up"></i>
-              {{ stats.newPosts }} mới trong tháng
+              {{ t('admin.newInMonth', { count: stats.newPosts }) }}
             </div>
           </div>
         </div>
@@ -35,10 +35,10 @@
             <i class="fas fa-flag"></i>
           </div>
           <div class="stat-info">
-            <h3>Báo cáo</h3>
+            <h3>{{ t('admin.reports') }}</h3>
             <div class="stat-value">{{ stats.pendingReports }}</div>
             <div class="stat-change warning">
-              Chờ xử lý
+              {{ t('admin.pending') }}
             </div>
           </div>
         </div>
@@ -48,10 +48,10 @@
             <i class="fas fa-comments"></i>
           </div>
           <div class="stat-info">
-            <h3>Phản hồi</h3>
+            <h3>{{ t('admin.feedback') }}</h3>
             <div class="stat-value">{{ stats.pendingFeedback }}</div>
             <div class="stat-change warning">
-              Chờ xử lý
+              {{ t('admin.pending') }}
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@
   
       <!-- Recent Activity -->
       <div class="recent-activity">
-        <h2>Hoạt động gần đây</h2>
+        <h2>{{ t('admin.recentActivity') }}</h2>
         
         <div class="activity-list">
           <div v-for="activity in recentActivities" 
@@ -82,27 +82,27 @@
   
       <!-- Quick Actions -->
       <div class="quick-actions">
-        <h2>Thao tác nhanh</h2>
+        <h2>{{ t('admin.quickActions') }}</h2>
         
         <div class="actions-grid">
           <button class="action-btn" @click="navigateTo('admin-users')">
             <i class="fas fa-user-plus"></i>
-            <span>Thêm người dùng</span>
+            <span>{{ t('admin.addUser') }}</span>
           </button>
           
           <button class="action-btn" @click="navigateTo('admin-reports')">
             <i class="fas fa-exclamation-circle"></i>
-            <span>Xem báo cáo</span>
+            <span>{{ t('admin.viewReports') }}</span>
           </button>
           
           <button class="action-btn" @click="navigateTo('admin-feedback')">
             <i class="fas fa-reply"></i>
-            <span>Trả lời phản hồi</span>
+            <span>{{ t('admin.replyFeedback') }}</span>
           </button>
           
           <button class="action-btn">
             <i class="fas fa-cog"></i>
-            <span>Cài đặt hệ thống</span>
+            <span>{{ t('admin.systemSettings') }}</span>
           </button>
         </div>
       </div>
@@ -112,10 +112,12 @@
   <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import api from '@/api';
 import { toast } from 'sonner';
 
 const router = useRouter();
+const { t } = useI18n();
 
 const stats = ref({
   totalUsers: 0,
@@ -153,7 +155,7 @@ const fetchDashboardData = async () => {
     }));
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
-    toast.error('Không thể tải dữ liệu dashboard');
+    toast.error(t('admin.loadDashboardError'));
   }
 };
 

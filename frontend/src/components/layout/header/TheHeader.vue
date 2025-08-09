@@ -5,18 +5,18 @@
       <div v-if="!isMobile" class="desktop-view">
         <div class="header__left">
           <TheLogo />
-          <router-link to="/" class="nav-link">Trang Chủ</router-link>
-          <router-link to="/forum" class="nav-link">Diễn Đàn</router-link>
+          <router-link to="/" class="nav-link">{{ t('navigation.home') }}</router-link>
+          <router-link to="/forum" class="nav-link">{{ t('navigation.forum') }}</router-link>
         </div>
 
         <div class="header__searchbar">
-          <TheSearchbar :placeholder="placeholder" />
+          <TheSearchbar :placeholder="state.placeholder" />
           <ul class="options__list">
-            <li v-for="(item, index) in options" :key="index" 
+            <li v-for="(item, index) in optionKeys" :key="index" 
               class="option-item" 
               :class="{ active: activeIndex === index }" 
               @click="setActive(index)">
-              {{ item }}
+              {{ t(`headerTabs.${item}`) }}
             </li>
           </ul>
         </div>
@@ -24,32 +24,32 @@
         <div class="header__right">
           <template v-if="!isAuthenticated">
             <router-link to="/register">
-              <MsButton radius="10px">Đăng Ký</MsButton>
+              <MsButton radius="10px">{{ t('auth.register') }}</MsButton>
             </router-link>
             <router-link to="/login">
-              <MsButton radius="10px">Đăng Nhập</MsButton>
+              <MsButton radius="10px">{{ t('auth.login') }}</MsButton>
             </router-link>
           </template>
           <template v-else>
             <router-link to="/library" class="study-sets-button">
               <button class="study-sets-btn">
                 <i class="fas fa-book-reader"></i>
-                Thư Viện
+                {{ t('navigation.library') }}
               </button>
             </router-link>
             <div class="create-button" @click="toggleCreateMenu">
               <button class="create-btn">
                 <i class="fas fa-plus"></i>
-                Tạo
+                {{ t('common.add') }}
               </button>
               <div v-if="showCreateMenu" class="create-menu">
                 <router-link to="/create/flashcard" class="menu-item">
                   <i class="fas fa-layer-group"></i>
-                  Tạo Học Liệu
+                  {{ t('flashcard.create') }}
                 </router-link>
                 <router-link to="/create/quiz" class="menu-item">
                   <i class="fas fa-question-circle"></i>
-                  Tạo Quiz
+                  {{ t('flashcard.test') }}
                 </router-link>
               </div>
             </div>
@@ -62,16 +62,16 @@
                 class="notifications-menu"
                 ref="notificationsRef">
                 <div class="notifications-header">
-                  <span>Thông Báo</span>
-                  <button @click="markAllAsRead" class="mark-read-btn">Đánh dấu đã đọc</button>
+                  <span>{{ t('common.notifications') }}</span>
+                  <button @click="markAllAsRead" class="mark-read-btn">{{ t('common.markAsRead') }}</button>
                 </div>
                 <div class="notifications-list">
                   <div v-if="notificationsLoading" class="loading-notifications">
                     <i class="fas fa-spinner fa-spin"></i>
-                    Đang tải thông báo...
+                    {{ t('common.loading') }}
                   </div>
                   <div v-else-if="notifications.length === 0" class="no-notifications">
-                    Không có thông báo mới
+                    {{ t('common.noNotifications') }}
                   </div>
                   <div v-else v-for="(notification, index) in notifications" 
                     :key="notification.id || index" 
@@ -121,19 +121,19 @@
                 <div class="menu-items">
                   <router-link to="/profile" class="menu-item">
                     <i class="fas fa-user"></i>
-                    Hồ sơ
+                    {{ t('navigation.profile') }}
                   </router-link>
                   <div class="menu-item" @click="handleMessagesClick">
                     <i class="fas fa-envelope"></i>
-                    Tin nhắn
+                    {{ t('common.messages') }}
                   </div>
                   <router-link to="/settings" class="menu-item">
                     <i class="fas fa-cog"></i>
-                    Cài đặt
+                    {{ t('navigation.settings') }}
                   </router-link>
                   <div class="menu-item" @click="handleLogout">
                     <i class="fas fa-sign-out-alt"></i>
-                    Đăng xuất
+                    {{ t('navigation.logout') }}
                   </div>
                 </div>
               </div>
@@ -152,10 +152,10 @@
           <div class="mobile-auth">
             <template v-if="!isAuthenticated">
               <router-link to="/register">
-                <MsButton radius="10px" size="small">Đăng Ký</MsButton>
+                <MsButton radius="10px" size="small">{{ t('auth.register') }}</MsButton>
               </router-link>
               <router-link to="/login">
-                <MsButton radius="10px" size="small">Đăng Nhập</MsButton>
+                <MsButton radius="10px" size="small">{{ t('auth.login') }}</MsButton>
               </router-link>
             </template>
             <template v-else>
@@ -164,16 +164,16 @@
                 <span v-if="unreadNotifications" class="notification-badge">{{ unreadNotifications }}</span>
                 <div v-if="showNotifications" class="notifications-menu">
                   <div class="notifications-header">
-                    <span>Thông Báo</span>
-                    <button @click="markAllAsRead" class="mark-read-btn">Đánh dấu đã đọc</button>
+                    <span>{{ t('common.notifications') }}</span>
+                    <button @click="markAllAsRead" class="mark-read-btn">{{ t('common.markAsRead') }}</button>
                   </div>
                   <div class="notifications-list">
                     <div v-if="notificationsLoading" class="loading-notifications">
                       <i class="fas fa-spinner fa-spin"></i>
-                      Đang tải thông báo...
+                      {{ t('common.loading') }}
                     </div>
                     <div v-else-if="notifications.length === 0" class="no-notifications">
-                      Không có thông báo mới
+                      {{ t('common.noNotifications') }}
                     </div>
                     <div v-else v-for="(notification, index) in notifications" 
                       :key="notification.id || index" 
@@ -223,19 +223,19 @@
                   <div class="menu-items">
                     <router-link to="/profile" class="menu-item">
                       <i class="fas fa-user"></i>
-                      Hồ sơ
+                      {{ t('navigation.profile') }}
                     </router-link>
                     <div class="menu-item" @click="handleMessagesClick">
                       <i class="fas fa-envelope"></i>
-                      Tin nhắn
+                      {{ t('common.messages') }}
                     </div>
                     <router-link to="/settings" class="menu-item">
                       <i class="fas fa-cog"></i>
-                      Cài đặt
+                      {{ t('navigation.settings') }}
                     </router-link>
                     <div class="menu-item" @click="handleLogout">
                       <i class="fas fa-sign-out-alt"></i>
-                      Đăng xuất
+                      {{ t('navigation.logout') }}
                     </div>
                   </div>
                 </div>
@@ -247,7 +247,7 @@
         <!-- Mobile Search and Options -->
         <div class="mobile-collapsible">
           <div class="mobile-searchbar">
-            <TheSearchbar :placeholder="placeholder" />
+            <TheSearchbar :placeholder="state.placeholder" />
             <ul class="options__list">
               <li v-for="(item, index) in options" :key="index" 
                 class="option-item" 
@@ -281,27 +281,27 @@
           <nav class="mobile-nav">
             <router-link to="/" class="menu-item" @click="closeMobileMenu">
               <i class="fas fa-home"></i>
-              <span>Trang Chủ</span>
+              <span>{{ t('navigation.home') }}</span>
             </router-link>
             <router-link to="/forum" class="menu-item" @click="closeMobileMenu">
               <i class="fas fa-comments"></i>
-              <span>Diễn Đàn</span>
+              <span>{{ t('navigation.forum') }}</span>
             </router-link>
             <router-link to="/library" class="menu-item" @click="closeMobileMenu">
               <i class="fas fa-book-reader"></i>
-              <span>Thư Viện</span>
+              <span>{{ t('navigation.library') }}</span>
             </router-link>
             <router-link to="/create/flashcard" class="menu-item" @click="closeMobileMenu">
               <i class="fas fa-layer-group"></i>
-              <span>Tạo Học Liệu</span>
+              <span>{{ t('flashcard.create') }}</span>
             </router-link>
             <router-link to="/create/quiz" class="menu-item" @click="closeMobileMenu">
               <i class="fas fa-question-circle"></i>
-              <span>Tạo Quiz</span>
+              <span>{{ t('flashcard.test') }}</span>
             </router-link>
             <router-link to="/upgrade" class="menu-item upgrade-item" @click="closeMobileMenu">
               <i class="fas fa-crown"></i>
-              <span>Nâng cấp tài khoản</span>
+              <span>{{ t('upgrade.title') }}</span>
             </router-link>
           </nav>
         </div>
@@ -314,6 +314,7 @@
 import { reactive, toRefs, computed, ref, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import MsButton from '@/components/common/button/MsButton.vue'
 import TheSearchbar from '@/components/layout/searchbar/TheSearchbar.vue'
 import TheLogo from '@/components/layout/logo/TheLogo.vue'
@@ -322,10 +323,11 @@ import WebSocketService from '@/services/websocket'
 
 const store = useStore()
 const router = useRouter()
+const { t } = useI18n()
 
 const state = reactive({
   activeIndex: store.getters['header/activeIndex'],
-  placeholder: 'Tìm kiếm từ vựng',
+  placeholder: computed(() => t('search.searchPlaceholder')),
   showUserMenu: false,
   showCreateMenu: false,
   showMobileMenu: false,
@@ -389,7 +391,7 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-const options = computed(() => store.getters['header/options'])
+const optionKeys = computed(() => store.getters['header/optionKeys'])
 const isAuthenticated = computed(() => store.getters['auth/isAuthenticated'])
 const currentUser = computed(() => store.getters['auth/currentUser'])
 
@@ -530,7 +532,9 @@ const handleLogout = async () => {
 const setActive = (index) => {
   state.activeIndex = index
   store.commit('header/setActiveIndex', index)
-  state.placeholder = 'Tìm kiếm ' + options.value[index].toLowerCase()
+  const optionKey = optionKeys.value[index]
+  const optionText = t(`headerTabs.${optionKey}`)
+  state.placeholder = t('search.searchPlaceholder')
 }
 
 const handleNotificationClick = (notification) => {

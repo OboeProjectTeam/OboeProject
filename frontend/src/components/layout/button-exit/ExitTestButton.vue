@@ -2,23 +2,23 @@
   <div>
     <button class="exit-button secondary-button" @click="requestExit">
       <i class="fas fa-times-circle"></i>
-      Thoát & Ôn Luyện
+      {{ $t('exitButton.exitAndReview') }}
     </button>
 
     <Teleport to="body">
       <div v-if="showConfirmExitPopup" class="confirm-exit-popup">
         <div class="modal-overlay" @click="cancelExit"></div>
         <div class="popup-content">
-          <h3>Xác nhận thoát</h3>
-          <p>Bạn có chắc muốn thoát và quay lại ôn luyện? Tiến trình sẽ không được lưu.</p>
+          <h3>{{ $t('exitButton.confirmExitTitle') }}</h3>
+          <p>{{ $t('exitButton.confirmExitMessage') }}</p>
           <div class="popup-actions">
             <button class="secondary-button" @click="cancelExit">
               <i class="fas fa-ban"></i>
-              Hủy
+              {{ $t('exitButton.cancel') }}
             </button>
             <button class="primary-button" @click="confirmExit">
               <i class="fas fa-check-circle"></i>
-              Xác nhận
+              {{ $t('exitButton.confirm') }}
             </button>
           </div>
         </div>
@@ -152,4 +152,4 @@ const confirmExit = () => {
     }
   }
 }
-</style> 
+</style>

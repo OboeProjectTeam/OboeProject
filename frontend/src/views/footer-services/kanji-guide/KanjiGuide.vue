@@ -2,76 +2,76 @@
   <div class="kanji-guide-page">
     <div class="kanji-guide-container">
       <div class="kanji-guide-header">
-        <h1>Cách Nhận Diện Chữ Hán (Kanji)</h1>
-        <p class="last-updated">Cập nhật lần cuối: {{ lastUpdated }}</p>
+        <h1>{{ t('kanjiGuide.title') }}</h1>
+        <p class="last-updated">{{ t('kanjiGuide.lastUpdated') }} {{ lastUpdated }}</p>
       </div>
 
       <div class="kanji-guide-content">
         <section class="guide-section">
-          <h2>1. Cấu Trúc Chữ Hán</h2>
+          <h2>{{ t('kanjiGuide.section1Title') }}</h2>
           <div class="sub-section">
-            <h3>1.1. Bộ Thủ (部首 - Bushu)</h3>
-            <p>Bộ thủ là thành phần cơ bản nhất của chữ Hán, giúp phân loại và gợi ý nghĩa của chữ.</p>
+            <h3>{{ t('kanjiGuide.section1_1Title') }}</h3>
+            <p>{{ t('kanjiGuide.section1_1Description') }}</p>
             <div class="kanji-example-box">
               <div class="kanji-item">
                 <p class="kanji">氵</p>
-                <p class="meaning">Bộ thủy (nước)</p>
-                <p class="examples">Ví dụ: 海 (biển), 泳 (bơi), 洗 (rửa)</p>
+                <p class="meaning">{{ t('kanjiGuide.waterRadical') }}</p>
+                <p class="examples">{{ t('kanjiGuide.waterExamples') }}</p>
               </div>
               <div class="kanji-item">
                 <p class="kanji">木</p>
-                <p class="meaning">Bộ mộc (cây)</p>
-                <p class="examples">Ví dụ: 林 (rừng), 森 (rừng rậm), 板 (ván)</p>
+                <p class="meaning">{{ t('kanjiGuide.woodRadical') }}</p>
+                <p class="examples">{{ t('kanjiGuide.woodExamples') }}</p>
               </div>
               <div class="kanji-item">
                 <p class="kanji">火</p>
-                <p class="meaning">Bộ hỏa (lửa)</p>
-                <p class="examples">Ví dụ: 炎 (ngọn lửa), 焼 (đốt), 煮 (nấu)</p>
+                <p class="meaning">{{ t('kanjiGuide.fireRadical') }}</p>
+                <p class="examples">{{ t('kanjiGuide.fireExamples') }}</p>
               </div>
             </div>
           </div>
           <div class="sub-section">
-            <h3>1.2. Cách Kết Hợp</h3>
+            <h3>{{ t('kanjiGuide.section1_2Title') }}</h3>
             <ul>
-              <li>Kết hợp ngang: 林 = 木 + 木 (nhiều cây = rừng)</li>
-              <li>Kết hợp dọc: 早 = 日 + 十 (mặt trời + mười = sớm)</li>
-              <li>Kết hợp bao quanh: 国 (quốc gia)</li>
-              <li>Kết hợp phức tạp: 館 (building/hall)</li>
+              <li>{{ t('kanjiGuide.horizontalCombination') }}</li>
+              <li>{{ t('kanjiGuide.verticalCombination') }}</li>
+              <li>{{ t('kanjiGuide.surroundingCombination') }}</li>
+              <li>{{ t('kanjiGuide.complexCombination') }}</li>
             </ul>
           </div>
         </section>
 
         <section class="guide-section">
-          <h2>2. Quy Tắc Viết Chữ Hán</h2>
+          <h2>{{ t('kanjiGuide.section2Title') }}</h2>
           <div class="sub-section">
-            <h3>2.1. Nguyên Tắc Cơ Bản</h3>
+            <h3>{{ t('kanjiGuide.section2_1Title') }}</h3>
             <ul>
-              <li>Từ trái sang phải</li>
-              <li>Từ trên xuống dưới</li>
-              <li>Từ ngoài vào trong</li>
-              <li>Nét ngang trước nét dọc</li>
+              <li>{{ t('kanjiGuide.leftToRight') }}</li>
+              <li>{{ t('kanjiGuide.topToBottom') }}</li>
+              <li>{{ t('kanjiGuide.outsideToInside') }}</li>
+              <li>{{ t('kanjiGuide.horizontalBeforeVertical') }}</li>
             </ul>
           </div>
           <div class="sub-section">
-            <h3>2.2. Stroke Order</h3>
+            <h3>{{ t('kanjiGuide.section2_2Title') }}</h3>
             <div class="stroke-order-box">
               <div class="stroke-example">
                 <p class="kanji">木</p>
                 <ol>
-                  <li>Nét ngang trên cùng</li>
-                  <li>Nét dọc giữa</li>
-                  <li>Nét chéo trái</li>
-                  <li>Nét chéo phải</li>
+                  <li>{{ t('kanjiGuide.woodStroke1') }}</li>
+                  <li>{{ t('kanjiGuide.woodStroke2') }}</li>
+                  <li>{{ t('kanjiGuide.woodStroke3') }}</li>
+                  <li>{{ t('kanjiGuide.woodStroke4') }}</li>
                 </ol>
               </div>
               <div class="stroke-example">
                 <p class="kanji">水</p>
                 <ol>
-                  <li>Nét chấm bên trái</li>
-                  <li>Nét chấm bên phải</li>
-                  <li>Nét ngang</li>
-                  <li>Nét dọc</li>
-                  <li>Nét gập khúc</li>
+                  <li>{{ t('kanjiGuide.waterStroke1') }}</li>
+                  <li>{{ t('kanjiGuide.waterStroke2') }}</li>
+                  <li>{{ t('kanjiGuide.waterStroke3') }}</li>
+                  <li>{{ t('kanjiGuide.waterStroke4') }}</li>
+                  <li>{{ t('kanjiGuide.waterStroke5') }}</li>
                 </ol>
               </div>
             </div>
@@ -79,89 +79,93 @@
         </section>
 
         <section class="guide-section">
-          <h2>3. Cách Đọc Chữ Hán</h2>
+          <h2>{{ t('kanjiGuide.section3Title') }}</h2>
           <div class="sub-section">
-            <h3>3.1. Âm On (音読み)</h3>
-            <p>Cách đọc theo âm Hán-Nhật, thường dùng trong từ ghép:</p>
-            <div class="reading-example">
-              <div class="kanji-reading">
-                <span class="kanji">山</span>
-                <span class="reading">サン (san)</span>
-                <span class="example">富士山 (Fujisan - núi Phú Sĩ)</span>
-              </div>
-              <div class="kanji-reading">
+            <h3>{{ t('kanjiGuide.section3_1Title') }}</h3>
+            <p>{{ t('kanjiGuide.section3_1Description') }}</p>
+            <div class="reading-examples">
+              <div class="reading-example">
                 <span class="kanji">水</span>
-                <span class="reading">スイ (sui)</span>
-                <span class="example">水曜日 (Suiyoubi - thứ Tư)</span>
+                <span class="reading">{{ t('kanjiGuide.waterVietnamese') }}</span>
+              </div>
+              <div class="reading-example">
+                <span class="kanji">木</span>
+                <span class="reading">{{ t('kanjiGuide.woodVietnamese') }}</span>
+              </div>
+              <div class="reading-example">
+                <span class="kanji">火</span>
+                <span class="reading">{{ t('kanjiGuide.fireVietnamese') }}</span>
               </div>
             </div>
           </div>
           <div class="sub-section">
-            <h3>3.2. Âm Kun (訓読み)</h3>
-            <p>Cách đọc theo âm Nhật, thường dùng khi chữ đứng một mình:</p>
-            <div class="reading-example">
-              <div class="kanji-reading">
-                <span class="kanji">山</span>
-                <span class="reading">やま (yama)</span>
-                <span class="example">山 (yama - núi)</span>
-              </div>
-              <div class="kanji-reading">
+            <h3>{{ t('kanjiGuide.section3_2Title') }}</h3>
+            <p>{{ t('kanjiGuide.section3_2Description') }}</p>
+            <ul>
+              <li><strong>{{ t('kanjiGuide.onReading') }}:</strong> {{ t('kanjiGuide.onReadingDesc') }}</li>
+              <li><strong>{{ t('kanjiGuide.kunReading') }}:</strong> {{ t('kanjiGuide.kunReadingDesc') }}</li>
+            </ul>
+            <div class="reading-examples">
+              <div class="reading-example">
                 <span class="kanji">水</span>
-                <span class="reading">みず (mizu)</span>
-                <span class="example">水 (mizu - nước)</span>
+                <span class="reading">{{ t('kanjiGuide.waterJapanese') }}</span>
+              </div>
+              <div class="reading-example">
+                <span class="kanji">木</span>
+                <span class="reading">{{ t('kanjiGuide.woodJapanese') }}</span>
               </div>
             </div>
           </div>
         </section>
 
         <section class="guide-section">
-          <h2>4. Phương Pháp Học Hiệu Quả</h2>
+          <h2>{{ t('kanjiGuide.section4Title') }}</h2>
           <div class="sub-section">
-            <h3>4.1. Học Theo Bộ Thủ</h3>
+            <h3>{{ t('kanjiGuide.section4_1Title') }}</h3>
             <ul>
-              <li>Tập trung học các bộ thủ phổ biến trước</li>
-              <li>Nhóm các chữ Hán có cùng bộ thủ</li>
-              <li>Tìm hiểu ý nghĩa và liên hệ với bộ thủ</li>
-              <li>Sử dụng flashcard để ghi nhớ bộ thủ</li>
+              <li>{{ t('kanjiGuide.section4_1Method1') }}</li>
+              <li>{{ t('kanjiGuide.section4_1Method2') }}</li>
+              <li>{{ t('kanjiGuide.section4_1Method3') }}</li>
+              <li>{{ t('kanjiGuide.section4_1Method4') }}</li>
             </ul>
           </div>
           <div class="sub-section">
-            <h3>4.2. Luyện Tập Thường Xuyên</h3>
+            <h3>{{ t('kanjiGuide.section4_2Title') }}</h3>
             <ul>
-              <li>Viết chữ theo stroke order chuẩn</li>
-              <li>Đọc văn bản tiếng Nhật hàng ngày</li>
-              <li>Sử dụng ứng dụng học Kanji</li>
-              <li>Làm bài tập và kiểm tra định kỳ</li>
+              <li>{{ t('kanjiGuide.section4_2Method1') }}</li>
+              <li>{{ t('kanjiGuide.section4_2Method2') }}</li>
+              <li>{{ t('kanjiGuide.section4_2Method3') }}</li>
+              <li>{{ t('kanjiGuide.section4_2Method4') }}</li>
             </ul>
           </div>
         </section>
 
         <section class="guide-section">
-          <h2>5. Mẹo Nhận Diện Nhanh</h2>
+          <h2>{{ t('kanjiGuide.section5Title') }}</h2>
           <div class="sub-section">
-            <h3>5.1. Phân Tích Hình Dạng</h3>
+            <h3>{{ t('kanjiGuide.section5_1Title') }}</h3>
             <div class="tips-box">
               <div class="tip-item">
-                <h4>Tìm Bộ Thủ</h4>
-                <p>Xác định bộ thủ chính để đoán nghĩa gốc</p>
+                <h4>{{ t('kanjiGuide.tip1Title') }}</h4>
+                <p>{{ t('kanjiGuide.tip1Description') }}</p>
               </div>
               <div class="tip-item">
-                <h4>Đếm Số Nét</h4>
-                <p>Đếm số nét để tìm kiếm trong từ điển</p>
+                <h4>{{ t('kanjiGuide.tip2Title') }}</h4>
+                <p>{{ t('kanjiGuide.tip2Description') }}</p>
               </div>
               <div class="tip-item">
-                <h4>Nhận Dạng Mẫu</h4>
-                <p>Tìm các mẫu lặp lại trong chữ Hán</p>
+                <h4>{{ t('kanjiGuide.tip3Title') }}</h4>
+                <p>{{ t('kanjiGuide.tip3Description') }}</p>
               </div>
             </div>
           </div>
           <div class="sub-section">
-            <h3>5.2. Sử Dụng Công Cụ Hỗ Trợ</h3>
+            <h3>{{ t('kanjiGuide.section5_2Title') }}</h3>
             <ul>
-              <li>Từ điển Kanji điện tử</li>
-              <li>Ứng dụng nhận dạng chữ viết</li>
-              <li>Công cụ tìm kiếm theo bộ thủ</li>
-              <li>Phần mềm luyện viết stroke order</li>
+              <li>{{ t('kanjiGuide.tool1') }}</li>
+              <li>{{ t('kanjiGuide.tool2') }}</li>
+              <li>{{ t('kanjiGuide.tool3') }}</li>
+              <li>{{ t('kanjiGuide.tool4') }}</li>
             </ul>
           </div>
         </section>
@@ -172,10 +176,12 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const lastUpdated = ref('15/03/2024');
 </script>
 
 <style lang="scss" scoped>
 @use '@/views/footer-services/kanji-guide/KanjiGuide.scss';
-</style> 
+</style>
