@@ -1,5 +1,6 @@
 import api from '@/api';
 import { isTokenExpired } from '@/api/modules/authApi';
+import { jwtDecode } from 'jwt-decode';
 import WebSocketService from '@/services/websocket';
 
 const state = () => ({
@@ -127,6 +128,17 @@ const getters = {
   isAuthenticated: (state) => !!state.token && !!state.user,
   currentUser: (state) => state.user,
   accessToken: (state) => state.token,
+  // Kiểm tra user có đăng nhập bằng Google không
+  isGoogleUser: (state) => {
+    if (!state.token) return false;
+    try {
+      const decoded = jwtDecode(state.token);
+      return decoded.provider === 'GOOGLE';
+    } catch (error) {
+      console.error('Lỗi decode JWT token:', error);
+      return false;
+    }
+  },
 };
 
 export default {
