@@ -264,7 +264,7 @@ public class UserService implements UserDetailsService {
 
 
     public void changePassword(String username, PassWordChangeDTOs passWordChange) {
-        List<User> users = userRepository.searchUsers(username);
+        List<User> users = userRepository.findAllByUserNameAndAuthProvider(username, AuthProvider.EMAIL);
 
         if (users.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
