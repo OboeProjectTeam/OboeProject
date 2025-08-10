@@ -5,25 +5,25 @@
       <!-- Left Column: Payment Details -->
       <div class="payment-main-column">
         <div class="form-header">
-          <h2 v-if="!isPremium">Thanh toán với PayOS</h2>
-          <h2 v-else><i class="fas fa-crown"></i> Tài khoản Premium</h2>
-          <p v-if="!isPremium" class="payment-subtitle">Quét mã QR để thanh toán nhanh chóng và an toàn</p>
-          <p v-else class="payment-subtitle">Chào mừng bạn đến với trải nghiệm Premium</p>
+          <h2 v-if="!isPremium">{{ $t('payment.title') }}</h2>
+          <h2 v-else><i class="fas fa-crown"></i> {{ $t('payment.premiumAccount') }}</h2>
+          <p v-if="!isPremium" class="payment-subtitle">{{ $t('payment.subtitle') }}</p>
+          <p v-else class="payment-subtitle">{{ $t('payment.premiumWelcome') }}</p>
         </div>
         
         <!-- Loading State -->
         <div v-if="loading" class="payment-loading">
           <div class="loading-spinner"></div>
-          <p>Đang tạo mã thanh toán...</p>
+          <p>{{ $t('payment.creatingPayment') }}</p>
         </div>
 
         <!-- Error State -->
         <div v-else-if="error" class="payment-error">
           <div class="error-icon">⚠️</div>
-          <h3>Có lỗi xảy ra</h3>
+          <h3>{{ $t('payment.errorOccurred') }}</h3>
           <p>{{ error }}</p>
           <button @click="createPayment" class="btn-retry">
-            <i class="fas fa-redo"></i> Thử lại
+            <i class="fas fa-redo"></i> {{ $t('payment.retry') }}
           </button>
         </div>
 
@@ -31,8 +31,8 @@
         <div v-else-if="paymentData && !isPremium" class="payment-form">
           <div class="qr-payment-container">
             <div class="qr-header">
-              <h3>Quét mã QR để thanh toán</h3>
-              <p>Sử dụng ứng dụng ngân hàng hoặc ví điện tử hỗ trợ QR Pay</p>
+              <h3>{{ $t('payment.scanQR') }}</h3>
+              <p>{{ $t('payment.qrInstructions') }}</p>
             </div>
             
             <div class="qr-code-section">
@@ -42,27 +42,27 @@
               
               <div class="payment-info">
                 <div class="info-item">
-                  <span class="label">Ngân hàng:</span>
-                  <span class="value">Ngân hàng TMCP Quân đội</span>
+                  <span class="label">{{ $t('payment.bank') }}:</span>
+                  <span class="value">{{ $t('payment.bankName') }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">Chủ tài khoản:</span>
+                  <span class="label">{{ $t('payment.accountHolder') }}:</span>
                   <span class="value">NGUYEN HUU NGHIA</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">Số tài khoản:</span>
+                  <span class="label">{{ $t('payment.accountNumber') }}:</span>
                   <span class="value">VQRQADQDG0146</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">Mã đơn hàng:</span>
+                  <span class="label">{{ $t('payment.orderCode') }}:</span>
                   <span class="value">{{ paymentData.orderCode }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">Số tiền:</span>
+                  <span class="label">{{ $t('payment.amount') }}:</span>
                   <span class="value amount">{{ formatAmount(paymentData.amount) }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">Trạng thái:</span>
+                  <span class="label">{{ $t('payment.status') }}:</span>
                   <span class="value" :class="getStatusClass(paymentData.status)">{{ getStatusText(paymentData.status) }}</span>
                 </div>
                 
@@ -70,19 +70,19 @@
             </div>
 
             <div class="payment-instructions">
-              <h4>Hướng dẫn thanh toán:</h4>
+              <h4>{{ $t('payment.instructionsTitle') }}:</h4>
               <ol>
-                <li>Mở ứng dụng ngân hàng hoặc ví điện tử trên điện thoại</li>
-                <li>Chọn chức năng "Quét mã QR" hoặc "QR Pay"</li>
-                <li>Quét mã QR phía trên</li>
-                <li>Xác nhận thông tin và hoàn tất thanh toán</li>
+                <li>{{ $t('payment.instruction1') }}</li>
+                <li>{{ $t('payment.instruction2') }}</li>
+                <li>{{ $t('payment.instruction3') }}</li>
+                <li>{{ $t('payment.instruction4') }}</li>
               </ol>
             </div>
             <div class="alternative-payment">
-              <p>Hoặc bạn có thể:</p>
+              <p>{{ $t('payment.alternativeText') }}:</p>
               <a :href="paymentData.checkoutUrl" target="_blank" class="btn-checkout">
                 <i class="fas fa-external-link-alt"></i>
-                Thanh toán trên trang web
+                {{ $t('payment.payOnWebsite') }}
               </a>
             </div>
           </div>
@@ -94,8 +94,8 @@
             <div class="preview-icon">
               <i class="fas fa-qrcode"></i>
             </div>
-            <h3>Sẵn sàng thanh toán</h3>
-            <p>Nhấn nút "Tạo mã thanh toán" để bắt đầu</p>
+            <h3>{{ $t('payment.readyToPay') }}</h3>
+            <p>{{ $t('payment.clickToStart') }}</p>
           </div>
         </div>
 
@@ -105,15 +105,15 @@
             <div class="premium-icon">
               <i class="fas fa-crown"></i>
             </div>
-            <h3>Bạn đã là thành viên Premium</h3>
-            <p>Tài khoản của bạn đã được nâng cấp lên Premium và có thể sử dụng tất cả tính năng cao cấp.</p>
+            <h3>{{ $t('payment.alreadyPremium') }}</h3>
+            <p>{{ $t('payment.premiumDescription') }}</p>
             <div class="premium-features">
               <ul>
-                <li><i class="fas fa-check"></i> Truy cập không giới hạn</li>
-                <li><i class="fas fa-check"></i> Hỗ trợ ưu tiên</li>
-                <li><i class="fas fa-check"></i> Tính năng AI hỗ trợ dịch</li>
-                <li><i class="fas fa-check"></i> Tự động tạo quizz</li>
-                <li><i class="fas fa-check"></i> Đưa ra lời khuyên từ AI </li>
+                <li><i class="fas fa-check"></i> {{ $t('payment.feature1') }}</li>
+                <li><i class="fas fa-check"></i> {{ $t('payment.feature2') }}</li>
+                <li><i class="fas fa-check"></i> {{ $t('payment.feature3') }}</li>
+                <li><i class="fas fa-check"></i> {{ $t('payment.feature4') }}</li>
+                <li><i class="fas fa-check"></i> {{ $t('payment.feature5') }}</li>
               </ul>
             </div>
           </div>
@@ -123,17 +123,17 @@
       <!-- Right Column: Order Summary -->
       <div class="payment-sidebar-column">
         <div class="order-summary-card">
-          <h4 v-if="!isPremium">Tóm tắt đơn hàng</h4>
-          <h4 v-else>Thông tin tài khoản</h4>
+          <h4 v-if="!isPremium">{{ $t('payment.orderSummary') }}</h4>
+          <h4 v-else>{{ $t('payment.accountInfo') }}</h4>
           
           <div v-if="!isPremium" class="order-summary">
             <div class="summary-item">
-              <span>Gói Oboe Pro (Hàng tháng)</span>
-              <strong>99.000đ</strong>
+              <span>{{ $t('payment.oboePro') }}</span>
+              <strong>{{ $t('payment.monthlyPrice') }}</strong>
             </div>
             <div class="summary-item total">
-              <span>Tổng cộng</span>
-              <strong class="total-price">99.000đ</strong>
+              <span>{{ $t('payment.total') }}</span>
+              <strong class="total-price">{{ $t('payment.monthlyPrice') }}</strong>
             </div>
           </div>
           
@@ -141,20 +141,20 @@
             <div class="premium-status">
               <div class="premium-badge">
                 <i class="fas fa-crown"></i>
-                <span>PREMIUM</span>
+                <span>{{ $t('payment.premium') }}</span>
               </div>
               <p class="premium-description">
-                Tài khoản của bạn đã được nâng cấp lên Premium với đầy đủ tính năng cao cấp.
+                {{ $t('payment.premiumAccountDescription') }}
               </p>
             </div>
             <div class="premium-info">
               <div class="info-item">
-                <span>Trạng thái:</span>
-                <strong class="status-active">Đang hoạt động</strong>
+                <span>{{ $t('payment.statusLabel') }}:</span>
+                <strong class="status-active">{{ $t('payment.active') }}</strong>
               </div>
               <div class="info-item">
-                <span>Loại tài khoản:</span>
-                <strong>Premium</strong>
+                <span>{{ $t('payment.accountType') }}:</span>
+                <strong>{{ $t('payment.premium') }}</strong>
               </div>
             </div>
           </div>
@@ -167,7 +167,7 @@
               class="btn-submit"
               :disabled="loading"
             >
-              <i class="fas fa-qrcode"></i> Tạo mã thanh toán
+              <i class="fas fa-qrcode"></i> {{ $t('payment.createPayment') }}
             </button>
             <button 
               v-else-if="paymentData && paymentData.status !== 'PENDING'" 
@@ -175,7 +175,7 @@
               class="btn-submit"
               :disabled="loading"
             >
-              <i class="fas fa-plus"></i> Tạo thanh toán mới
+              <i class="fas fa-plus"></i> {{ $t('payment.createNew') }}
             </button>
           </div>
           
@@ -185,20 +185,20 @@
               @click="$router.push('/')" 
               class="btn-submit btn-premium"
             >
-              <i class="fas fa-home"></i> Về trang chủ
+              <i class="fas fa-home"></i> {{ $t('payment.goHome') }}
             </button>
           </div>
           
           <p v-if="!isPremium" class="terms">
-            Bằng việc thanh toán, bạn đồng ý với <a href="#">Điều khoản dịch vụ</a>.
+            {{ $t('payment.termsText') }} <a href="#">{{ $t('payment.termsOfService') }}</a>.
           </p>
         </div>
         
         <div class="trust-badges">
           <i v-if="!isPremium" class="fas fa-shield-alt"></i>
           <i v-else class="fas fa-star"></i>
-          <span v-if="!isPremium">Thanh toán an toàn với PayOS</span>
-          <span v-else>Cảm ơn bạn đã là thành viên Premium</span>
+          <span v-if="!isPremium">{{ $t('payment.securePayment') }}</span>
+          <span v-else>{{ $t('payment.thanksPremium') }}</span>
         </div>
 
         <!-- Payment Status -->
@@ -210,9 +210,9 @@
   <!-- Success Popup -->
   <ThePopup
     v-if="showSuccessPopup"
-    title="🎉 Thanh toán thành công!"
-    :message="'Chúc mừng! Tài khoản của bạn đã được nâng cấp lên Premium.\n\nBạn có thể sử dụng tất cả tính năng cao cấp:\n• Truy cập không giới hạn\n• Tính năng AI nâng cao\n• Hỗ trợ ưu tiên\n• Không có quảng cáo'"
-    confirm-text="Về trang chủ"
+    :title="$t('payment.successTitle')"
+    :message="$t('payment.successMessage')"
+    :confirm-text="$t('payment.goHome')"
     :show-cancel="false"
     :use-html="false"
     @confirm="handlePopupConfirm"
@@ -228,10 +228,12 @@ import ThePopup from '@/components/common/popup/ThePopup.vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useGlobalPremiumSync } from '@/composables/useGlobalPremiumSync';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const store = useStore();
 const { requestPremiumSync } = useGlobalPremiumSync();
+const { t } = useI18n();
 
 // Reactive data
 const loading = ref(false);
@@ -261,8 +263,8 @@ const createPayment = async () => {
   if (isPremium.value) {
     paymentStatus.value = {
       type: 'success',
-      title: 'Tài khoản Premium đã kích hoạt',
-      message: 'Bạn đã là thành viên Premium và không cần thanh toán thêm.'
+      title: t('payment.premiumActivated'),
+      message: t('payment.alreadyPremiumMessage')
     };
     return;
   }
@@ -279,7 +281,7 @@ const createPayment = async () => {
     
   } catch (err) {
     console.error('Error creating payment:', err);
-    error.value = err.message || 'Không thể tạo mã thanh toán. Vui lòng thử lại.';
+    error.value = err.message || t('payment.createError');
   } finally {
     loading.value = false;
   }
@@ -310,8 +312,8 @@ const checkPaymentStatus = async () => {
       // Thanh toán thành công
       paymentStatus.value = {
         type: 'success',
-        title: 'Cảm ơn quý khách đã ủng hộ!',
-        message: 'Hiện tại tài khoản quý khách đã là Premium'
+        title: t('payment.thankYou'),
+        message: t('payment.accountUpgraded')
       };
       
       // Dừng auto-check khi thanh toán thành công
@@ -324,8 +326,8 @@ const checkPaymentStatus = async () => {
       // Thanh toán bị hủy
       paymentStatus.value = {
         type: 'error',
-        title: 'Thanh toán đã bị hủy',
-        message: 'Giao dịch đã bị hủy. Vui lòng tạo thanh toán mới.'
+        title: t('payment.paymentCancelled'),
+        message: t('payment.transactionCancelled')
       };
       stopAutoCheck();
       
@@ -333,8 +335,8 @@ const checkPaymentStatus = async () => {
       // Thanh toán thất bại
       paymentStatus.value = {
         type: 'error',
-        title: 'Thanh toán thất bại',
-        message: 'Giao dịch không thành công. Vui lòng thử lại.'
+        title: t('payment.paymentFailed'),
+        message: t('payment.transactionFailed')
       };
       stopAutoCheck();
       
@@ -342,8 +344,8 @@ const checkPaymentStatus = async () => {
       // Đang chờ thanh toán
       paymentStatus.value = {
         type: 'pending',
-        title: 'Đang chờ thanh toán',
-        message: 'Vui lòng hoàn tất thanh toán để tiếp tục.'
+        title: t('payment.waitingPayment'),
+        message: t('payment.completePayment')
       };
     }
     
@@ -351,8 +353,8 @@ const checkPaymentStatus = async () => {
     console.error('Error checking payment status:', err);
     paymentStatus.value = {
       type: 'error',
-      title: 'Lỗi kiểm tra thanh toán',
-      message: 'Không thể kiểm tra trạng thái thanh toán. Vui lòng thử lại.'
+      title: t('payment.checkError'),
+      message: t('payment.checkErrorMessage')
     };
   } finally {
     checking.value = false;
@@ -413,10 +415,10 @@ const formatAmount = (amount) => {
 // Get status text
 const getStatusText = (status) => {
   const statusMap = {
-    'PENDING': 'Đang chờ thanh toán',
-    'PAID': 'Đã thanh toán',
-    'CANCELLED': 'Đã hủy',
-    'FAILED': 'Thất bại'
+    'PENDING': t('payment.status.pending'),
+    'PAID': t('payment.status.paid'),
+    'CANCELLED': t('payment.status.cancelled'),
+    'FAILED': t('payment.status.failed')
   };
   return statusMap[status] || status;
 };
@@ -444,13 +446,13 @@ const checkUserProfile = async () => {
       // Nếu đã là Premium, hiển thị thông báo
       paymentStatus.value = {
         type: 'success',
-        title: 'Tài khoản Premium đã kích hoạt',
-        message: 'Bạn đã là thành viên Premium và có thể sử dụng tất cả tính năng cao cấp.'
+        title: t('payment.premiumActivated'),
+        message: t('payment.premiumActivatedMessage')
       };
     }
   } catch (err) {
     console.error('Error checking user profile:', err);
-    error.value = 'Không thể kiểm tra thông tin tài khoản. Vui lòng thử lại.';
+    error.value = t('payment.profileCheckError');
   } finally {
     loading.value = false;
   }
@@ -509,7 +511,8 @@ onUnmounted(() => {
 export default {
   components: {
     ThePopup
-  }
+  },
+  emits: ['sendMessage']
 }
 </script>
 

@@ -95,26 +95,6 @@ export const MESSAGES = {
   }
 };
 
-// FAQ Items
-export const FAQ_ITEMS = [
-  {
-    question: 'Làm thế nào để nâng cấp lên OboePro?',
-    answer: 'Bạn có thể dễ dàng nâng cấp tài khoản bằng cách nhấn nút "Nâng cấp ngay" và làm theo hướng dẫn thanh toán.'
-  },
-  {
-    question: 'Tôi có thể hủy đăng ký bất cứ lúc nào không?',
-    answer: 'Có, bạn có thể hủy đăng ký OboePro bất cứ lúc nào. Tài khoản của bạn sẽ duy trì quyền lợi Pro đến hết chu kỳ thanh toán hiện tại.'
-  },
-  {
-    question: 'Có được dùng thử OboePro không?',
-    answer: 'Có, chúng tôi cung cấp gói dùng thử OboePro miễn phí trong 7 ngày để bạn có thể trải nghiệm đầy đủ các tính năng.'
-  },
-  {
-    question: 'Phương thức thanh toán nào được chấp nhận?',
-    answer: 'Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, PayPal, và các ví điện tử phổ biến như Momo.'
-  }
-];
-
 // Footer Constants
 export const FOOTER = {
   CONTACT_INFO: [

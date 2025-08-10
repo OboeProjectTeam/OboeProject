@@ -551,6 +551,87 @@
     "cancel": "キャンセル",
     "confirm": "確認"
   },
+  "payment": {
+    "title": "プレミアム決済",
+    "subtitle": "すべての機能を体験するためにアカウントをアップグレード",
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "premiumAccount": "プレミアムアカウント",
+    "premiumWelcome": "Oboeプレミアムへようこそ",
+    "creatingPayment": "支払いコードを作成中...",
+    "errorOccurred": "エラーが発生しました",
+    "retry": "再試行",
+    "scanQR": "QRコードをスキャンして支払い",
+    "qrInstructions": "銀行アプリまたは電子ウォレットを使用してコードをスキャン",
+    "qrTitle": "QRコードをスキャンして支払い",
+    "qrSubtitle": "銀行アプリまたは電子ウォレットを使用してコードをスキャン",
+    "bank": "銀行",
+    "bankName": "軍事商業株式銀行",
+    "accountHolder": "口座名義人",
+    "accountNumber": "口座番号",
+    "orderCode": "注文コード",
+    "amount": "金額",
+    "status": "ステータス",
+    "instructionsTitle": "支払い手順",
+    "instruction1": "スマートフォンで銀行アプリまたは電子ウォレットを開く",
+    "instruction2": "「QRコードスキャン」または「QR Pay」機能を選択",
+    "instruction3": "上記のQRコードをスキャン",
+    "instruction4": "情報を確認して支払いを完了",
+    "alternativeText": "または",
+    "payOnWebsite": "ウェブサイトで支払い",
+    "readyToPay": "支払い準備完了",
+    "clickToStart": "「支払いコード作成」をクリックして開始",
+    "alreadyPremium": "既にプレミアムメンバーです",
+    "premiumDescription": "アカウントはプレミアムにアップグレードされ、すべてのプレミアム機能を使用できます。",
+    "feature1": "無制限アクセス",
+    "feature2": "優先サポート",
+    "feature3": "AI翻訳支援",
+    "feature4": "自動クイズ生成",
+    "feature5": "AIアドバイスと推奨",
+    "creating": "作成中...",
+    "createPayment": "支払いコード作成",
+    "checking": "確認中...",
+    "checkStatus": "ステータス確認",
+    "createNew": "新しい支払い作成",
+    "premiumActivated": "プレミアムアカウント有効化",
+    "alreadyPremiumMessage": "既にプレミアムメンバーで、追加の支払いは不要です。",
+    "createError": "支払いコードを作成できません。再試行してください。",
+    "thankYou": "ご支援ありがとうございます！",
+    "accountUpgraded": "アカウントがプレミアムになりました",
+    "paymentCancelled": "支払いがキャンセルされました",
+    "transactionCancelled": "取引がキャンセルされました。新しい支払いを作成してください。",
+    "paymentFailed": "支払いに失敗しました",
+    "transactionFailed": "取引が失敗しました。再試行してください。",
+    "waitingPayment": "支払い待ち",
+    "completePayment": "続行するには支払いを完了してください。",
+    "checkError": "支払い確認エラー",
+    "checkErrorMessage": "支払いステータスを確認できません。再試行してください。",
+    "premiumActivatedMessage": "プレミアムメンバーで、すべてのプレミアム機能を使用できます。",
+    "profileCheckError": "アカウント情報を確認できません。再試行してください。",
+    "successTitle": "🎉 支払い成功！",
+    "successMessage": "おめでとうございます！アカウントがプレミアムにアップグレードされました。\n\nすべてのプレミアム機能を使用できます：\n• 無制限アクセス\n• 高度なAI機能\n• 優先サポート\n• 広告なし",
+    "goHome": "ホームページに戻る",
+    "securePayment": "PayOSによる安全な支払い",
+    "thanksPremium": "プレミアムメンバーになっていただき、ありがとうございます",
+    "status": {
+      "pending": "支払い待ち",
+      "paid": "支払い済み",
+      "cancelled": "キャンセル済み",
+      "failed": "失敗"
+    },
+    "orderSummary": "注文概要",
+    "accountInfo": "アカウント情報",
+    "oboePro": "Oboe Proパッケージ（月額）",
+    "monthlyPrice": "99.000đ",
+    "total": "合計",
+    "premium": "プレミアム",
+    "premiumAccountDescription": "アカウントがプレミアムにアップグレードされ、高度な機能にフルアクセスできます。",
+    "statusLabel": "ステータス",
+    "active": "アクティブ",
+    "accountType": "アカウントタイプ",
+    "termsText": "お支払いにより、以下に同意したものとみなされます",
+    "termsOfService": "利用規約"
+  },
   "upgrade": {
     "title": "アカウントアップグレード",
     "freePlan": "無料プラン",
@@ -572,15 +653,20 @@
     "mostPopular": "最も人気",
     "recommended": "おすすめ",
     "becomeProMember": "プロメンバーになる",
+    "subtitle": "学習の可能性を最大限に引き出す",
     "unlockPotential": "学習の可能性を最大限に引き出す",
     "featuresTitle": "プレミアム機能",
     "aiAssistant": "AI学習アシスタント",
+    "aiAssistantTitle": "AI学習アシスタント",
     "aiAssistantDesc": "個人に合わせた学習推奨と質問への即座の回答を提供します。",
     "learningAnalytics": "高度な学習分析",
+    "learningAnalyticsTitle": "高度な学習分析",
     "learningAnalyticsDesc": "詳細な統計とパフォーマンス洞察で進捗を追跡します。",
     "smartLearning": "スマート学習システム",
+    "smartLearningTitle": "スマート学習システム",
     "smartLearningDesc": "学習スケジュールを最適化する適応的間隔反復アルゴリズム。",
     "advancedContent": "プレミアムコンテンツライブラリ",
+    "advancedContentTitle": "プレミアムコンテンツライブラリ",
     "advancedContentDesc": "独占的な学習教材と高度な学習リソースにアクセス。",
     "testimonialsTitle": "ユーザーの声",
     "testimonial1Name": "田中さくら",
@@ -593,17 +679,18 @@
     "ctaTitle": "学習を加速する準備はできましたか？",
     "ctaDescription": "Oboe Proを選んだ何千人もの成功した学習者に参加しましょう",
     "getStarted": "今日から始める",
+    "startNow": "今すぐ始める",
     "pricing": {
       "free": {
         "name": "無料",
-        "price": 0,
+        "price": "¥0",
         "currency": "đ",
         "description": "学習を始めるための基本機能",
-        "features": [
-          "すべての教材へのアクセス",
-          "基本的な学習教材の作成",
-          "メールサポート"
-        ],
+        "features": {
+          "feature1": "すべての教材へのアクセス",
+          "feature2": "基本的な学習教材の作成",
+          "feature3": "メールサポート"
+        },
         "notFeatures": [
           "AI自動翻訳",
           "AI学習教材作成",
@@ -612,38 +699,30 @@
       },
       "pro": {
         "name": "Oboe Pro",
-        "price": 99000,
+        "price": "99.000",
         "currency": "đ",
         "period": "/月",
         "description": "AI技術による包括的な学習体験",
-        "features": [
-          "無制限アクセス",
-          "AI学習教材作成",
-          "24/7優先サポート",
-          "AI自動翻訳",
-          "AIクイズ評価とアドバイス",
-          "新機能への早期アクセス"
-        ]
+        "features": {
+          "feature1": "無制限アクセス",
+          "feature2": "AI学習教材作成",
+          "feature3": "24/7優先サポート",
+          "feature4": "AI自動翻訳",
+          "feature5": "AIクイズ評価とアドバイス",
+          "feature6": "新機能への早期アクセス"
+        }
       }
     },
-    "faq": [
-      {
-        "question": "Oboe Proにアップグレードするには？",
-        "answer": "「今すぐアップグレード」ボタンをクリックして、支払い手順に従うことで簡単にアカウントをアップグレードできます。"
-      },
-      {
-        "question": "いつでもサブスクリプションをキャンセルできますか？",
-        "answer": "はい、いつでもOboe Proサブスクリプションをキャンセルできます。アカウントは現在の請求サイクルの終了まで Pro特典を維持します。"
-      },
-      {
-        "question": "Oboe Proの無料トライアルはありますか？",
-        "answer": "はい、すべての機能を体験できるOboe Proの7日間無料トライアルを提供しています。"
-      },
-      {
-        "question": "どの支払い方法が利用できますか？",
-        "answer": "クレジットカード、PayPal、Momoなどの人気の電子ウォレットでの支払いを受け付けています。"
-      }
-    ]
+    "faq": {
+      "question1": "Oboe Proにアップグレードするには？",
+      "answer1": "「今すぐアップグレード」ボタンをクリックして、支払い手順に従うことで簡単にアカウントをアップグレードできます。",
+      "question2": "いつでもサブスクリプションをキャンセルできますか？",
+      "answer2": "はい、いつでもOboe Proサブスクリプションをキャンセルできます。アカウントは現在の請求サイクルの終了まで Pro特典を維持します。",
+      "question3": "Oboe Proの無料トライアルはありますか？",
+      "answer3": "はい、すべての機能を体験できるOboe Proの7日間無料トライアルを提供しています。",
+      "question4": "どの支払い方法が利用できますか？",
+      "answer4": "クレジットカード、PayPal、Momoなどの人気の電子ウォレットでの支払いを受け付けています。"
+    }
   },
   "createForumPost": {
     "title": "新しい投稿を作成",

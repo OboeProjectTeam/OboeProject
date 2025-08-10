@@ -471,6 +471,87 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service"
   },
+  "payment": {
+    "title": "Premium Payment",
+    "subtitle": "Upgrade your account to experience all features",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "premiumAccount": "Premium Account",
+    "premiumWelcome": "Welcome to Oboe Premium",
+    "creatingPayment": "Creating payment code...",
+    "errorOccurred": "An error occurred",
+    "retry": "Retry",
+    "scanQR": "Scan QR code to pay",
+    "qrInstructions": "Use your banking app or e-wallet to scan the code",
+    "qrTitle": "Scan QR code to pay",
+    "qrSubtitle": "Use your banking app or e-wallet to scan the code",
+    "bank": "Bank",
+    "bankName": "Military Commercial Joint Stock Bank",
+    "accountHolder": "Account Holder",
+    "accountNumber": "Account Number",
+    "orderCode": "Order Code",
+    "amount": "Amount",
+    "status": "Status",
+    "instructionsTitle": "Payment Instructions",
+    "instruction1": "Open your banking app or e-wallet on your phone",
+    "instruction2": "Select \"Scan QR Code\" or \"QR Pay\" function",
+    "instruction3": "Scan the QR code above",
+    "instruction4": "Confirm information and complete payment",
+    "alternativeText": "Or you can",
+    "payOnWebsite": "Pay on website",
+    "readyToPay": "Ready to pay",
+    "clickToStart": "Click \"Create payment code\" to start",
+    "alreadyPremium": "You are already a Premium member",
+    "premiumDescription": "Your account has been upgraded to Premium and can use all premium features.",
+    "feature1": "Unlimited access",
+    "feature2": "Priority support",
+    "feature3": "AI translation assistance",
+    "feature4": "Auto quiz generation",
+    "feature5": "AI advice and recommendations",
+    "creating": "Creating...",
+    "createPayment": "Create payment code",
+    "checking": "Checking...",
+    "checkStatus": "Check status",
+    "createNew": "Create new payment",
+    "premiumActivated": "Premium account activated",
+    "alreadyPremiumMessage": "You are already a Premium member and don't need additional payment.",
+    "createError": "Unable to create payment code. Please try again.",
+    "thankYou": "Thank you for your support!",
+    "accountUpgraded": "Your account is now Premium",
+    "paymentCancelled": "Payment cancelled",
+    "transactionCancelled": "Transaction has been cancelled. Please create a new payment.",
+    "paymentFailed": "Payment failed",
+    "transactionFailed": "Transaction was unsuccessful. Please try again.",
+    "waitingPayment": "Waiting for payment",
+    "completePayment": "Please complete payment to continue.",
+    "checkError": "Payment check error",
+    "checkErrorMessage": "Unable to check payment status. Please try again.",
+    "premiumActivatedMessage": "You are a Premium member and can use all premium features.",
+    "profileCheckError": "Unable to check account information. Please try again.",
+    "successTitle": "🎉 Payment successful!",
+    "successMessage": "Congratulations! Your account has been upgraded to Premium.\n\nYou can now use all premium features:\n• Unlimited access\n• Advanced AI features\n• Priority support\n• No ads",
+    "goHome": "Go to homepage",
+    "securePayment": "Secure payment with PayOS",
+    "thanksPremium": "Thank you for being a Premium member",
+    "status": {
+      "pending": "Pending payment",
+      "paid": "Paid",
+      "cancelled": "Cancelled",
+      "failed": "Failed"
+    },
+    "orderSummary": "Order Summary",
+    "accountInfo": "Account Information",
+    "oboePro": "Oboe Pro Package (Monthly)",
+    "monthlyPrice": "$9.99",
+    "total": "Total",
+    "premium": "PREMIUM",
+    "premiumAccountDescription": "Your account has been upgraded to Premium with full access to advanced features.",
+    "statusLabel": "Status",
+    "active": "Active",
+    "accountType": "Account Type",
+    "termsText": "By making payment, you agree to",
+    "termsOfService": "Terms of Service"
+  },
   "upgrade": {
     "title": "Upgrade Account",
     "freePlan": "Free Plan",
@@ -492,15 +573,20 @@
     "mostPopular": "Most Popular",
     "recommended": "Recommended",
     "becomeProMember": "Become an Oboe Pro Member",
+    "subtitle": "Unlock unlimited creative potential and premium learning experience.",
     "unlockPotential": "Unlock unlimited creative potential and premium learning experience.",
     "featuresTitle": "Outstanding Features of Oboe Pro",
     "aiAssistant": "Smart AI Assistant",
+    "aiAssistantTitle": "Smart AI Assistant",
     "aiAssistantDesc": "Get personalized learning guidance based on your style and progress.",
     "learningAnalytics": "Learning Analytics",
+    "learningAnalyticsTitle": "Learning Analytics",
     "learningAnalyticsDesc": "Track progress with detailed reports and receive appropriate improvement suggestions.",
     "smartLearning": "Smart Learning",
+    "smartLearningTitle": "Smart Learning",
     "smartLearningDesc": "System automatically adjusts difficulty and review frequency based on your ability.",
     "advancedContent": "Advanced Content",
+    "advancedContentTitle": "Advanced Content",
     "advancedContentDesc": "Access advanced vocabulary and grammar library suitable for all levels.",
     "testimonialsTitle": "What Users Say?",
     "testimonial1Name": "John Smith",
@@ -513,17 +599,18 @@
     "ctaTitle": "Ready to enhance your learning experience?",
     "ctaDescription": "Use OboePro and discover the power of AI in learning Japanese.",
     "getStarted": "Get Started Now",
+    "startNow": "Start Now",
     "pricing": {
       "free": {
         "name": "Free",
-        "price": 0,
+        "price": "$0",
         "currency": "đ",
         "description": "Basic features to start your learning journey",
-        "features": [
-          "Access to all materials",
-          "Create basic learning materials",
-          "Email support"
-        ],
+        "features": {
+          "feature1": "Access to all materials",
+          "feature2": "Create basic learning materials",
+          "feature3": "Email support"
+        },
         "notFeatures": [
           "AI automatic translation",
           "AI-powered learning materials",
@@ -532,38 +619,30 @@
       },
       "pro": {
         "name": "Oboe Pro",
-        "price": 99000,
+        "price": "$9.99/month",
         "currency": "đ",
         "period": "/month",
         "description": "Comprehensive learning experience with AI technology",
-        "features": [
-          "Unlimited access",
-          "AI-powered learning materials",
-          "24/7 priority support",
-          "AI automatic translation",
-          "AI quiz evaluation and advice",
-          "Early access to new features"
-        ]
+        "features": {
+          "feature1": "Unlimited access",
+          "feature2": "AI-powered learning materials",
+          "feature3": "24/7 priority support",
+          "feature4": "AI automatic translation",
+          "feature5": "AI quiz evaluation and advice",
+          "feature6": "Early access to new features"
+        }
       }
     },
-    "faq": [
-      {
-        "question": "How to upgrade to OboePro?",
-        "answer": "You can easily upgrade your account by clicking the \"Upgrade Now\" button and following the payment instructions."
-      },
-      {
-        "question": "Can I cancel my subscription anytime?",
-        "answer": "Yes, you can cancel your OboePro subscription at any time. Your account will maintain Pro benefits until the end of the current billing cycle."
-      },
-      {
-        "question": "Is there a free trial for OboePro?",
-        "answer": "Yes, we offer a 7-day free trial of OboePro so you can experience all the features."
-      },
-      {
-        "question": "What payment methods are accepted?",
-        "answer": "We accept payments via credit cards, PayPal, and popular e-wallets like Momo."
-      }
-    ]
+    "faq": {
+      "question1": "How to upgrade to OboePro?",
+      "answer1": "You can easily upgrade your account by clicking the \"Upgrade Now\" button and following the payment instructions.",
+      "question2": "Can I cancel my subscription anytime?",
+      "answer2": "Yes, you can cancel your OboePro subscription at any time. Your account will maintain Pro benefits until the end of the current billing cycle.",
+      "question3": "Is there a free trial for OboePro?",
+      "answer3": "Yes, we offer a 7-day free trial of OboePro so you can experience all the features.",
+      "question4": "What payment methods are accepted?",
+      "answer4": "We accept payments via credit cards, PayPal, and popular e-wallets like Momo."
+    }
   },
   "createFlashcard": {
     "backToLearning": "Back to Learning",

@@ -1099,6 +1099,87 @@
     "privacy": "Chính sách bảo mật",
     "terms": "Điều khoản sử dụng"
   },
+  "payment": {
+    "title": "Thanh toán Premium",
+    "subtitle": "Nâng cấp tài khoản để trải nghiệm đầy đủ tính năng",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "premiumAccount": "Tài khoản Premium",
+    "premiumWelcome": "Chào mừng bạn đến với Oboe Premium",
+    "creatingPayment": "Đang tạo mã thanh toán...",
+    "errorOccurred": "Có lỗi xảy ra",
+    "retry": "Thử lại",
+    "scanQR": "Quét mã QR để thanh toán",
+    "qrInstructions": "Sử dụng ứng dụng ngân hàng hoặc ví điện tử để quét mã",
+    "qrTitle": "Quét mã QR để thanh toán",
+    "qrSubtitle": "Sử dụng ứng dụng ngân hàng hoặc ví điện tử để quét mã",
+    "bank": "Ngân hàng",
+    "bankName": "Ngân hàng TMCP Quân đội",
+    "accountHolder": "Chủ tài khoản",
+    "accountNumber": "Số tài khoản",
+    "orderCode": "Mã đơn hàng",
+    "amount": "Số tiền",
+    "status": "Trạng thái",
+    "instructionsTitle": "Hướng dẫn thanh toán",
+    "instruction1": "Mở ứng dụng ngân hàng hoặc ví điện tử trên điện thoại",
+    "instruction2": "Chọn chức năng \"Quét mã QR\" hoặc \"QR Pay\"",
+    "instruction3": "Quét mã QR phía trên",
+    "instruction4": "Xác nhận thông tin và hoàn tất thanh toán",
+    "alternativeText": "Hoặc bạn có thể",
+    "payOnWebsite": "Thanh toán trên trang web",
+    "readyToPay": "Sẵn sàng thanh toán",
+    "clickToStart": "Nhấn nút \"Tạo mã thanh toán\" để bắt đầu",
+    "alreadyPremium": "Bạn đã là thành viên Premium",
+    "premiumDescription": "Tài khoản của bạn đã được nâng cấp lên Premium và có thể sử dụng tất cả tính năng cao cấp.",
+    "feature1": "Truy cập không giới hạn",
+    "feature2": "Hỗ trợ ưu tiên",
+    "feature3": "Tính năng AI hỗ trợ dịch",
+    "feature4": "Tự động tạo quizz",
+    "feature5": "Đưa ra lời khuyên từ AI",
+    "creating": "Đang tạo...",
+    "createPayment": "Tạo mã thanh toán",
+    "checking": "Đang kiểm tra...",
+    "checkStatus": "Kiểm tra trạng thái",
+    "createNew": "Tạo thanh toán mới",
+    "premiumActivated": "Tài khoản Premium đã kích hoạt",
+    "alreadyPremiumMessage": "Bạn đã là thành viên Premium và không cần thanh toán thêm.",
+    "createError": "Không thể tạo mã thanh toán. Vui lòng thử lại.",
+    "thankYou": "Cảm ơn quý khách đã ủng hộ!",
+    "accountUpgraded": "Hiện tại tài khoản quý khách đã là Premium",
+    "paymentCancelled": "Thanh toán đã bị hủy",
+    "transactionCancelled": "Giao dịch đã bị hủy. Vui lòng tạo thanh toán mới.",
+    "paymentFailed": "Thanh toán thất bại",
+    "transactionFailed": "Giao dịch không thành công. Vui lòng thử lại.",
+    "waitingPayment": "Đang chờ thanh toán",
+    "completePayment": "Vui lòng hoàn tất thanh toán để tiếp tục.",
+    "checkError": "Lỗi kiểm tra thanh toán",
+    "checkErrorMessage": "Không thể kiểm tra trạng thái thanh toán. Vui lòng thử lại.",
+    "premiumActivatedMessage": "Bạn đã là thành viên Premium và có thể sử dụng tất cả tính năng cao cấp.",
+    "profileCheckError": "Không thể kiểm tra thông tin tài khoản. Vui lòng thử lại.",
+    "successTitle": "🎉 Thanh toán thành công!",
+    "successMessage": "Chúc mừng! Tài khoản của bạn đã được nâng cấp lên Premium.\n\nBạn có thể sử dụng tất cả tính năng cao cấp:\n• Truy cập không giới hạn\n• Tính năng AI nâng cao\n• Hỗ trợ ưu tiên\n• Không có quảng cáo",
+    "goHome": "Về trang chủ",
+    "securePayment": "Thanh toán an toàn với PayOS",
+    "thanksPremium": "Cảm ơn bạn đã là thành viên Premium",
+    "status": {
+      "pending": "Đang chờ thanh toán",
+      "paid": "Đã thanh toán",
+      "cancelled": "Đã hủy",
+      "failed": "Thất bại"
+    },
+    "orderSummary": "Tóm tắt đơn hàng",
+    "accountInfo": "Thông tin tài khoản",
+    "oboePro": "Gói Oboe Pro (Hàng tháng)",
+    "monthlyPrice": "99.000đ",
+    "total": "Tổng cộng",
+    "premium": "PREMIUM",
+    "premiumAccountDescription": "Tài khoản của bạn đã được nâng cấp lên Premium với đầy đủ tính năng cao cấp.",
+    "statusLabel": "Trạng thái",
+    "active": "Đang hoạt động",
+    "accountType": "Loại tài khoản",
+    "termsText": "Bằng việc thanh toán, bạn đồng ý với",
+    "termsOfService": "Điều khoản dịch vụ"
+  },
   "upgrade": {
     "title": "Nâng cấp tài khoản",
     "freePlan": "Gói miễn phí",
@@ -1120,15 +1201,20 @@
     "mostPopular": "Phổ biến nhất",
     "recommended": "Đề xuất",
     "becomeProMember": "Trở thành thành viên Oboe Pro",
+    "subtitle": "Mở khóa tiềm năng sáng tạo vô hạn và trải nghiệm học tập đỉnh cao.",
     "unlockPotential": "Mở khóa tiềm năng sáng tạo vô hạn và trải nghiệm học tập đỉnh cao.",
     "featuresTitle": "Tính Năng Nổi Bật của Oboe Pro",
     "aiAssistant": "Trợ Lý AI Thông Minh",
+    "aiAssistantTitle": "Trợ Lý AI Thông Minh",
     "aiAssistantDesc": "Nhận hướng dẫn học tập được cá nhân hóa dựa trên phong cách và tiến độ của bạn.",
     "learningAnalytics": "Phân Tích Học Tập",
+    "learningAnalyticsTitle": "Phân Tích Học Tập",
     "learningAnalyticsDesc": "Theo dõi tiến độ với báo cáo chi tiết và nhận gợi ý cải thiện phù hợp.",
     "smartLearning": "Học Tập Thông Minh",
+    "smartLearningTitle": "Học Tập Thông Minh",
     "smartLearningDesc": "Hệ thống tự động điều chỉnh độ khó và tần suất ôn tập dựa trên khả năng của bạn.",
     "advancedContent": "Nội Dung Nâng Cao",
+    "advancedContentTitle": "Nội Dung Nâng Cao",
     "advancedContentDesc": "Truy cập thư viện từ vựng và ngữ pháp nâng cao, phù hợp với mọi trình độ.",
     "testimonialsTitle": "Người Dùng Nói Gì?",
     "testimonial1Name": "Nguyễn Văn A",
@@ -1141,17 +1227,18 @@
     "ctaTitle": "Sẵn sàng nâng cao trải nghiệm học tập?",
     "ctaDescription": "Dùng OboePro và khám phá sức mạnh của AI trong việc học tiếng Nhật.",
     "getStarted": "Bắt đầu dùng ngay",
+    "startNow": "Bắt đầu ngay",
     "pricing": {
       "free": {
         "name": "Miễn phí",
-        "price": 0,
+        "price": "0₫",
         "currency": "đ",
         "description": "Các tính năng cơ bản để bắt đầu hành trình học tập",
-        "features": [
-          "Truy cập tất cả tài liệu",
-          "Tạo học liệu cơ bản",
-          "Hỗ trợ qua email"
-        ],
+        "features": {
+          "feature1": "Truy cập tất cả tài liệu",
+          "feature2": "Tạo học liệu cơ bản",
+          "feature3": "Hỗ trợ qua email"
+        },
         "notFeatures": [
           "Dịch tự động bằng AI",
           "Tạo học liệu bằng AI",
@@ -1160,38 +1247,30 @@
       },
       "pro": {
         "name": "Oboe Pro",
-        "price": 99000,
+        "price": "99.000₫/tháng",
         "currency": "đ",
         "period": "/tháng",
         "description": "Trải nghiệm học tập toàn diện với công nghệ AI",
-        "features": [
-          "Truy cập không giới hạn",
-          "Tạo học liệu bằng AI",
-          "Hỗ trợ ưu tiên 24/7",
-          "AI Dịch tự động",
-          "AI đánh giá và lời khuyên quiz",
-          "Truy cập sớm các tính năng mới"
-        ]
+        "features": {
+          "feature1": "Truy cập không giới hạn",
+          "feature2": "Tạo học liệu bằng AI",
+          "feature3": "Hỗ trợ ưu tiên 24/7",
+          "feature4": "AI Dịch tự động",
+          "feature5": "AI đánh giá và lời khuyên quiz",
+          "feature6": "Truy cập sớm các tính năng mới"
+        }
       }
     },
-    "faq": [
-      {
-        "question": "Làm thế nào để nâng cấp lên OboePro?",
-        "answer": "Bạn có thể dễ dàng nâng cấp tài khoản bằng cách nhấn nút \"Nâng cấp ngay\" và làm theo hướng dẫn thanh toán."
-      },
-      {
-        "question": "Tôi có thể hủy đăng ký bất cứ lúc nào không?",
-        "answer": "Có, bạn có thể hủy đăng ký OboePro bất cứ lúc nào. Tài khoản của bạn sẽ duy trì quyền lợi Pro đến hết chu kỳ thanh toán hiện tại."
-      },
-      {
-        "question": "Có được dùng thử OboePro không?",
-        "answer": "Có, chúng tôi cung cấp gói dùng thử OboePro miễn phí trong 7 ngày để bạn có thể trải nghiệm đầy đủ các tính năng."
-      },
-      {
-        "question": "Phương thức thanh toán nào được chấp nhận?",
-        "answer": "Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, PayPal, và các ví điện tử phổ biến như Momo."
-      }
-    ]
+    "faq": {
+      "question1": "Làm thế nào để nâng cấp lên OboePro?",
+      "answer1": "Bạn có thể dễ dàng nâng cấp tài khoản bằng cách nhấn nút \"Nâng cấp ngay\" và làm theo hướng dẫn thanh toán.",
+      "question2": "Tôi có thể hủy đăng ký bất cứ lúc nào không?",
+      "answer2": "Có, bạn có thể hủy đăng ký OboePro bất cứ lúc nào. Tài khoản của bạn sẽ duy trì quyền lợi Pro đến hết chu kỳ thanh toán hiện tại.",
+      "question3": "Có được dùng thử OboePro không?",
+      "answer3": "Có, chúng tôi cung cấp gói dùng thử OboePro miễn phí trong 7 ngày để bạn có thể trải nghiệm đầy đủ các tính năng.",
+      "question4": "Phương thức thanh toán nào được chấp nhận?",
+      "answer4": "Chúng tôi chấp nhận thanh toán qua thẻ tín dụng, PayPal, và các ví điện tử phổ biến như Momo."
+    }
   },
   "footer": {
     "sendFeedback": "GỬI Ý KIẾN",
