@@ -139,6 +139,7 @@ import flashcardApi from '@/api/modules/flashcardApi';
 import learningMaterialApi from '@/api/modules/learningMaterialApi';
 import blogApi from '@/api/modules/blogApi';
 import searchApi from '@/api/modules/searchApi';
+import quizApi from '@/api/modules/quizApi';
 
 const store = useStore();
 const router = useRouter();
@@ -333,20 +334,64 @@ const startLearning = async (set) => {
   }
 };
 
-const startQuiz = (quiz) => {
+const startQuiz = async (quiz) => {
   try {
-    // Navigate to quiz page
+    // Gọi API để lấy dữ liệu quiz với questions
+    const quizData = await quizApi.getQuizWithQuestions(quiz.id);
+    
+    if (!quizData || !quizData.questions || quizData.questions.length === 0) {
+      store.dispatch('showMessage', {
+        type: 'error',
+        text: t('home.noQuestionsInQuiz')
+      });
+      return;
+    }
+
+    // Convert API response to learning items format for FlashcardTest
+    // Mapping theo cấu trúc API response thực tế
+    const learningItems = quizData.questions.map(question => {
+      // Xử lý options - nếu là string thì split, nếu là array thì giữ nguyên
+      let options = [];
+      if (question.options) {
+        if (typeof question.options === 'string') {
+          // Nếu options là string như "あなた自身;seek;メニュー;thing"
+          options = question.options.split(';').map(opt => opt.trim());
+        } else if (Array.isArray(question.options)) {
+          options = question.options;
+        }
+      }
+
+      return {
+        type: 'quiz',
+        front: question.questionName || question.questionText || question.question || '',
+        back: question.correctAnswer || '',
+        content: question.questionName || question.questionText || question.question || '',
+        backcontent: question.correctAnswer || '',
+        options: options, // Cho multiple choice
+        questionType: 'multiple-choice', // Mặc định là multiple choice
+        questionID: question.questionID || question.id
+      };
+    });
+
+    // Save to store for FlashcardTest to use
+    await store.dispatch('flashcard/setLearningItems', learningItems);
+
+    // Navigate to FlashcardTest với đúng route
     router.push({
-      path: '/quiz',
+      name: 'FlashcardTest', // Sử dụng name thay vì path
       query: {
-        id: quiz.id,
-        title: quiz.title,
-        description: quiz.description,
-        source: 'home'
+        type: 'multiple-choice', // Default test type
+        source: 'home',
+        title: quizData.title || quiz.title,
+        description: quizData.description || `Bài kiểm tra gồm ${quizData.questions.length} câu hỏi`,
+        quizId: quizData.quizzesID || quiz.id,
+        creatorName: quiz.author?.name || 'Người dùng',
+        creatorAvatar: quiz.author?.avatar || '',
+        createdAt: quiz.createdAt || new Date().toISOString()
       }
     });
   } catch (error) {
-    console.error('Error starting quiz:', error);
+    console.error('Error loading quiz:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: t('home.cannotOpenQuiz')

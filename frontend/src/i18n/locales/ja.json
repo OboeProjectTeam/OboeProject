@@ -80,8 +80,10 @@
     "comments": "コメント",
     "viewTopic": "トピックを見る",
     "noContent": "学習教材にコンテンツがありません",
-    "cannotLoadData": "学習教材データを読み込めません",
-    "cannotOpenQuiz": "クイズを開けません"
+    "cannotLoadData": "学習資料データを読み込めません",
+    "cannotLoadQuizData": "クイズデータを読み込めません",
+    "cannotOpenQuiz": "クイズを開けません",
+    "noQuestionsInQuiz": "クイズに質問がありません"
   },
   "auth": {
     "login": "ログイン",
@@ -142,6 +144,7 @@
   },
   "flashcard": {
     "title": "フラッシュカード",
+    "flashcards": "フラッシュカード",
     "list": "リスト",
     "goToPage": "ページに移動",
     "noItems": "アイテムがありません",
@@ -224,7 +227,6 @@
     "user": "ユーザー",
     "close": "閉じる",
     "translationTitle": "Oboe先生 - 日本語翻訳",
-    "flashcards": "フラッシュカード",
     "translating": "Oboe先生が翻訳中...",
     "cannotTranslate": "このテキストを翻訳できません。",
     "originalText": "原文：",

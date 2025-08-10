@@ -81,7 +81,9 @@
     "viewTopic": "View Topic",
     "noContent": "Learning material has no content",
     "cannotLoadData": "Cannot load learning material data",
-    "cannotOpenQuiz": "Cannot open quiz"
+    "cannotLoadQuizData": "Cannot load quiz data",
+    "cannotOpenQuiz": "Cannot open quiz",
+    "noQuestionsInQuiz": "No questions in quiz"
   },
   "auth": {
     "login": "Login",
@@ -142,6 +144,7 @@
   },
   "flashcard": {
     "title": "Flashcard",
+    "flashcards": "Flashcards",
     "list": "List",
     "goToPage": "Go to page",
     "noItems": "No items",
@@ -224,7 +227,6 @@
     "user": "User",
     "close": "Close",
     "translationTitle": "Oboe Sensei - Japanese Translation",
-    "flashcards": "Flashcards",
     "translating": "Oboe Sensei is translating...",
     "cannotTranslate": "Cannot translate this text.",
     "originalText": "Original text:",

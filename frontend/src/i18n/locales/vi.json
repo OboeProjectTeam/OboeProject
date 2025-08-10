@@ -81,7 +81,9 @@
     "viewTopic": "Xem chủ đề",
     "noContent": "Học liệu không có nội dung",
     "cannotLoadData": "Không thể tải dữ liệu học liệu",
-    "cannotOpenQuiz": "Không thể mở bài quiz"
+    "cannotLoadQuizData": "Không thể tải dữ liệu quiz",
+    "cannotOpenQuiz": "Không thể mở bài quiz",
+    "noQuestionsInQuiz": "Không có câu hỏi nào trong bài quiz"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -142,6 +144,7 @@
   },
   "flashcard": {
     "title": "Flashcard",
+    "flashcards": "Thẻ ghi nhớ",
     "list": "Danh sách",
     "goToPage": "Đi đến trang",
     "noItems": "Không có mục nào",
