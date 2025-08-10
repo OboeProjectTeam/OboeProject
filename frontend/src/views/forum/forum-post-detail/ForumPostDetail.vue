@@ -947,6 +947,16 @@ const validateAndConfirm = () => {
 const handleSubmitReport = async () => {
   try {
     if (blogPost.value) {
+      // Prepare report data for API
+      const reportDto = {
+        title: getReportTitle(reportData.value.type),
+        content: reportData.value.reason,
+        blogId: blogPost.value.id
+      };
+
+      // Call the reportApi.create method
+      await reportApi.create(reportDto);
+
       // Show success animation
       showReportSuccessAnimationFunc();
       // Show success message
@@ -960,6 +970,7 @@ const handleSubmitReport = async () => {
       }, 1500);
     }
   } catch (error) {
+    console.error('Error submitting report:', error);
     store.dispatch('showMessage', {
       type: 'error',
       text: 'Có lỗi xảy ra khi gửi báo cáo. Vui lòng thử lại sau.'
@@ -1021,45 +1032,19 @@ const toggleUserCard = (event, user) => {
     // Try different field combinations for comparison
     const currentUserId = currentUser.userId || currentUser.user_id;
     const clickedUserId = user.id || user.userId || user.user_id;
-    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
          // Primary comparison: ID-based
      if (currentUserId && clickedUserId && currentUserId === clickedUserId) {
 
        return; // Don't show popup for own avatar
      }
-     
      // Fallback comparison: Username-based
      const currentUsername = currentUser.username || currentUser.userName;
      const clickedUsername = user.username || user.userName;
-     
-
-
-
-     
      if (currentUsername && clickedUsername && currentUsername === clickedUsername) {
 
        return; // Don't show popup for own avatar
      }
-     
-
   }
   
   if (activeUserCard.value && activeUserCard.value.username === user.username) {
