@@ -192,11 +192,18 @@ const uiConfig = {
           throw new Error("Thiếu token hoặc user: " + JSON.stringify(result));
         }
         const { token, user } = result;
-        store.commit('auth/SET_TOKEN', token);
-        store.commit('auth/SET_USER', user);
-        router.push('/');
+        
+        // Sử dụng fetchCurrentUser action để xử lý first login
+        await store.dispatch('auth/fetchCurrentUser', { token, user });
+        
+        // Kiểm tra role của user sau khi đăng nhập thành công
+        if (user && user.role === 'ROLE_ADMIN') {
+          router.push('/admin');
+        } else {
+          router.push('/');
+        }
       } catch (error) {
-        console.error(err);
+        console.error(error);
       }
       return false;
     },

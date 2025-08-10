@@ -1381,5 +1381,11 @@
     "weeksAgo": "{count}週間前",
     "monthsAgo": "{count}ヶ月前",
     "yearsAgo": "{count}年前"
+  },
+  "languageSelection": {
+    "title": "言語を選択してください",
+    "subtitle": "最適な体験のために表示言語を選択してください",
+    "skip": "スキップ",
+    "confirm": "確認"
   }
 }

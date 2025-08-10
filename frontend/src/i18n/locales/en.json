@@ -1384,5 +1384,11 @@
     "weeksAgo": "{count} weeks ago",
     "monthsAgo": "{count} months ago",
     "yearsAgo": "{count} years ago"
+  },
+  "languageSelection": {
+    "title": "Choose your language",
+    "subtitle": "Select your display language for the best experience",
+    "skip": "Skip",
+    "confirm": "Confirm"
   }
 }

@@ -6,6 +6,7 @@ import WebSocketService from '@/services/websocket';
 const state = () => ({
   token: localStorage.getItem('token') || null,
   user: JSON.parse(localStorage.getItem('user')) || null,
+  isFirstLogin: localStorage.getItem('isFirstLogin') === 'true',
 });
 
 const mutations = {
@@ -25,19 +26,34 @@ const mutations = {
   CLEAR_AUTH(state) {
     state.token = null;
     state.user = null;
+    state.isFirstLogin = false;
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('isFirstLogin');
+    localStorage.removeItem('hasVisitedBefore'); // Xóa để có thể test lại
+  },
+
+  // Set first login state
+  SET_FIRST_LOGIN(state, isFirstLogin) {
+    state.isFirstLogin = isFirstLogin;
+    localStorage.setItem('isFirstLogin', isFirstLogin.toString());
   },
 };
 
 const actions = {
       // Xử lý login Firebase: nhận token và fetch user
-  async fetchCurrentUser({ commit }, { token }) {
+  async fetchCurrentUser({ commit }, { token, user }) {
     commit('SET_TOKEN', token);
 
     try {
-      // const user = await api.profile.getProfile();
       commit('SET_USER', user);
+      
+      // Kiểm tra xem có phải lần đầu đăng nhập không
+      const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+      if (!hasVisitedBefore) {
+        commit('SET_FIRST_LOGIN', true);
+        localStorage.setItem('hasVisitedBefore', 'true');
+      }
     } catch (error) {
       console.error('Lỗi lấy user từ token:', error);
       commit('CLEAR_AUTH');
@@ -49,6 +65,13 @@ const actions = {
     const data = await api.auth.login(userName, passWord);
     commit('SET_TOKEN', data.token);
     commit('SET_USER', data.user);
+    
+    // Kiểm tra xem có phải lần đầu đăng nhập không
+    const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
+    if (!hasVisitedBefore) {
+      commit('SET_FIRST_LOGIN', true);
+      localStorage.setItem('hasVisitedBefore', 'true');
+    }
   },
 
   // Đăng ký tài khoản
@@ -153,6 +176,8 @@ const getters = {
       return false;
     }
   },
+  // Kiểm tra có phải lần đầu đăng nhập không
+  isFirstLogin: (state) => state.isFirstLogin,
 };
 
 export default {

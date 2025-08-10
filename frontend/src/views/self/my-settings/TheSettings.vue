@@ -68,13 +68,24 @@
             <p class="item-description">{{ t('settings.languageDesc') }}</p>
           </div>
           <div class="item-control">
-            <div class="language-select-wrapper">
-              <i class="fas fa-globe select-icon"></i>
-              <select class="language-select" v-model="selectedLanguage" @change="handleLanguageChange">
-                <option v-for="lang in availableLanguages" :key="lang.code" :value="lang.code">
-                  {{ lang.flag }} {{ t(`languages.${lang.code}`) }}
-                </option>
-              </select>
+            <div class="language-select-wrapper" @click="toggleDropdown" :class="{ 'open': isDropdownOpen }">
+              <div class="selected-language">
+                <span :class="`fi fi-${getCurrentLanguageFlag()}`" class="current-flag"></span>
+                <span class="language-text">{{ t(`languages.${selectedLanguage}`) }}</span>
+                <i class="fas fa-chevron-down select-arrow" :class="{ 'rotated': isDropdownOpen }"></i>
+              </div>
+              <div v-if="isDropdownOpen" class="dropdown-options">
+                <div 
+                  v-for="lang in availableLanguages" 
+                  :key="lang.code" 
+                  class="dropdown-option"
+                  :class="{ 'selected': lang.code === selectedLanguage }"
+                  @click.stop="selectLanguage(lang.code)"
+                >
+                  <span :class="`fi fi-${lang.flagCode}`" class="option-flag"></span>
+                  <span class="option-text">{{ t(`languages.${lang.code}`) }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -134,9 +145,32 @@ const isGoogleUser = computed(() => store.getters['auth/isGoogleUser']);
 
 // Language management
 const selectedLanguage = ref(currentLocale.value);
+const isDropdownOpen = ref(false);
 
 const handleLanguageChange = () => {
   setLanguage(selectedLanguage.value);
+};
+
+const getCurrentLanguageFlag = () => {
+  const currentLang = availableLanguages.find(lang => lang.code === selectedLanguage.value);
+  return currentLang ? currentLang.flagCode : 'vn';
+};
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const selectLanguage = (langCode) => {
+  selectedLanguage.value = langCode;
+  setLanguage(langCode);
+  isDropdownOpen.value = false;
+};
+
+// Close dropdown when clicking outside
+const closeDropdown = (event) => {
+  if (!event.target.closest('.language-select-wrapper')) {
+    isDropdownOpen.value = false;
+  }
 };
 
 const oldPassword = ref('');
@@ -191,10 +225,12 @@ onMounted(() => {
     setTimeout(() => setCurrentSection(hash), 100);
   }
   window.addEventListener('hashchange', handleHashChange);
+  document.addEventListener('click', closeDropdown);
 });
 
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashChange);
+  document.removeEventListener('click', closeDropdown);
 });
 
 const goToUpgrade = () => {

@@ -11,9 +11,9 @@ export function useLanguage() {
   const { locale, t } = useI18n()
 
   const availableLanguages = [
-    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' }
+    { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳', flagCode: 'vn' },
+    { code: 'en', name: 'English', flag: '🇺🇸', flagCode: 'us' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵', flagCode: 'jp' }
   ]
 
   const currentLanguage = computed(() => {

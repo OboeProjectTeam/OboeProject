@@ -17,6 +17,13 @@
       :visible="chatBoxVisible"
       @close="closeChatBox"
     />
+    
+    <!-- Language Selection Popup for first-time users -->
+    <LanguageSelectionPopup
+      v-if="showLanguagePopup"
+      @language-selected="handleLanguageSelected"
+      @skip="handleSkipLanguageSelection"
+    />
   </div>
 </template>
 
@@ -26,14 +33,17 @@ import TheHeader from '@/components/layout/header/TheHeader.vue'
 import FlashcardList from '@/components/layout/flashcard-list/FlashcardList.vue'
 import OboeProButton from '@/components/layout/pro-button/OboeProButton.vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import ChatBox from '@/components/layout/chat-box/ChatBox.vue'
+import LanguageSelectionPopup from '@/components/common/popup/LanguageSelectionPopup.vue'
+import { useLanguage } from '@/composables/useLanguage'
 
 const route = useRoute()
 const store = useStore()
 const router = useRouter()
+const { setLanguage } = useLanguage()
 
 const isAuthRoute = computed(() => {
   return ['/login', '/register','/intro'].includes(route.path)
@@ -49,7 +59,59 @@ const goToUpgrade = () => {
 
 const chatBoxUser = ref(null)
 const chatBoxVisible = ref(false)
-onMounted(() => {
+
+// Language popup state
+const showLanguagePopup = ref(false)
+
+// Watch for first login state
+const isFirstLogin = computed(() => store.getters['auth/isFirstLogin'])
+const isAuthenticated = computed(() => store.getters['auth/isAuthenticated'])
+
+// Function to check and show language popup
+const checkAndShowLanguagePopup = async () => {
+  await nextTick()
+  
+  // Thêm delay nhỏ để đảm bảo tất cả state đã được cập nhật
+  setTimeout(() => {
+    console.log('Checking language popup:', {
+      isAuthenticated: isAuthenticated.value,
+      isFirstLogin: isFirstLogin.value,
+      isAuthRoute: isAuthRoute.value,
+      isAdminRoute: isAdminRoute.value,
+      currentRoute: route.path,
+      showLanguagePopup: showLanguagePopup.value
+    })
+    
+    if (isAuthenticated.value && isFirstLogin.value && !isAuthRoute.value && !isAdminRoute.value && !showLanguagePopup.value) {
+      console.log('Showing language popup')
+      showLanguagePopup.value = true
+    }
+  }, 100)
+}
+
+watch([isFirstLogin, isAuthenticated], async ([firstLogin, authenticated]) => {
+  if (authenticated && firstLogin && !isAuthRoute.value && !isAdminRoute.value) {
+    await nextTick()
+    showLanguagePopup.value = true
+  }
+}, { immediate: true })
+
+// Watch route changes to check popup
+watch(route, async () => {
+  await checkAndShowLanguagePopup()
+})
+
+// Watch specifically for authentication changes
+watch(isAuthenticated, (newVal) => {
+  if (newVal) {
+    // Delay để đảm bảo route đã được cập nhật
+    setTimeout(() => {
+      checkAndShowLanguagePopup()
+    }, 200)
+  }
+})
+
+onMounted(async () => {
   router.afterEach((to) => {
     to.meta.emit = (event, ...args) => {
       if (event === 'send-message') {
@@ -57,6 +119,9 @@ onMounted(() => {
       }
     };
   });
+  
+  // Kiểm tra và hiển thị popup ngôn ngữ khi component được mount
+  await checkAndShowLanguagePopup()
 })
 
 function openChatBox(user) {
@@ -76,6 +141,23 @@ function openChatBox(user) {
 function closeChatBox() {
   chatBoxVisible.value = false
   chatBoxUser.value = null
+}
+
+// Language popup handlers
+function handleLanguageSelected(language) {
+  console.log('Language selected:', language)
+  // Set the selected language
+  setLanguage(language)
+  // Hide popup and reset first login state
+  showLanguagePopup.value = false
+  store.commit('auth/SET_FIRST_LOGIN', false)
+}
+
+function handleSkipLanguageSelection() {
+  console.log('Language selection skipped')
+  // Just hide popup and reset first login state
+  showLanguagePopup.value = false
+  store.commit('auth/SET_FIRST_LOGIN', false)
 }
 </script>
 

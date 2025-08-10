@@ -1232,7 +1232,7 @@
     "pricing": {
       "free": {
         "name": "Miễn phí",
-        "price": "0₫",
+        "price": "0",
         "currency": "đ",
         "description": "Các tính năng cơ bản để bắt đầu hành trình học tập",
         "features": {
@@ -1248,7 +1248,7 @@
       },
       "pro": {
         "name": "Oboe Pro",
-        "price": "99.000₫/tháng",
+        "price": "99.000",
         "currency": "đ",
         "period": "/tháng",
         "description": "Trải nghiệm học tập toàn diện với công nghệ AI",
@@ -1415,5 +1415,11 @@
     "weeksAgo": "{count} tuần trước",
     "monthsAgo": "{count} tháng trước",
     "yearsAgo": "{count} năm trước"
+  },
+  "languageSelection": {
+    "title": "Chọn ngôn ngữ của bạn",
+    "subtitle": "Chọn ngôn ngữ hiển thị để có trải nghiệm tốt nhất",
+    "skip": "Bỏ qua",
+    "confirm": "Xác nhận"
   }
 }
