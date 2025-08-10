@@ -30,13 +30,21 @@ const mutations = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('isFirstLogin');
-    localStorage.removeItem('hasVisitedBefore'); // Xóa để có thể test lại
+    // Không xóa hasVisitedBefore để giữ trạng thái đã từng đăng nhập
   },
 
   // Set first login state
   SET_FIRST_LOGIN(state, isFirstLogin) {
     state.isFirstLogin = isFirstLogin;
     localStorage.setItem('isFirstLogin', isFirstLogin.toString());
+  },
+
+  // Reset language popup state (for testing or admin purposes)
+  RESET_LANGUAGE_POPUP_STATE(state) {
+    state.isFirstLogin = true;
+    localStorage.removeItem('hasSeenLanguagePopup');
+    localStorage.removeItem('hasVisitedBefore');
+    localStorage.setItem('isFirstLogin', 'true');
   },
 };
 
@@ -50,9 +58,13 @@ const actions = {
       
       // Kiểm tra xem có phải lần đầu đăng nhập không
       const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
-      if (!hasVisitedBefore) {
+      const hasSeenLanguagePopup = localStorage.getItem('hasSeenLanguagePopup');
+      
+      if (!hasVisitedBefore && !hasSeenLanguagePopup) {
         commit('SET_FIRST_LOGIN', true);
         localStorage.setItem('hasVisitedBefore', 'true');
+      } else {
+        commit('SET_FIRST_LOGIN', false);
       }
     } catch (error) {
       console.error('Lỗi lấy user từ token:', error);
@@ -68,9 +80,13 @@ const actions = {
     
     // Kiểm tra xem có phải lần đầu đăng nhập không
     const hasVisitedBefore = localStorage.getItem('hasVisitedBefore');
-    if (!hasVisitedBefore) {
+    const hasSeenLanguagePopup = localStorage.getItem('hasSeenLanguagePopup');
+    
+    if (!hasVisitedBefore && !hasSeenLanguagePopup) {
       commit('SET_FIRST_LOGIN', true);
       localStorage.setItem('hasVisitedBefore', 'true');
+    } else {
+      commit('SET_FIRST_LOGIN', false);
     }
   },
 

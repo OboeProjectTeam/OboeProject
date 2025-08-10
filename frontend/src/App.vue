@@ -73,16 +73,30 @@ const checkAndShowLanguagePopup = async () => {
   
   // Thêm delay nhỏ để đảm bảo tất cả state đã được cập nhật
   setTimeout(() => {
+    const hasSeenLanguagePopup = localStorage.getItem('hasSeenLanguagePopup') === 'true'
+    
     console.log('Checking language popup:', {
       isAuthenticated: isAuthenticated.value,
       isFirstLogin: isFirstLogin.value,
       isAuthRoute: isAuthRoute.value,
       isAdminRoute: isAdminRoute.value,
       currentRoute: route.path,
-      showLanguagePopup: showLanguagePopup.value
+      showLanguagePopup: showLanguagePopup.value,
+      hasSeenLanguagePopup
     })
     
-    if (isAuthenticated.value && isFirstLogin.value && !isAuthRoute.value && !isAdminRoute.value && !showLanguagePopup.value) {
+    // Chỉ hiển thị popup nếu:
+    // 1. Đã đăng nhập
+    // 2. Là lần đầu đăng nhập
+    // 3. Không phải trang auth hoặc admin
+    // 4. Chưa từng xem popup ngôn ngữ
+    // 5. Popup chưa được hiển thị
+    if (isAuthenticated.value && 
+        isFirstLogin.value && 
+        !isAuthRoute.value && 
+        !isAdminRoute.value && 
+        !hasSeenLanguagePopup &&
+        !showLanguagePopup.value) {
       console.log('Showing language popup')
       showLanguagePopup.value = true
     }
@@ -151,6 +165,8 @@ function handleLanguageSelected(language) {
   // Hide popup and reset first login state
   showLanguagePopup.value = false
   store.commit('auth/SET_FIRST_LOGIN', false)
+  // Lưu trạng thái đã xem popup ngôn ngữ
+  localStorage.setItem('hasSeenLanguagePopup', 'true')
 }
 
 function handleSkipLanguageSelection() {
@@ -158,6 +174,8 @@ function handleSkipLanguageSelection() {
   // Just hide popup and reset first login state
   showLanguagePopup.value = false
   store.commit('auth/SET_FIRST_LOGIN', false)
+  // Lưu trạng thái đã xem popup ngôn ngữ
+  localStorage.setItem('hasSeenLanguagePopup', 'true')
 }
 </script>
 
