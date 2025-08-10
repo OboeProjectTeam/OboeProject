@@ -380,7 +380,7 @@ const fetchReports = async () => {
         avatar: report.avatarUrl || 'https://i.pravatar.cc/150?u=anonymous',
         reportCount: report.reportCount || 1
       },
-      type: getTypeFromTitle(report.blogTitle), // Phân loại dựa trên title
+      type: getTypeFromTitle(report.type), // Phân loại dựa trên title
       reason: report.content || 'Không có lý do',
       severity: mapReportSeverity(report.reportCount), // Tạo severity từ reportCount
       status: mapApiStatusToComponentStatus(report.status),
@@ -397,21 +397,6 @@ const fetchReports = async () => {
     loading.value = false;
   }
 };
-
-// Helper functions to map API data
-const mapReportType = (type) => {
-  const typeMap = {
-    'spam': 'spam',
-    'harassment': 'harassment', 
-    'inappropriate': 'inappropriate',
-    'violence': 'violence',
-    'copyright': 'copyright',
-    'misinformation': 'misinformation',
-    'cây đổ chắn đường': 'other' // Map loại báo cáo từ API
-  };
-  return typeMap[type?.toLowerCase()] || 'other';
-};
-
 const getTypeFromTitle = (title) => {
   const titleLower = title.toLowerCase();
   if (titleLower.includes('spam')) return 'spam';
@@ -430,25 +415,6 @@ const mapReportSeverity = (reportCount) => {
     return 'low';
   }
   return 'low';
-};
-
-const getSeverityFromStatus = (status) => {
-  switch (status) {
-    case 'PENDING': return 'medium';
-    case 'APPROVED': return 'high';
-    case 'REJECTED': return 'low';
-    default: return 'medium';
-  }
-};
-
-const mapReportStatus = (status) => {
-  const statusMap = {
-    'pending': 'pending',
-    'approved': 'resolved',
-    'rejected': 'rejected',
-    'resolved': 'resolved'
-  };
-  return statusMap[status?.toLowerCase()] || 'pending';
 };
 
 const mapApiStatusToComponentStatus = (apiStatus) => {
