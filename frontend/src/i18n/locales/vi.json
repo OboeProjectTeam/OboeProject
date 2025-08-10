@@ -1424,5 +1424,516 @@
     "subtitle": "Chọn ngôn ngữ hiển thị để có trải nghiệm tốt nhất",
     "skip": "Bỏ qua",
     "confirm": "Xác nhận"
+  },
+  "japanNews": {
+    "title": "Tin Tức Thị Trường Nhật Bản",
+    "lastUpdated": "Cập nhật lần cuối:",
+    "featuredNews": {
+      "title": "Tin Tức Nổi Bật",
+      "economy": "Kinh Tế",
+      "technology": "Công Nghệ",
+      "visaNews": {
+        "title": "Nhật Bản Mở Rộng Chính Sách Visa Cho Lao Động Nước Ngoài",
+        "excerpt": "Chính phủ Nhật Bản vừa thông qua đề xuất mới về việc nới lỏng các điều kiện visa cho lao động nước ngoài trong các ngành nghề trọng điểm.",
+        "source": "Nikkei Asia"
+      },
+      "aiNews": {
+        "title": "Làn Sóng AI Tại Nhật Bản: Cơ Hội Việc Làm Mới",
+        "excerpt": "Sự phát triển của AI đang tạo ra nhiều cơ hội việc làm mới trong lĩnh vực công nghệ tại Nhật Bản.",
+        "source": "Tech Japan"
+      }
+    },
+    "marketTrends": {
+      "title": "Xu Hướng Thị Trường",
+      "gdpGrowth": {
+        "title": "Tăng Trưởng GDP",
+        "description": "Tốc độ tăng trưởng kinh tế Nhật Bản quý I/2024"
+      },
+      "yenRate": {
+        "title": "Tỷ Giá Yên",
+        "description": "Tỷ giá JPY/USD"
+      }
+    },
+    "jobOpportunities": {
+      "title": "Cơ Hội Việc Làm",
+      "it": {
+        "title": "Công Nghệ Thông Tin",
+        "softwareEngineer": "Software Engineer",
+        "frontendDeveloper": "Frontend Developer",
+        "location": "Tokyo",
+        "locationOsaka": "Osaka",
+        "company1": "Tech Corp Japan",
+        "company2": "Digital Solutions"
+      },
+      "manufacturing": {
+        "title": "Sản Xuất & Kỹ Thuật",
+        "mechanicalEngineer": "Kỹ Sư Cơ Khí",
+        "electronicsEngineer": "Kỹ Sư Điện Tử",
+        "locationNagoya": "Nagoya",
+        "locationYokohama": "Yokohama",
+        "company1": "Toyota Manufacturing",
+        "company2": "Electronics Corp"
+      }
+    },
+    "studyAbroad": {
+      "title": "Du Học Nhật Bản",
+      "mextScholarship": {
+        "title": "Học Bổng MEXT 2024",
+        "description": "Chương trình học bổng toàn phần của chính phủ Nhật Bản",
+        "deadline": "Hạn nộp hồ sơ: 30/04/2024",
+        "value": "Giá trị học bổng: ¥147,000/tháng",
+        "flight": "Bao gồm vé máy bay khứ hồi",
+        "tuition": "Miễn học phí toàn phần"
+      },
+      "ejuExam": {
+        "title": "Kỳ Thi Du Học",
+        "description": "Thông tin về kỳ thi EJU tháng 6/2024",
+        "examDate": "Ngày thi: 16/06/2024",
+        "registerDeadline": "Hạn đăng ký: 30/04/2024",
+        "location": "Địa điểm: Nhiều thành phố lớn",
+        "fee": "Lệ phí: ¥20,000"
+      }
+    },
+    "culturalExchange": {
+      "title": "Giao Lưu Văn Hóa",
+      "sakuraFestival": {
+        "title": "Lễ Hội Hoa Anh Đào 2024",
+        "description": "Lễ hội hoa anh đào lớn nhất năm tại công viên Ueno, Tokyo.",
+        "location": "Công viên Ueno, Tokyo"
+      },
+      "culturalExhibition": {
+        "title": "Triển Lãm Văn Hóa Việt-Nhật",
+        "description": "Sự kiện giao lưu văn hóa giữa Việt Nam và Nhật Bản.",
+        "location": "Trung tâm Văn hóa Nhật Bản, Osaka"
+      }
+    }
+  },
+  "paymentGuide": {
+    "title": "Hướng Dẫn Thanh Toán",
+    "lastUpdated": "Cập nhật lần cuối:",
+    "servicePackages": {
+      "title": "1. Gói Dịch Vụ",
+      "free": {
+        "title": "1.1. Oboe Free",
+        "features": {
+          "basicFeatures": "Truy cập các tính năng cơ bản",
+          "flashcards": "Học với bộ thẻ flashcard có sẵn",
+          "forum": "Tham gia diễn đàn cộng đồng",
+          "dictionary": "Tra cứu từ điển cơ bản"
+        }
+      },
+      "premium": {
+        "title": "1.2. Oboe Premium",
+        "features": {
+          "allFree": "Tất cả tính năng của gói Free",
+          "unlimitedFlashcards": "Tạo không giới hạn bộ thẻ flashcard",
+          "jlptTests": "Truy cập toàn bộ ngân hàng đề thi JLPT",
+          "analytics": "Công cụ phân tích học tập nâng cao",
+          "prioritySupport": "Ưu tiên hỗ trợ kỹ thuật",
+          "noAds": "Không hiển thị quảng cáo"
+        }
+      }
+    },
+    "paymentMethods": {
+      "title": "2. Phương Thức Thanh Toán",
+      "cards": {
+        "title": "2.1. Thanh Toán Qua Thẻ",
+        "description": "Chúng tôi chấp nhận các loại thẻ sau:",
+        "types": {
+          "visa": "Thẻ Visa",
+          "mastercard": "Thẻ Mastercard",
+          "jcb": "Thẻ JCB",
+          "atmCard": "Thẻ ATM nội địa (có đăng ký Internet Banking)"
+        }
+      },
+      "eWallets": {
+        "title": "2.2. Ví Điện Tử",
+        "types": {
+          "momo": "Momo",
+          "paypal": "PayPal (cho thanh toán quốc tế)"
+        }
+      }
+    },
+    "paymentProcess": {
+      "title": "3. Quy Trình Thanh Toán",
+      "selectPackage": {
+        "title": "3.1. Chọn Gói Dịch Vụ",
+        "steps": {
+          "login": "Đăng nhập vào tài khoản Oboe",
+          "upgrade": "Truy cập trang \"Nâng cấp tài khoản\"",
+          "selectPremium": "Chọn gói Premium",
+          "continue": "Nhấn \"Tiếp tục\" để chuyển đến bước thanh toán"
+        }
+      },
+      "makePayment": {
+        "title": "3.2. Thực Hiện Thanh Toán",
+        "steps": {
+          "selectMethod": "Chọn phương thức thanh toán mong muốn",
+          "fillInfo": "Điền thông tin thanh toán theo yêu cầu",
+          "confirm": "Xác nhận và hoàn tất giao dịch",
+          "wait": "Đợi xác nhận từ hệ thống"
+        }
+      }
+    },
+    "refundPolicy": {
+      "title": "4. Chính Sách Hoàn Tiền",
+      "description": "Không hoàn tiền dưới mọi hình thức"
+    },
+    "faq": {
+      "title": "5. Câu Hỏi Thường Gặp",
+      "payment": {
+        "title": "5.1. Về Thanh Toán",
+        "changeMethod": {
+          "question": "Tôi có thể đổi phương thức thanh toán sau khi đã bắt đầu giao dịch không?",
+          "answer": "Có, bạn có thể quay lại bước chọn phương thức thanh toán bất cứ lúc nào trước khi hoàn tất giao dịch."
+        },
+        "noEmail": {
+          "question": "Tôi không nhận được email xác nhận thanh toán?",
+          "answer": "Email xác nhận thường được gửi trong vòng 5 phút. Vui lòng kiểm tra hộp thư spam hoặc liên hệ hỗ trợ nếu chưa nhận được."
+        }
+      },
+      "premium": {
+        "title": "5.2. Về Tài Khoản Premium",
+        "whenUpgrade": {
+          "question": "Khi nào tài khoản được nâng cấp lên Premium?",
+          "answer": "Tài khoản sẽ được nâng cấp ngay lập tức sau khi thanh toán thành công."
+        },
+        "shareAccount": {
+          "question": "Tôi có thể chia sẻ tài khoản Premium với người khác không?",
+          "answer": "Không, mỗi tài khoản Premium chỉ được sử dụng cho một người dùng."
+        }
+      }
+    }
+  },
+  "japaneseBenefits": {
+    "title": "Lợi Ích Của Việc Học Tiếng Nhật",
+    "lastUpdated": "Cập nhật lần cuối:",
+    "careerOpportunities": {
+      "title": "1. Cơ Hội Nghề Nghiệp",
+      "japanMarket": {
+        "title": "1.1. Thị Trường Lao Động Nhật Bản",
+        "benefits": {
+          "jobs": "Cơ hội việc làm tại các công ty Nhật với mức lương hấp dẫn",
+          "visa": "Chính sách visa đặc biệt cho lao động có tay nghề",
+          "environment": "Môi trường làm việc chuyên nghiệp, kỷ luật",
+          "promotion": "Cơ hội thăng tiến rõ ràng"
+        }
+      },
+      "vietnamMarket": {
+        "title": "1.2. Cơ Hội Tại Việt Nam",
+        "benefits": {
+          "companies": "Làm việc tại các công ty Nhật có văn phòng tại Việt Nam",
+          "translation": "Vị trí biên, phiên dịch viên được trả lương cao",
+          "tourism": "Cơ hội làm việc trong lĩnh vực du lịch, dịch vụ",
+          "teaching": "Giảng dạy tiếng Nhật tại các trung tâm"
+        }
+      }
+    },
+    "education": {
+      "title": "2. Cơ Hội Giáo Dục",
+      "studyAbroad": {
+        "title": "2.1. Du Học Nhật Bản",
+        "benefits": {
+          "tuition": "Học phí thấp hơn so với các nước phát triển khác",
+          "scholarships": "Nhiều học bổng từ chính phủ và tổ chức tư nhân",
+          "quality": "Chất lượng giáo dục đẳng cấp thế giới",
+          "partTime": "Cơ hội làm thêm trong quá trình học tập"
+        }
+      },
+      "research": {
+        "title": "2.2. Nghiên Cứu và Phát Triển",
+        "benefits": {
+          "materials": "Tiếp cận nguồn tài liệu khoa học công nghệ tiên tiến",
+          "projects": "Cơ hội tham gia các dự án nghiên cứu quốc tế",
+          "technology": "Học hỏi công nghệ và quy trình sản xuất hiện đại",
+          "exchange": "Trao đổi học thuật với các chuyên gia Nhật Bản"
+        }
+      }
+    },
+    "personalDevelopment": {
+      "title": "3. Phát Triển Cá Nhân",
+      "thinking": {
+        "title": "3.1. Kỹ Năng Tư Duy",
+        "benefits": {
+          "patience": "Rèn luyện tính kiên nhẫn và kỷ luật",
+          "memory": "Phát triển khả năng ghi nhớ và tập trung",
+          "logic": "Tăng cường tư duy logic qua cấu trúc ngôn ngữ",
+          "problemSolving": "Nâng cao khả năng giải quyết vấn đề"
+        }
+      },
+      "cultural": {
+        "title": "3.2. Phát Triển Văn Hóa",
+        "benefits": {
+          "understanding": "Hiểu sâu về văn hóa và con người Nhật Bản",
+          "workEthic": "Học hỏi tinh thần làm việc chuyên nghiệp",
+          "lifestyle": "Trải nghiệm phong cách sống độc đáo",
+          "perspective": "Mở rộng tầm nhìn và giao lưu văn hóa"
+        }
+      }
+    },
+    "lifeBenefits": {
+      "title": "4. Lợi Ích Trong Cuộc Sống",
+      "entertainment": {
+        "title": "4.1. Giải Trí và Sở Thích",
+        "benefits": {
+          "anime": "Thưởng thức anime, manga nguyên gốc",
+          "literature": "Hiểu sâu về văn học, phim ảnh Nhật Bản",
+          "events": "Tham gia các sự kiện văn hóa Nhật Bản",
+          "community": "Giao lưu với cộng đồng người yêu thích văn hóa Nhật"
+        }
+      },
+      "travel": {
+        "title": "4.2. Du Lịch và Trải Nghiệm",
+        "benefits": {
+          "confidence": "Tự tin du lịch và khám phá Nhật Bản",
+          "cuisine": "Trải nghiệm ẩm thực địa phương đích thực",
+          "communication": "Giao tiếp và kết bạn với người bản địa",
+          "festivals": "Tham gia các lễ hội truyền thống"
+        }
+      }
+    },
+    "futureProspects": {
+      "title": "5. Triển Vọng Tương Lai",
+      "marketTrends": {
+        "title": "5.1. Xu Hướng Thị Trường",
+        "stats": {
+          "demand": {
+            "title": "Nhu Cầu Nhân Lực",
+            "value": "+25%",
+            "description": "Tăng trưởng nhu cầu nhân lực tiếng Nhật hàng năm"
+          },
+          "salary": {
+            "title": "Mức Lương",
+            "value": "+30%",
+            "description": "Mức lương cao hơn so với không biết tiếng Nhật"
+          },
+          "jobs": {
+            "title": "Cơ Hội Việc Làm",
+            "value": "1000+",
+            "description": "Vị trí tuyển dụng mới mỗi tháng"
+          }
+        }
+      },
+      "personalGrowth": {
+        "title": "5.2. Phát Triển Bản Thân",
+        "quote": "Học tiếng Nhật không chỉ là học một ngôn ngữ mới, mà còn là cơ hội để thay đổi tư duy và phong cách sống theo hướng tích cực hơn.",
+        "author": "- Chuyên gia văn hóa Nhật Bản"
+      }
+    }
+  },
+  "studyGuide": {
+    "title": "Hướng Dẫn Tự Học",
+    "lastUpdated": "Cập nhật lần cuối:",
+    "learningPath": {
+      "title": "1. Lộ trình học tiếng Nhật",
+      "beginner": {
+        "title": "1.1. Cấp độ cơ bản (N5-N4)",
+        "items": {
+          "hiraganaKatakana": "Học bảng chữ Hiragana và Katakana",
+          "basicGrammar": "Ngữ pháp cơ bản N5-N4",
+          "vocabulary": "Từ vựng thông dụng (khoảng 1500 từ)",
+          "basicKanji": "Kanji cơ bản (khoảng 300 chữ)"
+        }
+      },
+      "intermediate": {
+        "title": "1.2. Cấp độ trung cấp (N3)",
+        "items": {
+          "intermediateGrammar": "Ngữ pháp trung cấp",
+          "expandedVocabulary": "Từ vựng mở rộng (thêm 3000 từ)",
+          "intermediateKanji": "Kanji trung cấp (thêm 600 chữ)",
+          "comprehensionSkills": "Kỹ năng đọc hiểu và nghe hiểu"
+        }
+      }
+    },
+    "effectiveMethods": {
+      "title": "2. Phương pháp học hiệu quả",
+      "flashcards": {
+        "title": "2.1. Học với Flashcard",
+        "description": "Oboe cung cấp hệ thống flashcard thông minh giúp bạn:",
+        "features": {
+          "systematic": "Học từ vựng và kanji một cách có hệ thống",
+          "spacedRepetition": "Ôn tập theo phương pháp spaced repetition",
+          "progress": "Theo dõi tiến độ học tập",
+          "customization": "Tùy chỉnh bộ thẻ theo nhu cầu"
+        }
+      },
+      "quizzes": {
+        "title": "2.2. Luyện tập với Quiz",
+        "description": "Kiểm tra kiến thức thường xuyên thông qua:",
+        "types": {
+          "vocabulary": "Bài kiểm tra từ vựng",
+          "grammar": "Bài tập ngữ pháp",
+          "reading": "Luyện đọc hiểu",
+          "listening": "Luyện nghe hiểu"
+        }
+      }
+    },
+    "learningResources": {
+      "title": "3. Tài nguyên học tập",
+      "materials": {
+        "title": "3.1. Tài liệu học tập",
+        "items": {
+          "basicTextbooks": "Giáo trình tiếng Nhật cơ bản",
+          "grammarExercises": "Bài tập ngữ pháp theo cấp độ",
+          "jlptMaterials": "Tài liệu luyện thi JLPT",
+          "conversationMaterials": "Tài liệu hội thoại thực tế"
+        }
+      },
+      "tools": {
+        "title": "3.2. Công cụ hỗ trợ",
+        "items": {
+          "dictionary": "Từ điển tích hợp",
+          "kanjiLookup": "Công cụ tra cứu kanji",
+          "pronunciation": "Phần mềm luyện phát âm",
+          "mobileApp": "Ứng dụng mobile học mọi lúc"
+        }
+      }
+    },
+    "beginnerTips": {
+      "title": "4. Lời khuyên cho người mới bắt đầu",
+      "goalSetting": {
+        "title": "4.1. Thiết lập mục tiêu",
+        "tips": {
+          "clearGoals": "Xác định mục tiêu học tập rõ ràng",
+          "studyPlan": "Lập kế hoạch học tập phù hợp",
+          "shortLongTerm": "Đặt mục tiêu ngắn hạn và dài hạn",
+          "trackProgress": "Theo dõi tiến độ thường xuyên"
+        }
+      },
+      "motivation": {
+        "title": "4.2. Duy trì động lực",
+        "tips": {
+          "dailyStudy": "Học đều đặn mỗi ngày",
+          "community": "Tham gia cộng đồng học tập",
+          "nativePractice": "Thực hành với người bản xứ",
+          "entertainment": "Tận dụng các tài nguyên giải trí (anime, manga)"
+        }
+      }
+    },
+    "oboeSupport": {
+      "title": "5. Hỗ trợ từ Oboe",
+      "learningSupport": {
+        "title": "5.1. Hỗ trợ học tập",
+        "services": {
+          "personalConsultation": "Tư vấn lộ trình học tập cá nhân",
+          "expertHelp": "Giải đáp thắc mắc từ chuyên gia",
+          "materialUpdates": "Cập nhật tài liệu thường xuyên",
+          "progressReports": "Thống kê và báo cáo tiến độ"
+        }
+      },
+      "community": {
+        "title": "5.2. Cộng đồng học tập",
+        "features": {
+          "forum": "Diễn đàn trao đổi kiến thức",
+          "studyGroups": "Nhóm học tập theo cấp độ",
+          "experienceSharing": "Chia sẻ kinh nghiệm học tập",
+          "networking": "Kết nối với người học khác"
+        }
+      }
+    }
+  },
+  "writingGuide": {
+    "title": "Phân Biệt Hiragana và Katakana",
+    "lastUpdated": "Cập nhật lần cuối:",
+    "overview": {
+      "title": "1. Tổng Quan Về Chữ Viết Nhật Bản",
+      "writingSystems": {
+        "title": "1.1. Ba Hệ Thống Chữ Viết",
+        "description": "Tiếng Nhật sử dụng 3 hệ thống chữ viết chính:",
+        "systems": {
+          "hiragana": "Hiragana (ひらがな): Chữ cong, mềm mại, dùng cho từ thuần Nhật",
+          "katakana": "Katakana (カタカナ): Chữ thẳng, góc cạnh, dùng cho từ nước ngoài",
+          "kanji": "Kanji (漢字): Chữ Hán, mang nghĩa cụ thể"
+        }
+      },
+      "roles": {
+        "title": "1.2. Vai Trò Trong Câu",
+        "hiragana": "Hiragana: Viết đuôi động từ, trợ từ, từ thuần Nhật",
+        "katakana": "Katakana: Từ nước ngoài, tên nước ngoài, thuật ngữ khoa học",
+        "kanji": "Kanji: Thể hiện nghĩa chính của từ"
+      }
+    },
+    "hiragana": {
+      "title": "2. Hiragana (ひらがな)",
+      "characteristics": {
+        "title": "2.1. Đặc Điểm",
+        "features": {
+          "curved": "Nét chữ cong, mềm mại, liền mạch",
+          "basic": "46 chữ cái cơ bản",
+          "diacritics": "Dùng dấu để biến âm (dakuten, handakuten)",
+          "strokeOrder": "Viết theo quy tắc stroke order cụ thể"
+        }
+      },
+      "usage": {
+        "title": "2.2. Cách Sử Dụng",
+        "uses": {
+          "nativeWords": "Viết các từ thuần Nhật (和語 - わご)",
+          "verbEndings": "Viết đuôi động từ, tính từ",
+          "particles": "Viết trợ từ (は、が、を、に、で...)",
+          "furigana": "Viết furigana (phiên âm trên kanji)"
+        }
+      }
+    },
+    "katakana": {
+      "title": "3. Katakana (カタカナ)",
+      "characteristics": {
+        "title": "3.1. Đặc Điểm",
+        "features": {
+          "angular": "Nét chữ thẳng, góc cạnh, đơn giản",
+          "corresponding": "46 chữ cái tương ứng với Hiragana",
+          "recognizable": "Dễ nhận biết trong văn bản",
+          "longVowels": "Thường viết các âm dài bằng dấu gạch (ー)"
+        }
+      },
+      "usage": {
+        "title": "3.2. Cách Sử Dụng",
+        "uses": {
+          "foreignWords": "Viết từ nước ngoài (外来語 - がいらいご)",
+          "foreignNames": "Tên người, địa danh nước ngoài",
+          "technical": "Thuật ngữ khoa học, kỹ thuật",
+          "emphasis": "Nhấn mạnh từ ngữ trong câu"
+        }
+      }
+    },
+    "distinction": {
+      "title": "4. Cách Phân Biệt",
+      "appearance": {
+        "title": "4.1. Về Hình Dạng",
+        "tableHeaders": {
+          "sound": "Âm",
+          "hiragana": "Hiragana",
+          "katakana": "Katakana"
+        }
+      },
+      "context": {
+        "title": "4.2. Về Ngữ Cảnh Sử Dụng",
+        "example": {
+          "title": "Ví dụ:",
+          "sentence": "私はコーヒーを飲みます。",
+          "explanation": "- 私 (わたし): \"tôi\" - từ thuần Nhật, viết bằng kanji và hiragana<br>- は: trợ từ, viết bằng hiragana<br>- コーヒー: \"cà phê\" - từ nước ngoài, viết bằng katakana<br>- を: trợ từ, viết bằng hiragana<br>- 飲みます (のみます): \"uống\" - động từ thuần Nhật, viết bằng kanji và hiragana"
+        }
+      }
+    },
+    "learningMethods": {
+      "title": "5. Phương Pháp Học Hiệu Quả",
+      "studyOrder": {
+        "title": "5.1. Thứ Tự Học",
+        "steps": {
+          "hiraganaFirst": "Học Hiragana trước (2-3 tuần)",
+          "katakanaSecond": "Học Katakana sau (2-3 tuần)",
+          "combinedReading": "Luyện đọc kết hợp cả hai",
+          "kanjiParallel": "Học Kanji song song"
+        }
+      },
+      "memoryTechniques": {
+        "title": "5.2. Kỹ Thuật Ghi Nhớ",
+        "techniques": {
+          "flashcards": "Sử dụng flashcard trên Oboe",
+          "handwriting": "Viết tay thường xuyên",
+          "realTexts": "Tập đọc văn bản thực tế",
+          "strokeOrder": "Luyện tập stroke order đúng cách"
+        }
+      }
+    }
   }
 }

@@ -1070,6 +1070,7 @@
     "cookie3": "設定を記憶する設定クッキー",
     "cookie4": "ブラウザ設定でクッキーを制御できます",
     "section8Title": "8. 連絡先情報",
+    "section8Description": "プライバシーに関するご質問やご懸念がございましたら、以下の方法でお気軽にお問い合わせください：",
     "contactEmail": "メール: privacy@oboe.com",
     "contactPhone": "電話: +84 123 456 789",
     "contactAddress": "住所: 123 Learning Street, Education District, Ho Chi Minh City"
@@ -1389,5 +1390,516 @@
     "subtitle": "最適な体験のために表示言語を選択してください",
     "skip": "スキップ",
     "confirm": "確認"
+  },
+  "japanNews": {
+    "title": "日本市場ニュース",
+    "lastUpdated": "最終更新:",
+    "featuredNews": {
+      "title": "注目ニュース",
+      "economy": "経済",
+      "technology": "技術",
+      "visaNews": {
+        "title": "日本、外国人労働者向けビザ政策を拡大",
+        "excerpt": "日本政府は主要産業における外国人労働者のビザ条件を緩和する新提案を承認しました。",
+        "source": "日経アジア"
+      },
+      "aiNews": {
+        "title": "日本のAI波：新しい雇用機会",
+        "excerpt": "AIの発展により、日本の技術分野で多くの新しい雇用機会が生まれています。",
+        "source": "テックジャパン"
+      }
+    },
+    "marketTrends": {
+      "title": "市場動向",
+      "gdpGrowth": {
+        "title": "GDP成長率",
+        "description": "日本の経済成長率 2024年第1四半期"
+      },
+      "yenRate": {
+        "title": "円為替レート",
+        "description": "JPY/USD為替レート"
+      }
+    },
+    "jobOpportunities": {
+      "title": "求人情報",
+      "it": {
+        "title": "情報技術",
+        "softwareEngineer": "ソフトウェアエンジニア",
+        "frontendDeveloper": "フロントエンド開発者",
+        "location": "東京",
+        "locationOsaka": "大阪",
+        "company1": "テックコープジャパン",
+        "company2": "デジタルソリューションズ"
+      },
+      "manufacturing": {
+        "title": "製造・エンジニアリング",
+        "mechanicalEngineer": "機械エンジニア",
+        "electronicsEngineer": "電子エンジニア",
+        "locationNagoya": "名古屋",
+        "locationYokohama": "横浜",
+        "company1": "トヨタ製造",
+        "company2": "エレクトロニクス株式会社"
+      }
+    },
+    "studyAbroad": {
+      "title": "日本留学",
+      "mextScholarship": {
+        "title": "MEXT奨学金2024",
+        "description": "日本政府による全額奨学金プログラム",
+        "deadline": "申請締切：2024年4月30日",
+        "value": "奨学金額：月額¥147,000",
+        "flight": "往復航空券込み",
+        "tuition": "授業料全額免除"
+      },
+      "ejuExam": {
+        "title": "留学生試験",
+        "description": "2024年6月のEJU試験に関する情報",
+        "examDate": "試験日：2024年6月16日",
+        "registerDeadline": "申込締切：2024年4月30日",
+        "location": "場所：主要都市複数箇所",
+        "fee": "受験料：¥20,000"
+      }
+    },
+    "culturalExchange": {
+      "title": "文化交流",
+      "sakuraFestival": {
+        "title": "桜祭り2024",
+        "description": "東京上野公園で開催される年最大の桜祭り。",
+        "location": "東京上野公園"
+      },
+      "culturalExhibition": {
+        "title": "ベトナム・日本文化展",
+        "description": "ベトナムと日本の文化交流イベント。",
+        "location": "大阪日本文化センター"
+      }
+    }
+  },
+  "paymentGuide": {
+    "title": "支払いガイド",
+    "lastUpdated": "最終更新:",
+    "servicePackages": {
+      "title": "1. サービスパッケージ",
+      "free": {
+        "title": "1.1. Oboe Free",
+        "features": {
+          "basicFeatures": "基本機能へのアクセス",
+          "flashcards": "利用可能なフラッシュカードセットでの学習",
+          "forum": "コミュニティフォーラムへの参加",
+          "dictionary": "基本辞書検索"
+        }
+      },
+      "premium": {
+        "title": "1.2. Oboe Premium",
+        "features": {
+          "allFree": "Freeパッケージのすべての機能",
+          "unlimitedFlashcards": "無制限のフラッシュカードセット作成",
+          "jlptTests": "完全なJLPTテストバンクへのアクセス",
+          "analytics": "高度な学習分析ツール",
+          "prioritySupport": "優先技術サポート",
+          "noAds": "広告なし"
+        }
+      }
+    },
+    "paymentMethods": {
+      "title": "2. 支払い方法",
+      "cards": {
+        "title": "2.1. カード決済",
+        "description": "以下のカードタイプを受け付けています：",
+        "types": {
+          "visa": "Visaカード",
+          "mastercard": "Mastercard",
+          "jcb": "JCBカード",
+          "atmCard": "国内ATMカード（インターネットバンキング登録済み）"
+        }
+      },
+      "eWallets": {
+        "title": "2.2. 電子ウォレット",
+        "types": {
+          "momo": "Momo",
+          "paypal": "PayPal（国際決済用）"
+        }
+      }
+    },
+    "paymentProcess": {
+      "title": "3. 支払いプロセス",
+      "selectPackage": {
+        "title": "3.1. サービスパッケージの選択",
+        "steps": {
+          "login": "Oboeアカウントにログイン",
+          "upgrade": "「アカウントアップグレード」ページに移動",
+          "selectPremium": "Premiumパッケージを選択",
+          "continue": "「続行」をクリックして支払いに進む"
+        }
+      },
+      "makePayment": {
+        "title": "3.2. 支払いの実行",
+        "steps": {
+          "selectMethod": "希望する支払い方法を選択",
+          "fillInfo": "必要に応じて支払い情報を入力",
+          "confirm": "取引を確認して完了",
+          "wait": "システムの確認を待つ"
+        }
+      }
+    },
+    "refundPolicy": {
+      "title": "4. 返金ポリシー",
+      "description": "いかなる場合も返金はありません"
+    },
+    "faq": {
+      "title": "5. よくある質問",
+      "payment": {
+        "title": "5.1. 支払いについて",
+        "changeMethod": {
+          "question": "取引開始後に支払い方法を変更できますか？",
+          "answer": "はい、取引完了前であればいつでも支払い方法選択ステップに戻ることができます。"
+        },
+        "noEmail": {
+          "question": "支払い確認メールが届きません？",
+          "answer": "確認メールは通常5分以内に送信されます。スパムフォルダをご確認いただくか、届かない場合はサポートにお問い合わせください。"
+        }
+      },
+      "premium": {
+        "title": "5.2. Premiumアカウントについて",
+        "whenUpgrade": {
+          "question": "いつアカウントがPremiumにアップグレードされますか？",
+          "answer": "支払い成功後、即座にアカウントがアップグレードされます。"
+        },
+        "shareAccount": {
+          "question": "Premiumアカウントを他の人と共有できますか？",
+          "answer": "いいえ、各Premiumアカウントは一人のユーザーのみが使用できます。"
+        }
+      }
+    }
+  },
+  "japaneseBenefits": {
+    "title": "日本語学習のメリット",
+    "lastUpdated": "最終更新:",
+    "careerOpportunities": {
+      "title": "1. キャリア機会",
+      "japanMarket": {
+        "title": "1.1. 日本労働市場",
+        "benefits": {
+          "jobs": "魅力的な給与での日本企業での就職機会",
+          "visa": "熟練労働者向けの特別ビザ政策",
+          "environment": "プロフェッショナルで規律ある職場環境",
+          "promotion": "明確な昇進機会"
+        }
+      },
+      "vietnamMarket": {
+        "title": "1.2. ベトナムでの機会",
+        "benefits": {
+          "companies": "ベトナムにオフィスを持つ日本企業での勤務",
+          "translation": "高給の翻訳・通訳職",
+          "tourism": "観光・サービス業での機会",
+          "teaching": "語学センターでの日本語指導"
+        }
+      }
+    },
+    "education": {
+      "title": "2. 教育機会",
+      "studyAbroad": {
+        "title": "2.1. 日本留学",
+        "benefits": {
+          "tuition": "他の先進国と比較して低い学費",
+          "scholarships": "政府・民間組織からの多くの奨学金",
+          "quality": "世界クラスの教育品質",
+          "partTime": "学習期間中のアルバイト機会"
+        }
+      },
+      "research": {
+        "title": "2.2. 研究開発",
+        "benefits": {
+          "materials": "先進的な科学技術資料へのアクセス",
+          "projects": "国際研究プロジェクトへの参加機会",
+          "technology": "現代技術と生産プロセスの学習",
+          "exchange": "日本の専門家との学術交流"
+        }
+      }
+    },
+    "personalDevelopment": {
+      "title": "3. 個人的成長",
+      "thinking": {
+        "title": "3.1. 思考スキル",
+        "benefits": {
+          "patience": "忍耐力と規律の向上",
+          "memory": "記憶力と集中力の向上",
+          "logic": "言語構造を通じた論理的思考の強化",
+          "problemSolving": "問題解決能力の向上"
+        }
+      },
+      "cultural": {
+        "title": "3.2. 文化的発展",
+        "benefits": {
+          "understanding": "日本文化と人々への深い理解",
+          "workEthic": "プロフェッショナルな職業倫理の学習",
+          "lifestyle": "独特なライフスタイルの体験",
+          "perspective": "視野の拡大と文化交流"
+        }
+      }
+    },
+    "lifeBenefits": {
+      "title": "4. 生活上のメリット",
+      "entertainment": {
+        "title": "4.1. エンターテイメントと趣味",
+        "benefits": {
+          "anime": "オリジナルのアニメ・マンガを楽しむ",
+          "literature": "日本文学・映画への深い理解",
+          "events": "日本文化イベントへの参加",
+          "community": "日本文化愛好家コミュニティとの交流"
+        }
+      },
+      "travel": {
+        "title": "4.2. 旅行と体験",
+        "benefits": {
+          "confidence": "自信を持って日本を旅行・探索",
+          "cuisine": "本格的な地元料理の体験",
+          "communication": "地元の人々との交流と友達作り",
+          "festivals": "伝統的な祭りへの参加"
+        }
+      }
+    },
+    "futureProspects": {
+      "title": "5. 将来の展望",
+      "marketTrends": {
+        "title": "5.1. 市場動向",
+        "stats": {
+          "demand": {
+            "title": "人材需要",
+            "value": "+25%",
+            "description": "日本語人材需要の年間成長率"
+          },
+          "salary": {
+            "title": "給与水準",
+            "value": "+30%",
+            "description": "日本語を知らない場合と比較して高い給与"
+          },
+          "jobs": {
+            "title": "就職機会",
+            "value": "1000+",
+            "description": "月間新規求人数"
+          }
+        }
+      },
+      "personalGrowth": {
+        "title": "5.2. 個人的成長",
+        "quote": "日本語を学ぶことは、単に新しい言語を学ぶだけでなく、より積極的な方向に思考とライフスタイルを変える機会でもあります。",
+        "author": "- 日本文化専門家"
+      }
+    }
+  },
+  "studyGuide": {
+    "title": "学習ガイド",
+    "lastUpdated": "最終更新:",
+    "learningPath": {
+      "title": "1. 日本語学習パス",
+      "beginner": {
+        "title": "1.1. 初級レベル（N5-N4）",
+        "items": {
+          "hiraganaKatakana": "ひらがなとカタカナの学習",
+          "basicGrammar": "基本文法N5-N4",
+          "vocabulary": "一般的な語彙（約1500語）",
+          "basicKanji": "基本漢字（約300字）"
+        }
+      },
+      "intermediate": {
+        "title": "1.2. 中級レベル（N3）",
+        "items": {
+          "intermediateGrammar": "中級文法",
+          "expandedVocabulary": "拡張語彙（追加3000語）",
+          "intermediateKanji": "中級漢字（追加600字）",
+          "comprehensionSkills": "読解・聴解スキル"
+        }
+      }
+    },
+    "effectiveMethods": {
+      "title": "2. 効果的な学習方法",
+      "flashcards": {
+        "title": "2.1. フラッシュカードでの学習",
+        "description": "Oboeはあなたを支援するスマートフラッシュカードシステムを提供します：",
+        "features": {
+          "systematic": "語彙と漢字を体系的に学習",
+          "spacedRepetition": "間隔反復法を使用した復習",
+          "progress": "学習進捗の追跡",
+          "customization": "ニーズに応じたカードセットのカスタマイズ"
+        }
+      },
+      "quizzes": {
+        "title": "2.2. クイズでの練習",
+        "description": "以下を通じて定期的に知識をテスト：",
+        "types": {
+          "vocabulary": "語彙テスト",
+          "grammar": "文法練習",
+          "reading": "読解練習",
+          "listening": "聴解練習"
+        }
+      }
+    },
+    "learningResources": {
+      "title": "3. 学習リソース",
+      "materials": {
+        "title": "3.1. 学習教材",
+        "items": {
+          "basicTextbooks": "基本日本語教科書",
+          "grammarExercises": "レベル別文法練習",
+          "jlptMaterials": "JLPT準備教材",
+          "conversationMaterials": "実際の会話教材"
+        }
+      },
+      "tools": {
+        "title": "3.2. サポートツール",
+        "items": {
+          "dictionary": "統合辞書",
+          "kanjiLookup": "漢字検索ツール",
+          "pronunciation": "発音練習ソフトウェア",
+          "mobileApp": "いつでも学習できるモバイルアプリ"
+        }
+      }
+    },
+    "beginnerTips": {
+      "title": "4. 初心者向けのヒント",
+      "goalSetting": {
+        "title": "4.1. 目標設定",
+        "tips": {
+          "clearGoals": "明確な学習目標の定義",
+          "studyPlan": "適切な学習計画の作成",
+          "shortLongTerm": "短期・長期目標の設定",
+          "trackProgress": "定期的な進捗追跡"
+        }
+      },
+      "motivation": {
+        "title": "4.2. モチベーションの維持",
+        "tips": {
+          "dailyStudy": "毎日一貫して学習",
+          "community": "学習コミュニティへの参加",
+          "nativePractice": "ネイティブスピーカーとの練習",
+          "entertainment": "エンターテイメントリソースの活用（アニメ、マンガ）"
+        }
+      }
+    },
+    "oboeSupport": {
+      "title": "5. Oboeからのサポート",
+      "learningSupport": {
+        "title": "5.1. 学習サポート",
+        "services": {
+          "personalConsultation": "個人学習パスの相談",
+          "expertHelp": "質問に対する専門家の支援",
+          "materialUpdates": "定期的な教材更新",
+          "progressReports": "統計と進捗レポート"
+        }
+      },
+      "community": {
+        "title": "5.2. 学習コミュニティ",
+        "features": {
+          "forum": "知識交換フォーラム",
+          "studyGroups": "レベル別学習グループ",
+          "experienceSharing": "学習経験の共有",
+          "networking": "他の学習者との交流"
+        }
+      }
+    }
+  },
+  "writingGuide": {
+    "title": "ひらがなとカタカナの区別",
+    "lastUpdated": "最終更新:",
+    "overview": {
+      "title": "1. 日本語文字体系の概要",
+      "writingSystems": {
+        "title": "1.1. 三つの主要文字体系",
+        "description": "日本語は3つの主要な文字体系を使用します：",
+        "systems": {
+          "hiragana": "ひらがな（ひらがな）：曲線的で柔らかい文字、日本語固有の語に使用",
+          "katakana": "カタカナ（カタカナ）：直線的で角ばった文字、外来語に使用",
+          "kanji": "漢字（かんじ）：特定の意味を持つ中国文字"
+        }
+      },
+      "roles": {
+        "title": "1.2. 文中での役割",
+        "hiragana": "ひらがな：動詞の語尾、助詞、日本語固有の語を書く",
+        "katakana": "カタカナ：外来語、外国人名、科学用語",
+        "kanji": "漢字：語の主要な意味を表現"
+      }
+    },
+    "hiragana": {
+      "title": "2. ひらがな（ひらがな）",
+      "characteristics": {
+        "title": "2.1. 特徴",
+        "features": {
+          "curved": "曲線的で柔らかく流れるような筆画",
+          "basic": "46の基本文字",
+          "diacritics": "音の変化のための濁点・半濁点の使用",
+          "strokeOrder": "特定の筆順規則に従って書く"
+        }
+      },
+      "usage": {
+        "title": "2.2. 使用法",
+        "uses": {
+          "nativeWords": "日本語固有の語を書く（和語 - わご）",
+          "verbEndings": "動詞・形容詞の語尾を書く",
+          "particles": "助詞を書く（は、が、を、に、で...）",
+          "furigana": "ふりがな（漢字の上の読み方ガイド）を書く"
+        }
+      }
+    },
+    "katakana": {
+      "title": "3. カタカナ（カタカナ）",
+      "characteristics": {
+        "title": "3.1. 特徴",
+        "features": {
+          "angular": "直線的で角ばった簡単な筆画",
+          "corresponding": "ひらがなに対応する46文字",
+          "recognizable": "文章中で認識しやすい",
+          "longVowels": "長音はしばしば長音符（ー）で書く"
+        }
+      },
+      "usage": {
+        "title": "3.2. 使用法",
+        "uses": {
+          "foreignWords": "外来語を書く（外来語 - がいらいご）",
+          "foreignNames": "外国人の人名・地名",
+          "technical": "科学・技術用語",
+          "emphasis": "文中での語の強調"
+        }
+      }
+    },
+    "distinction": {
+      "title": "4. 区別の方法",
+      "appearance": {
+        "title": "4.1. 外観による区別",
+        "tableHeaders": {
+          "sound": "音",
+          "hiragana": "ひらがな",
+          "katakana": "カタカナ"
+        }
+      },
+      "context": {
+        "title": "4.2. 使用文脈による区別",
+        "example": {
+          "title": "例：",
+          "sentence": "私はコーヒーを飲みます。",
+          "explanation": "- 私（わたし）：「私」- 日本語固有の語、漢字とひらがなで書く<br>- は：助詞、ひらがなで書く<br>- コーヒー：「コーヒー」- 外来語、カタカナで書く<br>- を：助詞、ひらがなで書く<br>- 飲みます（のみます）：「飲む」- 日本語固有の動詞、漢字とひらがなで書く"
+        }
+      }
+    },
+    "learningMethods": {
+      "title": "5. 効果的な学習方法",
+      "studyOrder": {
+        "title": "5.1. 学習順序",
+        "steps": {
+          "hiraganaFirst": "ひらがなを最初に学ぶ（2-3週間）",
+          "katakanaSecond": "カタカナを次に学ぶ（2-3週間）",
+          "combinedReading": "両方を組み合わせた読み練習",
+          "kanjiParallel": "漢字を並行して学ぶ"
+        }
+      },
+      "memoryTechniques": {
+        "title": "5.2. 記憶技術",
+        "techniques": {
+          "flashcards": "Oboeのフラッシュカードを使用",
+          "handwriting": "定期的な手書き練習",
+          "realTexts": "実際のテキストの読み練習",
+          "strokeOrder": "正しい筆順の練習"
+        }
+      }
+    }
   }
 }

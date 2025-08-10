@@ -1134,6 +1134,7 @@
     "cookie3": "Preference cookies to remember your settings",
     "cookie4": "You can control cookies through browser settings",
     "section8Title": "8. Contact Information",
+    "section8Description": "If you have any questions about this privacy policy, please contact us:",
     "contactEmail": "Email: privacy@oboe.com",
     "contactPhone": "Phone: +84 123 456 789",
     "contactAddress": "Address: 123 Learning Street, Education District, Ho Chi Minh City"
@@ -1392,5 +1393,516 @@
     "subtitle": "Select your display language for the best experience",
     "skip": "Skip",
     "confirm": "Confirm"
+  },
+  "japanNews": {
+    "title": "Japan Market News",
+    "lastUpdated": "Last updated:",
+    "featuredNews": {
+      "title": "Featured News",
+      "economy": "Economy",
+      "technology": "Technology",
+      "visaNews": {
+        "title": "Japan Expands Visa Policy for Foreign Workers",
+        "excerpt": "The Japanese government has just approved a new proposal to relax visa conditions for foreign workers in key industries.",
+        "source": "Nikkei Asia"
+      },
+      "aiNews": {
+        "title": "AI Wave in Japan: New Job Opportunities",
+        "excerpt": "The development of AI is creating many new job opportunities in the technology sector in Japan.",
+        "source": "Tech Japan"
+      }
+    },
+    "marketTrends": {
+      "title": "Market Trends",
+      "gdpGrowth": {
+        "title": "GDP Growth",
+        "description": "Japan's economic growth rate Q1/2024"
+      },
+      "yenRate": {
+        "title": "Yen Exchange Rate",
+        "description": "JPY/USD exchange rate"
+      }
+    },
+    "jobOpportunities": {
+      "title": "Job Opportunities",
+      "it": {
+        "title": "Information Technology",
+        "softwareEngineer": "Software Engineer",
+        "frontendDeveloper": "Frontend Developer",
+        "location": "Tokyo",
+        "locationOsaka": "Osaka",
+        "company1": "Tech Corp Japan",
+        "company2": "Digital Solutions"
+      },
+      "manufacturing": {
+        "title": "Manufacturing & Engineering",
+        "mechanicalEngineer": "Mechanical Engineer",
+        "electronicsEngineer": "Electronics Engineer",
+        "locationNagoya": "Nagoya",
+        "locationYokohama": "Yokohama",
+        "company1": "Toyota Manufacturing",
+        "company2": "Electronics Corp"
+      }
+    },
+    "studyAbroad": {
+      "title": "Study in Japan",
+      "mextScholarship": {
+        "title": "MEXT Scholarship 2024",
+        "description": "Full scholarship program by the Japanese government",
+        "deadline": "Application deadline: April 30, 2024",
+        "value": "Scholarship value: ¥147,000/month",
+        "flight": "Round-trip airfare included",
+        "tuition": "Full tuition waiver"
+      },
+      "ejuExam": {
+        "title": "Study Abroad Exam",
+        "description": "Information about EJU exam in June 2024",
+        "examDate": "Exam date: June 16, 2024",
+        "registerDeadline": "Registration deadline: April 30, 2024",
+        "location": "Location: Multiple major cities",
+        "fee": "Fee: ¥20,000"
+      }
+    },
+    "culturalExchange": {
+      "title": "Cultural Exchange",
+      "sakuraFestival": {
+        "title": "Cherry Blossom Festival 2024",
+        "description": "The biggest cherry blossom festival of the year at Ueno Park, Tokyo.",
+        "location": "Ueno Park, Tokyo"
+      },
+      "culturalExhibition": {
+        "title": "Vietnam-Japan Cultural Exhibition",
+        "description": "Cultural exchange event between Vietnam and Japan.",
+        "location": "Japan Cultural Center, Osaka"
+      }
+    }
+  },
+  "paymentGuide": {
+    "title": "Payment Guide",
+    "lastUpdated": "Last updated:",
+    "servicePackages": {
+      "title": "1. Service Packages",
+      "free": {
+        "title": "1.1. Oboe Free",
+        "features": {
+          "basicFeatures": "Access to basic features",
+          "flashcards": "Study with available flashcard sets",
+          "forum": "Join community forum",
+          "dictionary": "Basic dictionary lookup"
+        }
+      },
+      "premium": {
+        "title": "1.2. Oboe Premium",
+        "features": {
+          "allFree": "All features of Free package",
+          "unlimitedFlashcards": "Create unlimited flashcard sets",
+          "jlptTests": "Access to complete JLPT test bank",
+          "analytics": "Advanced learning analytics tools",
+          "prioritySupport": "Priority technical support",
+          "noAds": "No advertisements"
+        }
+      }
+    },
+    "paymentMethods": {
+      "title": "2. Payment Methods",
+      "cards": {
+        "title": "2.1. Card Payment",
+        "description": "We accept the following card types:",
+        "types": {
+          "visa": "Visa Card",
+          "mastercard": "Mastercard",
+          "jcb": "JCB Card",
+          "atmCard": "Domestic ATM Card (with Internet Banking registration)"
+        }
+      },
+      "eWallets": {
+        "title": "2.2. E-Wallets",
+        "types": {
+          "momo": "Momo",
+          "paypal": "PayPal (for international payments)"
+        }
+      }
+    },
+    "paymentProcess": {
+      "title": "3. Payment Process",
+      "selectPackage": {
+        "title": "3.1. Select Service Package",
+        "steps": {
+          "login": "Log in to your Oboe account",
+          "upgrade": "Go to \"Upgrade Account\" page",
+          "selectPremium": "Select Premium package",
+          "continue": "Click \"Continue\" to proceed to payment"
+        }
+      },
+      "makePayment": {
+        "title": "3.2. Make Payment",
+        "steps": {
+          "selectMethod": "Choose your preferred payment method",
+          "fillInfo": "Fill in payment information as required",
+          "confirm": "Confirm and complete the transaction",
+          "wait": "Wait for system confirmation"
+        }
+      }
+    },
+    "refundPolicy": {
+      "title": "4. Refund Policy",
+      "description": "No refunds under any circumstances"
+    },
+    "faq": {
+      "title": "5. Frequently Asked Questions",
+      "payment": {
+        "title": "5.1. About Payment",
+        "changeMethod": {
+          "question": "Can I change the payment method after starting the transaction?",
+          "answer": "Yes, you can go back to the payment method selection step at any time before completing the transaction."
+        },
+        "noEmail": {
+          "question": "I didn't receive the payment confirmation email?",
+          "answer": "Confirmation emails are usually sent within 5 minutes. Please check your spam folder or contact support if you haven't received it."
+        }
+      },
+      "premium": {
+        "title": "5.2. About Premium Account",
+        "whenUpgrade": {
+          "question": "When will my account be upgraded to Premium?",
+          "answer": "Your account will be upgraded immediately after successful payment."
+        },
+        "shareAccount": {
+          "question": "Can I share my Premium account with others?",
+          "answer": "No, each Premium account is for use by one person only."
+        }
+      }
+    }
+  },
+  "japaneseBenefits": {
+    "title": "Benefits of Learning Japanese",
+    "lastUpdated": "Last updated:",
+    "careerOpportunities": {
+      "title": "1. Career Opportunities",
+      "japanMarket": {
+        "title": "1.1. Japanese Labor Market",
+        "benefits": {
+          "jobs": "Job opportunities at Japanese companies with attractive salaries",
+          "visa": "Special visa policies for skilled workers",
+          "environment": "Professional and disciplined work environment",
+          "promotion": "Clear promotion opportunities"
+        }
+      },
+      "vietnamMarket": {
+        "title": "1.2. Opportunities in Vietnam",
+        "benefits": {
+          "companies": "Work at Japanese companies with offices in Vietnam",
+          "translation": "High-paying translator and interpreter positions",
+          "tourism": "Opportunities in tourism and service industries",
+          "teaching": "Teaching Japanese at language centers"
+        }
+      }
+    },
+    "education": {
+      "title": "2. Educational Opportunities",
+      "studyAbroad": {
+        "title": "2.1. Study Abroad in Japan",
+        "benefits": {
+          "tuition": "Lower tuition fees compared to other developed countries",
+          "scholarships": "Many scholarships from government and private organizations",
+          "quality": "World-class education quality",
+          "partTime": "Part-time work opportunities during studies"
+        }
+      },
+      "research": {
+        "title": "2.2. Research and Development",
+        "benefits": {
+          "materials": "Access to advanced scientific and technological materials",
+          "projects": "Opportunities to participate in international research projects",
+          "technology": "Learn modern technology and production processes",
+          "exchange": "Academic exchange with Japanese experts"
+        }
+      }
+    },
+    "personalDevelopment": {
+      "title": "3. Personal Development",
+      "thinking": {
+        "title": "3.1. Thinking Skills",
+        "benefits": {
+          "patience": "Develop patience and discipline",
+          "memory": "Improve memory and concentration abilities",
+          "logic": "Enhance logical thinking through language structure",
+          "problemSolving": "Improve problem-solving skills"
+        }
+      },
+      "cultural": {
+        "title": "3.2. Cultural Development",
+        "benefits": {
+          "understanding": "Deep understanding of Japanese culture and people",
+          "workEthic": "Learn professional work ethics",
+          "lifestyle": "Experience unique lifestyle",
+          "perspective": "Broaden perspective and cultural exchange"
+        }
+      }
+    },
+    "lifeBenefits": {
+      "title": "4. Life Benefits",
+      "entertainment": {
+        "title": "4.1. Entertainment and Hobbies",
+        "benefits": {
+          "anime": "Enjoy original anime and manga",
+          "literature": "Deep understanding of Japanese literature and films",
+          "events": "Participate in Japanese cultural events",
+          "community": "Connect with Japanese culture enthusiast communities"
+        }
+      },
+      "travel": {
+        "title": "4.2. Travel and Experience",
+        "benefits": {
+          "confidence": "Confidently travel and explore Japan",
+          "cuisine": "Experience authentic local cuisine",
+          "communication": "Communicate and make friends with locals",
+          "festivals": "Participate in traditional festivals"
+        }
+      }
+    },
+    "futureProspects": {
+      "title": "5. Future Prospects",
+      "marketTrends": {
+        "title": "5.1. Market Trends",
+        "stats": {
+          "demand": {
+            "title": "Human Resource Demand",
+            "value": "+25%",
+            "description": "Annual growth in Japanese language human resource demand"
+          },
+          "salary": {
+            "title": "Salary Level",
+            "value": "+30%",
+            "description": "Higher salary compared to not knowing Japanese"
+          },
+          "jobs": {
+            "title": "Job Opportunities",
+            "value": "1000+",
+            "description": "New job postings per month"
+          }
+        }
+      },
+      "personalGrowth": {
+        "title": "5.2. Personal Growth",
+        "quote": "Learning Japanese is not just learning a new language, but also an opportunity to change thinking and lifestyle in a more positive direction.",
+        "author": "- Japanese Culture Expert"
+      }
+    }
+  },
+  "studyGuide": {
+    "title": "Study Guide",
+    "lastUpdated": "Last updated:",
+    "learningPath": {
+      "title": "1. Japanese Learning Path",
+      "beginner": {
+        "title": "1.1. Beginner Level (N5-N4)",
+        "items": {
+          "hiraganaKatakana": "Learn Hiragana and Katakana alphabets",
+          "basicGrammar": "Basic grammar N5-N4",
+          "vocabulary": "Common vocabulary (about 1500 words)",
+          "basicKanji": "Basic Kanji (about 300 characters)"
+        }
+      },
+      "intermediate": {
+        "title": "1.2. Intermediate Level (N3)",
+        "items": {
+          "intermediateGrammar": "Intermediate grammar",
+          "expandedVocabulary": "Expanded vocabulary (additional 3000 words)",
+          "intermediateKanji": "Intermediate Kanji (additional 600 characters)",
+          "comprehensionSkills": "Reading and listening comprehension skills"
+        }
+      }
+    },
+    "effectiveMethods": {
+      "title": "2. Effective Learning Methods",
+      "flashcards": {
+        "title": "2.1. Learning with Flashcards",
+        "description": "Oboe provides a smart flashcard system that helps you:",
+        "features": {
+          "systematic": "Learn vocabulary and kanji systematically",
+          "spacedRepetition": "Review using spaced repetition method",
+          "progress": "Track learning progress",
+          "customization": "Customize card sets according to needs"
+        }
+      },
+      "quizzes": {
+        "title": "2.2. Practice with Quizzes",
+        "description": "Test your knowledge regularly through:",
+        "types": {
+          "vocabulary": "Vocabulary tests",
+          "grammar": "Grammar exercises",
+          "reading": "Reading comprehension practice",
+          "listening": "Listening comprehension practice"
+        }
+      }
+    },
+    "learningResources": {
+      "title": "3. Learning Resources",
+      "materials": {
+        "title": "3.1. Study Materials",
+        "items": {
+          "basicTextbooks": "Basic Japanese textbooks",
+          "grammarExercises": "Grammar exercises by level",
+          "jlptMaterials": "JLPT preparation materials",
+          "conversationMaterials": "Real conversation materials"
+        }
+      },
+      "tools": {
+        "title": "3.2. Support Tools",
+        "items": {
+          "dictionary": "Integrated dictionary",
+          "kanjiLookup": "Kanji lookup tool",
+          "pronunciation": "Pronunciation practice software",
+          "mobileApp": "Mobile app for learning anytime"
+        }
+      }
+    },
+    "beginnerTips": {
+      "title": "4. Tips for Beginners",
+      "goalSetting": {
+        "title": "4.1. Goal Setting",
+        "tips": {
+          "clearGoals": "Define clear learning objectives",
+          "studyPlan": "Create a suitable study plan",
+          "shortLongTerm": "Set short-term and long-term goals",
+          "trackProgress": "Track progress regularly"
+        }
+      },
+      "motivation": {
+        "title": "4.2. Maintaining Motivation",
+        "tips": {
+          "dailyStudy": "Study consistently every day",
+          "community": "Join learning communities",
+          "nativePractice": "Practice with native speakers",
+          "entertainment": "Utilize entertainment resources (anime, manga)"
+        }
+      }
+    },
+    "oboeSupport": {
+      "title": "5. Support from Oboe",
+      "learningSupport": {
+        "title": "5.1. Learning Support",
+        "services": {
+          "personalConsultation": "Personal learning path consultation",
+          "expertHelp": "Expert assistance for questions",
+          "materialUpdates": "Regular material updates",
+          "progressReports": "Statistics and progress reports"
+        }
+      },
+      "community": {
+        "title": "5.2. Learning Community",
+        "features": {
+          "forum": "Knowledge exchange forum",
+          "studyGroups": "Study groups by level",
+          "experienceSharing": "Learning experience sharing",
+          "networking": "Connect with other learners"
+        }
+      }
+    }
+  },
+  "writingGuide": {
+    "title": "Distinguishing Hiragana and Katakana",
+    "lastUpdated": "Last updated:",
+    "overview": {
+      "title": "1. Overview of Japanese Writing Systems",
+      "writingSystems": {
+        "title": "1.1. Three Main Writing Systems",
+        "description": "Japanese uses 3 main writing systems:",
+        "systems": {
+          "hiragana": "Hiragana (ひらがな): Curved, soft characters for native Japanese words",
+          "katakana": "Katakana (カタカナ): Straight, angular characters for foreign words",
+          "kanji": "Kanji (漢字): Chinese characters with specific meanings"
+        }
+      },
+      "roles": {
+        "title": "1.2. Roles in Sentences",
+        "hiragana": "Hiragana: Write verb endings, particles, native Japanese words",
+        "katakana": "Katakana: Foreign words, foreign names, scientific terms",
+        "kanji": "Kanji: Express the main meaning of words"
+      }
+    },
+    "hiragana": {
+      "title": "2. Hiragana (ひらがな)",
+      "characteristics": {
+        "title": "2.1. Characteristics",
+        "features": {
+          "curved": "Curved, soft, flowing strokes",
+          "basic": "46 basic characters",
+          "diacritics": "Use diacritical marks for sound changes (dakuten, handakuten)",
+          "strokeOrder": "Written according to specific stroke order rules"
+        }
+      },
+      "usage": {
+        "title": "2.2. Usage",
+        "uses": {
+          "nativeWords": "Write native Japanese words (和語 - わご)",
+          "verbEndings": "Write verb and adjective endings",
+          "particles": "Write particles (は、が、を、に、で...)",
+          "furigana": "Write furigana (pronunciation guide above kanji)"
+        }
+      }
+    },
+    "katakana": {
+      "title": "3. Katakana (カタカナ)",
+      "characteristics": {
+        "title": "3.1. Characteristics",
+        "features": {
+          "angular": "Straight, angular, simple strokes",
+          "corresponding": "46 characters corresponding to Hiragana",
+          "recognizable": "Easy to recognize in text",
+          "longVowels": "Long vowels often written with dash mark (ー)"
+        }
+      },
+      "usage": {
+        "title": "3.2. Usage",
+        "uses": {
+          "foreignWords": "Write foreign words (外来語 - がいらいご)",
+          "foreignNames": "Foreign personal names and place names",
+          "technical": "Scientific and technical terms",
+          "emphasis": "Emphasize words in sentences"
+        }
+      }
+    },
+    "distinction": {
+      "title": "4. How to Distinguish",
+      "appearance": {
+        "title": "4.1. By Appearance",
+        "tableHeaders": {
+          "sound": "Sound",
+          "hiragana": "Hiragana",
+          "katakana": "Katakana"
+        }
+      },
+      "context": {
+        "title": "4.2. By Context of Use",
+        "example": {
+          "title": "Example:",
+          "sentence": "私はコーヒーを飲みます。",
+          "explanation": "- 私 (わたし): \"I\" - native Japanese word, written in kanji and hiragana<br>- は: particle, written in hiragana<br>- コーヒー: \"coffee\" - foreign word, written in katakana<br>- を: particle, written in hiragana<br>- 飲みます (のみます): \"drink\" - native Japanese verb, written in kanji and hiragana"
+        }
+      }
+    },
+    "learningMethods": {
+      "title": "5. Effective Learning Methods",
+      "studyOrder": {
+        "title": "5.1. Study Order",
+        "steps": {
+          "hiraganaFirst": "Learn Hiragana first (2-3 weeks)",
+          "katakanaSecond": "Learn Katakana second (2-3 weeks)",
+          "combinedReading": "Practice reading both combined",
+          "kanjiParallel": "Learn Kanji in parallel"
+        }
+      },
+      "memoryTechniques": {
+        "title": "5.2. Memory Techniques",
+        "techniques": {
+          "flashcards": "Use flashcards on Oboe",
+          "handwriting": "Practice handwriting regularly",
+          "realTexts": "Practice reading real texts",
+          "strokeOrder": "Practice correct stroke order"
+        }
+      }
+    }
   }
 }
