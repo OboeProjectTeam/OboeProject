@@ -40,7 +40,10 @@
             <th>Email</th>
             <th>Vai trò</th>
             <th>Trạng thái</th>
-            <th>Ngày tham gia</th>
+            <th class="sortable-header cursor-pointer hover:bg-gray-50" @click="toggleDateSort">
+              Ngày tham gia
+              <span class="sort-icon ml-1">{{ getSortIcon() }}</span>
+            </th>
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -346,6 +349,8 @@ const showBanConfirmPopup = ref(false);
 const showDeleteConfirmPopup = ref(false);
 const userToBan = ref(null);
 const userToDelete = ref(null);
+// Biến cho chức năng sắp xếp theo ngày tham gia
+const sortOrder = ref('none'); // 'none', 'asc' (cũ nhất trước), 'desc' (mới nhất trước)
 const newUser = ref({
   firstName: '',
   lastName: '',
@@ -428,6 +433,21 @@ const filteredUsers = computed(() => {
     result = result.filter(user => user.status === statusFilter.value);
   }
   
+  // Áp dụng sắp xếp theo ngày tham gia
+  if (sortOrder.value !== 'none') {
+    result = [...result].sort((a, b) => {
+      const dateA = new Date(a.createAt || a.joinDate);
+      const dateB = new Date(b.createAt || b.joinDate);
+      
+      if (sortOrder.value === 'asc') {
+        return dateA - dateB; // Cũ nhất trước
+      } else if (sortOrder.value === 'desc') {
+        return dateB - dateA; // Mới nhất trước
+      }
+      return 0;
+    });
+  }
+  
   return result;
 });
 
@@ -501,6 +521,27 @@ const getStatusName = (status) => {
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('vi-VN');
+};
+
+// Toggle sắp xếp theo ngày tham gia
+const toggleDateSort = () => {
+  if (sortOrder.value === 'none') {
+    sortOrder.value = 'desc'; // Mới nhất trước
+  } else if (sortOrder.value === 'desc') {
+    sortOrder.value = 'asc'; // Cũ nhất trước
+  } else {
+    sortOrder.value = 'none'; // Không sắp xếp
+  }
+};
+
+// Lấy icon cho sort
+const getSortIcon = () => {
+  if (sortOrder.value === 'desc') {
+    return '↓'; // Mới nhất trước
+  } else if (sortOrder.value === 'asc') {
+    return '↑'; // Cũ nhất trước
+  }
+  return '↕'; // Không sắp xếp
 };
 
 const handleSearch = () => {

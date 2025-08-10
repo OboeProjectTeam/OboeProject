@@ -98,6 +98,22 @@
     background: #f7fafc;
     font-weight: 600;
     color: #2d3748;
+    
+    &.sortable-header {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background: #edf2f7;
+      }
+      
+      .sort-icon {
+        font-size: 14px;
+        color: #4a90e2;
+        font-weight: bold;
+      }
+    }
   }
   
   // Điều chỉnh cột ID
