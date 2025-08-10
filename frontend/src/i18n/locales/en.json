@@ -53,6 +53,7 @@
     "library": "Library",
     "profile": "Profile",
     "settings": "Settings",
+    "admin": "Admin",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"

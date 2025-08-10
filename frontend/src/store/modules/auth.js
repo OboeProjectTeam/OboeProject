@@ -139,6 +139,20 @@ const getters = {
       return false;
     }
   },
+  // Kiểm tra user có role admin không
+  isAdmin: (state) => {
+    if (!state.token) return false;
+    try {
+      const decoded = jwtDecode(state.token);
+      // Kiểm tra role từ JWT token hoặc từ user object
+      return decoded.role === 'ROLE_ADMIN' || 
+             decoded.authorities?.includes('ROLE_ADMIN') ||
+             state.user?.role === 'ROLE_ADMIN';
+    } catch (error) {
+      console.error('Lỗi decode JWT token:', error);
+      return false;
+    }
+  },
 };
 
 export default {

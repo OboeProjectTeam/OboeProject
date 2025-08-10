@@ -39,7 +39,7 @@
           <router-link to="/create/flashcard" class="ip-feature-link">{{ t('intro.startCreating') }} <i
               class="fas fa-arrow-right"></i></router-link>
         </div>
-          <TheCard class="ip-feature-card scroll-reveal from-right delay-2" :slides="slides" :width="250" :height="350" :autoplay="true" :pagination="{ clickable: true }"  />
+          <TheCard class="ip-feature-card scroll-reveal from-right delay-2" :slides="slides" :width="cardWidth" :height="cardHeight" :autoplay="true" :pagination="{ clickable: true }"  />
       </div>
     </section>
 
@@ -83,7 +83,7 @@
 
 <script setup>
 import { ImagePaths } from '@/assets/img/imagePaths';
-import { onMounted } from 'vue';
+import { onMounted, ref, computed, onUnmounted } from 'vue';
 import { initScrollReveal } from '@/assets/js/common';
 import TheCard from '@/components/layout/card/TheCard.vue';
 import { useStore } from 'vuex'; // Import useStore to access Vuex state
@@ -93,9 +93,29 @@ const { t } = useI18n();
 const store = useStore(); // Access Vuex store
 const slides = store.getters['cart/slides']; // Get slides from the Vuex store
 
+// Responsive card dimensions
+const windowWidth = ref(window.innerWidth);
+
+const cardWidth = computed(() => {
+  return windowWidth.value > 768 ? 400 : 250;
+});
+
+const cardHeight = computed(() => {
+  return windowWidth.value > 768 ? 300 : 350;
+});
+
+// Handle window resize
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+};
 
 onMounted(() => {
   initScrollReveal();
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 

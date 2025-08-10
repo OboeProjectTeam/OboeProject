@@ -131,6 +131,10 @@
                     <i class="fas fa-cog"></i>
                     {{ t('navigation.settings') }}
                   </router-link>
+                  <router-link v-if="isAdmin" to="/admin" class="menu-item">
+                    <i class="fas fa-shield-alt"></i>
+                    {{ t('navigation.admin') }}
+                  </router-link>
                   <div class="menu-item" @click="handleLogout">
                     <i class="fas fa-sign-out-alt"></i>
                     {{ t('navigation.logout') }}
@@ -232,6 +236,10 @@
                     <router-link to="/settings" class="menu-item">
                       <i class="fas fa-cog"></i>
                       {{ t('navigation.settings') }}
+                    </router-link>
+                    <router-link v-if="isAdmin" to="/admin" class="menu-item">
+                      <i class="fas fa-shield-alt"></i>
+                      {{ t('navigation.admin') }}
                     </router-link>
                     <div class="menu-item" @click="handleLogout">
                       <i class="fas fa-sign-out-alt"></i>
@@ -394,6 +402,7 @@ onUnmounted(() => {
 const optionKeys = computed(() => store.getters['header/optionKeys'])
 const isAuthenticated = computed(() => store.getters['auth/isAuthenticated'])
 const currentUser = computed(() => store.getters['auth/currentUser'])
+const isAdmin = computed(() => store.getters['auth/isAdmin'])
 
 const notifications = ref([])
 const notificationsLoading = ref(false)
