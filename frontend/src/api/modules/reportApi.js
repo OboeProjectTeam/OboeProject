@@ -77,9 +77,13 @@ const reportApi = {
     }
   },
   // Duyệt báo cáo blog
-  async approve(reportId) {
+  async approve(reportId, { actionType, note } = {}) {
     try {
-      const res = await axios.put(`${PREFIX}/approve/${reportId}`);
+      const res = await axios.put(
+        `${PREFIX}/approve/${reportId}`,
+        null, // body rỗng vì backend nhận qua @RequestParam
+        { params: { actionType, note } } // thêm query params
+      );
       return res.data;
     } catch (error) {
       throw new Error(handleApiError(error));

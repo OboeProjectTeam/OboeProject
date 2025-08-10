@@ -324,7 +324,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import reportApi from '@/api/modules/reportApi.js';
+import reportApi from '@/api/modules/reportapi.js';
 
 const router = useRouter();
 
@@ -647,9 +647,31 @@ const resolveReport = (report) => {
 
 const submitResolve = async () => {
   try {
-    if (selectedReport.value) {
-      // Gọi API để duyệt báo cáo
-      const response = await reportApi.approve(selectedReport.value.id);
+    if (selectedReport.value && resolveData.value.action && resolveData.value.userNote) {
+      // Map action từ form sang actionType của API
+      const actionTypeMap = {
+        'warning': 'WARNING',
+        'delete': 'DELETE_POST', 
+        'perm_ban': 'BAN_USER'
+      };
+      
+      const actionType = actionTypeMap[resolveData.value.action];
+      const note = resolveData.value.userNote;
+      
+      console.log('Calling approve API with:', {
+        reportId: selectedReport.value.id,
+        actionType,
+        note
+      });
+      
+      // Gọi API để duyệt báo cáo với actionType và note
+      const response = await reportApi.approve(selectedReport.value.id, {
+        actionType,
+        note
+      });
+      
+      console.log('API response:', response);
+      
       // Cập nhật trạng thái local
       const index = reports.value.findIndex(r => r.id === selectedReport.value.id);
       if (index !== -1) {
@@ -661,6 +683,11 @@ const submitResolve = async () => {
       
       // Làm mới dữ liệu từ server để đảm bảo đồng bộ
       await fetchReports();
+      
+      alert('Báo cáo đã được duyệt thành công!');
+    } else {
+      alert('Vui lòng chọn hành động và nhập ghi chú!');
+      return;
     }
     
     showResolveModal.value = false;
@@ -673,7 +700,7 @@ const submitResolve = async () => {
     selectedReport.value = null;
   } catch (error) {
     console.error('Error resolving report:', error);
-    alert('Có lỗi xảy ra khi duyệt báo cáo. Vui lòng thử lại.');
+    alert(`Có lỗi xảy ra khi duyệt báo cáo: ${error.message}`);
   }
 };
 
