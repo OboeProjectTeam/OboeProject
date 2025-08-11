@@ -91,14 +91,14 @@ public class WebConfig {
                         .requestMatchers(
                                 "/api/auth/signup",
                                 "/api/auth/login",
-                                "/api/auth/loginWithFirebase", // Thêm endpoint Firebase
+                                "/api/auth/loginWithFirebase",
                                 "/api/auth/verify",
                                 "/swagger-ui/**",
+                                
                                 "/oauth2/redirect",
                                 "/v3/api-docs/**",
                                 "/oauth2/**",
                                 "/api/search/**",
-
                                 "/api/search",
                                 "/ws/**",
                                 "/ws-raw"

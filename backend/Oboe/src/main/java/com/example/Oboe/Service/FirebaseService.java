@@ -1,5 +1,6 @@
 package com.example.Oboe.Service;
 
+import com.example.Oboe.Entity.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
@@ -58,7 +59,9 @@ public class FirebaseService {
         var existingUsers = userService.findByUserNameAndAuthProvider(email, authProvider);
         if (!existingUsers.isEmpty()) {
             User existingUser = existingUsers.get(0);
-            // Cập nhật thông tin nếu cần
+            if (existingUser.getStatus() == Status.BAN) {
+                throw new RuntimeException("User is banned");
+            }
             if (picture != null && !picture.isEmpty()) {
                 existingUser.setAvatarUrl(picture);
                 return userService.saveUser(existingUser);
