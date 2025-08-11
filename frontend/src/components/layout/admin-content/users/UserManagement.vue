@@ -615,7 +615,7 @@ const confirmBanUser = async () => {
   
   try {
     // Sử dụng API updateStatus với status BANNED
-    const response = await api.admin.updateStatus(userToBan.value.id, 'BANNED');
+    const response = await api.admin.updateStatus(userToBan.value.id, 'BAN');
     // Refresh toàn bộ danh sách từ server để đảm bảo dữ liệu đồng bộ
     await fetchUsers();
     
