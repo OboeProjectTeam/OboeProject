@@ -1,259 +1,133 @@
 # Oboe - Nền tảng học tiếng Nhật thông minh
 
+<div align="center">
+
+![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+
+![Build Status](https://img.shields.io/github/actions/workflow/status/hoangdu999/oboe-project/deploy.yml?style=flat-square&logo=github)
+![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg?style=flat-square)
+![Contributors](https://img.shields.io/badge/contributors-5-orange.svg?style=flat-square)
+![Last Commit](https://img.shields.io/github/last-commit/hoangdu999/oboe-project?style=flat-square)
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-oboeru.me-blue?style=for-the-badge)](https://oboeru.me)
+[![Documentation](https://img.shields.io/badge/📚_Documentation-Wiki-green?style=for-the-badge)](https://github.com/hoangdu999/oboe-project/wiki)
+
+</div>
+
 Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết kế để giúp người học tiếp cận ngôn ngữ này một cách hiệu quả và cá nhân hóa.
 
-## Tính năng chính
+## 📋 Mục lục
 
-### 🎯 **Học từ vựng & Kanji**
-- **Tra cứu thông minh**: Từ vựng, kanji, ngữ pháp với cách đọc tiếng Việt
-- **Flashcard thông minh**: Hệ thống thẻ ghi nhớ với nhiều chế độ học
-  - Chế độ học cơ bản
-  - Chế độ kiểm tra (Test)
-  - Chế độ ghép thẻ (Match)
-- **Tạo học liệu**: Tự tạo flashcard và quiz cá nhân
-- **Thống kê học tập**: Theo dõi tiến độ và hiệu suất học tập
+- [✨ Tính năng nổi bật](#-tính-năng-nổi-bật)
+- [🚀 Tech Stack](#-tech-stack)
+- [🏗️ Tổng quan hạ tầng hệ thống](#️-tổng-quan-hạ-tầng-hệ-thống)
+- [📁 Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [🚀 Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Frontend](#frontend)
+  - [Backend](#backend)
+  - [Database](#database)
+- [⚙️ Environment Variables](#️-environment-variables)
+  - [Frontend (.env)](#frontend-env)
+  - [Backend (application.properties)](#backend-applicationproperties)
+- [📚 API Endpoints](#-api-endpoints)
+- [🚀 Deployment](#-deployment)
+- [Team & Roles](#team--roles)
+  - [👥 Đội ngũ phát triển](#-đội-ngũ-phát-triển)
+  - [🎯 Phân công chi tiết](#-phân-công-chi-tiết)
+  - [📊 Contribution Statistics](#-contribution-statistics)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact & Links](#contact--links)
 
-### 🤖 **Tính năng AI thông minh**
-- **Tự động tạo Quiz**: AI tạo bài kiểm tra từ nội dung học
-- **Đánh giá và gợi ý**: AI phân tích và đưa ra lời khuyên học tập
-- **Dịch thuật tự động**: Hỗ trợ dịch chi tiết và chính xác
-- **Tự động trả lời blog**: AI giải thích và giải đáp theo từng bài viết
+## ✨ Tính năng nổi bật
 
+- 🎯 **Học từ vựng & Kanji** - Tra cứu thông minh, flashcard đa chế độ, tạo học liệu cá nhân
+- 🤖 **AI thông minh** - Tự động tạo quiz, đánh giá học tập, dịch thuật chính xác
+- 👥 **Cộng đồng** - Diễn đàn thảo luận, chia sẻ học liệu, chat trực tiếp
+- 💳 **Thanh toán** - Tích hợp PayOS, nâng cấp tài khoản premium
+- ⚙️ **Quản trị** - Dashboard admin, phân quyền người dùng, báo cáo vi phạm
+- 🛡️ **Bảo mật** - AWS WAF, Auto Scaling, CloudFront CDN
 
+## 🚀 Tech Stack
 
-### 👥 **Cộng đồng & Diễn đàn**
-- **Chia sẻ học liệu**: Đăng và chia sẻ flashcard, quiz với cộng đồng
-- **Diễn đàn thảo luận**: Hỏi đáp và thảo luận về tiếng Nhật
-- **Hệ thống tin nhắn**: Chat trực tiếp với người dùng khác
-- **Trang cá nhân**: Profile cá nhân với thống kê và hoạt động
-- **Hệ thống báo cáo**: Báo cáo nội dung vi phạm
+**Frontend:** Vue 3, Vite, Vuex, TailwindCSS, Firebase  
+**Backend:** Spring Boot, MySQL, AWS S3, Gemini AI  
+**DevOps:** Docker, GitHub Actions, AWS (EC2, CloudFront, WAF)
 
-### 💳 **Hệ thống thanh toán**
-- **Tích hợp nền tảng**: PayOS
-- **Nâng cấp tài khoản**: Các gói premium với tính năng mở rộng
+## 🏗️ Tổng quan hạ tầng hệ thống
 
-### ⚙️ **Quản trị & Bảo mật**
-- **Dashboard admin**: Quản lý người dùng, nội dung, thống kê
-- **Phân quyền người dùng**: Hệ thống role-based access control
-- **Xác thực đa phương thức**: Email, Firebase Authentication
-- **Quản lý báo cáo**: Xử lý báo cáo vi phạm từ cộng đồng
-
-### 📱 **Trải nghiệm người dùng**
-- **Giao diện responsive**: Tối ưu cho mọi thiết bị
-- **Tìm kiếm thông minh**: Tìm kiếm toàn cục với nhiều bộ lọc
-- **Thông báo real-time**: Cập nhật tin nhắn và hoạt động ngay lập tức
-- **Hướng dẫn chi tiết**: Trang hướng dẫn học tập và sử dụng
-
-### 🛡️ **Bảo mật & Infrastructure**
-- **Ẩn địa chỉ IP**: Server không thể truy cập trực tiếp qua IP
-- **CloudFront CDN**: Domain trỏ về CloudFront thay vì EC2
-- **AWS WAF Protection**: 
-  - Chống DDoS attacks
-  - Hạn chế truy cập `/admin` endpoint
-  - Giới hạn số request/phút cho từng trang
-- **Auto Security Groups**: Lambda tự động cập nhật IP CloudFront hàng ngày
-- **Auto Scaling**: Tự động tạo EC2 mới khi CPU > 70%
-- **Monitoring & Alerts**: CloudWatch + SNS gửi email khi server quá tải
-
-### 💾 **Lưu trữ & Database**
-- **MySQL trên EC2**: Database chính với remote access
-- **AWS S3**: Lưu trữ file upload, hình ảnh, tài liệu học tập
-- **S3 Backup**: Tự động backup database và files
-- **CDN Integration**: S3 files được serve qua CloudFront
-
-## Công nghệ sử dụng
-
-### Frontend
-- **Vue 3** + **Vite** - Framework chính và build tool
-- **Vuex** + **Vuex Persisted State** - Quản lý state toàn cục
-- **Vue Router** - Điều hướng SPA
-- **TailwindCSS** - Framework CSS utility-first
-- **SCSS/Sass** - CSS preprocessor
-- **Axios** - HTTP client
-- **Swiper** - Carousel/slider components
-- **Firebase SDK** + **VueFire** - Tích hợp Firebase
-- **FontAwesome** - Icon library
-- **STOMP.js** + **SockJS** - WebSocket real-time communication
-- **Sonner** - Toast notifications
-- **JWT Decode** - JWT token handling
-
-### Backend
-- **Spring Boot 3.2.3** - Framework chính
-- **Spring Security** + **JWT** - Xác thực và phân quyền
-- **Spring Data JPA** - ORM và database access
-- **MySQL 8.0+** - Database trên EC2 với remote access
-- **AWS S3** - File storage và static assets
-- **Spring WebSocket** - Real-time communication
-- **Spring Mail** - Gửi email
-- **Gemini AI API** - Tích hợp AI
-- **MoMo API** + **PayOS API** - Cổng thanh toán
-- **Firebase Admin SDK** - Xác thực Firebase
-
-### DevOps & Deployment
-- **Docker** - Containerization
-- **GitHub Actions** - CI/CD pipeline
-- **AWS EC2** - Backend hosting với Auto Scaling + MySQL Database
-- **AWS S3** - File storage và backup
-- **AWS CloudFront** - CDN và reverse proxy
-- **AWS WAF** - Web Application Firewall
-- **AWS Lambda** - Serverless functions
-- **AWS CloudWatch** - Monitoring và logging
-- **AWS SNS** - Notification service
-- **Firebase Hosting** - Frontend deployment
-
-## Kiến trúc hệ thống
-
-### 🏗️ **Architecture Overview**
 ```
-Internet → CloudFront CDN → AWS WAF → Application Load Balancer → Auto Scaling Group (EC2) → MySQL (EC2)
-                                                                                    ↓                ↓
-                                                                              AWS S3 Storage    CloudWatch Monitoring
-                                                                                    ↓                ↓
-                                                                              File Backup      SNS Notifications
+                                    S3/MySQL
+                                   (IAM Role)
+                                        ↑
+Internet → CloudFront → Application → EC2 → CloudWatch
+           (WAF)        Load Balancer   AutoScaling     ↓
+                                        Group      SNS Notifications
+                                          ↓
+                                    Security Groups
+                                          ↓
+                                       Lambda
 ```
 
-### 🔄 **Data Flow**
-1. **User Request** → CloudFront (CDN)
-2. **WAF Filtering** → DDoS protection, rate limiting
-3. **Load Balancer** → Phân phối traffic đến EC2 instances
-4. **Auto Scaling** → Tự động tạo/xóa instances theo load
-5. **Monitoring** → CloudWatch theo dõi metrics
-6. **Alerts** → SNS gửi email khi có vấn đề
-
-### 🛡️ **Security Layers**
-- **Layer 1**: CloudFront + WAF (DDoS, rate limiting)
-- **Layer 2**: Security Groups (chỉ cho phép CloudFront)
-- **Layer 3**: Application-level authentication (JWT)
-- **Layer 4**: Database access control (VPC, private subnets)
-
-## Cấu trúc dự án
+## 📁 Cấu trúc dự án
 
 ```
 oboe-project/
-├── frontend/                    # Vue 3 frontend application
+├── frontend/           # Vue 3 + TailwindCSS
 │   ├── src/
-│   │   ├── api/                # API modules và HTTP clients
-│   │   │   ├── modules/        # Các module API riêng biệt
-│   │   │   │   ├── adminApi.js      # API quản trị
-│   │   │   │   ├── aiApi.js         # API tích hợp AI
-│   │   │   │   ├── authApi.js       # API xác thực
-│   │   │   │   ├── flashcardApi.js  # API flashcard
-│   │   │   │   ├── paymentApi.js    # API thanh toán
-│   │   │   │   ├── forumApi.js      # API diễn đàn
-│   │   │   │   └── ...              # Các API khác
-│   │   │   ├── axios.js        # Cấu hình Axios
-│   │   │   └── index.js        # Export tổng hợp
-│   │   ├── components/         # Vue components tái sử dụng
-│   │   │   └── layout/         # Layout components
-│   │   ├── views/              # Các trang chính
-│   │   │   ├── admin/          # Trang quản trị
-│   │   │   ├── auth/           # Đăng nhập/đăng ký
-│   │   │   ├── flashcard/      # Học flashcard
-│   │   │   │   ├── flashcard-learn/   # Chế độ học
-│   │   │   │   ├── flashcard-test/    # Chế độ kiểm tra
-│   │   │   │   └── flashcard-match/   # Chế độ ghép thẻ
-│   │   │   ├── forum/          # Diễn đàn cộng đồng
-│   │   │   ├── search-japanese/# Tra cứu tiếng Nhật
-│   │   │   ├── create-learn/   # Tạo học liệu
-│   │   │   ├── pay-fee/        # Thanh toán
-│   │   │   └── self/           # Trang cá nhân
-│   │   ├── store/              # Vuex store modules
-│   │   ├── router/             # Vue router configuration
-│   │   └── firebase.js         # Cấu hình Firebase
-│   ├── public/                 # Static assets
-│   └── package.json            # Dependencies và scripts
+│   │   ├── api/       # API modules
+│   │   ├── components/ # Vue components
+│   │   ├── views/     # Pages (admin, auth, flashcard, forum...)
+│   │   ├── store/     # Vuex store
+│   │   └── router/    # Vue router
+│   └── package.json
 │
-├── backend/                    # Spring Boot backend
+├── backend/           # Spring Boot
 │   └── Oboe/
 │       ├── src/main/java/com/example/Oboe/
-│       │   ├── Controller/     # REST API endpoints
-│       │   │   ├── AdminController.java     # API quản trị
-│       │   │   ├── AIController.java        # API AI
-│       │   │   ├── FlashCardController.java # API flashcard
-│       │   │   ├── PaymentController.java   # API thanh toán
-│       │   │   ├── SearchController.java    # API tìm kiếm
-│       │   │   └── ...                      # Các controller khác
-│       │   ├── Service/        # Business logic layer
-│       │   │   ├── AdminService.java        # Logic quản trị
-│       │   │   ├── GeminiService.java       # Tích hợp AI
-│       │   │   ├── FlashCardService.java    # Logic flashcard
-│       │   │   └── ...                      # Các service khác
-│       │   ├── Repository/     # Data access layer
-│       │   ├── Entity/         # JPA entities
-│       │   ├── DTOs/           # Data transfer objects
-│       │   └── Config/         # Configuration classes
-│       ├── src/main/resources/ # Application properties
-│       └── pom.xml             # Maven dependencies
+│       │   ├── Controller/ # REST APIs
+│       │   ├── Service/    # Business logic
+│       │   ├── Repository/ # Data access
+│       │   └── Entity/     # JPA entities
+│       └── pom.xml
 │
-└── .github/workflows/          # CI/CD automation
-    └── deploy.yml              # Deployment pipeline
+└── .github/workflows/ # CI/CD pipeline
 ```
 
-## Cài đặt và Chạy
+## 🚀 Quick Start
 
-### Yêu cầu hệ thống
-- **Node.js** 18+ và **npm**
-- **Java** 21 (JDK)
-- **MySQL** 8.0+
-- **Maven** 3.6+
-- **Git** để clone repository
+### Prerequisites
+Node.js 18+, Java 21, MySQL 8.0+, Maven 3.6+
 
-### Cài đặt Frontend
+### Frontend
 ```bash
-# Clone repository
-git clone <repository-url>
-cd oboe-project/frontend
-
-# Cài đặt dependencies
+cd frontend
 npm install
-
-# Chạy development server
-npm run dev
-
-# Build cho production
-npm run build
-
-# Preview production build
-npm run preview
+npm run dev        # Development
+npm run build      # Production
 ```
 
-### Cài đặt Backend
+### Backend
 ```bash
-# Di chuyển đến thư mục backend
 cd backend/Oboe
-
-# Chạy với Maven wrapper (Linux/Mac)
-./mvnw spring-boot:run
-
-# Hoặc trên Windows
-mvnw.cmd spring-boot:run
-
-# Build JAR file
-./mvnw clean package
-
-# Chạy JAR file
-java -jar target/oboe-*.jar
+./mvnw spring-boot:run    # Linux/Mac
+mvnw.cmd spring-boot:run  # Windows
 ```
 
-### Cài đặt Database (MySQL trên EC2)
+### Database
 ```sql
--- Tạo database MySQL
 CREATE DATABASE oboe_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Tạo user với remote access
 CREATE USER 'oboe_user'@'%' IDENTIFIED BY 'your_password';
 GRANT ALL PRIVILEGES ON oboe_db.* TO 'oboe_user'@'%';
-FLUSH PRIVILEGES;
-
--- Cấu hình MySQL cho remote access
--- Trong /etc/mysql/mysql.conf.d/mysqld.cnf:
--- bind-address = 0.0.0.0
-
--- Mở port 3306 trong Security Group
--- Source: Application servers only
 ```
 
-## Biến môi trường
+## ⚙️ Environment Variables
 
 ### Frontend (.env)
 ```bash
@@ -265,14 +139,19 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 
-# API Base URL
+# API Configuration
 VITE_API_BASE_URL=http://localhost:8080
+VITE_WEBSOCKET_URL=ws://localhost:8080/ws
+
+# Application Configuration
+VITE_APP_NAME=Oboe
+VITE_APP_VERSION=1.0.0
 ```
 
 ### Backend (application.properties)
 ```properties
-# Database Configuration (MySQL trên EC2)
-spring.datasource.url=jdbc:mysql://your-ec2-mysql-host:3306/oboe_db
+# Database Configuration
+spring.datasource.url=jdbc:mysql://your-host:3306/oboe_db
 spring.datasource.username=oboe_user
 spring.datasource.password=your_password
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
@@ -281,12 +160,21 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.format_sql=true
 
 # AWS S3 Configuration
 aws.access.key.id=your_access_key
 aws.secret.access.key=your_secret_key
 aws.region=ap-southeast-1
 aws.s3.bucket.name=oboe-file-storage
+
+# Firebase Configuration
+firebase.credentials.path=src/main/resources/firebase/firebase-service-account.json
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY_ID=your_private_key_id
+FIREBASE_PRIVATE_KEY=your_private_key
+FIREBASE_CLIENT_EMAIL=your_client_email
+FIREBASE_CLIENT_ID=your_client_id
 
 # Mail Configuration
 spring.mail.host=smtp.gmail.com
@@ -296,36 +184,21 @@ spring.mail.password=your_app_password
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
-# Firebase Configuration
-firebase.credentials.path=path/to/firebase-service-account.json
-
-# Firebase Environment Variables (Alternative to service account file)
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_PRIVATE_KEY_ID=your_private_key_id
-FIREBASE_PRIVATE_KEY=your_private_key
-FIREBASE_CLIENT_EMAIL=your_client_email
-FIREBASE_CLIENT_ID=your_client_id
-FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
-FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
-
-# Firebase Service Account File Path
-FIREBASE_SERVICE_ACCOUNT_PATH=src/main/resources/firebase/firebase-service-account.json
-
 # AI Configuration (Gemini)
 gemini.api.key=your_gemini_api_key
 gemini.api.url=https://generativelanguage.googleapis.com
 
 # Payment Configuration
+# PayOS
+payos.client.id=your_payos_client_id
+payos.api.key=your_payos_api_key
+payos.checksum.key=your_payos_checksum_key
+
 # MoMo
 momo.partner.code=your_partner_code
 momo.access.key=your_access_key
 momo.secret.key=your_secret_key
 momo.endpoint=https://test-payment.momo.vn
-
-# PayOS
-payos.client.id=your_payos_client_id
-payos.api.key=your_payos_api_key
-payos.checksum.key=your_payos_checksum_key
 
 # JWT Configuration
 jwt.secret=your_jwt_secret_key
@@ -334,49 +207,88 @@ jwt.expiration=86400000
 # Application Configuration
 app.domain=http://localhost:5173
 server.port=8080
+spring.application.name=Oboe
+
+# WebSocket Configuration
+spring.websocket.allowed-origins=http://localhost:5173,https://oboeru.me
+
+# File Upload Configuration
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+# Logging Configuration
+logging.level.com.example.Oboe=DEBUG
+logging.level.org.springframework.security=DEBUG
 ```
 
-## API Documentation
+## 📚 API Endpoints
 
-### Endpoints chính
+| Category | Endpoint | Description |
+|----------|----------|-------------|
+| **Auth** | `POST /api/auth/login` | Đăng nhập |
+| | `POST /api/auth/register` | Đăng ký |
+| **Flashcard** | `GET /api/flashcards` | Lấy danh sách |
+| | `POST /api/flashcards` | Tạo mới |
+| **AI** | `POST /api/ai/generate-quiz` | Tạo quiz |
+| | `POST /api/ai/translate` | Dịch thuật |
+| **Payment** | `POST /api/payment/payos` | Thanh toán |
+| **Search** | `GET /api/search/vocabulary` | Tìm từ vựng |
 
-#### Authentication
-- `POST /api/auth/login` - Đăng nhập
-- `POST /api/auth/register` - Đăng ký
-- `POST /api/auth/logout` - Đăng xuất
-- `POST /api/auth/refresh` - Refresh token
+## 🚀 Deployment
 
-#### Flashcard
-- `GET /api/flashcards` - Lấy danh sách flashcard
-- `POST /api/flashcards` - Tạo flashcard mới
-- `PUT /api/flashcards/{id}` - Cập nhật flashcard
-- `DELETE /api/flashcards/{id}` - Xóa flashcard
-
-#### AI Features
-- `POST /api/ai/generate-quiz` - Tạo quiz từ AI
-- `POST /api/ai/analyze` - Phân tích học tập
-- `POST /api/ai/translate` - Dịch thuật
-
-#### Payment
-- `POST /api/payment/momo` - Tạo thanh toán MoMo
-- `POST /api/payment/payos` - Tạo thanh toán PayOS
-- `GET /api/payment/status` - Kiểm tra trạng thái thanh toán
-
-#### Search
-- `GET /api/search/vocabulary` - Tìm kiếm từ vựng
-- `GET /api/search/kanji` - Tìm kiếm kanji
-- `GET /api/search/grammar` - Tìm kiếm ngữ pháp
-
-## Deployment
-
-### Frontend (Firebase Hosting)
 ```bash
-# Build production
+# Frontend (Firebase)
 npm run build
-
-# Deploy to Firebase
 firebase deploy --only hosting
+
+# Backend (Docker)
+docker build -t oboe-backend .
+docker run -p 8080:8080 oboe-backend
 ```
+
+## Team & Roles
+
+### 👥 **Đội ngũ phát triển**
+
+| Thành viên | GitHub | Vai trò | Trách nhiệm |
+|------------|--------|---------|-------------|
+| **trungton08072004** | [@trungton08072004](https://github.com/trungton08072004) | **Project Manager** | • Project Management & Timeline<br>• Human Resource Management<br>• SRS (Software Requirements Specification)<br>• Use Cases & User Stories<br>• API Documentation<br>• Test Cases & Test Plans<br>• Backend Support |
+| **hoangdu999** | [@hoangdu999](https://github.com/hoangdu999) | **Tech Lead** | • Frontend Development (Vue 3, TailwindCSS)<br>• DevOps & Infrastructure (AWS EC2, CloudFront, WAF)<br>• CI/CD Pipeline (GitHub Actions)<br>• Technical Support & Code Review<br>• Architecture Design |
+| **HuuNghia1301** | [@HuuNghia1301](https://github.com/HuuNghia1301) | **Backend Developer** | • Core Backend Development (Spring Boot)<br>• REST API Implementation<br>• Business Logic & Services<br>• Security & Authentication (JWT)<br>• Integration with External APIs |
+| **tuanct413** | [@tuanct413](https://github.com/tuanct413) | **Backend Developer** | • Backend Development (Spring Boot)<br>• Database Integration (JPA/Hibernate)<br>• Payment Integration (MoMo, PayOS)<br>• WebSocket Real-time Features<br>• Email Services |
+| **wuong161104** | [@wuong161104](https://github.com/wuong161104) | **Database & AI Developer** | • Database Design & Architecture<br>• Data Modeling & Migration<br>• Sample Data Creation & Seeding<br>• AI Integration (Gemini API)<br>• Machine Learning Features |
+
+### 🎯 **Phân công chi tiết**
+
+#### **Project Management** - trungton08072004  
+- **Project Planning**: Sprint planning, milestone tracking
+- **Documentation**: Requirements analysis, API specs, test documentation
+- **Quality Assurance**: Test case creation, testing coordination
+- **Team Coordination**: Daily standups, progress tracking
+- **Backend Contribution**: Supporting backend development tasks
+
+#### **Frontend & Infrastructure** - hoangdu999
+- **Frontend Development**: Vue 3, Vuex, Vue Router, SCSS
+- **Component Architecture**: Reusable components, layout system
+- **AWS Infrastructure**: EC2, S3, CloudFront, WAF, Auto Scaling
+- **DevOps**: CI/CD pipeline
+- **Technical Leadership**: Code review, architecture decisions, team support
+
+#### **Core Backend Development** - HuuNghia1301 & tuanct413
+- **API Development**: RESTful services, endpoint implementation
+- **Authentication**: JWT, Firebase integration, security layers
+- **Business Logic**: Core application features, data processing
+- **Third-party Integration**: Payment gateways, external APIs
+- **Real-time Features**: WebSocket implementation, notifications
+
+#### **Database & AI** - wuong161104
+- **Database Design**: MySQL schema, relationships, optimization
+- **Data Management**: Sample data creation, migration scripts
+- **AI Integration**: Gemini API, intelligent features
+- **Data Analysis**: Learning analytics, user behavior insights
+
+### 📊 **Contribution Statistics**
+Dựa trên GitHub insights, team đã có gần **700 commits** , hơn **300 workflows** , gần **70 pull requests** với sự đóng góp tích cực từ tất cả thành viên trong việc phát triển nền tảng học tiếng Nhật Oboe.
 
 ## Contributing
 
