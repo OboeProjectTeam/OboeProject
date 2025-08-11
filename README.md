@@ -2,18 +2,18 @@
 
 <div align="center">
 
-![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+[![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=for-the-badge&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/OboeProjectTeam/OboeProject/deploy.yml?style=flat-square&logo=github)
-![License](https://img.shields.io/github/license/OboeProjectTeam/OboeProject?style=flat-square)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/OboeProjectTeam/OboeProject/deploy.yml?style=flat-square&logo=github)](https://github.com/OboeProjectTeam/OboeProject/actions)
+[![License](https://img.shields.io/github/license/OboeProjectTeam/OboeProject?style=flat-square)](https://github.com/OboeProjectTeam/OboeProject/blob/main/LICENSE)
 ![Version](https://img.shields.io/badge/version-1.0.0-green.svg?style=flat-square)
-![Contributors](https://img.shields.io/github/contributors/OboeProjectTeam/OboeProject?style=flat-square)
-![First Commit](https://img.shields.io/github/created-at/OboeProjectTeam/OboeProject?style=flat-square&label=First%20Commit)
-![Last Commit](https://img.shields.io/github/last-commit/OboeProjectTeam/OboeProject?style=flat-square)
+[![Contributors](https://img.shields.io/github/contributors/OboeProjectTeam/OboeProject?style=flat-square)](https://github.com/OboeProjectTeam/OboeProject/graphs/contributors)
+[![First Commit](https://img.shields.io/github/created-at/OboeProjectTeam/OboeProject?style=flat-square&label=First%20Commit)](https://github.com/OboeProjectTeam/OboeProject/commit/eb6e1c31e5ed6122fdc32d1adc20487a3ca40661)
+[![Last Commit](https://img.shields.io/github/last-commit/OboeProjectTeam/OboeProject?style=flat-square)](https://github.com/OboeProjectTeam/OboeProject/commit/c3992644ed95553599aa80b8ca847e05a384074c)
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-oboeru.me-blue?style=for-the-badge)](https://oboeru.me)
 [![Documentation](https://img.shields.io/badge/📚_Documentation-GitHub-green?style=for-the-badge)](https://github.com/OboeProjectTeam/OboeProject)
