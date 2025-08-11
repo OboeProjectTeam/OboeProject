@@ -204,6 +204,25 @@ const uiConfig = {
         }
       } catch (error) {
         console.error(error);
+        
+        // Kiểm tra nếu lỗi là do user bị banned
+        if (error.message && (error.message.includes('Tài khoản đã bị khóa') || error.message.includes('User is banned'))) {
+          showDialog('🚫 Tài khoản của bạn đã bị cấm\n\nVui lòng liên hệ quản trị viên để được hỗ trợ.', 'error');
+        } else if (error.message && error.message.includes('Firebase authentication failed')) {
+          // Xử lý các lỗi Firebase khác
+          let errorMsg = 'Đăng nhập Firebase thất bại';
+          if (error.message.includes('Tài khoản đã bị khóa') || error.message.includes('User is banned')) {
+            errorMsg = '🚫 Tài khoản của bạn đã bị cấm\n\nVui lòng liên hệ quản trị viên để được hỗ trợ.';
+          } else if (error.message.includes('Invalid')) {
+            errorMsg = 'Token Firebase không hợp lệ. Vui lòng thử lại.';
+          } else if (error.message.includes('Expired')) {
+            errorMsg = 'Phiên đăng nhập đã hết hạn. Vui lòng thử lại.';
+          }
+          showDialog(errorMsg, 'error');
+        } else {
+          // Lỗi khác
+          showDialog('Đăng nhập thất bại. Vui lòng thử lại.', 'error');
+        }
       }
       return false;
     },
