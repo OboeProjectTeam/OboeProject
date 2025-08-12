@@ -3,10 +3,7 @@ package com.example.Oboe.Service;
 import com.example.Oboe.DTOs.BlogReportDTO;
 import com.example.Oboe.DTOs.ReportDtos;
 import com.example.Oboe.Entity.*;
-import com.example.Oboe.Repository.BlogRepository;
-import com.example.Oboe.Repository.ReportActionsRepository;
-import com.example.Oboe.Repository.ReportRepository;
-import com.example.Oboe.Repository.UserRepository;
+import com.example.Oboe.Repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +26,13 @@ public class ReportService {
 
     @Autowired
     private BlogRepository blogRepository;
+
+    @Autowired
+    private final NotificationsRepository notificationsRepository;
+
+    public ReportService(NotificationsRepository notificationsRepository) {
+        this.notificationsRepository = notificationsRepository;
+    }
 
     // Tạo báo cáo
     public Report createReport(ReportDtos reportDtos, UUID userId) {
@@ -106,6 +110,18 @@ public class ReportService {
 
         switch (actionType) {
             case WARNING:
+                if (report.getUser() != null) {
+                    User user = report.getUser();
+                    Blog blog = report.getBlog();
+                    Notifications notification = new Notifications();
+                    notification.setUser(user);
+                    notification.setText_notification("Bạn đã nhận cảnh cáo từ admin: " + note);
+                    notification.setRead(false);
+                    notification.setTargetId(report.getReportID());
+                    notification.setTargetType("REPORT");
+
+                    notificationsRepository.save(notification);
+                }
                 break;
             case DELETE_POST:
                 if (report.getBlog() != null) {
