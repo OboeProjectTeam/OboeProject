@@ -42,31 +42,29 @@ public class AIController {
 
         List<FlashCards> flashCardsList = flashCardRepository.findflashcardByUserId(userId);
 
-        if (flashCardsList.isEmpty()) {
-            throw new RuntimeException("Người dùng chưa có flashcard nào.");
-        }
-
-        List<String> wordMeaningList = new ArrayList<>();
-        for (FlashCards flashCard : flashCardsList) {
-            for (CardItem cardItem : flashCard.getCardItems()) {
-                String word = cardItem.getWord();
-                String meaning = cardItem.getMeaning();
-                if (word != null && meaning != null) {
-                    wordMeaningList.add(word + " : " + meaning);
+        // Nếu có flashcard → xử lý theo logic cũ
+        if (!flashCardsList.isEmpty()) {
+            List<String> wordMeaningList = new ArrayList<>();
+            for (FlashCards flashCard : flashCardsList) {
+                for (CardItem cardItem : flashCard.getCardItems()) {
+                    String word = cardItem.getWord();
+                    String meaning = cardItem.getMeaning();
+                    if (word != null && meaning != null) {
+                        wordMeaningList.add(word + " : " + meaning);
+                    }
                 }
             }
-        }
 
-        if (wordMeaningList.isEmpty()) {
-            throw new RuntimeException("Không có từ vựng nào trong flashcards của người dùng.");
-        }
+            if (wordMeaningList.isEmpty()) {
+                throw new RuntimeException("Không có từ vựng nào trong flashcards của người dùng.");
+            }
 
-        StringBuilder promptBuilder = new StringBuilder();
-        promptBuilder.append("Hãy tạo các câu hỏi trắc nghiệm tiếng Nhật dựa trên danh sách từ vựng sau:\n");
-        for (String entry : wordMeaningList) {
-            promptBuilder.append("- ").append(entry).append("\n");
-        }
-        promptBuilder.append("""
+            StringBuilder promptBuilder = new StringBuilder();
+            promptBuilder.append("Hãy tạo các câu hỏi trắc nghiệm tiếng Nhật dựa trên danh sách từ vựng sau:\n");
+            for (String entry : wordMeaningList) {
+                promptBuilder.append("- ").append(entry).append("\n");
+            }
+            promptBuilder.append("""
         Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
 
         - Từ vựng: "%s"
@@ -93,17 +91,15 @@ public class AIController {
         Không thêm giải thích hay văn bản nào ngoài JSON.
         """);
 
-        return geminiService.generateQuestion(promptBuilder.toString());
-    }
+            return geminiService.generateQuestion(promptBuilder.toString());
+        }
 
-
-    @PremiumOnly
-    @GetMapping("/generate-random-question")
-    public List<QuestionDTO> generateRandomQuestion() {
+        // Nếu không có flashcard → fallback random CardItem
         List<CardItem> allCardItems = cardItemRepository.findAll();
         if (allCardItems.isEmpty()) {
-            throw new RuntimeException("No CardItems found in database");
+            throw new RuntimeException("Không tìm thấy CardItem nào trong cơ sở dữ liệu.");
         }
+
         Random random = new Random();
         CardItem randomCardItem = allCardItems.get(random.nextInt(allCardItems.size()));
         String prompt = buildPrompt(randomCardItem);
@@ -112,32 +108,33 @@ public class AIController {
 
     private String buildPrompt(CardItem cardItem) {
         return """
-            Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
+        Tạo ra đúng 10 câu hỏi trắc nghiệm tiếng Nhật dựa trên từ vựng sau:
 
-            - Từ vựng: "%s"
-            - Nghĩa tiếng Việt: "%s"
+        - Từ vựng: "%s"
+        - Nghĩa tiếng Việt: "%s"
 
-            Yêu cầu:
-            1. Mỗi câu hỏi có 4 lựa chọn .
-            2. Chỉ 1 đáp án đúng.
-            3. Trả về định dạng JSON như sau:
+        Yêu cầu:
+        1. Mỗi câu hỏi có 4 lựa chọn .
+        2. Chỉ 1 đáp án đúng.
+        3. Trả về định dạng JSON như sau:
 
-            [
-                {
-                    "question": "Câu hỏi",
-                    "choices": [
-                        "lựa chọn A",
-                        "lựa chọn B",
-                        "lựa chọn C",
-                        "lựa chọn D"
-                    ],
-                    "answer": "Đáp án đúng"
-                }
-            ]
+        [
+            {
+                "question": "Câu hỏi",
+                "choices": [
+                    "lựa chọn A",
+                    "lựa chọn B",
+                    "lựa chọn C",
+                    "lựa chọn D"
+                ],
+                "answer": "Đáp án đúng"
+            }
+        ]
 
-            Không thêm giải thích hay văn bản nào ngoài JSON.
-            """.formatted(cardItem.getWord(), cardItem.getMeaning());
+        Không thêm giải thích hay văn bản nào ngoài JSON.
+        """.formatted(cardItem.getWord(), cardItem.getMeaning());
     }
+
     @PremiumOnly
     @PostMapping("/evaluate")
     public String evaluateAnswers(@RequestBody UserAnswerAIDTO request) {
