@@ -29,6 +29,8 @@ public class AdminService {
     private final BlogRepository blogRepository;
     private final CommentRepository commentRepository;
     private final FlashCardRepository flashCardRepository;
+    @Value("${app.default-avatar}")
+    private String defaultAvatar;
 
     @Value("${app.domain}")
     private String domain;
@@ -49,58 +51,65 @@ public class AdminService {
     }
 
     // Tạo tài khoản mới (Admin hoặc User)
-    public User createUser(UserDTOs dto) {
-        if (dto.getUserName() == null || dto.getUserName().isBlank()) {
-            throw new IllegalArgumentException("Tên đăng nhập không được để trống");
-        }
+    public User createUser(UserDTOs userDTO) {
+        AuthProvider provider = userDTO.getAuthProvider();
+        String username = userDTO.getUserName();
 
-        // Phân biệt là email hay số điện thoại
-        boolean isEmail = isValidEmail(dto.getUserName());
-        boolean isPhone = isValidPhone(dto.getUserName());
+        List<User> existingUsers = userRepository.findAllByUserNameAndAuthProvider(username, provider);
 
-        if (!isEmail && !isPhone) {
-            throw new IllegalArgumentException("Tên đăng nhập phải là email hoặc số điện thoại hợp lệ.");
-        }
-
-        List<User> existingUsers = userRepository.findAllByUserNameAndAuthProvider(dto.getUserName(), dto.getAuthProvider());
         if (!existingUsers.isEmpty()) {
-            throw new IllegalStateException("Tài khoản đã tồn tại.");
+            if (provider == AuthProvider.EMAIL) {
+                throw new IllegalStateException("Tài khoản email đã được sử dụng.");
+            }
+            return existingUsers.get(0);
         }
 
+        User user = buildNewUser(userDTO);
 
-        // Nếu là ROLE_USER và là email thì gửi mail xác minh
-        if (dto.getRole() == Role.ROLE_USER && isEmail) {
-            String token = UUID.randomUUID().toString();
-            VerificationHolder.getInstance().addToken(token, dto);
-
-            String verifyLink = domain+"/api/auth/verify?token=" + token;
-            mailService.sendMail(dto.getUserName(), "Xác minh tài khoản",
-                    "Vui lòng xác minh tài khoản tại: " + verifyLink);
-            return null;
+        if (provider == AuthProvider.EMAIL) {
+            validatePassword(userDTO.getPassWord());
+            user.setPassWord(passwordEncoder.encode(userDTO.getPassWord()));
+        } else {
+            user.setPassWord(null);
         }
 
-        User user = new User();
-        BeanUtils.copyProperties(dto, user);
-
-        if (dto.getPassWord() == null || dto.getPassWord().length() < 8) {
-            throw new IllegalArgumentException("Mật khẩu phải ít nhất 8 ký tự.");
-        }
-        user.setPassWord(passwordEncoder.encode(dto.getPassWord()));
-
-        user.setVerified(true);
-        user.setCreate_at(LocalDateTime.now());
-        user.setUpdate_at(LocalDateTime.now());
-        user.setStatus(Status.ACTION);
         return userRepository.save(user);
     }
 
-    // Regex kiểm tra email
+
+    private User buildNewUser(UserDTOs dto) {
+        User user = new User();
+        user.setUserName(dto.getUserName());
+        user.setAuthProvider(dto.getAuthProvider());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setDay_of_birth(dto.getDay_of_birth());
+        user.setAddress(dto.getAddress());
+        user.setRole(Role.ROLE_USER);
+        user.setVerified(dto.isVerified());
+        user.setAccountType(AccountType.FREE);
+        user.setProviderId(dto.getProviderId());
+        user.setCreate_at(LocalDateTime.now());
+        user.setUpdate_at(LocalDateTime.now());
+        user.setAvatarUrl(defaultAvatar);
+        user.setVerified(true);
+        return user;
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Mật khẩu phải ít nhất 8 ký tự.");
+        }
+    }
+
+
+
     private boolean isValidEmail(String email) {
         String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         return Pattern.matches(regex, email);
     }
 
-    // Regex kiểm tra số điện thoại (10-15 chữ số, có thể bắt đầu bằng +)
+
     private boolean isValidPhone(String phone) {
         String regex = "^\\+?[0-9]{10,15}$";
         return Pattern.matches(regex, phone);

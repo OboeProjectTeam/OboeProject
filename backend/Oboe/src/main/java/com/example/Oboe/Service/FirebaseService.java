@@ -59,6 +59,7 @@ public class FirebaseService {
         var existingUsers = userService.findByUserNameAndAuthProvider(email, authProvider);
         if (!existingUsers.isEmpty()) {
             User existingUser = existingUsers.get(0);
+
             if (existingUser.getStatus() == Status.BAN) {
                 throw new RuntimeException("User is banned");
             }
