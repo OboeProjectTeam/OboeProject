@@ -45,6 +45,7 @@ import KanjiGuide from '@/views/footer-services/kanji-guide/KanjiGuide.vue';
 const routes = [
   {
     path: "/",
+    redirect:"/intro",
     name: "Home",
     component: TheHome,
     meta: {
