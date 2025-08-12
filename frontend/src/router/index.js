@@ -73,7 +73,7 @@ router.beforeEach(async (to, from, next) => {
   // Handle authentication requirements
   if (requiresAuth && !isAuthenticated) {
 
-    return next('/login');
+    return next('/intro');
   }
   
   if (requiresGuest && isAuthenticated) {
