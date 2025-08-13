@@ -1,9 +1,17 @@
 <template>
   <div class="create-post-container">
-    <div class="create-post-card">
+    <!-- Loading state for edit mode -->
+    <div v-if="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">{{ t('createForumPost.loadingPost') }}</p>
+    </div>
+    
+    <div v-else class="create-post-card">
       <div class="card-header">
-        <h1>{{ t('createForumPost.title') }}</h1>
-        <p>{{ t('createForumPost.subtitle') }}</p>
+        <h1>{{ isEditMode ? t('createForumPost.editTitle') : t('createForumPost.title') }}</h1>
+        <p>{{ isEditMode ? t('createForumPost.editSubtitle') : t('createForumPost.subtitle') }}</p>
       </div>
       <div class="card-body">
         <form @submit.prevent="handleSubmit">
@@ -70,10 +78,10 @@
             <button type="button" class="btn btn-secondary" @click="goBackToForum" :disabled="isSubmitting">{{ t('createForumPost.cancel') }}</button>
             <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting">
-                <i class="fas fa-spinner fa-spin"></i> {{ t('createForumPost.posting') }}
+                <i class="fas fa-spinner fa-spin"></i> {{ isEditMode ? t('createForumPost.updating') : t('createForumPost.posting') }}
               </span>
               <span v-else>
-                <i class="fas fa-paper-plane"></i> {{ t('createForumPost.post') }}
+                <i class="fas fa-paper-plane"></i> {{ isEditMode ? t('createForumPost.update') : t('createForumPost.post') }}
               </span>
             </button>
           </div>
@@ -85,12 +93,13 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import blogApi from '@/api/modules/blogApi';
 
 const router = useRouter();
+const route = useRoute();
 const store = useStore();
 const { t } = useI18n();
 
@@ -104,6 +113,11 @@ const isTagDropdownActive = ref(false);
 const tagInputRef = ref(null);
 const tagsContainerRef = ref(null);
 const isSubmitting = ref(false);
+
+// Edit mode detection
+const isEditMode = computed(() => route.name === 'EditForumPost');
+const editPostId = computed(() => route.params.id);
+const isLoading = ref(false);
 
 // Get current user from store
 const currentUser = computed(() => store.state.auth.user);
@@ -196,8 +210,43 @@ watch(isTagDropdownActive, (isActive) => {
   }
 });
 
+// Load existing post data if in edit mode
+const loadPostData = async () => {
+  if (!isEditMode.value || !editPostId.value) return;
+  
+  try {
+    isLoading.value = true;
+    const response = await blogApi.getById(editPostId.value);
+    
+    // Populate form with existing data
+    postTitle.value = response.title || '';
+    postContent.value = response.content || '';
+    selectedCategory.value = response.topics || '';
+    
+    // Parse tags from comma-separated string
+    if (response.tags) {
+      selectedTags.value = response.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    }
+    
+  } catch (error) {
+    console.error('Error loading post data:', error);
+    store.dispatch('showMessage', {
+      type: 'error',
+      text: t('createForumPost.loadError')
+    });
+    // Redirect back to forum if can't load post
+    router.push('/forum');
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 onMounted(() => {
   document.addEventListener('click', handleOutsideClick, true);
+  // Load post data if in edit mode
+  if (isEditMode.value) {
+    loadPostData();
+  }
 });
 
 onUnmounted(() => {
@@ -236,30 +285,39 @@ const handleSubmit = async (event) => {
       tags: selectedTags.value.length > 0 ? selectedTags.value.join(', ') : '', // Convert array to comma-separated string
     };
 
+    let response;
+    let resultBlog;
 
+    if (isEditMode.value) {
+      // Update existing blog post
+      response = await blogApi.update(editPostId.value, blogDTO);
+      resultBlog = response; // Update API returns BlogDTO directly
+      
+      // Show success message
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: t('createForumPost.updateSuccess')
+      });
+    } else {
+      // Create new blog post
+      response = await blogApi.create(blogDTO);
+      resultBlog = response.data; // Create API returns { message, data }
+      
+      // Show success message
+      store.dispatch('showMessage', {
+        type: 'success',
+        text: response.message || t('createForumPost.createSuccess')
+      });
+    }
 
-    // Call API to create blog post
-    const response = await blogApi.create(blogDTO);
-
-
-    // Extract blog data from response
-    // Response format: { message: "Đăng bài thành công!", data: BlogDTO }
-    const createdBlog = response.data;
-
-    // Show success message
-    store.dispatch('showMessage', {
-      type: 'success',
-      text: response.message || t('createForumPost.createSuccess')
-    });
-
-    // Navigate to the newly created post detail page
-    await router.push(`/forum/post/${createdBlog.id}`);
+    // Navigate to the post detail page
+    await router.push(`/forum/post/${resultBlog.id}`);
 
   } catch (error) {
-    console.error('Error creating blog post:', error);
+    console.error(`Error ${isEditMode.value ? 'updating' : 'creating'} blog post:`, error);
     
     // Handle different error scenarios
-    let errorMessage = t('createForumPost.createError');
+    let errorMessage = isEditMode.value ? t('createForumPost.updateError') : t('createForumPost.createError');
     
     if (error.message) {
       errorMessage = error.message;

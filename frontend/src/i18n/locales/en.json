@@ -772,6 +772,8 @@
   "createForumPost": {
     "title": "Create New Post",
     "subtitle": "Share your knowledge and questions with the community",
+    "editTitle": "Edit Post",
+    "editSubtitle": "Update your post content",
     "titleLabel": "Title",
     "titlePlaceholder": "Enter an engaging title for your post...",
     "categoryLabel": "Category",
@@ -786,6 +788,9 @@
     "cancel": "Cancel",
     "posting": "Posting...",
     "post": "Post",
+    "updating": "Updating...",
+    "update": "Update",
+    "loadingPost": "Loading post...",
     "categories": {
       "word": "Vocabulary",
       "kanji": "Kanji",
@@ -810,7 +815,10 @@
     "fillAllFields": "Please fill in all required fields",
     "loginRequired": "Please login to create a post",
     "createSuccess": "Post created successfully!",
-    "createError": "Failed to create post"
+    "createError": "Failed to create post",
+    "updateSuccess": "Post updated successfully!",
+    "updateError": "Failed to update post",
+    "loadError": "Failed to load post data"
   },
   "forumPostDetail": {
     "loading": "Loading...",

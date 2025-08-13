@@ -730,6 +730,8 @@
   "createForumPost": {
     "title": "新しい投稿を作成",
     "subtitle": "コミュニティと知識や質問を共有しましょう",
+    "editTitle": "投稿を編集",
+    "editSubtitle": "投稿内容を更新",
     "titleLabel": "タイトル",
     "titlePlaceholder": "投稿の魅力的なタイトルを入力してください...",
     "categoryLabel": "カテゴリ",
@@ -744,6 +746,9 @@
     "cancel": "キャンセル",
     "posting": "投稿中...",
     "post": "投稿",
+    "updating": "更新中...",
+    "update": "更新",
+    "loadingPost": "投稿を読み込み中...",
     "categories": {
       "word": "語彙",
       "kanji": "漢字",
@@ -768,7 +773,10 @@
     "fillAllFields": "すべての必須フィールドを入力してください",
     "loginRequired": "投稿するにはログインしてください",
     "createSuccess": "投稿が正常に作成されました！",
-    "createError": "投稿の作成に失敗しました"
+    "createError": "投稿の作成に失敗しました",
+    "updateSuccess": "投稿が正常に更新されました！",
+    "updateError": "投稿の更新に失敗しました",
+    "loadError": "投稿データの読み込みに失敗しました"
   },
   "forumPostDetail": {
     "loading": "読み込み中...",

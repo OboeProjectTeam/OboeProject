@@ -84,9 +84,9 @@
         </div>
 
         <div class="chat-input">
-          <button class="attachment-btn">
+          <!-- <button class="attachment-btn">
             <i class="fas fa-paperclip"></i>
-          </button>
+          </button> -->
           <input type="text" 
                  v-model="newMessage" 
                  :placeholder="t('myMessages.messagePlaceholder')"
