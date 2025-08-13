@@ -84,15 +84,17 @@ Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết 
 ## 🏗️ Tổng quan hạ tầng hệ thống
 
 ```
-                                        S3/MySQL
+                                          S3/MySQL
                                        (IAM Role)
-                                          ↑
+                                          .
+                                          .
+                                          .
 Internet → CloudFront → Application →     EC2      →     CloudWatch
            (WAF)        Load Balancer   AutoScaling          ↓
                                         Group          SNS Notifications
-                                          ↓
+                                          ↑
                                     Security Groups
-                                          ↓
+                                          ↑
                                         Lambda
 ```
 
