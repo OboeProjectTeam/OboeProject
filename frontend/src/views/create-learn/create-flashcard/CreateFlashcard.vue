@@ -130,7 +130,7 @@ const AUTO_SAVE_DELAY = 1000 // 1 second
 const title = ref('')
 const description = ref('')
 const cards = ref([
-  { front: '', back: '' }
+  { front: '', back: '', type: 'word' }
 ])
 const showImport = ref(false)
 const importText = ref('')
@@ -172,19 +172,44 @@ onMounted(() => {
         
         // Convert learning items to cards format
         if (state.items && Array.isArray(state.items) && state.items.length > 0) {
-          cards.value = state.items.map(item => ({
-            front: item.content || item.kanji || '',
-            back: item.backcontent || item.meaning || ''
-          }))
+          cards.value = state.items.map(item => {
+            // Handle different item types like in FlashcardLearn getItemContent
+            let frontContent, backContent;
+            
+            switch (item.type) {
+              case 'kanji':
+                frontContent = item.kanji || item.content || '';
+                backContent = item.kanjiname || item.backcontent || item.meaning || '';
+                break;
+              case 'grammar':
+                frontContent = item.kana || item.content || '';
+                backContent = item.meaning || item.backcontent || '';
+                break;
+              case 'sentence':
+                frontContent = item.sentence || item.content || '';
+                backContent = item.translation || item.backcontent || '';
+                break;
+              case 'word':
+              default:
+                frontContent = item.content || item.kanji || item.front || '';
+                backContent = item.backcontent || item.meaning || item.back || '';
+            }
+            
+            return {
+               front: frontContent,
+               back: backContent,
+               type: item.type || 'word' // Preserve original type
+             };
+          })
         } else {
-          cards.value = [{ front: '', back: '' }]
+          cards.value = [{ front: '', back: '', type: 'word' }]
         }
         
         isEditing.value = true
       } catch (error) {
         console.error('Error loading learning state:', error)
         // Fallback to empty card on error
-        cards.value = [{ front: '', back: '' }]
+        cards.value = [{ front: '', back: '', type: 'word' }]
       }
     } else {
       // Set default empty card if no state found
@@ -198,10 +223,10 @@ onMounted(() => {
         const state = JSON.parse(savedState)
         title.value = state.title || ''
         description.value = state.description || ''
-        cards.value = state.cards || [{ front: '', back: '' }]
+        cards.value = state.cards || [{ front: '', back: '', type: 'word' }]
       } catch (error) {
         console.error('Error loading draft state:', error)
-        cards.value = [{ front: '', back: '' }]
+        cards.value = [{ front: '', back: '', type: 'word' }]
       }
     }
   }
@@ -287,7 +312,7 @@ const processImport = () => {
 }
 
 const addCard = () => {
-  cards.value.push({ front: '', back: '' })
+  cards.value.push({ front: '', back: '', type: 'word' })
 }
 
 const removeCard = (index) => {
@@ -364,13 +389,47 @@ const saveFlashcard = async () => {
     // Navigate based on source
     if (fromLearningPage.value) {
       // Convert updated flashcard response to format expected by FlashcardLearn
-      const updatedItems = response.cardItems ? response.cardItems.map((item, index) => ({
-        id: `item-${index}-${item.word}`,
-        content: item.word,
-        backcontent: item.meaning,
-        type: 'word',
-        status: 'learning'
-      })) : [];
+      const updatedItems = response.cardItems ? response.cardItems.map((item, index) => {
+        // Try to preserve original type from cards if available
+        const originalCard = cards.value[index];
+        const itemType = originalCard?.type || 'word';
+        
+        // Map back to proper format based on type
+        let mappedItem = {
+          id: `item-${index}-${item.word}`,
+          type: itemType,
+          status: 'learning'
+        };
+        
+        switch (itemType) {
+          case 'kanji':
+            mappedItem.kanji = item.word;
+            mappedItem.kanjiname = item.meaning;
+            mappedItem.content = item.word;
+            mappedItem.backcontent = item.meaning;
+            break;
+          case 'grammar':
+            mappedItem.kana = item.word;
+            mappedItem.meaning = item.meaning;
+            mappedItem.content = item.word;
+            mappedItem.backcontent = item.meaning;
+            break;
+          case 'sentence':
+            mappedItem.sentence = item.word;
+            mappedItem.translation = item.meaning;
+            mappedItem.content = item.word;
+            mappedItem.backcontent = item.meaning;
+            break;
+          case 'word':
+          default:
+            mappedItem.content = item.word;
+            mappedItem.backcontent = item.meaning;
+            mappedItem.kanji = item.word;
+            mappedItem.meaning = item.meaning;
+        }
+        
+        return mappedItem;
+      }) : [];
 
       // Update store with new items
       await store.dispatch('flashcard/setLearningItems', updatedItems);

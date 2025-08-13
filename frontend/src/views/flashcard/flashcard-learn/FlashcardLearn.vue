@@ -1296,10 +1296,32 @@ const updateCounts = () => {
 };
 // Helpers for getting item content
 const getItemContent = (item) => {
-  return item.content || item.kanji || '';
+  // Handle different item types like in slides mapping
+  switch (item.type) {
+    case 'kanji':
+      return item.kanji || item.content || '';
+    case 'grammar':
+      return item.kana || item.content || '';
+    case 'sentence':
+      return item.sentence || item.content || '';
+    case 'word':
+    default:
+      return item.content || item.kanji || item.front || '';
+  }
 };
 const getItemDefinition = (item) => {
-  return item.backcontent || item.meaning || '';
+  // Handle different item types like in slides mapping
+  switch (item.type) {
+    case 'kanji':
+      return item.kanjiname || item.backcontent || item.meaning || '';
+    case 'grammar':
+      return item.meaning || item.backcontent || '';
+    case 'sentence':
+      return item.translation || item.backcontent || '';
+    case 'word':
+    default:
+      return item.backcontent || item.meaning || item.back || '';
+  }
 };
 // Add unique IDs to items
 const addIdsToItems = (items) => {
