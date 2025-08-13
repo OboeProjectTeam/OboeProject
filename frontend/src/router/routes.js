@@ -13,10 +13,10 @@ import CreateQuiz from '@/views/create-learn/create-quiz/CreateQuiz.vue'
 import Library from '@/views/self/my-library/MyLibrary.vue'
 import FlashcardTest from '@/views/flashcard/flashcard-test/FlashcardTest.vue'
 import FlashcardMatch from '@/views/flashcard/flashcard-match/FlashcardMatch.vue'
-import TheForum from "../views/forum/forum-home/TheForum.vue";
-import ForumPostDetail from "../views/forum/forum-post-detail/ForumPostDetail.vue";
-import CreateForumPost from "../views/forum/forum-post-create/CreateForumPost.vue";
-import ProfileDetail from "../views/forum/forum-profile/ForumProfile.vue";
+import TheForum from "@/views/forum/forum-home/TheForum.vue";
+import ForumPostDetail from "@/views/forum/forum-post-detail/ForumPostDetail.vue";
+import CreateForumPost from "@/views/forum/forum-post-create/CreateForumPost.vue";
+import ProfileDetail from "@/views/forum/forum-profile/ForumProfile.vue";
 import MyProfile from '@/views/self/my-profile/MyProfile.vue';
 import TheSettings from '@/views/self/my-settings/TheSettings.vue';
 import TheUpgrade from '@/views/pay-fee/upgrade/TheUpgrade.vue';
@@ -67,6 +67,14 @@ const routes = [
   {
     path: "/forum/post/create",
     name: "CreateForumPost",
+    component: CreateForumPost,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: "/forum/edit/:id",
+    name: "EditForumPost",
     component: CreateForumPost,
     meta: {
       requiresAuth: true
