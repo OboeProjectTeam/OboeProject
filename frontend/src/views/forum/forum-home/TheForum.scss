@@ -410,10 +410,10 @@
         }
 
         .post-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin: 0 0 5px 0;
             text-decoration: none;
-            color: #343a40;
+            color: #808991;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -432,8 +432,8 @@
             text-overflow: ellipsis;
             
             .author-name {
-                color: #495057;
-                font-weight: 600;
+                color: #6c757d;
+                font-weight: 500;
                 text-decoration: none;
                 &:hover {
                     text-decoration: underline;
@@ -490,8 +490,8 @@
             min-width: 0;
             
             .author-name {
-                color: #495057;
-                font-weight: 600;
+                color: #6c757d;
+                font-weight: 500;
                 text-decoration: none;
                 display: block;
                 font-size: 0.85rem;
@@ -776,5 +776,62 @@
         i {
             color: #007bff;
         }
+    }
+}
+
+// Button styles
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    text-decoration: none;
+    
+    &.btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    &.btn-outline-secondary {
+        background-color: transparent;
+        border-color: #6c757d;
+        color: #6c757d;
+        
+        &:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+    }
+    
+    &.btn-primary {
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
+        
+        &:hover {
+            background-color: $hover-btn-color;
+            border-color: $hover-btn-color;
+        }
+    }
+    
+    &.btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border-color: #6c757d;
+        
+        &:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+    }
+    
+    i {
+        font-size: 12px;
     }
 }

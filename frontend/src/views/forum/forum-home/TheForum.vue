@@ -23,7 +23,7 @@
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-primary create-post-btn" @click="goToCreatePost">
+                    <button class="btn-primary create-post-btn" @click="goToCreatePost">
                         <i class="fas fa-edit"></i> {{ t('forum.createNewPost') }}
                     </button>
                 </div>
@@ -231,13 +231,13 @@ const isSearching = ref(false);
 // --- DATA ---
 const categories = computed(() => [
     { id: 'all', name: t('forum.categories.all'), color: '' },
-    { id: 'word', name: t('forum.categories.word'), color: '#28a745' },
-    { id: 'kanji', name: t('forum.categories.kanji'), color: '#17a2b8' },
-    { id: 'grammar', name: t('forum.categories.grammar'), color: '#fd7e14' },
-    { id: 'jlpt', name: t('forum.categories.jlpt'), color: '#007bff' },
-    { id: 'communication', name: t('forum.categories.communication'), color: '#6f42c1' },
-    { id: 'life-in-japan', name: t('forum.categories.lifeInJapan'), color: '#dc3545' },
-    { id: 'other', name: t('forum.categories.other'), color: '#6c757d' }
+    { id: 'word', name: t('forum.categories.word'), color: '#b90449' },
+    { id: 'kanji', name: t('forum.categories.kanji'), color: '#b90449' },
+    { id: 'grammar', name: t('forum.categories.grammar'), color: '#b90449' },
+    { id: 'jlpt', name: t('forum.categories.jlpt'), color: '#b90449' },
+    { id: 'communication', name: t('forum.categories.communication'), color: '#b90449' },
+    { id: 'life-in-japan', name: t('forum.categories.lifeInJapan'), color: '#b90449' },
+    { id: 'other', name: t('forum.categories.other'), color: '#b90449' }
 ]);
 
 // --- API FUNCTIONS ---
