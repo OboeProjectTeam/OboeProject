@@ -299,7 +299,7 @@
 
         <div class="next-steps">
           <h3>{{ t('flashcard.nextSteps') }}</h3>
-          <button class="practice-btn">
+          <button class="practice-btn" @click="startPracticeTest">
             <i class="fas fa-sync-alt"></i>
             {{ t('flashcard.practiceWithQuestions') }}
           </button>
@@ -774,6 +774,16 @@ const startTest = async () => {
     console.error('Error in startTest:', err);
   }
 };
+
+// Hàm bắt đầu luyện tập với câu hỏi trắc nghiệm
+const startPracticeTest = async () => {
+  resetCards();
+  // Đợi một chút để đảm bảo swiper đã cập nhật xong
+  await new Promise(resolve => setTimeout(resolve, 100));
+  selectedTestType.value = 'multiple-choice';
+  await startTest();
+};
+
 // Xử lý sự kiện thay đổi kích thước màn hình
 const handleResize = () => {
   if (typeof window !== 'undefined') {

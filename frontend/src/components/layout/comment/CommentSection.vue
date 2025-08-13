@@ -9,7 +9,7 @@
         :placeholder="t('comments.placeholder')"
         rows="3"
       ></textarea>
-      <button @click="submitComment" :disabled="!newComment.trim() || isSubmitting">
+      <button @click="handleSubmitComment" :disabled="!newComment.trim() || isSubmitting">
         <i v-if="isSubmitting" class="fas fa-spinner"></i>
         <i v-else class="fas fa-paper-plane"></i>
         {{ isSubmitting ? t('comments.submitting') : t('comments.submit') }}
@@ -60,15 +60,30 @@
         </div>
       </div>
     </div>
+    
+    <!-- Popup thông báo đăng nhập -->
+    <ThePopup
+      v-if="showLoginPopup"
+      title="Yêu cầu đăng nhập"
+      message="Bạn cần đăng nhập để có thể bình luận. Vui lòng đăng nhập để tiếp tục."
+      confirmText="Đăng nhập"
+      @confirm="goToLogin"
+      @cancel="closeLoginPopup"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
 import commentApi from '@/api/modules/commentApi'
+import ThePopup from '@/components/common/popup/ThePopup.vue'
 
 const { t } = useI18n()
+const store = useStore()
+const router = useRouter()
 
 const props = defineProps({
   type: {
@@ -90,6 +105,10 @@ const isLoadingMore = ref(false)
 const currentPage = ref(0)
 const totalPages = ref(0)
 const pageSize = ref(5)
+const showLoginPopup = ref(false)
+
+// Computed property to check authentication
+const isAuthenticated = computed(() => store.getters['auth/isAuthenticated'])
 
 // Computed property to check if there are more comments to load
 const hasMore = computed(() => currentPage.value < totalPages.value - 1)
@@ -157,6 +176,15 @@ const loadMoreComments = () => {
   }
 }
 
+// Function to handle submit comment with authentication check
+const handleSubmitComment = () => {
+  if (!isAuthenticated.value) {
+    showLoginPopup.value = true
+    return
+  }
+  submitComment()
+}
+
 // Function to submit comment
 const submitComment = async () => {
   if (!newComment.value.trim() || isSubmitting.value) return
@@ -183,6 +211,17 @@ const submitComment = async () => {
   } finally {
     isSubmitting.value = false
   }
+}
+
+// Function to navigate to login page
+const goToLogin = () => {
+  showLoginPopup.value = false
+  router.push('/login')
+}
+
+// Function to close login popup
+const closeLoginPopup = () => {
+  showLoginPopup.value = false
 }
 
 // Load comments on component mount

@@ -225,6 +225,10 @@ const returnToLearnPage = () => {
   // FlashcardLearn component should handle restoring its state
 };
 
+const goBackToLearn = () => {
+  returnToLearnPage();
+};
+
 const confirmExitToLearn = () => {
   returnToLearnPage();
 };
