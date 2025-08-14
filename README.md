@@ -16,8 +16,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/OboeProjectTeam/OboeProject?style=flat-square)](https://github.com/OboeProjectTeam/OboeProject/commit/c3992644ed95553599aa80b8ca847e05a384074c)
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-oboeru.me-blue?style=for-the-badge)](https://oboeru.me)
-[![Documentation](https://docs.google.com/document/d/11EFWQbEjcnAbDQ1XEmVn_tXmRUQYTJ95AEogeqGV4zA/edit?fbclid=IwY2xjawMK-bZleHRuA2FlbQIxMABicmlkETFWTzNjM2dWN0VXNW5TSUxUAR7iDreKfoapXIOQJEJWelf-dgNiN0sdRvnL2gAYALlksOn-5jfeCJprJVAg7A_aem_GNqs4xhYb19-8Zcr8869mA&tab=t.0)
-
+[![Documentation](https://img.shields.io/badge/📚_Documentation-GitHub-green?style=for-the-badge)](https://docs.google.com/document/d/11EFWQbEjcnAbDQ1XEmVn_tXmRUQYTJ95AEogeqGV4zA/edit?fbclid=IwY2xjawMK-bZleHRuA2FlbQIxMABicmlkETFWTzNjM2dWN0VXNW5TSUxUAR7iDreKfoapXIOQJEJWelf-dgNiN0sdRvnL2gAYALlksOn-5jfeCJprJVAg7A_aem_GNqs4xhYb19-8Zcr8869mA&tab=t.0)
 </div>
 
 Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết kế để giúp người học tiếp cận ngôn ngữ này một cách hiệu quả và cá nhân hóa.
