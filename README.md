@@ -16,14 +16,30 @@
 [![Last Commit](https://img.shields.io/github/last-commit/OboeProjectTeam/OboeProject?style=flat-square)](https://github.com/OboeProjectTeam/OboeProject/commit/c3992644ed95553599aa80b8ca847e05a384074c)
 
 [![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-oboeru.me-blue?style=for-the-badge)](https://oboeru.me)
-[![Documentation](https://img.shields.io/badge/📚_Documentation-GitHub-green?style=for-the-badge)](https://github.com/OboeProjectTeam/OboeProject)
+[![Documentation](https://docs.google.com/document/d/11EFWQbEjcnAbDQ1XEmVn_tXmRUQYTJ95AEogeqGV4zA/edit?fbclid=IwY2xjawMK-bZleHRuA2FlbQIxMABicmlkETFWTzNjM2dWN0VXNW5TSUxUAR7iDreKfoapXIOQJEJWelf-dgNiN0sdRvnL2gAYALlksOn-5jfeCJprJVAg7A_aem_GNqs4xhYb19-8Zcr8869mA&tab=t.0)
 
 </div>
 
 Oboe là một nền tảng học tiếng Nhật toàn diện, được thiết kế để giúp người học tiếp cận ngôn ngữ này một cách hiệu quả và cá nhân hóa.
 
+## 📄 Tài liệu SRS
+
+📋 **Tài liệu đặc tả yêu cầu phần mềm (Software Requirements Specification)**
+
+Tài liệu SRS chi tiết mô tả các yêu cầu chức năng, phi chức năng, use case, giao diện người dùng và kiến trúc hệ thống của dự án Oboe.
+
+🔗 **[Xem tài liệu SRS đầy đủ](https://docs.google.com/document/d/11EFWQbEjcnAbDQ1XEmVn_tXmRUQYTJ95AEogeqGV4zA/edit?fbclid=IwY2xjawMK-bZleHRuA2FlbQIxMABicmlkETFWTzNjM2dWN0VXNW5TSUxUAR7iDreKfoapXIOQJEJWelf-dgNiN0sdRvnL2gAYALlksOn-5jfeCJprJVAg7A_aem_GNqs4xhYb19-8Zcr8869mA&tab=t.0)**
+
+### Nội dung chính:
+- 📊 Phân tích yêu cầu hệ thống
+- 🎯 Danh sách Use Case chi tiết
+- 🖼️ Thiết kế giao diện người dùng
+- 🏗️ Kiến trúc và đặc tả chức năng
+- 🧪 Kế hoạch kiểm thử
+
 ## 📋 Mục lục
 
+- [📄 Tài liệu SRS](#-tài-liệu-srs)
 - [✨ Tính năng nổi bật](#-tính-năng-nổi-bật)
 - [🚀 Công nghệ sử dụng](#-công-nghệ-sử-dụng)
 - [🏗️ Tổng quan hạ tầng hệ thống](#️-tổng-quan-hạ-tầng-hệ-thống)
