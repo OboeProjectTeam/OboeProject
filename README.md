@@ -277,8 +277,8 @@ docker run -p 8080:8080 oboe-backend
 |------------|--------|---------|-------------|
 | **Tô Trung Tôn** | [@trungton08072004](https://github.com/trungton08072004) | **Project Manager** | • Project Management & Timeline<br>• Human Resource Management<br>• SRS (Software Requirements Specification)<br>• Use Cases & User Stories<br>• API Documentation<br>• Test Cases & Test Plans<br>• Backend Support |
 | **Hoàng Công Du** | [@hoangdu999](https://github.com/hoangdu999) | **Tech Lead** | • Frontend Development (Vue 3, TailwindCSS)<br>• DevOps & Infrastructure (AWS EC2, CloudFront, WAF)<br>• CI/CD Pipeline (GitHub Actions)<br>• Technical Support & Code Review<br>• Architecture Design |
-| **Nguyễn Hữu Nghĩa** | [@HuuNghia1301](https://github.com/HuuNghia1301) | **Backend Developer** | • Core Backend Development (Spring Boot)<br>• REST API Implementation<br>• Business Logic & Services<br>• Security & Authentication (JWT)<br>• Integration with External APIs |
-| **Nguyễn Minh Tuấn** | [@tuanct413](https://github.com/tuanct413) | **Backend Developer** | • Backend Development (Spring Boot)<br>• Database Integration (JPA/Hibernate)<br>• Payment Integration (MoMo, PayOS)<br>• WebSocket Real-time Features<br>• Email Services |
+| **Nguyễn Hữu Nghĩa** | [@HuuNghia1301](https://github.com/HuuNghia1301) | **Backend Developer** | • Core Backend Development (Spring Boot)<br>• REST API Implementation<br>• Business Logic & Services<br>• Security & Authentication (JWT)<br>• Integration with External APIs<br>• Email Services<br>• Payment Integration (MoMo, PayOS) |
+| **Nguyễn Minh Tuấn** | [@tuanct413](https://github.com/tuanct413) | **Backend Developer** | • Backend Development (Spring Boot)<br>• Database Integration <br>• WebSocket Real-time Features |
 | **Bùi Thành Vương** | [@wuong161104](https://github.com/wuong161104) | **Database & AI Developer** | • Database Design & Architecture<br>• Data Modeling & Migration<br>• Sample Data Creation & Seeding<br>• AI Integration (Gemini API)<br>• Machine Learning Features |
 
 ### 🎯 **Phân công chi tiết**
